@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Local runtime state (regenerable; raw corpus lives elsewhere, never committed)
+data/
+*.duckdb
+*.duckdb.wal
+*.lance/
+
+# Secrets never live in the repo — Keychain/env only (Invariant 10). Belt and suspenders:
+.env
+*.secret
+
+# OS / packaging cruft
+.DS_Store
+mind-palace.zip

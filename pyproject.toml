@@ -1,0 +1,33 @@
+[project]
+name = "mind-palace"
+version = "0.0.0"
+description = "Sealed, offline-first personal AI — a mind palace. Built phase by phase."
+requires-python = ">=3.11"
+# Runtime deps are intentionally minimal. The sealed core (Zone A) must not pull in
+# any package that can reach the network (CONVENTIONS: "no import path that can reach
+# the network"); HTTP to the local Ollama server uses the stdlib only.
+dependencies = [
+    "duckdb>=1.0",   # telemetry store (embedded, no daemon)
+    "psutil>=5.9",   # system vitals (memory headroom, cpu, load)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+
+[tool.pytest.ini_options]
+# Top-level zone packages (core/, edge/, …) are importable without an editable install.
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "live: requires a running Ollama server and pulled models (deselect: -m 'not live')",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

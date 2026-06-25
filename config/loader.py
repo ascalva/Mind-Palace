@@ -1,0 +1,123 @@
+"""Load non-secret configuration into frozen, typed dataclasses.
+
+Secrets are never stored here. `get_secret` is the single sanctioned access point for
+later phases, and reads the environment (Keychain-backed in the owner's setup) only.
+"""
+
+from __future__ import annotations
+
+import os
+import tomllib
+from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULTS = Path(__file__).resolve().parent / "defaults.toml"
+
+
+@dataclass(frozen=True)
+class OllamaConfig:
+    host: str
+    port: int
+    default_keep_alive: str
+    request_timeout_s: int
+
+    @property
+    def base_url(self) -> str:
+        return f"http://{self.host}:{self.port}"
+
+
+@dataclass(frozen=True)
+class ResourceConfig:
+    usable_ram_gb: float
+    max_resident_models: int
+
+
+@dataclass(frozen=True)
+class PathsConfig:
+    data_dir: Path
+    telemetry_db: Path
+
+
+@dataclass(frozen=True)
+class ModelConfig:
+    name: str
+    tier: str
+    pinned: bool
+    resident_gb: float
+    num_ctx: int
+    evicts_pinned: bool = False
+
+
+@dataclass(frozen=True)
+class Config:
+    ollama: OllamaConfig
+    resources: ResourceConfig
+    paths: PathsConfig
+    models: tuple[ModelConfig, ...]
+
+    def model_for_tier(self, tier: str) -> ModelConfig:
+        for m in self.models:
+            if m.tier == tier:
+                return m
+        raise KeyError(f"no model configured for tier {tier!r}")
+
+    @property
+    def pinned_model(self) -> ModelConfig:
+        for m in self.models:
+            if m.pinned:
+                return m
+        raise KeyError("no pinned model configured")
+
+
+def _resolve(p: str) -> Path:
+    path = Path(p)
+    return path if path.is_absolute() else REPO_ROOT / path
+
+
+def load_config(path: Path | None = None) -> Config:
+    raw = tomllib.loads((path or _DEFAULTS).read_text(encoding="utf-8"))
+    o, r, p = raw["ollama"], raw["resources"], raw["paths"]
+    return Config(
+        ollama=OllamaConfig(
+            host=o["host"],
+            port=int(o["port"]),
+            default_keep_alive=str(o["default_keep_alive"]),
+            request_timeout_s=int(o["request_timeout_s"]),
+        ),
+        resources=ResourceConfig(
+            usable_ram_gb=float(r["usable_ram_gb"]),
+            max_resident_models=int(r["max_resident_models"]),
+        ),
+        paths=PathsConfig(
+            data_dir=_resolve(p["data_dir"]),
+            telemetry_db=_resolve(p["telemetry_db"]),
+        ),
+        models=tuple(
+            ModelConfig(
+                name=m["name"],
+                tier=m["tier"],
+                pinned=bool(m.get("pinned", False)),
+                resident_gb=float(m["resident_gb"]),
+                num_ctx=int(m["num_ctx"]),
+                evicts_pinned=bool(m.get("evicts_pinned", False)),
+            )
+            for m in raw["models"]
+        ),
+    )
+
+
+@lru_cache(maxsize=1)
+def get_config() -> Config:
+    return load_config()
+
+
+def get_secret(name: str) -> str | None:
+    """Fetch a secret from the environment (Keychain-backed in the owner's setup).
+
+    Secrets are NEVER stored in config files or committed, and never passed to a model
+    (Invariant 10). No secrets are required in Phase 0; this exists as the single
+    sanctioned access point for later phases.
+    """
+    return os.environ.get(name)
