@@ -76,6 +76,15 @@ class OllamaClient:
         """Evict a model now (keep_alive=0)."""
         self._post("/api/generate", {"model": model, "keep_alive": 0})
 
+    # --- embeddings --------------------------------------------------------------
+    def embed(self, model: str, inputs: list[str], *,
+              keep_alive: str | int | None = None) -> list[list[float]]:
+        """Batch-embed `inputs`. Returns one vector per input, order preserved."""
+        payload: dict[str, Any] = {"model": model, "input": inputs}
+        if keep_alive is not None:
+            payload["keep_alive"] = keep_alive
+        return self._post("/api/embed", payload).get("embeddings", [])
+
     # --- inference ---------------------------------------------------------------
     def chat(self, model: str, messages: list[Message], *,
              num_ctx: int | None = None, temperature: float | None = None,

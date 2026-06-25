@@ -20,7 +20,13 @@
       "Bash(ollama pull *)",
       "Bash(./.venv/bin/pytest -q -m live -s)",
       "Bash(./.venv/bin/python -)",
-      "Bash(./.venv/bin/pytest -q)"
+      "Bash(./.venv/bin/pytest -q)",
+      "Bash(./.venv/bin/pip install *)",
+      "Bash(./.venv/bin/python -c \"import lancedb, pyarrow; print\\('lancedb', lancedb.__version__, '| pyarrow', pyarrow.__version__\\)\")",
+      "Bash(./.venv/bin/pytest -q -m live)",
+      "Bash(./.venv/bin/pytest -q -W ignore::DeprecationWarning)",
+      "Bash(./.venv/bin/python scripts/ingest.py)",
+      "Read(//Users/ascalva/**)"
     ]
   }
 }

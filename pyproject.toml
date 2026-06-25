@@ -7,8 +7,9 @@ requires-python = ">=3.11"
 # any package that can reach the network (CONVENTIONS: "no import path that can reach
 # the network"); HTTP to the local Ollama server uses the stdlib only.
 dependencies = [
-    "duckdb>=1.0",   # telemetry store (embedded, no daemon)
-    "psutil>=5.9",   # system vitals (memory headroom, cpu, load)
+    "duckdb>=1.0",    # telemetry store (embedded, no daemon)
+    "psutil>=5.9",    # system vitals (memory headroom, cpu, load)
+    "lancedb>=0.10",  # thought-graph vectors (embedded, no daemon)
 ]
 
 [project.optional-dependencies]
@@ -23,6 +24,10 @@ pythonpath = ["."]
 testpaths = ["tests"]
 markers = [
     "live: requires a running Ollama server and pulled models (deselect: -m 'not live')",
+]
+filterwarnings = [
+    # LanceDB calls its own deprecated table_names() internally; not our code.
+    "ignore:.*table_names.*:DeprecationWarning",
 ]
 
 [tool.ruff]

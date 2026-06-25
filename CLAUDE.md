@@ -52,6 +52,6 @@ docs/    BUILD-SPEC.md, PROGRESS.md (build log)
 Keep `core/` free of any import that can reach the network.
 
 ## Current phase
-> Phase: 0 COMPLETE (2026-06-25) — verified against gate. Next: Phase 1 (Stores & ingest). Update this line as phases complete.
+> Phase: 1 COMPLETE (2026-06-25) — verified against gate (36/36). Real corpus ingested: `~/.mind-palace/vault` (118 notes, 914 chunks/vectors via qwen3-embedding:4b). Next: Phase 2 (Librarian + golden set + behavioral check). Update this line as phases complete.
 ```
 

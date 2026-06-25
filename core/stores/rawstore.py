@@ -1,0 +1,49 @@
+"""Content-addressed immutable raw store (BUILD-SPEC §8: "raw is sacred").
+
+Every ingested input is stored verbatim under the SHA-256 of its bytes. The hash is the
+identity: identical content stores once (dedup for free), and an object is never
+rewritten or summarized away — derived representations (embeddings, summaries, links) are
+regenerated from here if a model or strategy changes. This verbatim original is the
+source of truth the frozen anchors protect.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from dataclasses import dataclass
+from pathlib import Path
+
+
+@dataclass
+class RawStore:
+    root: Path
+
+    def __post_init__(self) -> None:
+        self.root.mkdir(parents=True, exist_ok=True)
+
+    def _path(self, digest: str) -> Path:
+        # Shard by the first byte to keep directories small.
+        return self.root / digest[:2] / digest
+
+    def add(self, data: bytes) -> tuple[str, bool]:
+        """Store bytes; return (digest, is_new). Idempotent: re-adding identical content
+        is a no-op and reports is_new=False — that boolean is the dedup signal."""
+        digest = hashlib.sha256(data).hexdigest()
+        p = self._path(digest)
+        if p.exists():
+            return digest, False
+        p.parent.mkdir(parents=True, exist_ok=True)
+        # Write-then-rename: atomic, and never overwrites an existing immutable object.
+        tmp = p.with_name(p.name + ".tmp")
+        tmp.write_bytes(data)
+        tmp.replace(p)
+        return digest, True
+
+    def add_text(self, text: str) -> tuple[str, bool]:
+        return self.add(text.encode("utf-8"))
+
+    def get(self, digest: str) -> bytes:
+        return self._path(digest).read_bytes()
+
+    def exists(self, digest: str) -> bool:
+        return self._path(digest).exists()

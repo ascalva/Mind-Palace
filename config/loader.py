@@ -38,6 +38,21 @@ class ResourceConfig:
 class PathsConfig:
     data_dir: Path
     telemetry_db: Path
+    raw_store: Path
+    vector_store: Path
+
+
+@dataclass(frozen=True)
+class VaultConfig:
+    path: Path
+    pattern: str
+
+
+@dataclass(frozen=True)
+class EmbeddingConfig:
+    model: str
+    dim: int
+    query_instruction: str
 
 
 @dataclass(frozen=True)
@@ -55,6 +70,8 @@ class Config:
     ollama: OllamaConfig
     resources: ResourceConfig
     paths: PathsConfig
+    vault: VaultConfig
+    embedding: EmbeddingConfig
     models: tuple[ModelConfig, ...]
 
     def model_for_tier(self, tier: str) -> ModelConfig:
@@ -79,6 +96,7 @@ def _resolve(p: str) -> Path:
 def load_config(path: Path | None = None) -> Config:
     raw = tomllib.loads((path or _DEFAULTS).read_text(encoding="utf-8"))
     o, r, p = raw["ollama"], raw["resources"], raw["paths"]
+    v, e = raw["vault"], raw["embedding"]
     return Config(
         ollama=OllamaConfig(
             host=o["host"],
@@ -93,6 +111,18 @@ def load_config(path: Path | None = None) -> Config:
         paths=PathsConfig(
             data_dir=_resolve(p["data_dir"]),
             telemetry_db=_resolve(p["telemetry_db"]),
+            raw_store=_resolve(p["raw_store"]),
+            vector_store=_resolve(p["vector_store"]),
+        ),
+        vault=VaultConfig(
+            # ~ expands to $HOME; the vault is the owner's source corpus, outside the repo.
+            path=Path(v["path"]).expanduser(),
+            pattern=str(v["pattern"]),
+        ),
+        embedding=EmbeddingConfig(
+            model=str(e["model"]),
+            dim=int(e["dim"]),
+            query_instruction=str(e["query_instruction"]),
         ),
         models=tuple(
             ModelConfig(

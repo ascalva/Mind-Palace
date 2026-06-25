@@ -23,6 +23,24 @@ max_resident_models = 2
 [paths]
 data_dir = "data"
 telemetry_db = "data/telemetry.duckdb"
+raw_store = "data/raw"            # content-addressed immutable raw notes (§8)
+vector_store = "data/vectors.lance"  # LanceDB thought-graph vectors (derived, regenerable)
+
+[vault]
+# The SOURCE corpus the system ingests FROM — read-only, AUTHORED, never committed.
+# `~` expands to $HOME. Point at a Logseq/Obsidian markdown vault, or export notes here.
+# (§20.8: narrow `pattern`, or point `path` at a subgraph, to scope which notes ingest.)
+path = "~/.mind-palace/vault"
+pattern = "**/*.md"
+
+[embedding]
+# Embedding quality is load-bearing (retrieval, dreaming, matching) — owner chose the
+# higher-quality tier. Dimension is read here so re-embedding from raw (§8) on a model
+# change is a config edit, not a rewrite.
+model = "qwen3-embedding:4b"
+dim = 2560
+# Qwen3-Embedding is instruction-aware on the QUERY side; documents embed plain.
+query_instruction = "Given a question, retrieve the owner's notes relevant to it"
 
 # --- Model lineup: two-slot discipline (BUILD-SPEC §5); §20.1 resolved 2026-06-25. ---
 # Personas and per-call params are injected at REQUEST time via the Ollama API, never
