@@ -74,6 +74,16 @@ class VectorStore:
         if TABLE in self._db.list_tables().tables:
             self._db.drop_table(TABLE)
 
+    def delete(self, *, digest: str) -> None:
+        """Drop all derived rows for a source note (by its raw-store digest). Idempotent.
+
+        The incremental watcher uses this to retire stale embeddings when a note changes or is
+        deleted — derived layer only; the raw blob is untouched (§8). `digest` is a hex SHA-256
+        (no quoting hazard)."""
+        if TABLE not in self._db.list_tables().tables:
+            return
+        self._table().delete(f"digest = '{digest}'")
+
     def all_rows(self, *,
                  provenances: Iterable[Provenance] | None = None) -> list[dict[str, Any]]:
         """Full scan, optionally restricted to provenance classes — the read the dreaming

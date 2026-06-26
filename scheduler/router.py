@@ -27,6 +27,10 @@ from scheduler.queue import (
 _ROUTINE_KINDS = frozenset({"librarian", "query", "assistant", "chat", "converse"})
 _SYNTHESIS_KINDS = frozenset({"curate", "dream", "synthesize", "research", "compact"})
 _ROUTER_KINDS = frozenset({"route", "classify", "watchdog"})
+# Embed-only maintenance (incremental vault re-ingest): needs NO chat model resident — it
+# calls the embedder directly. Routed to the always-pinned tier so `ensure_tier` is a no-op
+# and the worker slot is never evicted; enqueued at BACKGROUND priority (see scheduler/vault_sync).
+_PINNED_KINDS = frozenset({"vault_sync"})
 
 
 @dataclass(frozen=True)
@@ -50,7 +54,7 @@ class Router:
     config: Config
 
     def tier_for(self, kind: str) -> str:
-        if kind in _ROUTER_KINDS:
+        if kind in _ROUTER_KINDS or kind in _PINNED_KINDS:
             return self.config.pinned_model.tier
         if kind in _SYNTHESIS_KINDS:
             return "synthesis"

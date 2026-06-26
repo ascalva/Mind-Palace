@@ -79,3 +79,54 @@ procs, provider config left at `applehv`. Decent/idle.
    only if unsupported) and set `[sandbox] runtime` accordingly. Treat rootful as a
    temporary measure; the isolation profile (no mounts, no net, caps dropped) still holds
    per-container. Revisit `--userns` for rootless-equivalent uid mapping.
+
+## Vault watcher & sync (capture path, design-notes/vault-sync-and-capture.md)
+
+How the owner feeds notes in and keeps embeddings current. **Two separable pieces:** the
+**watcher** (code, core-side, local-filesystem only) and the **sync transport** (a separate
+process — never the core).
+
+### Watcher (code — runs locally, no network)
+Re-ingests changed notes through the Phase-1 pipeline, idempotently (content-addressing):
+unchanged = no-op, changed = re-embed, deleted = **tombstone** (derived dropped, raw kept).
+```
+./.venv/bin/python scripts/watch.py     # seals the core, then watches [vault].path
+```
+Real-time via `watchdog` (FSEvents) if installed (`./.venv/bin/pip install watchdog`); without
+it the watcher **falls back to polling** every `[vault].watch_poll_interval_s`. Either way the
+trigger just enqueues a background `vault_sync` job and the supervisor runs the idempotent
+rescan — missed/duplicate events are harmless. It is core-side and reaches no network (the
+import-lint proves it); only the local filesystem and local stores are touched.
+
+### Sync transport (operational — a SEPARATE process, NOT the core)
+Keeps the vault directory current across the owner's devices. The core only watches a local
+folder; it never runs or talks to the sync daemon.
+- **Recommended: Syncthing over Tailscale** — peer-to-peer, device-to-device, encrypted, **no
+  vendor in the path**. Install Syncthing on laptop + phone; share the vault folder between
+  them; bind/announce over the Tailscale network so the devices find each other privately with
+  **no public exposure**. The owner's notes never transit a third-party server.
+- **Tailscale** is the private mesh: it gives the phone an encrypted path to the laptop, used
+  for (a) Syncthing peer sync and (b) reaching the future interface gateway (Zone B) to
+  chat-capture/query — matching the established "private default" interface posture.
+- **Vendor-transit tradeoff (flagged):** iCloud / Obsidian Sync are convenient but **transit a
+  vendor** — the same class of tradeoff as the interface-transits-third-party invariant
+  (Invariant 11). They move the owner's *own authored notes* through a third party (encrypted
+  in transit, but the vendor is in the path). Syncthing-over-Tailscale avoids that entirely;
+  the owner chooses, and the private option is recommended.
+
+### True deletion — owner-gated purge (not the watcher's default)
+A vault delete only **tombstones** (raw kept) so re-adds dedup and nothing is lost. To destroy
+the raw bytes too (genuine privacy deletion), use the deliberate, irreversible purge — refused
+unless `--confirm` is passed AND the content is held by no active note (tombstone it first):
+```
+./.venv/bin/python scripts/purge_raw.py --list                 # show purgeable (tombstoned) digests
+./.venv/bin/python scripts/purge_raw.py <digest> --confirm     # destroy raw + derived for it
+```
+
+### Verify
+- Edit a note → its embeddings update (search reflects the new content; old rows gone).
+- Delete a note → it stops surfacing in search; raw blob is retained until a purge.
+- Unchanged re-scan → no-op (no new digests, no duplicate rows).
+- `./.venv/bin/python -m ops.import_lint` → green (the watcher reaches no network).
+Cold-tested in `tests/test_vault_sync.py`, `tests/test_vault_watcher.py`,
+`tests/test_purge_raw.py`, `tests/test_vault_sync_wiring.py`.

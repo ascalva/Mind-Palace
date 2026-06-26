@@ -47,3 +47,15 @@ class RawStore:
 
     def exists(self, digest: str) -> bool:
         return self._path(digest).exists()
+
+    def delete(self, digest: str) -> bool:
+        """Remove a raw blob — the ONE deliberate exception to "raw is sacred".
+
+        Never called by the ingest or watcher path (a vault delete only TOMBSTONES — derived
+        rows dropped, raw kept). This is the owner-gated true-deletion primitive used solely by
+        the purge action (core/ingest/purge.py). Returns whether a blob was actually removed."""
+        p = self._path(digest)
+        if p.exists():
+            p.unlink()
+            return True
+        return False

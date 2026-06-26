@@ -107,7 +107,13 @@
       "Bash(.venv/bin/python -m pytest tests/test_research_live.py -q)",
       "Bash(terraform -chdir=cloud/terraform/airlock fmt -check -recursive)",
       "Bash(terraform -chdir=cloud/terraform/bootstrap fmt -check)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(.venv/bin/python -c \"import watchdog; print\\('watchdog', watchdog.VERSION_STRING if hasattr\\(watchdog,'VERSION_STRING'\\) else 'present'\\)\")",
+      "Bash(.venv/bin/python -c \"import lancedb, inspect; t=[m for m in dir\\(lancedb.table.Table\\) if 'delete' in m.lower\\(\\)]; print\\('lancedb Table delete methods:', t\\)\")",
+      "Bash(.venv/bin/python -c \"import core.models as m; print\\([n for n in dir\\(m\\) if n[0].isupper\\(\\)]\\)\")",
+      "Bash(.venv/bin/python -m pytest tests/test_vault_sync.py tests/test_vault_watcher.py tests/test_purge_raw.py tests/test_vault_sync_wiring.py -q)",
+      "Bash(.venv/bin/python -c \"from core.provenance import MIRROR_READABLE, Provenance; print\\('MIRROR_READABLE =', {p.value for p in MIRROR_READABLE}\\); print\\('Provenance values =', [p.value for p in Provenance]\\)\")",
+      "Bash(.venv/bin/python -c \"import inspect; from core.stores.derived import DerivedStore; sig=inspect.signature\\(DerivedStore.add\\); print\\('DerivedStore.add params:', list\\(sig.parameters\\)\\); print\\('has provenance param:', 'provenance' in sig.parameters\\)\")"
     ]
   }
 }

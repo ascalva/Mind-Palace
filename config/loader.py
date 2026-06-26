@@ -41,12 +41,15 @@ class PathsConfig:
     raw_store: Path
     vector_store: Path
     derived_store: Path      # INTERPRETED artifacts (dreams + curator findings), §8
+    vault_catalog: Path      # active/tombstone ledger for incremental ingest (vault-sync)
 
 
 @dataclass(frozen=True)
 class VaultConfig:
     path: Path
     pattern: str
+    watch_debounce_s: float = 1.0
+    watch_poll_interval_s: float = 5.0
 
 
 @dataclass(frozen=True)
@@ -176,11 +179,14 @@ def load_config(path: Path | None = None) -> Config:
             raw_store=_resolve(p["raw_store"]),
             vector_store=_resolve(p["vector_store"]),
             derived_store=_resolve(p["derived_store"]),
+            vault_catalog=_resolve(p["vault_catalog"]),
         ),
         vault=VaultConfig(
             # ~ expands to $HOME; the vault is the owner's source corpus, outside the repo.
             path=Path(v["path"]).expanduser(),
             pattern=str(v["pattern"]),
+            watch_debounce_s=float(v.get("watch_debounce_s", 1.0)),
+            watch_poll_interval_s=float(v.get("watch_poll_interval_s", 5.0)),
         ),
         embedding=EmbeddingConfig(
             model=str(e["model"]),

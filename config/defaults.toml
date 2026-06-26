@@ -26,6 +26,7 @@ telemetry_db = "data/telemetry.duckdb"
 raw_store = "data/raw"            # content-addressed immutable raw notes (§8)
 vector_store = "data/vectors.lance"  # LanceDB thought-graph vectors (derived, regenerable)
 derived_store = "data/derived.sqlite"  # INTERPRETED artifacts: dreams + curator findings (§8)
+vault_catalog = "data/vault_catalog.sqlite"  # active/tombstone ledger for incremental ingest
 
 [vault]
 # The SOURCE corpus the system ingests FROM — read-only, AUTHORED, never committed.
@@ -33,6 +34,12 @@ derived_store = "data/derived.sqlite"  # INTERPRETED artifacts: dreams + curator
 # (§20.8: narrow `pattern`, or point `path` at a subgraph, to scope which notes ingest.)
 path = "~/.mind-palace/vault"
 pattern = "**/*.md"
+# Local watcher (core-side, filesystem only — no network). On change → a background
+# `vault_sync` job re-ingests through the Phase-1 pipeline (idempotent via content-addressing).
+# `watchdog` gives real-time FSEvents; without it the watcher falls back to polling at
+# `watch_poll_interval_s`. `watch_debounce_s` coalesces a burst of saves into one re-ingest.
+watch_debounce_s = 1.0
+watch_poll_interval_s = 5.0
 
 [embedding]
 # Embedding quality is load-bearing (retrieval, dreaming, matching) — owner chose the

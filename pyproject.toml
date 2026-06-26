@@ -25,6 +25,12 @@ dev = [
 edge = [
     "boto3>=1.34",
 ]
+# Real-time vault watching (FSEvents/inotify). OPTIONAL: the watcher falls back to polling
+# without it (core/ingest/watch.py), so it isn't a hard dependency. watchdog is a local
+# filesystem library — no network — and is imported lazily.
+watch = [
+    "watchdog>=4.0",
+]
 
 [tool.pytest.ini_options]
 # Top-level zone packages (core/, edge/, …) are importable without an editable install.
