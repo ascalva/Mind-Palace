@@ -132,4 +132,55 @@ Keep entries short. Cite paths, not contents.
 
 **Next (Phase 4 — Sandboxed code execution):** rootless Podman execution broker (network-off, no-mount, dropped caps, seccomp, limits + wall-clock), warm pool, optional WASM path; executed code returns data, never actions (Invariant 4). No new models needed.
 
+## Phase 4 — Sandboxed code execution (COMPLETE, 2026-06-25)
+**Gate to verify:** code runs isolated — no network, no creds, no vault; limits + timeout enforced; warm pool works.
+
+**Built (all in `core/sandbox/`)**
+- `spec.py`: `ExecSpec` (code, language, timeout, `Limits`, `Network`, non-secret env) + `ExecResult` (stdout/stderr/exit/timed_out/duration/truncated). Output capped to 64 KiB so a result can't blow the context budget (§13). Validation (non-empty code, bounded timeout). Code returns **data, never actions** (Invariant 4).
+- `policy.py`: the isolation profile **built into the podman argv as pure functions** — `--network=none`, `--read-only`, scratch `--tmpfs /tmp`, `--cap-drop=ALL`, `no-new-privileges`, non-root `--user 65534`, `--memory`/`--memory-swap`/`--cpus`/`--pids-limit`, default seccomp (never `unconfined`), and **zero `-v`/`--mount`** so the vault (the whole host FS) is structurally unreachable. Code is delivered on **stdin** to the interpreter, so no bind mount is ever needed. Per-language `RUNTIMES`; `build_warm_argv` for idle pool containers. A network request raises (grants are a deliberate, logged later extension).
+- `runner.py`: `SandboxRunner` protocol; `PodmanRunner` (ephemeral `podman run` + warm `exec`/`reset`/`destroy`; wall-clock timeout via subprocess, force-removes an overrun container; `available()` probes the Podman service, not just the binary); `WasmRunner` seam (wasmtime+Pyodide pure-compute path, §11 — declared, not built).
+- `pool.py`: `WarmPool` — lazy warming, reuse, **pool size = concurrency cap** (Invariant 8), reset-on-healthy, **discard-on-timeout** (never reuse a wedged container), prewarm/shutdown.
+- `broker.py`: `ExecutionBroker.run(spec) -> ExecResult` — pool routing (ephemeral fallback for non-pooled languages), concurrency-cap guard, and **logs every execution** (language/network/timeout) to telemetry so any future network grant is auditable (§11). `build_broker(config)` wires it from `[sandbox]` config.
+- Config: `[sandbox]` section + `SandboxConfig` (runtime, image, timeout, memory/cpus/pids, max_concurrency, warm_pool_size).
+
+**Verified (gate met by construction + fakes; empirical tests gated):** `ruff` clean; `pytest` **98 passed (93 logic + 5 live), 5 podman skipped**.
+- *isolated — no network/creds/vault* — `test_sandbox_policy` asserts the full isolation set on the argv and that **nothing is mounted** (vault unreachable) and seccomp is never disabled.
+- *limits + timeout* — limits in argv; `test_sandbox_broker::test_timeout_result_discards_the_container` (timed-out container discarded); broker concurrency cap + per-exec logging.
+- *warm pool works* — `test_sandbox_pool` (lazy warm, reuse, cap, discard-unhealthy, prewarm/shutdown); `test_build_broker_wires_from_config`.
+- *empirical isolation* — `test_sandbox_podman_live` (`-m podman`): runs real containers and checks network-off, vault-absent, non-root, and timeout. **Skipped here because the Podman machine isn't running on this host** (`podman` is on PATH but `podman info` fails). To validate empirically: `podman machine start` (or install Podman), then `pytest -m podman`.
+
+**Decisions**
+- **Code via stdin, zero host mounts** — the strongest no-vault posture (nothing to escape to), and it makes the "no vault" property structural, not a path-blocklist.
+- **Pool size == concurrency cap** — one knob honors the RAM ceiling (Invariant 8); the supervisor is single-worker so 1 is the default.
+- **Network = none only; grants are a logged seam** — honors "no network unless an explicit scoped grant, logged" without shipping ungated network plumbing.
+- **WASM path is a declared seam** (§11 calls it optional) — Podman is the real substrate; gVisor/Firecracker remain the documented hardening upgrade.
+- Shelling out to `podman` is deterministic **code acting** (Invariant 3); the executed code stays powerless (Invariant 4). The sealed core opens no socket; the container has no network.
+
+**⚠️ Podman runtime — empirical verification still pending (2026-06-25).** Attempted to bring up a podman machine to run `-m podman`: **libkrun/krunkit 1.2.2 + podman 6.0** boots the guest into emergency mode (virtio-fs mount failure → no SSH); **applehv** booted cleanly the first time (smoke test passed) but the re-created machine wedged (`vfkit exited unexpectedly`). Cleaned up to idle; `~/.config/containers/containers.conf` left at `provider=applehv`, small sizing. The Phase 4 logic gate stands (isolation is asserted by construction + fake-runner tests, all green); only the empirical `-m podman` run is outstanding. **Full diagnosis + come-back steps + Docker (rootful) fallback are in `docs/runbook.md` → "Sandbox runtime — Podman machine".** Owner okayed proceeding on the by-construction tests for now.
+
+**Next (Phase 5 — Dynamic agent factory + base role library):** mint agents from templates (Constitution inheritance, **scope ceiling**, ephemeral/persist, self-evaluation, privileged-request routing to the gate). Honors the [skills-and-scope] design note (capability flows only from the scope ceiling, checked independently of skill membership) and gives the sandbox broker its first caller (the coder/analyst roles). No new models needed.
+
+## Phase 5 — Dynamic agent factory + base role library + scope ceiling (COMPLETE, 2026-06-25)
+**Gate to verify:** minting works; a generated agent cannot exceed scope; inherits the Constitution; self-evaluates; privileged tasks route to the human.
+
+**Built (`core/factory/` + `ops/gate.py`), honoring [skills-and-scope]**
+- `roles.py`: `RoleTemplate` (prompt_fragment, default_tier, **scope** = tool-id ceiling, skills) + the **base role library** (§9): personal_assistant, coder, data_analyst, financial_advisor, health_research_advisor, writer_editor, general_conversation. `PRE_DECLARED_MAX = {run_python}` — the absolute §10 ceiling; **no shell/credential/network tool exists**, so the factory is structurally incapable of minting one. A template whose scope exceeds MAX is rejected at definition.
+- `tools.py`: capability as **object-capability handles** (the telemetry store-layer precedent). `ToolRegistry` (tools registered independently of roles), `ToolDispatcher` that **holds only the in-scope handles** — an out-of-scope id is *unreachable* (`ToolNotInScopeError`), not "checked then refused". `run_python` runs through the Phase-4 sandbox broker (powerless, returns data); registered only if a broker is supplied.
+- `factory.py`: `AgentFactory.mint(role)` composes Constitution → role → task (Invariant 6), resolves **scope = role.scope ∩ MAX**, binds a dispatcher of only those handles, returns an ephemeral `MintedAgent` (or persists it). `requested_tools` beyond the resolved scope → **routed to the human gate**, never minted. `MintedAgent` keeps the **advisory path (`respond`, self-evaluates) separate from the action path (`invoke`, dispatcher)** — model advises, code acts (Invariant 3). Out-of-scope `invoke` → gate + refuse.
+- `registry.py`: SQLite `AgentRegistry` — promote an ephemeral agent to a persistent named one (§8/§10).
+- `ops/gate.py`: `HumanGate` seam — records beyond-scope/privileged requests as PENDING (nothing privileged unattended, Invariant 5). The full propose→approve→execute→validate→rollback ledger is Phase 10; this is its inbox.
+
+**Verified (gate met):** `ruff` clean; `pytest` **120 passed (114 logic + 6 live), 5 podman skipped**.
+- *minting + Constitution inheritance* — `test_factory_mint` (ctx[0] == Constitution; ephemeral default); live `test_factory_live` mints general_conversation and gets a grounded answer.
+- *cannot exceed scope* — scope resolves to role∩MAX; out-of-scope `invoke` raises + routes to gate; `requested_tools` beyond scope/MAX → `GateRequest`; template rejects beyond-MAX scope; object-capability dispatcher tests (`test_factory_tools`).
+- *self-evaluates* — `respond` returns a `SelfCheck` (the §4 pre-return check); live-verified.
+- *privileged → human* — `test_privileged_request_routes_to_gate`, `..._beyond_pre_declared_max...`, out-of-scope invoke → `HumanGate.pending()`.
+
+**Decisions**
+- **Two predicates, two subsystems, two times** (backdoor-proofing, per the design note): `loaded(skill)` at assembly vs `can_invoke(tool)` at dispatch; capability flows only from `role.scope ∩ MAX`, resolved at mint, enforced at dispatch, never widened by a skill. Instructional skills (context) are seeded later; the seam (`RoleTemplate.skills` + `frame_context` context_blocks) is in place.
+- **No privileged tools exist at all** — the safest form of "can't mint privileged": the capability isn't representable. Beyond-scope needs go to the gate.
+- The gate + agent registry are minimal seams; Phase 10 makes the gate the durable propose/approve/validate/rollback ledger.
+
+**Next (Phase 6 — Interface layer, Zone B):** the interface gateway + the private local/Tailscale adapter (primary), optional WhatsApp adapter, relaying owner messages to the sealed core and back. First **Zone B** (networked) work — the egress guard is NOT installed there; core↔edge communicate by filesystem handoff, never imports (Invariant 2). No new models needed.
+
 <!-- Append new phase entries below as you complete each one. -->

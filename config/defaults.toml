@@ -75,3 +75,16 @@ pinned = false
 resident_gb = 23.0
 num_ctx = 32768
 evicts_pinned = true
+
+[sandbox]
+# Executed code is POWERLESS (Invariant 4, BUILD-SPEC §11): network-off, no vault mount,
+# read-only rootfs + scratch tmpfs, dropped caps, non-root, CPU/mem/pids limits, wall-clock
+# timeout. Default substrate is rootless Podman; wasmtime+Pyodide is the pure-compute path.
+runtime = "podman"
+image = "python:3.12-slim"   # default language image (per-language images in policy.RUNTIMES)
+timeout_s = 10               # wall-clock per execution
+memory = "256m"
+cpus = 1.0
+pids_limit = 128
+max_concurrency = 1          # one sandbox at a time — respect the RAM ceiling (Invariant 8)
+warm_pool_size = 1           # warm containers kept ready to avoid cold start

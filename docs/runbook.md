@@ -38,3 +38,44 @@ The sealed core (`core/`) must have zero network egress. Enforcement is layered:
 
 Edge (`edge/`, Zone B) is the only zone allowed to reach the network; the guard is
 **not** installed there. Core↔edge communicate by filesystem handoff, never imports.
+
+## Sandbox runtime — Podman machine (Phase 4) — ⚠️ KNOWN ISSUE, REVISIT
+
+The Phase 4 sandbox (`core/sandbox/`) runs code in rootless Podman. On macOS Podman needs
+a Linux VM ("podman machine"). The **logic gate is fully met by construction** — the
+isolation profile is asserted on the argv (`tests/test_sandbox_policy.py`) and the
+pool/broker behavior with a fake runner (`tests/test_sandbox_*.py`), all passing. What is
+**not yet done is the empirical run** (`pytest -m podman`), because no podman machine would
+stay up on this host (2026-06-25).
+
+**Config written:** `~/.config/containers/containers.conf` sets `[machine] provider = applehv`,
+`cpus = 2`, `memory = 2048`, `disk_size = 20`. Sizing is deliberately small so the VM does
+not eat the model RAM ceiling (Invariant 8); the sandbox uses 256 MB containers, concurrency 1.
+
+**What was tried and what failed:**
+- **libkrun / krunkit 1.2.2 + podman 6.0** — guest Fedora CoreOS boots into **emergency
+  mode** (a virtio-fs mount failure in the guest → SSH never starts → `connection refused`).
+  Unusable here. (krunkit is installed from the `libkrun/krun` tap, tap trusted.)
+- **applehv** — the **first** machine booted cleanly and a smoke test passed
+  (`podman run --network=none python:3.12-slim …` → ok). After tearing it down to try
+  libkrun and back, the **re-created** applehv machine fails with `vfkit exited unexpectedly
+  (exit 1)` / ssh handshake reset — i.e. wedged machine/socket state from the churn, not a
+  code problem.
+
+**Current state:** no machine defined (cleaned up), no zombie `vfkit`/`krunkit`/`gvproxy`
+procs, provider config left at `applehv`. Decent/idle.
+
+**To come back (do this when revisiting):**
+1. Fresh start: `podman machine init --now` (uses applehv from config). If `vfkit exited
+   unexpectedly` recurs, try `podman machine reset` first, or reboot to clear stale state.
+2. Pre-pull the image so the 10 s wall-clock timeout isn't spent pulling:
+   `podman pull python:3.12-slim`.
+3. Empirically verify isolation: `./.venv/bin/pytest -m podman`
+   (network-off, vault-unreachable, non-root, timeout-enforced).
+4. **Fallback if Podman stays broken:** Docker works on this host but its daemon is
+   **rootful** (weaker than rootless Podman). To use it, add a `DockerRunner` alongside
+   `PodmanRunner` (same `build_run_argv` flags — `docker run` accepts the same isolation
+   flags except `--pids-limit` syntax is identical; drop `--security-opt no-new-privileges`
+   only if unsupported) and set `[sandbox] runtime` accordingly. Treat rootful as a
+   temporary measure; the isolation profile (no mounts, no net, caps dropped) still holds
+   per-container. Revisit `--userns` for rootless-equivalent uid mapping.

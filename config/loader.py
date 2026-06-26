@@ -56,6 +56,18 @@ class EmbeddingConfig:
 
 
 @dataclass(frozen=True)
+class SandboxConfig:
+    runtime: str            # "podman" (default substrate) | "wasm" (pure-compute, future)
+    image: str
+    timeout_s: int
+    memory: str
+    cpus: float
+    pids_limit: int
+    max_concurrency: int
+    warm_pool_size: int
+
+
+@dataclass(frozen=True)
 class ModelConfig:
     name: str
     tier: str
@@ -72,6 +84,7 @@ class Config:
     paths: PathsConfig
     vault: VaultConfig
     embedding: EmbeddingConfig
+    sandbox: SandboxConfig
     models: tuple[ModelConfig, ...]
 
     def model_for_tier(self, tier: str) -> ModelConfig:
@@ -96,7 +109,7 @@ def _resolve(p: str) -> Path:
 def load_config(path: Path | None = None) -> Config:
     raw = tomllib.loads((path or _DEFAULTS).read_text(encoding="utf-8"))
     o, r, p = raw["ollama"], raw["resources"], raw["paths"]
-    v, e = raw["vault"], raw["embedding"]
+    v, e, s = raw["vault"], raw["embedding"], raw["sandbox"]
     return Config(
         ollama=OllamaConfig(
             host=o["host"],
@@ -123,6 +136,16 @@ def load_config(path: Path | None = None) -> Config:
             model=str(e["model"]),
             dim=int(e["dim"]),
             query_instruction=str(e["query_instruction"]),
+        ),
+        sandbox=SandboxConfig(
+            runtime=str(s["runtime"]),
+            image=str(s["image"]),
+            timeout_s=int(s["timeout_s"]),
+            memory=str(s["memory"]),
+            cpus=float(s["cpus"]),
+            pids_limit=int(s["pids_limit"]),
+            max_concurrency=int(s["max_concurrency"]),
+            warm_pool_size=int(s["warm_pool_size"]),
         ),
         models=tuple(
             ModelConfig(

@@ -24,6 +24,7 @@ pythonpath = ["."]
 testpaths = ["tests"]
 markers = [
     "live: requires a running Ollama server and pulled models (deselect: -m 'not live')",
+    "podman: requires a working rootless Podman (deselect: -m 'not podman')",
 ]
 filterwarnings = [
     # LanceDB calls its own deprecated table_names() internally; not our code.

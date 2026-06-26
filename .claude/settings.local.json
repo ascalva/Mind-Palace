@@ -32,7 +32,32 @@
       "Bash(./.venv/bin/python -m pytest -m live -q)",
       "Bash(./.venv/bin/python -m pytest -q)",
       "Bash(./.venv/bin/python -m pytest tests/test_scheduler_live.py -m live -q)",
-      "Bash(./.venv/bin/python -m pytest tests/test_librarian_live.py tests/test_scheduler_live.py -m live -q -s)"
+      "Bash(./.venv/bin/python -m pytest tests/test_librarian_live.py tests/test_scheduler_live.py -m live -q -s)",
+      "Bash(podman --version)",
+      "Bash(podman machine *)",
+      "Bash(podman system *)",
+      "Bash(awk '{print $1/1024/1024/1024 \" GB\"}')",
+      "Bash(sysctl -n hw.ncpu)",
+      "Bash(echo \"=== removing broken libkrun machine ===\" && podman machine rm -f podman-machine-default 2>&1; echo \"=== containers.conf? ===\" && ls -la ~/.config/containers/containers.conf 2>&1 || echo \"no user containers.conf\"; echo \"=== applehv framework present \\(built into macOS\\) ===\" && ls /System/Library/Frameworks/Hypervisor.framework >/dev/null 2>&1 && echo \"Hypervisor.framework: present\")",
+      "Bash(mkdir -p ~/.config/containers && echo \"created ~/.config/containers\")",
+      "Bash(CONTAINERS_MACHINE_PROVIDER=applehv podman machine init --cpus 2 --memory 2048 --disk-size 20 --now)",
+      "Bash(podman info *)",
+      "Bash(command -v krunkit)",
+      "Bash(krunkit --version)",
+      "Bash(brew tap *)",
+      "Bash(brew trust *)",
+      "Bash(brew install *)",
+      "Bash(CONTAINERS_MACHINE_PROVIDER=libkrun podman machine init --cpus 2 --memory 2048 --disk-size 20 --now)",
+      "Bash(podman run *)",
+      "Read(//var/folders/26/c4khr16j6zz3tnkqgbgs7ckm0000gn/T/podman/**)",
+      "Read(//private/var/folders/26/c4khr16j6zz3tnkqgbgs7ckm0000gn/T/podman/**)",
+      "Bash(pkill -f 'krunkit')",
+      "Bash(pkill -f 'gvproxy.*podman-machine-default')",
+      "Bash(pkill -9 -f krunkit)",
+      "Bash(pkill -9 -f 'gvproxy')",
+      "Bash(pkill -9 -f vfkit)",
+      "Bash(pkill -9 -f 'gvproxy.*podman-machine')",
+      "Bash(./.venv/bin/python -m pytest tests/test_factory_live.py -m live -q)"
     ]
   }
 }
