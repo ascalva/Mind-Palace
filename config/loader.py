@@ -65,6 +65,19 @@ class DreamingConfig:
 
 
 @dataclass(frozen=True)
+class DreamRnDConfig:
+    """Dream-phase R&D track (FEATURE-FLAG OFF by default). The interpreter panel + adjudicator
+    refuse to run unless `enabled` is True — see core/dreaming/rnd.py."""
+
+    enabled: bool
+    sigma: float                  # σ: cosine edge threshold for the mirror graph
+    min_degree: int               # σ-neighbours to count a node as a graph "core"
+    bridge_clustering_max: float  # local clustering coefficient ceiling for a structural hole
+    centrality_top_k: int         # how many hub claims the centrality interpreter emits
+    agreement_jaccard: float      # support overlap at which interpreters corroborate one claim
+
+
+@dataclass(frozen=True)
 class InterfaceConfig:
     handoff_dir: Path        # the sole core<->gateway channel (filesystem handoff, §6)
     default_adapter: str
@@ -100,6 +113,7 @@ class Config:
     vault: VaultConfig
     embedding: EmbeddingConfig
     dreaming: DreamingConfig
+    dream_rnd: DreamRnDConfig
     sandbox: SandboxConfig
     interface: InterfaceConfig
     models: tuple[ModelConfig, ...]
@@ -127,7 +141,7 @@ def load_config(path: Path | None = None) -> Config:
     raw = tomllib.loads((path or _DEFAULTS).read_text(encoding="utf-8"))
     o, r, p = raw["ollama"], raw["resources"], raw["paths"]
     v, e, s = raw["vault"], raw["embedding"], raw["sandbox"]
-    itf, dr = raw["interface"], raw["dreaming"]
+    itf, dr, rnd = raw["interface"], raw["dreaming"], raw["dream_rnd"]
     return Config(
         ollama=OllamaConfig(
             host=o["host"],
@@ -161,6 +175,14 @@ def load_config(path: Path | None = None) -> Config:
             min_cluster_size=int(dr["min_cluster_size"]),
             max_clusters=int(dr["max_clusters"]),
             near_dup_threshold=float(dr["near_dup_threshold"]),
+        ),
+        dream_rnd=DreamRnDConfig(
+            enabled=bool(rnd["enabled"]),
+            sigma=float(rnd["sigma"]),
+            min_degree=int(rnd["min_degree"]),
+            bridge_clustering_max=float(rnd["bridge_clustering_max"]),
+            centrality_top_k=int(rnd["centrality_top_k"]),
+            agreement_jaccard=float(rnd["agreement_jaccard"]),
         ),
         sandbox=SandboxConfig(
             runtime=str(s["runtime"]),

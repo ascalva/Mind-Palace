@@ -24,9 +24,11 @@ from pathlib import Path
 from core.provenance import Provenance
 
 # Artifact kinds (the discriminator). Dreams are thematic synthesis; findings are the
-# curator's flagged candidates (subkind carries the finding type).
+# curator's flagged candidates (subkind carries the finding type); dream_log entries are the
+# confidence-ranked output of the R&D adjudicator (flag-OFF track, R1).
 DREAM = "dream"
 FINDING = "finding"
+DREAM_LOG = "dream_log"
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS interpreted_artifacts (

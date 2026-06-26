@@ -47,7 +47,7 @@ provenance-marked from the owner's authored ground truth. Lands Phase 7 (dreamin
 | column     | type | notes |
 |------------|------|-------|
 | id         | TEXT PK | content-derived (`sha256(kind|subkind|sorted(subjects))[:16]`) → re-runs are idempotent |
-| kind       | TEXT | `dream` (theme synthesis) \| `finding` (curator) |
+| kind       | TEXT | `dream` (theme synthesis) \| `finding` (curator) \| `dream_log` (R&D adjudicator, flag-OFF) |
 | subkind    | TEXT | finding type: `near_duplicate` \| `prune_candidate` \| `contradiction` |
 | provenance | TEXT | **always `interpreted`** — `add()` has no provenance parameter, so this store cannot hold authored truth (the §8 firewall, structural) |
 | summary    | TEXT | the dream reflection / the finding detail |

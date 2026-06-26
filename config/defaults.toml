@@ -102,6 +102,19 @@ max_clusters = 8              # cap syntheses per dream run (the inference slot 
 # a true duplicate, never two distinct notes on one topic.
 near_dup_threshold = 0.93     # cosine >= this flags two authored notes as a merge candidate
 
+[dream_rnd]
+# Dream-phase R&D track (docs/design-notes/dream-phase-rnd-charter.md) — the interpreter panel
+# (R0) + evidence-based adjudicator (R1). FEATURE-FLAG OFF by default and NOT wired into the
+# live dream path: scheduler/cron.py still runs the Phase-7 Dreamer. The R0/R1 entry points
+# REFUSE to run unless `enabled = true` (core/dreaming/rnd.py), so this never runs in a normal
+# session — flip it on only inside a deliberate R&D run.
+enabled = false
+sigma = 0.62                  # σ: cosine edge threshold for the mirror graph (matches dreaming)
+min_degree = 2                # a node needs this many σ-neighbours to be a graph "core"
+bridge_clustering_max = 0.5   # local clustering coefficient <= this (degree>=2) => a bridge
+centrality_top_k = 5          # how many hub claims the centrality interpreter emits
+agreement_jaccard = 0.5       # support-set Jaccard >= this => interpreters corroborate one claim
+
 [sandbox]
 # Executed code is POWERLESS (Invariant 4, BUILD-SPEC §11): network-off, no vault mount,
 # read-only rootfs + scratch tmpfs, dropped caps, non-root, CPU/mem/pids limits, wall-clock

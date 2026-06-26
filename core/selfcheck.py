@@ -149,6 +149,22 @@ def check_grounding(output: str, sources: set[str] | Iterable[Source] | None) ->
     )
 
 
+def grounding_score(support: Iterable[str], authored: set[str]) -> float:
+    """g(κ) ∈ [0,1] (§6/§8): the fraction of a claim's support refs that resolve to AUTHORED
+    leaves — the dream adjudicator's ranking currency (R1). This extends the binary grounding
+    predicate above into a score: the currency is *resolvable evidence*, never rhetoric.
+
+    A ref that does not bottom out in authored ground (e.g. a prior-dream/interpreted id)
+    contributes 0 — the formal "chains may not close within INTERPRETED" rule (Invariant 10).
+    g = 1.0 means every support ref is authored (the only case the R0/R1 panel produces, since
+    its inputs are a MirrorView); g < 1 is the recursion guard biting once R3 exists. Empty
+    support is ungrounded (0.0): a claim with no evidence is not a grounded claim."""
+    refs = list(support)
+    if not refs:
+        return 0.0
+    return sum(1 for r in refs if r in authored) / len(refs)
+
+
 def self_evaluate(output: str, *, sources: set[str] | Iterable[Source] | None = None,
                   judge: SubjectiveJudge | None = None) -> SelfCheck:
     """Run the pre-return Constitution check.
