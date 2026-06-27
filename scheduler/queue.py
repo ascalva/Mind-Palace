@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -118,7 +119,14 @@ class JobQueue:
     def __post_init__(self) -> None:
         if str(self.path) != ":memory:":
             self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._conn = sqlite3.connect(str(self.path))
+        # check_same_thread=False + an explicit lock: the watcher's debounce timer and poll
+        # loop (core/ingest/watch.py) fire on_change from a thread they spawn themselves, not
+        # the supervisor's main thread that constructs this queue — so enqueue() is genuinely
+        # cross-thread. WAL mode + committing after every statement keeps each access short, so
+        # a coarse lock around the connection is sufficient (no held transactions to block).
+        # RLock (not Lock): enqueue()/claim() call self.get() while already holding the lock.
+        self._lock = threading.RLock()
+        self._conn = sqlite3.connect(str(self.path), check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA foreign_keys=ON")
@@ -129,14 +137,15 @@ class JobQueue:
     def enqueue(self, kind: str, tier: str, num_ctx: int, *,
                 priority: int = PRIORITY_DEFAULT,
                 payload: dict[str, Any] | None = None) -> Job:
-        cur = self._conn.execute(
-            "INSERT INTO jobs (kind, tier, num_ctx, priority, state, payload, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [kind, tier, num_ctx, priority, QUEUED,
-             json.dumps(payload) if payload else None, _utcnow()],
-        )
-        self._conn.commit()
-        return self.get(int(cur.lastrowid))
+        with self._lock:
+            cur = self._conn.execute(
+                "INSERT INTO jobs (kind, tier, num_ctx, priority, state, payload, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [kind, tier, num_ctx, priority, QUEUED,
+                 json.dumps(payload) if payload else None, _utcnow()],
+            )
+            self._conn.commit()
+            return self.get(int(cur.lastrowid))
 
     def _effective_priority(self, job: Job, now: datetime) -> int:
         """A job's priority after anti-starvation aging (gap G6): the longer it has waited, the
@@ -158,23 +167,24 @@ class JobQueue:
         (the foreground gate) — they stay QUEUED and are revisited once the block clears.
         Returns None if nothing is runnable now."""
         now = now or datetime.now(UTC).replace(tzinfo=None)
-        rows = self._conn.execute(
-            "SELECT * FROM jobs WHERE state = ? ORDER BY priority, id", [QUEUED]
-        ).fetchall()
-        eligible = [_row_to_job(r) for r in rows if r["tier"] not in blocked_tiers]
-        if not eligible:
-            return None
-        eff = {j.id: self._effective_priority(j, now) for j in eligible}
-        top = min(eff.values())
-        band = [j for j in eligible if eff[j.id] == top]
-        band.sort(key=lambda j: (0 if j.load_key == loaded_key else 1, j.id))
-        chosen = band[0]
-        self._conn.execute(
-            "UPDATE jobs SET state = ?, started_at = ?, attempts = attempts + 1 WHERE id = ?",
-            [RUNNING, _utcnow(), chosen.id],
-        )
-        self._conn.commit()
-        return self.get(chosen.id)
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM jobs WHERE state = ? ORDER BY priority, id", [QUEUED]
+            ).fetchall()
+            eligible = [_row_to_job(r) for r in rows if r["tier"] not in blocked_tiers]
+            if not eligible:
+                return None
+            eff = {j.id: self._effective_priority(j, now) for j in eligible}
+            top = min(eff.values())
+            band = [j for j in eligible if eff[j.id] == top]
+            band.sort(key=lambda j: (0 if j.load_key == loaded_key else 1, j.id))
+            chosen = band[0]
+            self._conn.execute(
+                "UPDATE jobs SET state = ?, started_at = ?, attempts = attempts + 1 WHERE id = ?",
+                [RUNNING, _utcnow(), chosen.id],
+            )
+            self._conn.commit()
+            return self.get(chosen.id)
 
     def complete(self, job_id: int, result: str | None = None) -> None:
         self._finish(job_id, DONE, result=result)
@@ -185,60 +195,71 @@ class JobQueue:
     def defer(self, job_id: int, reason: str) -> None:
         """Park a job that cannot run under current conditions (e.g. ceiling breach). Not
         re-selected until `revive_deferred()` puts it back when conditions change."""
-        self._conn.execute(
-            "UPDATE jobs SET state = ?, error = ? WHERE id = ?", [DEFERRED, reason, job_id]
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.execute(
+                "UPDATE jobs SET state = ?, error = ? WHERE id = ?", [DEFERRED, reason, job_id]
+            )
+            self._conn.commit()
 
     def revive_deferred(self) -> int:
         """Return deferred jobs to QUEUED (call when conditions change, e.g. RAM freed)."""
-        cur = self._conn.execute(
-            "UPDATE jobs SET state = ?, error = NULL WHERE state = ?", [QUEUED, DEFERRED]
-        )
-        self._conn.commit()
-        return cur.rowcount
+        with self._lock:
+            cur = self._conn.execute(
+                "UPDATE jobs SET state = ?, error = NULL WHERE state = ?", [QUEUED, DEFERRED]
+            )
+            self._conn.commit()
+            return cur.rowcount
 
     def checkpoint(self, job_id: int, token: str) -> None:
         """Persist a resume token for a checkpointed-step job, then re-queue it so the next
         unit is dispatched at a job boundary (cooperative yielding, roadmap §7)."""
-        self._conn.execute(
-            "UPDATE jobs SET checkpoint = ?, state = ? WHERE id = ?", [token, QUEUED, job_id]
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.execute(
+                "UPDATE jobs SET checkpoint = ?, state = ? WHERE id = ?", [token, QUEUED, job_id]
+            )
+            self._conn.commit()
 
     def _finish(self, job_id: int, state: str, *, result: str | None = None,
                 error: str | None = None) -> None:
-        self._conn.execute(
-            "UPDATE jobs SET state = ?, result = ?, error = ?, finished_at = ? WHERE id = ?",
-            [state, result, error, _utcnow(), job_id],
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.execute(
+                "UPDATE jobs SET state = ?, result = ?, error = ?, finished_at = ? WHERE id = ?",
+                [state, result, error, _utcnow(), job_id],
+            )
+            self._conn.commit()
 
     # --- read path ---------------------------------------------------------------
     def get(self, job_id: int) -> Job:
-        r = self._conn.execute("SELECT * FROM jobs WHERE id = ?", [job_id]).fetchone()
-        if r is None:
-            raise KeyError(f"no job {job_id}")
-        return _row_to_job(r)
+        with self._lock:
+            r = self._conn.execute("SELECT * FROM jobs WHERE id = ?", [job_id]).fetchone()
+            if r is None:
+                raise KeyError(f"no job {job_id}")
+            return _row_to_job(r)
 
     def list(self, state: str | None = None) -> list[Job]:
-        if state is None:
-            rows = self._conn.execute("SELECT * FROM jobs ORDER BY id").fetchall()
-        else:
-            rows = self._conn.execute(
-                "SELECT * FROM jobs WHERE state = ? ORDER BY id", [state]
-            ).fetchall()
-        return [_row_to_job(r) for r in rows]
+        with self._lock:
+            if state is None:
+                rows = self._conn.execute("SELECT * FROM jobs ORDER BY id").fetchall()
+            else:
+                rows = self._conn.execute(
+                    "SELECT * FROM jobs WHERE state = ? ORDER BY id", [state]
+                ).fetchall()
+            return [_row_to_job(r) for r in rows]
 
     def depth(self) -> int:
         """Number of jobs waiting to run (queue depth — a vital, §8)."""
-        return self._conn.execute(
-            "SELECT count(*) FROM jobs WHERE state = ?", [QUEUED]
-        ).fetchone()[0]
+        with self._lock:
+            return self._conn.execute(
+                "SELECT count(*) FROM jobs WHERE state = ?", [QUEUED]
+            ).fetchone()[0]
 
     def counts(self) -> dict[str, int]:
-        rows = self._conn.execute("SELECT state, count(*) FROM jobs GROUP BY state").fetchall()
-        return {r[0]: r[1] for r in rows}
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT state, count(*) FROM jobs GROUP BY state"
+            ).fetchall()
+            return {r[0]: r[1] for r in rows}
 
     def close(self) -> None:
-        self._conn.close()
+        with self._lock:
+            self._conn.close()

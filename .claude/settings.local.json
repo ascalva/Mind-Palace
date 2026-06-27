@@ -113,7 +113,26 @@
       "Bash(.venv/bin/python -c \"import core.models as m; print\\([n for n in dir\\(m\\) if n[0].isupper\\(\\)]\\)\")",
       "Bash(.venv/bin/python -m pytest tests/test_vault_sync.py tests/test_vault_watcher.py tests/test_purge_raw.py tests/test_vault_sync_wiring.py -q)",
       "Bash(.venv/bin/python -c \"from core.provenance import MIRROR_READABLE, Provenance; print\\('MIRROR_READABLE =', {p.value for p in MIRROR_READABLE}\\); print\\('Provenance values =', [p.value for p in Provenance]\\)\")",
-      "Bash(.venv/bin/python -c \"import inspect; from core.stores.derived import DerivedStore; sig=inspect.signature\\(DerivedStore.add\\); print\\('DerivedStore.add params:', list\\(sig.parameters\\)\\); print\\('has provenance param:', 'provenance' in sig.parameters\\)\")"
+      "Bash(.venv/bin/python -c \"import inspect; from core.stores.derived import DerivedStore; sig=inspect.signature\\(DerivedStore.add\\); print\\('DerivedStore.add params:', list\\(sig.parameters\\)\\); print\\('has provenance param:', 'provenance' in sig.parameters\\)\")",
+      "Read(//opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/**)",
+      "Bash(/Users/ascalva/mind-palace/.venv/bin/pip show *)",
+      "Bash(/usr/bin/python3 \"/private/tmp/claude-501/-Users-ascalva-mind-palace/9fd283bc-9dbd-4f7d-90e8-3207af8a79e6/scratchpad/st_setup.py\")",
+      "Bash(python3 -c ' *)",
+      "Bash(timeout 6 ./.venv/bin/python scripts/watch.py)",
+      "Bash(echo \"EXIT CODE: $?\")",
+      "Bash(curl -s --max-time 2 http://127.0.0.1:11434/api/version)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(brew services *)",
+      "Bash(curl -s http://127.0.0.1:11434/api/tags)",
+      "Bash(python3 -c \"import sys,json;[print\\(' ',m['name']\\) for m in json.load\\(sys.stdin\\)['models']]\")",
+      "Bash(./.venv/bin/python -c ' *)",
+      "Bash(./.venv/bin/python -c \"from config.loader import get_config; from core.stores.vectorstore import open_vector_store; print\\('vector rows:', open_vector_store\\(get_config\\(\\)\\).count\\(\\)\\)\")",
+      "Bash(./.venv/bin/pytest -q tests/test_queue.py tests/test_vault_watcher.py tests/test_vault_sync_wiring.py tests/test_vault_sync.py -m \"not live\")",
+      "Bash(./.venv/bin/python -m ops.import_lint)",
+      "Bash(./.venv/bin/python -c \"from config.loader import get_config; from core.stores.vectorstore import open_vector_store; print\\(open_vector_store\\(get_config\\(\\)\\).count\\(\\)\\)\")",
+      "Bash(rm -fv \"Untitled.md\" \"_direct_touch_test.md\" \"text.txt\" \"text 2.txt\" \"text 3.txt\" \"_synctest_from_mac.txt\" \"_synctest_from_phone.txt\" \"note-2026-06-27-115607.txt\")",
+      "Bash(ls -1 *.md *.txt)",
+      "Bash(grep -v -E '^\\(misc|poem_archive|work_notes_archive|\\\\.DS_Store\\\\.md|\\\\.stignore\\)$')"
     ]
   }
 }

@@ -84,7 +84,9 @@ procs, provider config left at `applehv`. Decent/idle.
 
 How the owner feeds notes in and keeps embeddings current. **Two separable pieces:** the
 **watcher** (code, core-side, local-filesystem only) and the **sync transport** (a separate
-process — never the core).
+process — never the core). **Status: both operationally configured and live-verified
+(2026-06-27)** on the owner's Mac (M2 Max) + iPhone — see `docs/PROGRESS.md` for the full
+session log, including a concurrency bug found and fixed during verification.
 
 ### Watcher (code — runs locally, no network)
 Re-ingests changed notes through the Phase-1 pipeline, idempotently (content-addressing):
@@ -98,21 +100,72 @@ trigger just enqueues a background `vault_sync` job and the supervisor runs the 
 rescan — missed/duplicate events are harmless. It is core-side and reaches no network (the
 import-lint proves it); only the local filesystem and local stores are touched.
 
+`scheduler/queue.py`'s `JobQueue` connection is `check_same_thread=False` + `RLock`-guarded
+specifically because the watcher's debounce timer and poll loop call `on_change` (→ `enqueue`)
+from a thread they spawn, not the thread that constructed the queue. Without this, real-time
+and polled triggers crash silently (swallowed by `threading`'s default excepthook) while
+`launchctl`/`ps` still report the service healthy — caught + fixed 2026-06-27, see PROGRESS.md.
+
+### Running the watcher as a launchd service (so it survives logout/reboot)
+```
+~/Library/LaunchAgents/com.mind-palace.watch.plist
+```
+`ProgramArguments` = the repo's `.venv` python + `scripts/watch.py`; `RunAtLoad`+`KeepAlive`
+(10s `ThrottleInterval`); `PYTHONUNBUFFERED=1` (otherwise stdout buffers and the log looks
+empty); logs to `data/logs/watch.{out,err}.log`.
+```
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.mind-palace.watch.plist  # start
+launchctl bootout   gui/$(id -u)/com.mind-palace.watch                              # stop
+launchctl print     gui/$(id -u)/com.mind-palace.watch | grep state                 # status
+tail -f data/logs/watch.out.log                                                     # live log
+cat data/logs/watch.err.log                                                         # errors
+```
+To pick up a code change, `bootout` then `bootstrap` again (no separate "restart" verb).
+
 ### Sync transport (operational — a SEPARATE process, NOT the core)
 Keeps the vault directory current across the owner's devices. The core only watches a local
 folder; it never runs or talks to the sync daemon.
-- **Recommended: Syncthing over Tailscale** — peer-to-peer, device-to-device, encrypted, **no
-  vendor in the path**. Install Syncthing on laptop + phone; share the vault folder between
-  them; bind/announce over the Tailscale network so the devices find each other privately with
-  **no public exposure**. The owner's notes never transit a third-party server.
+- **Configured: Syncthing over Tailscale** — peer-to-peer, device-to-device, encrypted, **no
+  vendor in the path**. Mac: `brew install syncthing && brew services start syncthing` (GUI at
+  `localhost:8384`, loopback-only). iPhone: **Synctrain** (free/OSS; Möbius Sync is the
+  documented fallback if it ever stops working). The vault folder (id `mind-palace-vault`) is
+  shared `sendreceive` between the two devices; a `.stignore` in the vault root excludes
+  `.DS_Store`/`.stversions`/temp files from syncing.
 - **Tailscale** is the private mesh: it gives the phone an encrypted path to the laptop, used
   for (a) Syncthing peer sync and (b) reaching the future interface gateway (Zone B) to
   chat-capture/query — matching the established "private default" interface posture.
+- **Confinement — both ends, not just one.** Public/global discovery, relays, NAT-PMP/UPnP, and
+  STUN are all disabled on **both** the Mac (Syncthing GUI → Settings → Connections) and the
+  phone (Synctrain → Advanced Settings); each device's peer address is pinned to the other's
+  **Tailscale IP** (`tcp://100.x.x.x:22000`) instead of left `dynamic`. This matters off-LAN: a
+  one-sided pin still lets the *other* device fall back to a public discovery/relay server.
+  **Verify in the Syncthing GUI:** click the phone device in the sidebar — the address shown
+  must read the phone's Tailscale IP (`100.x.x.x`), never a relay name or a different subnet.
+  Confirmed live over the phone's cellular connection (no LAN involved):
+  `/rest/system/connections` reported `type: tcp-server` direct, not `relay-client`.
 - **Vendor-transit tradeoff (flagged):** iCloud / Obsidian Sync are convenient but **transit a
   vendor** — the same class of tradeoff as the interface-transits-third-party invariant
   (Invariant 11). They move the owner's *own authored notes* through a third party (encrypted
   in transit, but the vendor is in the path). Syncthing-over-Tailscale avoids that entirely;
-  the owner chooses, and the private option is recommended.
+  the owner chooses, and the private option is recommended (and is what's configured).
+
+### iOS capture (no third-party notes app)
+Apple Notes' Share→Save-to-Files always names the export `text.txt` (auto-numbering on
+collision) and can't produce a real `.md`. Use an iOS **Shortcut** instead: `Ask for Input`
+(Text) → `Format Date` (input **Current Date** — not "Date Created") → `Save File` (saves the
+*input text*; destination `Ask Each Time` — pick Synctrain → Mind Palace Vault; `Subpath`
+`note-[Formatted Date].md`) → **`Rename`** (required — Shortcuts' `Save File` silently forces
+the input's native `.txt` extension regardless of what's typed in `Subpath`; `Rename` to the
+same `note-[Formatted Date].md` string fixes it). One tap from the home screen or share sheet.
+After saving, Synctrain needs a manual **rescan** of the folder (pull-to-refresh) to push a
+phone-authored file — iOS suspends its background watcher (see "Known Synctrain quirk" below).
+
+### Known Synctrain quirk — reverse sync needs a manual rescan
+A file created/edited *on the phone* often doesn't push to the Mac until Synctrain's
+**Mind Palace Vault folder is manually rescanned**: open the folder in Synctrain and
+pull-to-refresh (or use its Rescan action). Mac→phone sync doesn't need this — only
+phone-originated changes are affected, because iOS suspends Synctrain's background
+file-watcher. Forward sync (Mac edits → phone) is unaffected.
 
 ### True deletion — owner-gated purge (not the watcher's default)
 A vault delete only **tombstones** (raw kept) so re-adds dedup and nothing is lost. To destroy
@@ -130,3 +183,10 @@ unless `--confirm` is passed AND the content is held by no active note (tombston
 - `./.venv/bin/python -m ops.import_lint` → green (the watcher reaches no network).
 Cold-tested in `tests/test_vault_sync.py`, `tests/test_vault_watcher.py`,
 `tests/test_purge_raw.py`, `tests/test_vault_sync_wiring.py`.
+
+**Live-verified end-to-end (2026-06-27, real iPhone + Mac, not mocks):** a phone-authored note
+(via the Shortcut above, over cellular) synced → watcher caught it automatically → embedded →
+returned as the top semantic-search hit. Deleting a tracked note tombstoned automatically
+(catalog inactive, vector rows dropped, `RawStore.exists(digest)` still `True`). A no-change
+rescan returned `indexed=0` with the vector count unchanged. Full details + the concurrency bug
+this surfaced (now fixed) in `docs/PROGRESS.md`'s 2026-06-27 entry.
