@@ -19,21 +19,37 @@ fixture in tests.
 Policies are narrow by default: grant the minimum, and the table above is the audit of *why*
 each grant exists, so a future widening is a deliberate diff against this table, not a guess.
 
-## ⚠️ NOT applied — these are committed documents, not live policy
+## Scaffolding (committed IaC — the build agent authored it; the owner runs it)
 
-Nothing here has been run against a Vault server. Writing them is build-time work (code review,
-git history); applying them is owner-operated runtime work, same build/owner split as the
-attestation keys (`ops/attestation/README.md`).
+| File | What it is |
+|------|-----------|
+| `policies/*.hcl` | the seven role policies (table above) |
+| `vault.hcl` | server config — Raft at `data/vault/raft`, loopback `127.0.0.1:8200` |
+| `vault-unseal.sh` | starts the server + auto-unseals from Keychain (launchd-managed) |
+| `com.mind-palace.vault.plist` | LaunchAgent template (RunAtLoad+KeepAlive), copy to `~/Library/LaunchAgents/` |
+| `setup_policies.sh` | idempotent: enable kv, write the 7 policies, create 6 token roles |
+| `setup_aws_engine.sh` | Phase B: configure the `aws` dynamic engine (after the airlock IAM exists) |
 
-**Production application is owner-operated** (full steps in the Step 6 runbook):
-1. Stand up Vault per vault-runtime-auth.md §1 (rootless Podman, loopback `127.0.0.1:8200`,
-   Raft storage, unseal key in Keychain).
-2. `vault policy write <role> ops/vault/policies/<role>.hcl` for each file above.
-3. Enable the `kv` v2 and `aws` secrets engines; configure `bridge-role`/`airlock-role` IAM.
-4. Create an AppRole (or token role) per name binding it to its policy.
-5. Place the supervisor's own bootstrap credential via `get_secret("vault-supervisor-token")`
-   (Keychain/env — the bottom turtle for this layer, never stored in Vault itself).
-6. Set `[secrets] enabled = true` in config.
+Minting goes through **token roles** (`auth/token/create/<role>`), so a *scoped* supervisor token
+mints a token carrying a role's policy without holding that policy itself (see `supervisor.hcl` and
+`VaultClient.mint_token`). `setup_policies.sh` was validated end-to-end against a real `vault
+server -dev` — a non-root supervisor mints a working `dreamer` token yet is denied the secret.
 
-Until then, `[secrets] enabled = false` (the default) and `get_secret(name)` with no token
-keeps reading env/Keychain exactly as it always has — this layer is additive, not a cutover.
+## ⚠️ NOT applied to production — these are committed documents + scaffolding, not a live server
+
+Nothing here has been run against a *production* Vault. Writing them is build-time work; applying
+them (init/unseal, placing keys, loading real secrets) is owner-operated runtime work — same
+build/owner split as the attestation keys (`ops/attestation/README.md`). **Full ordered steps are
+in `docs/runbook.md` → "Security & trust infrastructure" §2.** The short version:
+
+1. `vault server -config ops/vault/vault.hcl` (from the repo root) → `vault operator init`; place
+   the unseal key + root token in Keychain (`vault-unseal-key`, `vault-root-token`); unseal.
+2. `sh ops/vault/setup_policies.sh` (with `VAULT_ADDR`/`VAULT_TOKEN` set) — engines, policies, roles.
+3. `vault token create -policy=supervisor -orphan -period=24h` → place at Keychain
+   `vault-supervisor-token` (the bottom turtle for this layer, never stored in Vault).
+4. Load the static secret values (`vault kv put kv/<name> value=…`) as you have them.
+5. Install the LaunchAgent (auto-unseal on login); set `[secrets] enabled = true`.
+6. (Phase B) After the airlock Terraform applies, `sh ops/vault/setup_aws_engine.sh`.
+
+Until then, `[secrets] enabled = false` (the default) and `get_secret(name)` with no token keeps
+reading env/Keychain exactly as it always has — this layer is additive, not a cutover.

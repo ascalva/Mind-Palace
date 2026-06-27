@@ -694,4 +694,46 @@ credential-authorization layer (scoped ephemeral Vault tokens, accessor-not-toke
 trail) are built, tested cold, and the Vault path is proven live. **Main build remains parked at
 Phase 8 complete — next is Phase 9 (Backups), untouched by this track.**
 
+## Production Vault standup — scaffolding + token-role fix (2026-06-27, NOT a phase, owner-operated)
+**Track is complete; this is the owner-operated production setup**, picked up because the owner had
+installed Vault via Homebrew and wanted it standing before Phase 9. Owner chose full scope (kv +
+AWS dynamic engine) + auto-unseal (Keychain + launchd). Build agent authored IaC + a correctness
+fix + validated against dev Vault; the owner runs init/unseal/key-placement (held the line).
+
+**Fixed (real correctness bug, surfaced by thinking about a *scoped* supervisor)**
+- `VaultClient.mint_token` now mints via the **token role** (`create(role_name=role,
+  policies=[role])`), not a bare `policies=[role]`. The bare form only worked in dev because the
+  dev **root** token bypasses Vault's subset rule; a real *scoped* supervisor token can't assign a
+  policy it doesn't hold — and giving it those policies would let it *read* the secrets, breaking
+  "supervisor mints but cannot read" (vault-runtime-auth.md §3). The token role's `allowed_policies`
+  is the authorizer instead. `ops/vault/policies/supervisor.hcl` → `auth/token/create/*`.
+- New live test `test_scoped_supervisor_mints_but_cannot_read` proves it against real Vault with a
+  **non-root** supervisor token: it mints a working `dreamer` token yet is denied the secret. The
+  two existing live tests gained the token-role setup. **`pytest -m needs_vault` → 3/3** on a fresh
+  dev server.
+
+**Built (IaC — committed, owner-run; no secrets in any of it)**
+- `ops/vault/vault.hcl` (Raft at `data/vault/raft`, loopback listener, `disable_mlock`+FileVault
+  posture), `ops/vault/vault-unseal.sh` (launchd-managed server + auto-unseal from Keychain via
+  `security`, `wait`s so launchd supervises the pair), `ops/vault/com.mind-palace.vault.plist`
+  (RunAtLoad+KeepAlive, logs to `data/logs`, mirrors the watcher agent).
+- `ops/vault/setup_policies.sh` (idempotent: enable kv-v2, write 7 policies, create 6 token roles)
+  — **validated end-to-end** against `vault server -dev`: ran the real script, then a scoped
+  supervisor minted a `dreamer` token through the real `VaultClient` and read the secret while the
+  supervisor token itself was denied. `ops/vault/setup_aws_engine.sh` (Phase B: `aws` engine +
+  assumed-role creds, TTL=1h — gated on the airlock IAM existing). `scripts/run_with_secrets.sh`
+  (Keychain→env launch wrapper via `env(1)` for the hyphenated secret names).
+- `ops/vault/README.md` updated with a scaffolding table + the short ordered standup; `docs/
+  runbook.md` §2 is the full guide. All `.sh` pass `sh -n`; plist passes `plutil -lint`.
+
+**Verified:** `ruff` clean; logic suite **306 passed**; live **3/3** against dev Vault. `hvac` 2.4.0
+in `.venv`. No production server stood up, no real keys placed, `[secrets]`/`[attestation]` still
+`false` — all dev-mode/disposable.
+
+**Owner-operated remaining (Phase A — do now):** run the standup from `docs/runbook.md §2b` /
+`ops/vault/README.md` — init, place `vault-unseal-key`+`vault-root-token`+`vault-supervisor-token`
+in Keychain, unseal, `setup_policies.sh`, load static secrets, install the LaunchAgent, set
+`[secrets] enabled = true`. **Phase B (AWS engine):** after the airlock `terraform apply`, run
+`setup_aws_engine.sh`. The build agent cannot place keys or init/unseal a production server.
+
 <!-- Append new phase entries below as you complete each one. -->

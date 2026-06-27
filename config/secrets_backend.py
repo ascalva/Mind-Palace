@@ -133,7 +133,14 @@ class VaultClient:
         import hvac  # real-Vault-only (optional `[secrets]` extra) — see class docstring
 
         client = hvac.Client(url=self.addr, token=self._supervisor_token)
-        resp = client.auth.token.create(policies=[role], ttl=ttl)
+        # Mint through the token ROLE (`auth/token/create/<role>`), not a bare policy list. The
+        # role's `allowed_policies` is what authorizes a *scoped* supervisor to assign `[role]` —
+        # so the supervisor never holds (and could never read) the policies it mints. A bare
+        # `policies=[role]` create fails Vault's subset rule for a non-root token; it only "worked"
+        # in dev because the dev root token bypasses that rule. `policies=[role]` here is the
+        # explicit request (⊆ the role's allowed set), removing any ambiguity about role defaults.
+        # Requires `ops/vault/setup_policies.sh` to have created the role (runbook §2b).
+        resp = client.auth.token.create(role_name=role, policies=[role], ttl=ttl)
         # Vault returns both in one response: the credential and its non-secret audit handle.
         return MintedToken(token=resp["auth"]["client_token"], accessor=resp["auth"]["accessor"])
 

@@ -14,6 +14,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 _DEFAULTS = Path(__file__).resolve().parent / "defaults.toml"
+# Deployment-specific overrides: a gitignored config/local.toml that overlays the committed
+# defaults section-by-section (e.g. `[secrets] enabled = true` on a machine where Vault is stood
+# up, or `[attestation] enabled = true` once signing keys are placed). Keeps the shipped repo
+# safe-by-default — a fresh clone / CI has no local.toml, so those flags stay off.
+_LOCAL = Path(__file__).resolve().parent / "local.toml"
 
 
 @dataclass(frozen=True)
@@ -186,6 +191,15 @@ def _resolve(p: str) -> Path:
 
 def load_config(path: Path | None = None) -> Config:
     raw = tomllib.loads((path or _DEFAULTS).read_text(encoding="utf-8"))
+    # Overlay the gitignored local override (only for the default path — an explicit `path`, as
+    # tests pass, is taken verbatim). Shallow per-section merge: local.toml names just the keys it
+    # changes, e.g. `[secrets]\nenabled = true`, leaving every other default intact.
+    if path is None and _LOCAL.exists():
+        for section, values in tomllib.loads(_LOCAL.read_text(encoding="utf-8")).items():
+            if isinstance(values, dict) and isinstance(raw.get(section), dict):
+                raw[section].update(values)
+            else:
+                raw[section] = values
     o, r, p = raw["ollama"], raw["resources"], raw["paths"]
     v, e, s = raw["vault"], raw["embedding"], raw["sandbox"]
     itf, dr, rnd = raw["interface"], raw["dreaming"], raw["dream_rnd"]

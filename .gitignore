@@ -15,6 +15,10 @@ data/
 .env
 *.secret
 
+# Per-machine config overlay (config/loader.py): enables [secrets]/[attestation] on a deployment
+# without flipping the shared safe defaults. Never shared — a fresh clone stays off-by-default.
+config/local.toml
+
 # OS / packaging cruft
 .DS_Store
 mind-palace.zip

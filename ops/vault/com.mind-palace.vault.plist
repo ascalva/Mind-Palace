@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- LaunchAgent template for the mind-palace production Vault (runbook §2b). Copy to
+     ~/Library/LaunchAgents/com.mind-palace.vault.plist, then:
+       launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.mind-palace.vault.plist
+       launchctl bootout   gui/$(id -u)/com.mind-palace.vault          # stop
+       launchctl print     gui/$(id -u)/com.mind-palace.vault | grep state
+     Paths are absolute (launchd requires it) and assume the repo at /Users/ascalva/mind-palace
+     and Homebrew Vault at /opt/homebrew/bin. Adjust if either differs. No secrets here — the
+     unseal key is read from Keychain at runtime by vault-unseal.sh. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.mind-palace.vault</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>/Users/ascalva/mind-palace/ops/vault/vault-unseal.sh</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/ascalva/mind-palace</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <!-- launchd has a minimal PATH; vault + security must both be resolvable. -->
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/ascalva/mind-palace/data/logs/vault.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/ascalva/mind-palace/data/logs/vault.err.log</string>
+</dict>
+</plist>

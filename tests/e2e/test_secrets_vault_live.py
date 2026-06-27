@@ -57,6 +57,13 @@ def _apply_policy(root_client, *, role: str) -> None:
         root_client.sys.create_or_update_policy(name=role, policy=f.read())
 
 
+def _apply_token_role(root_client, *, role: str) -> None:
+    """The dev-mode equivalent of `vault write auth/token/roles/<role> allowed_policies=<role>`
+    (ops/vault/setup_policies.sh) — so a *scoped* (non-root) supervisor can mint a token carrying
+    <role>'s policy via the role, without holding that policy itself (VaultClient.mint_token)."""
+    root_client.auth.token.create_or_update_role(role_name=role, allowed_policies=[role])
+
+
 def _put_secret(root_client, *, name: str, value: str, kv_mount: str) -> None:
     """The dev-mode equivalent of `vault kv put <kv_mount>/<name> value=<value>` by hand."""
     if not root_client.sys.list_mounted_secrets_engines().get(f"{kv_mount}/"):
@@ -72,6 +79,7 @@ def _put_secret(root_client, *, name: str, value: str, kv_mount: str) -> None:
 def test_mint_and_read_round_trips_through_a_real_dev_server(root_client):
     cfg = get_config()
     _apply_policy(root_client, role="dreamer")
+    _apply_token_role(root_client, role="dreamer")
     _put_secret(root_client, name="oura-daily-aggregates", value="42 steps",
                 kv_mount=cfg.secrets.kv_mount)
 
@@ -87,6 +95,7 @@ def test_mint_and_read_round_trips_through_a_real_dev_server(root_client):
 def test_out_of_policy_read_is_denied_by_the_real_server(root_client):
     cfg = get_config()
     _apply_policy(root_client, role="dreamer")    # grants oura-daily-aggregates only
+    _apply_token_role(root_client, role="dreamer")
     _put_secret(root_client, name="financial-readonly-key", value="should-not-be-readable",
                 kv_mount=cfg.secrets.kv_mount)
 
@@ -96,3 +105,28 @@ def test_out_of_policy_read_is_denied_by_the_real_server(root_client):
     minted = client.mint_token("dreamer", "10m")
     with pytest.raises(VaultPermissionDenied):
         client.read_secret("financial-readonly-key", minted.token)
+
+
+@_skip
+def test_scoped_supervisor_mints_but_cannot_read(root_client):
+    # The crux of the layer (vault-runtime-auth.md §3), proven against real Vault with a NON-root
+    # supervisor token: it can mint a dreamer token (the token role authorizes the scope) yet is
+    # itself denied the secret that token unlocks. dev-mode's root token hid this — root bypasses
+    # the subset rule, so `policies=[role]` minting silently "worked" there but would fail here.
+    cfg = get_config()
+    _apply_policy(root_client, role="supervisor")
+    _apply_policy(root_client, role="dreamer")
+    _apply_token_role(root_client, role="dreamer")
+    _put_secret(root_client, name="oura-daily-aggregates", value="42 steps",
+                kv_mount=cfg.secrets.kv_mount)
+    supervisor_token = root_client.auth.token.create(
+        policies=["supervisor"], no_default_policy=True
+    )["auth"]["client_token"]
+
+    sup = VaultClient(addr=_VAULT_ADDR, kv_mount=cfg.secrets.kv_mount,
+                      supervisor_token=supervisor_token)
+    minted = sup.mint_token("dreamer", "10m")
+    # The agent (minted token) reads its secret; the minter (supervisor token) is denied it.
+    assert sup.read_secret("oura-daily-aggregates", minted.token) == "42 steps"
+    with pytest.raises(VaultPermissionDenied):
+        sup.read_secret("oura-daily-aggregates", supervisor_token)
