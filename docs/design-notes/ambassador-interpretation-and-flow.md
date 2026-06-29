@@ -1,5 +1,20 @@
 # Design note — The Ambassador: interpretation, flow, and why it isn't a bottleneck
 
+> **⚠️ PARTIALLY SUPERSEDED (2026-06-28).** `ambassador-as-reasoning-agent.md` is the
+> **authoritative** Ambassador note and takes precedence wherever the two differ. In
+> particular, the **"thin dispatcher"** framing below is *corrected* there: the Ambassador
+> is a **reasoning agent that is computationally light** (a mind that *uses* deterministic
+> tools), **not** a shallow classifier/router. "Thin" refers to *computation* (it holds no
+> heavy work inline, delegates to the async scheduler) — **never** to *cognition* (it
+> genuinely reasons about the request and which tools to use). Also updated there: cadence
+> and history are **agent-judged within the budgeter ceiling** (not a fixed per-turn
+> recipe); updates are **contextual** (expected updates + earned interruptions, never
+> noise); and the agent is **transparent about effort in plain, non-technical language**.
+> The interpretation analysis (§1), the no-bottleneck mechanics (§2), the conversation loop
+> (§3), and the integration table (§4) below remain valid and are *unchanged* by the
+> refinement — read this note for those, and the reasoning-agent note for the corrected
+> framing.
+
 **Status:** design only. Refines §4 of `nervous-system-and-ambassador.md` — the
 conversational front door. Resolves two questions: (1) what "interpretation" actually
 means at the conversational layer (and why most of it is safe), and (2) how the single

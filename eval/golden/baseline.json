@@ -4,5 +4,13 @@
     "overlap": 0.3333,
     "mean_distance": 0.6172,
     "distance_tol": 0.05
+  },
+  "drift": {
+    "_comment": "A1 drift-gauge fixed points (BUILD-SPEC §15, gap G4). Owner-blessed, frozen, never auto-modified (Invariant 9) and excluded from the self-mod lever set. Per-axis *_tol values are one 'tolerance-unit' of deterioration on that axis; drift_tolerance is Theta (the blessed band — calibrate against observed curves with the F4 harness, then re-bless here). constitution_fingerprint is the frozen-anchor Constitution identity (sha256 of CONSTITUTION.md); re-bless it AND re-run the golden set whenever CONSTITUTION.md is deliberately amended.",
+    "recall_tol": 0.10,
+    "overlap_tol": 0.10,
+    "distance_tol": 0.05,
+    "drift_tolerance": 1.0,
+    "constitution_fingerprint": "1818a46e2a0be8be641a6d8f4f8bad6373531655d66e7d31a9959d9e522c5b2c"
   }
 }

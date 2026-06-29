@@ -57,6 +57,7 @@ markers = [
     "adversarial: red-team invariant-violation attempts through the interfaces",
     "integrity: firewall/provenance/attestation/import-lint — the non-skippable CI gate",
     "emergent: multi-component, concurrent, cross-invariant tests",
+    "quality: dreamer output-quality (signal-vs-noise/apophenia) — pure-CI, statistical bounds",
     "longitudinal: slow drift tests, scheduled only (excluded from default runs)",
     # capability (infra needed) — orthogonal to category
     "live: requires a running Ollama server and pulled models (deselect: -m 'not live')",

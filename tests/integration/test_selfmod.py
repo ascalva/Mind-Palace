@@ -183,3 +183,22 @@ def test_default_validator_flags_a_real_capability_regression():
     result = validator(LEVERS["dream_similarity_threshold"], 0.66)
     assert result.golden_non_regressing is False
     assert "recall_at_k" in result.metrics["frozen_regressions"]
+
+
+def test_default_validator_drift_conjunct_is_the_real_gauge(tmp_path):
+    """The gate's drift_within_tolerance is now the §15 gauge D ≤ Θ (eval.drift, A1), not the old
+    rolling-regression proxy: a capability-perfect retriever is within tolerance with D≈0; an empty
+    one breaches the band. Proves the gauge is wired into the validator."""
+    from eval.golden import load_golden_set
+    from ops.levers import LEVERS
+    from ops.selfmod import build_golden_validator
+
+    golden = load_golden_set()
+    hits = {gq.query: [{"title": t} for t in gq.expected] for gq in golden}
+    ok = build_golden_validator(_stub_retriever(hits))(LEVERS["dream_similarity_threshold"], 0.66)
+    assert ok.drift_within_tolerance is True
+    assert ok.metrics["drift"] == 0.0 and ok.metrics["constitution_intact"] is True
+
+    bad = build_golden_validator(_stub_retriever({}))(LEVERS["dream_similarity_threshold"], 0.66)
+    assert bad.drift_within_tolerance is False
+    assert bad.metrics["drift"] > bad.metrics["drift_theta"]

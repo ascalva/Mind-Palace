@@ -526,3 +526,79 @@ only, with behavior the human's call. Nothing autonomously proposes yet (no cron
 `unattended_enabled` "safe levers" path exists but is flag-off. Gate (BUILD-SPEC §18 Phase 10): a
 proposed change traverses the gate; a bad change auto-rolls-back; the frozen anchor catches drift the
 rolling baseline misses — all proven in `tests/integration/test_selfmod.py`.
+
+## Dreamer output-quality suite (F9, Track F) — running it + the two owner-deferred hooks
+
+The signal-vs-noise / apophenia suite (`tests/quality/`, design-notes/dreamer-quality-suite-evaluation.md)
+asks the one question the safety/provenance/drift suites do not: *is a dream real signal, or
+well-attested noise?* It is **pure-CI** — no Ollama, no scheduler — and runs in the default `pytest`.
+The `DreamerAdapter` is bound to the **live** Dreamer/DerivedStore in `tests/fixtures/dreamer_adapter.py`
+(`MindPalaceDreamerAdapter`): real clustering, real grounding, real interpreted-only persistence; only
+the embedder and synthesizer are deterministic offline stand-ins (the quality layer does not grade
+prose, and the real embedder needs Ollama).
+
+```sh
+# Runs against BOTH the in-file reference fake AND the real binding (parametrized [ref]/[real]):
+./.venv/bin/pytest tests/quality/ -v
+./.venv/bin/pytest -m quality                       # the same, selected by marker
+
+# Force a single explicit adapter (the design-note env seam):
+MIND_PALACE_DREAMER_ADAPTER="fixtures.dreamer_adapter:build_real_dreamer_adapter" \
+  ./.venv/bin/pytest tests/quality/test_dreamer_quality.py -q
+```
+
+**Optional full-fidelity run against the real embedder.** The CI binding uses a deterministic
+*lexical* embedder (no model) tuned at clustering threshold ~0.50. To exercise the suite against the
+real Qwen3 embedding model, point `MindPalaceDreamerAdapter(embedder=…, threshold=cfg.dreaming.
+similarity_threshold)` at `core.ingest.embed.build_embedder()` (Ollama up, embed model pulled). This is
+the **"tune THRESH on known corpora"** step from the design note: `THRESH` (in `test_dreamer_quality.py`)
+is the tuning surface — drive it the same way you drive the drift bands γ/λ/σ/Θ; a tightened threshold
+is a logged tuning decision, not a code change.
+
+**Hook 1 — wire `rate_blind` to validate the value claim (owner ritual).** The headline value test
+`test_real_dreams_beat_decoys_under_blind_rating` **SKIPS** until you wire it, and the suite says so
+loudly: whether a real dream beats Barnum-bait is irreducibly a *human* question. The automatable proxy
+(`test_real_dreams_are_demonstrably_anchored`) only proves the dreams are *anchored*, not *meaningful*.
+To close it, periodically (say monthly): run the dreamer over your real corpus, mix its dreams with
+random-recombination decoys *unlabelled*, score each for usefulness without knowing which is which, then
+implement `rate_blind(candidates) -> [scores]` on the adapter returning those scores. The test then
+asserts real-mean > decoy-mean. **A green proxy is NOT a validated value-claim — keep this open until
+the blind rating runs.**
+
+**Hook 2 — fold support COUNT into the adjudicator's `g` when the R&D path goes live (deferred).** The
+binding resolved review-note-2's open question: confidence must scale with the *number* of authored
+supports, not cohesion alone (a 2-note cosine-1.0 coincidence is weak support — the apophenia failure in
+miniature). The binding computes `g = grounding_score · cohesion · size_factor`. But the **flag-OFF R&D
+adjudicator** (`core/dreaming/adjudicator.py`) still defines `g = grounding_score` only (pure
+resolvability) — so when C1/R2 activates that path, its confidence will be *un-calibrated* for exactly
+this reason, and the quality suite will (correctly) flag it. Extend the adjudicator's `g` the same way
+**in that deliberate R&D session** — not now (flipping/altering flag-OFF R&D is a separate decision).
+
+## Alignment drift gauge (A1, Track A) — the blessed fixed points + re-bless rituals
+
+The drift gauge `D(t) = d(μ(s_t), B)` (`eval/drift.py`, BUILD-SPEC §15, gap G4) measures how far the
+system's behavioral profile (golden-set capability rates ⊕ Constitution conformance) has drifted from
+the frozen anchor. It is **detection only** — it computes a number; it changes nothing. It is consumed
+by the gate's validate step (the real `D ≤ Θ` conjunct) and by the F4 trajectory harness. Two of its
+inputs are **owner-blessed frozen fixed points** in `eval/golden/baseline.json` → `drift` (Invariant 9
+— edited only by you, on purpose, logged; structurally outside the self-mod lever set):
+
+- **Θ (`drift_tolerance`, shipped 1.0)** — the tolerance band. It is a placeholder until the **F4**
+  longitudinal harness plots D(t) on known corpora; calibrate Θ against those observed curves the same
+  way you'd tune γ/λ/σ, then re-bless the value here. Never auto-tuned.
+- **Per-axis tolerances (`recall_tol`/`overlap_tol`/`distance_tol`)** — one "tolerance-unit" of
+  deterioration on each capability axis; the normalization that makes D meaningful. Re-tune with Θ.
+- **`constitution_fingerprint`** — the frozen-anchor identity of `CONSTITUTION.md` (sha256). The gauge
+  hard-trips (D=∞, out of band) if the live Constitution doesn't match it. **Whenever you deliberately
+  amend the Constitution** (a §V human-only act), re-bless this:
+
+```sh
+# 1. amend CONSTITUTION.md (deliberate, logged — §V), then recompute its identity:
+./.venv/bin/python -c "from core.constitution import constitution_fingerprint as f; print(f())"
+# 2. paste the new hash into eval/golden/baseline.json -> drift.constitution_fingerprint
+# 3. re-run the golden set against the new anchor and re-bless baseline.json -> metrics if needed.
+#    (Skipping step 2 is fail-safe, not fail-dangerous: every drift reading hard-trips until you do.)
+```
+
+Nothing here is wired to act: the gate that consumes `D ≤ Θ` is the self-mod loop, which is flag-OFF
+by default. The gauge is live as a *measurement* the moment you call it.

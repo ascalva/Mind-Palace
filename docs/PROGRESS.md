@@ -1015,3 +1015,115 @@ interface, research airlock (live), encrypted backups (live), production Vault +
 and now the gated/validated/reversible self-modification loop. Remaining is operational/optional:
 activate `[selfmod]` when desired, wire a cautious proposer, Phase 6b voice (§20.11), and the
 still-pending empirical `-m podman` sandbox check (docs/runbook.md → "Sandbox runtime").
+
+---
+
+## Forward layer (Track items, not numbered phases)
+
+### F9 — dreamer output-quality suite, real binding (Track F)
+
+**Status:** COMPLETE (2026-06-28). Item spec: `design-notes/dreamer-quality-suite-evaluation.md`
+(adopt) + `ROADMAP-V1.md` Track F. Bind the signal-vs-noise / apophenia suite to the LIVE
+Dreamer/DerivedStore and run it. No flags flipped; no live/R&D code changed.
+
+**Built**
+
+- `tests/fixtures/dreamer_adapter.py` — `MindPalaceDreamerAdapter` binding the suite's
+  `DreamerAdapter` protocol to the live machinery: real `Dreamer.clusters()` over a `MirrorView`
+  (authored-only, structural), real `cluster_notes`/`note_centroids`/`similarity_matrix`, real
+  `grounding_score` + `core.recursion`. Only the embedder + synthesizer are deterministic offline
+  stand-ins (the real ones need Ollama; the quality layer grades structure, not prose). `run()` =
+  fast clustering→Dreams; `persist_dreams()` = full live `dream()` into a real `DerivedStore`;
+  `run_without_grounding()` = the decorative-citation negative control. NO `rate_blind` (value
+  claim stays honestly open). `LexicalEmbedder` = offline, similarity-PRESERVING (the shipped
+  `FakeEmbedder` hashes whole strings → useless for clustering); per-batch presence vectors,
+  clustering threshold tuned to 0.50 (single-linkage is chain-prone on lexical vectors; 0.50 is
+  the stable band where noise can't bridge themes AND calibration has ≥6 dreams).
+- **Resolved the open `g` question (review note 2 / §4) IN THE BINDING:** confidence
+  `c₀ = g·(1+λ(|Agr|−1))` with `g = grounding_score · cohesion · size_factor` — folds in support
+  COUNT (`size_factor = min(1,(n−1)/4)`), so a 2-note cosine-1.0 coincidence scores weak (the
+  apophenia failure in miniature). The live adjudicator's `g = grounding_score` (resolvability
+  only) would make confidence flat and FAIL calibration — exactly what the suite is built to flag.
+  Reports the base confidence c₀ (depth-uniform live run, d=1 = `AUTHORED_LEAF_DEPTH`); γ^d
+  cross-depth decay is the recursion/drift suite's job (binding-seam note 3). **NOT changed in the
+  flag-OFF `core/dreaming/adjudicator.py`** — recorded as a deferred R&D follow-up (runbook Hook 2).
+- `tests/quality/test_dreamer_quality.py` (the adopted contribution) — `_load_adapter` →
+  parametrized `adapter` fixture over `[ref]` + `[real]`, so the whole suite runs against BOTH the
+  reference fake and the real binding; env `MIND_PALACE_DREAMER_ADAPTER` still forces one. Adopted
+  ruff-clean (mechanical, behavior-preserving). `THRESH` left as the tuning surface (untouched).
+- `tests/quality/test_real_dreamer_binding.py` — end-to-end proof the binding reaches the real
+  Dreamer AND DerivedStore: full `dream()` persists INTERPRETED-only, `derived_from` = authored
+  leaves (G2), grounded self-check passes, fast `run()` ⇄ persisted grounding agree, idempotent,
+  deterministic. `tests/quality/conftest.py` + `quality` marker (pyproject).
+
+**Verified**
+
+- `tests/quality/`: **22 passed, 4 skipped**. Real binding `[real]`: 9 pass + 1 skip
+  (`beat_decoys_under_blind_rating` — `rate_blind` unwired = value claim honestly OPEN). The 2
+  drift-deferred tests skip (need A1; move to `longitudinal/` then). Calibration `[real]`: 7
+  grounded dreams, top−bottom precision margin = 1.0; noise max-conf 0.25 (≤0.70); planted recall
+  1.0; real ≥ TF-IDF baseline; paraphrase stability 1.0.
+- Full logic suite **372 passed, 4 skipped** (non-quality unchanged at 350 — no regressions; F9
+  adds +22 quality). ruff clean (incl. the adopted file); import firewall (I2) green; core reaches
+  no network. Everything deterministic (fixed seeds) → green is stable.
+
+**Owner-deferred (build/owner boundary; documented in runbook → "Dreamer output-quality suite")**
+
+- **Hook 1:** wire `rate_blind` to a periodic blind-rating ritual — the ONLY path that validates
+  the value claim. A green proxy is not a proven value-claim; keep it open until the rating runs.
+- **Hook 2:** fold support count into the adjudicator's `g` when the C1/R2 R&D path is activated
+  (a deliberate R&D session — not now; flag stays OFF).
+- Optional full-fidelity run against the real Ollama embedder (`needs_models`) = the THRESH
+  harness-tuning step.
+
+**Next:** owner picks the next forward item. Per ROADMAP-V1 ordering, **A1 (the drift gauge)** is
+the keystone — it unblocks R3/C2 recursion AND F4 drift-trajectory asserts (and would unlock F9's
+two drift-deferred tests). Track B (the Ambassador) is the other high-value parallel.
+
+### A1 — the drift gauge (Track A, the keystone)
+
+**Status:** COMPLETE (2026-06-29, same session as F9 — owner said "continue"). Item spec:
+`design-notes/alignment-subsystem.md` §2/§5 + BUILD-SPEC §15 + gap **G4**. Realize the §15 drift
+metric `D(t)=d(μ(s_t),B)`. **Closes G4** (was OPEN). Detection only — alters no live behavior
+(self-mod is flag-OFF).
+
+**Two owner decisions (asked, not guessed — `AskUserQuestion`, 2026-06-29):**
+- **Metric:** one-sided L2 deterioration distance — each axis contributes only its bad-direction
+  deviation past baseline, normalized by a blessed per-axis tolerance, combined by L2; healthy
+  improvement = 0 drift; Constitution-fingerprint mismatch = hard trip (D=∞).
+- **Θ:** ship **Θ=1.0**, blessed in `baseline.json`, F4-calibrated-then-re-blessed. A human-set
+  frozen fixed point — excluded from the lever set (structurally: levers only tune `[dreaming]`).
+
+**Built**
+
+- `eval/drift.py` — the gauge: `Profile` (μ = capability rates ⊕ Constitution conformance, G4's
+  "rates ⊕ conformance vector"), `Axis` (flat + additive so A2 appends structural axes as data),
+  one-sided `deterioration()`, `drift()` (L2 + the conformance hard-trip), `DriftReport`,
+  `constitution_intact()` (live fingerprint vs blessed; no-blessed ⇒ intact, no false trip),
+  `drift_from_report()` (reuses one golden report) + `measure_drift()` (standalone entry for the
+  A2 report / F4 harness). Reuses `eval.golden` + `core.constitution.constitution_fingerprint`.
+- `eval/golden/baseline.json` — extended with a blessed `drift` section (per-axis tols, Θ=1.0,
+  the Constitution fingerprint `1818a46e…`). Owner-blessed/frozen, never auto-modified (I9);
+  `load_baseline()`/`regressions()` untouched (backward-compatible).
+- `ops/selfmod.build_golden_validator` — `drift_within_tolerance` is now the REAL gauge
+  `D(Δ·s) ≤ Θ` (`drift_from_report`), the honest realization of the gate's drift conjunct (G4/G5),
+  replacing the rolling-regression stand-in (now retained as advisory `metrics`). Self-mod flag-OFF
+  ⇒ no live behavior change.
+- `docs/WHITEPAPER-FORMAL-PROPERTIES.md` — **G4 OPEN → CLOSED** with the realization.
+
+**Verified**
+
+- `tests/unit/test_drift.py` (15) + `tests/property/test_drift_property.py` (3 Hypothesis:
+  D≥0, within⇔D≤Θ, at-or-better⇒0, monotonic) + `tests/integration/test_selfmod.py` (+1: the gate
+  conjunct is the real gauge). Gauge behaviors proven: at-baseline D=0; healthy improvement D=0
+  (one-sided); one-tol drop D=1.0=Θ (within, boundary); 2-tol D=2.0 (out); L2 combine = √2;
+  Constitution breach D=∞ (hard trip regardless of perfect capability).
+- Full logic suite **372 → 391 passed (+19)**, 4 skipped. ruff clean (whole tree); import firewall
+  (I2) green (eval may import core; core still reaches no network).
+
+**Owner-deferred / next:** Θ is a placeholder until **F4** calibrates it on observed curves (then
+re-bless in `baseline.json`); re-bless the Constitution fingerprint whenever `CONSTITUTION.md` is
+amended (runbook → "Alignment drift gauge"). A1 now unblocks **R3/C2** (recursive dreaming),
+**F4** (drift-trajectory asserts), and F9's two drift-deferred tests (move them to
+`longitudinal/` when F4 lands). Natural next: **A2** (structural detection + the alignment report,
+extends μ) or **F4** (uses the gauge), or Track B (Ambassador).

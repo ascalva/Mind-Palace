@@ -65,7 +65,7 @@ class ValidationResult:
     conjuncts (ops/gate.GateDecision); `conforms` (behavioral) is deferred, not stubbed True."""
 
     golden_non_regressing: bool   # frozen golden anchor (capability) didn't drop (§15)
-    drift_within_tolerance: bool  # rolling baseline: no acute regression right after the change
+    drift_within_tolerance: bool  # §15 drift gauge D(Δ·s) ≤ Θ vs the frozen anchor (eval.drift)
     metrics: dict = field(default_factory=dict)
 
 
@@ -198,35 +198,47 @@ def build_golden_validator(
     rolling_baseline: dict | None = None,
 ) -> Validator:
     """Default validator: run the frozen golden set through `retriever` and decide both §15
-    conjuncts from it. `golden_non_regressing` is measured against the FROZEN anchor (baseline.json,
-    Invariant 9); `drift_within_tolerance` against a supplied `rolling_baseline` (the adapting
-    before/after) when present — together they defeat the boiling-frog problem (§15): a change can
-    pass the rolling check yet still be caught by the frozen anchor, which triggers rollback.
+    conjuncts from it. `golden_non_regressing` is the STRICT capability check against the FROZEN
+    anchor (baseline.json, Invariant 9 — any metric below baseline fails). `drift_within_tolerance`
+    is now the REAL §15 drift gauge `D(Δ·s) ≤ Θ` (`eval.drift`, item A1): a one-sided, normalized,
+    aggregate deterioration distance over the mixed profile (capability rates ⊕ Constitution
+    conformance) vs the same frozen anchor — the honest realization of the gate's drift conjunct
+    (G4/G5), replacing the earlier rolling-regression stand-in.
+
+    The two conjuncts are complementary defense-in-depth against the boiling-frog problem (§15):
+    `golden_non_regressing` trips on ANY capability drop; the gauge tolerates healthy drift up to Θ
+    but hard-trips on a Constitution-fingerprint breach and on aggregate deterioration past the
+    blessed band. The optional `rolling_baseline` is retained as ADVISORY acute-regression detail in
+    `metrics` (it no longer decides the gate).
 
     Imports eval lazily so ops/selfmod stays importable without the eval fixtures loaded."""
+    from eval.drift import drift_from_report, load_drift_config
     from eval.golden import evaluate, load_baseline, load_golden_set, regressions
 
     golden = golden or load_golden_set()
     frozen_baseline = frozen_baseline or load_baseline()
+    drift_cfg = load_drift_config()
 
     def _validate(lever: Lever, value: float) -> ValidationResult:
         report = evaluate(golden, retriever)
         after = report.as_metrics()
         frozen_regs = regressions(report, frozen_baseline)
-        drift_ok = True
-        rolling_regs: list[str] = []
-        if rolling_baseline is not None:
-            rolling_regs = regressions(report, rolling_baseline)
-            drift_ok = not rolling_regs
+        # D(Δ·s) ≤ Θ — the real gauge vs the frozen anchor (reuses the single golden report).
+        d_report = drift_from_report(report, frozen_baseline, drift_cfg)
+        rolling_regs = regressions(report, rolling_baseline) if rolling_baseline is not None else []
         return ValidationResult(
             golden_non_regressing=not frozen_regs,
-            drift_within_tolerance=drift_ok,
+            drift_within_tolerance=d_report.within_tolerance,
             metrics={
                 "lever": lever.name,
                 "value": value,
                 "after": after,
                 "frozen_regressions": frozen_regs,
-                "rolling_regressions": rolling_regs,
+                "rolling_regressions": rolling_regs,   # advisory only (no longer the gate decision)
+                "drift": d_report.drift,
+                "drift_theta": d_report.theta,
+                "drift_per_axis": d_report.per_axis,
+                "constitution_intact": d_report.constitution_intact,
             },
         )
 
