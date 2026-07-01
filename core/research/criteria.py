@@ -1,3 +1,10 @@
+# ── Family 1 boundary (labelings & information-flow) · symbols in docs/NOTATION.md ──
+# OBJECT:    π_public — the airlock erasure map onto a label that carries no note content
+#            (ResearchCriteria).
+# INVARIANT: what crosses the airlock outbound is de-identified topical terms only — no
+#            names/dates/places/narrative/note content (I11, §16).
+# ENFORCED:  structural + runtime guard — the type has no free-text/content field
+#            (unrepresentable); assert_clean re-scrubs at the emit boundary (raises on doubt).
 """De-identified research criteria — the one thing allowed to cross the airlock (§16).
 
 THIS IS THE PRIVACY BOUNDARY. The owner's question may be deeply personal ("my migraines

@@ -1,5 +1,7 @@
 # Design note — Skills, roles, and the scope ceiling
 
+*Family tag → family 1 (the capability semilattice): 𝒜 = scope ∩ MAX; skills are non-widening, 𝒜(a ⊕ ς) = 𝒜(a) (I13). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only, not implemented. Thread raised 2026-06-25; to be honored when
 roles + the factory land (instructional half ~Phase 3 context composition; capability
 half Phases 4–5). Reconciled against what Phase 0 actually built.

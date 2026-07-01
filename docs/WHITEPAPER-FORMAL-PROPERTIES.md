@@ -1,6 +1,8 @@
 # The Mind Palace — Verifiable Properties, Proof Obligations & Exposed Gaps
 ### Formal companion II to `WHITEPAPER.md` / `WHITEPAPER-TECHNICAL.md`
 
+> *Notation: every load-bearing symbol (ρ, π_MR, 𝒜, D(t), 𝔎, …) is defined once in [`NOTATION.md`](NOTATION.md) — symbol ↔ code ↔ object ↔ family (companion IV §A). The invariant catalog below is grouped by those five families.*
+
 This document turns the design's invariants into a **verification plan**: each is stated
 formally, classified by *how strongly it can be guaranteed*, and paired with the obligation that
 discharges it. It also records the **gaps formalization exposed** — the real payoff.
@@ -26,24 +28,79 @@ Let $\mathsf{Core}$ be the core module set, $\mathsf{Net}$ the network-capable m
 $\to$ the import relation, $\mathcal{A}(\cdot)$ authority, $\rho$ provenance, $\mathsf{MR}$ the
 mirror-readable classes, $\pi_{\mathsf{MR}}$ the mirror projection.
 
+The catalog is **grouped by the five object families** of companion IV (`MATHEMATICAL-REFRAMING.md`
+§A; symbols in [`NOTATION.md`](NOTATION.md)), so each object's guarantees sit together rather than as
+a flat list. The formal statement, tier, and discharge of every invariant are unchanged — only the
+grouping is new. An invariant may touch more than one family; it is filed under its *primary* one with
+cross-references noted.
+
+### A.1 — Labelings & information-flow (family 1)
+
+The security spine: typed labels that constrain flow, enforced by making the wrong flow
+unrepresentable (read flow I6; capability flow I13; network flow I1/I2; advise/act flow I3; execution
+capability I4; the label pin I5; the outermost instruction frame I7; belief↔utility separation I11).
+
 | # | Property (formal) | Tier | Discharge / obligation |
 |---|---|---|---|
 | I1 | egress: $\forall$ connect from core, $\mathrm{dst}\in\{\text{loopback},\text{AF\_UNIX}\}$ | guard + **assumption** | live test (external blocked) **+ stated assumption**: a native ext. opening its own socket bypasses a Python hook ⇒ OS isolation (pf/netns) is the real bound |
 | I2 | no core→network path: $\nexists\,\text{path}\ \mathsf{Core}\!\to^{*}\!\mathsf{Net}$ | **static** | import-graph lint in CI (core may not import edge/sockets/http) — *promote from runtime to static* |
 | I3 | model advises: no callsite executes model output as code/shell/cred outside the gate | **structural** + test | `Agent.respond` returns data, has no action path; dispatcher is the sole action path |
 | I4 | sandbox powerless: $\mathcal{A}(\text{exec})\cap\{\text{net},\text{vault},\text{cred}\}=\varnothing$ | **structural** + guard | container `--network=none`, no mounts; integration test code can't reach net/vault |
-| I5 | interpreted unforgeable: $\forall x\ \text{via DerivedStore},\ \rho(x)=\textsf{interpreted}$ | **structural** | by construction — *no provenance parameter exists* (exemplar of unrepresentable) |
+| I5 | interpreted unforgeable: $\forall x\ \text{via DerivedStore},\ \rho(x)=\textsf{interpreted}$ | **structural** | by construction — *no provenance parameter exists* (exemplar of unrepresentable) *(also family 2)* |
 | I6 | firewall: $\mathrm{in}(\Omega)\subseteq\pi_{\mathsf{MR}}(V)$ for introspective $\Omega$ | **prefilter (convention)** → promote | property test (observed never returned to mirror) **and** introduce a typed `MirrorView` so a non-MR view is *untypable* ⇒ structural |
-| I7 | Constitution outermost: $\mathrm{frame}[0]=\textsf{Constitution}$, $\forall$ agents | structural + test | `frame_context` prepends; fingerprint test (exists) |
-| I8 | ceiling: $\sum_{R}m\le C\ \wedge\ |R|\le2$ | guard + **FSM** | check-before-load; loader is a tiny FSM ⇒ *exhaustively checkable* |
-| I9 | grounding: $\textsf{grounded}(A)\iff\mathrm{Cit}(A)\subseteq\mathrm{Ret}$ | property-test | Hypothesis: random answers w/ in- and out-of-set citations ⇒ predicate matches (**needs stable citation IDs — gap G1**) |
-| I10 | recursion: $c(\kappa)\le\gamma^{d(\kappa)}g(\kappa)$, authored leaves only | property-test | Hypothesis over synthetic derivation DAGs ⇒ $c$ non-increasing in $d$; reject cycles (**needs persisted derivation edges — gap G2**) |
+| I7 | Constitution outermost: $\mathrm{frame}[0]=\textsf{Constitution}$, $\forall$ agents | structural + test | `frame_context` prepends; fingerprint test (exists) *(the outermost instruction-frame labeling; composition-preserved, §composition)* |
 | I11 | belief ≠ utility: no $f$ maps $(c,u)\mapsto$ one ranking scalar | **structural** | two disjoint ranking APIs; review/test there is no combiner |
-| I12 | gate: $s'=\Delta\!\cdot\!s$ iff $G(\Delta,s)$ else $s$; $\Delta$ never self-applies | structural + guard + **FSM** | only code applies $\Delta$; gate is a tiny FSM ⇒ checkable (**$\textsf{conforms}$ conjunct deferred — gap G5**) |
 | I13 | authority non-widening: $\mathcal{A}(\text{agent}\oplus\varsigma)=\mathcal{A}(\text{agent})$; $\mathcal{A}(\mathrm{mint})=\mathrm{scope}\cap\textsf{MAX}$ | **structural** + test | skills add context not handles; dispatch table = held handles; property test over arbitrary skill composition |
 
-The table **is** the build target: every row is either already structural (I3,I5,I11,I13), or names the
-test/lint/promotion that discharges it.
+Also family 1 (post-catalog, structural): the airlock de-identification $\pi_{\text{public}}$
+(`ResearchCriteria`, Phase 8) and the self-mod surface (`ProposedChange`/`ops/levers.py`, Phase 10) —
+labels with no field that can carry the forbidden flow.
+
+### A.2 — Regenerable derivation (family 2)
+
+Content-addressed base + pure-function derived + an acyclic provenance-of-inference. The raw hash
+$H$ (write-once, A1), regenerability (derived $= f(\text{raw})$), and attestation chains (signed paths
+to authored leaves) are structural but un-numbered; the two numbered invariants are:
+
+| # | Property (formal) | Tier | Discharge / obligation |
+|---|---|---|---|
+| I9 | grounding: $\textsf{grounded}(A)\iff\mathrm{Cit}(A)\subseteq\mathrm{Ret}$ | property-test | Hypothesis: random answers w/ in- and out-of-set citations ⇒ predicate matches (**needs stable citation IDs — gap G1**) *(grounding-as-distance-to-authored also touches family 4)* |
+| I10 | recursion: $c(\kappa)\le\gamma^{d(\kappa)}g(\kappa)$, authored leaves only | property-test | Hypothesis over synthetic derivation DAGs ⇒ $c$ non-increasing in $d$; reject cycles (**needs persisted derivation edges — gap G2**) |
+
+### A.3 — Guarded transition systems (family 3)
+
+Small finite automata with a checked guard before each side effect; rejection is identity; state
+spaces small enough to enumerate exhaustively (FSM-verified).
+
+| # | Property (formal) | Tier | Discharge / obligation |
+|---|---|---|---|
+| I8 | ceiling: $\sum_{R}m\le C\ \wedge\ |R|\le2$ | guard + **FSM** | check-before-load; loader is a tiny FSM ⇒ *exhaustively checkable* |
+| I12 | gate: $s'=\Delta\!\cdot\!s$ iff $G(\Delta,s)$ else $s$; $\Delta$ never self-applies | structural + guard + **FSM** | only code applies $\Delta$; gate is a tiny FSM ⇒ checkable (**$\textsf{conforms}$ conjunct deferred — gap G5**) *(the $D\le\Theta$ conjunct is family 4)* |
+
+Also family 3 (un-numbered): the job-queue lifecycle (`scheduler/queue.py`) — precondition-checked
+transitions with monotone anti-starvation aging (liveness **gap G6**, below).
+
+### A.4 — Metric geometry (family 4)
+
+Distances measured against **frozen anchors**. This family has no $I_n$ row of its own in the original
+catalog; its obligation is the drift gauge $D(t)=d(\mu(s_t),B)\le\Theta$ — specified as **gap G4**
+(now CLOSED, forward item A1; `eval/drift.py`) and consumed by the gate's I12 conjunct and by the
+liveness alarm "$D(t)>\Theta$ eventually raises an alarm" (below). The boiling-frog inequality is why
+$B$ and $\Theta$ are frozen fixed points excluded from the lever set. I9's grounding is the same
+"distance to authored ground" idea and cross-references here.
+
+### A.5 — The reasoning complex (family 5 · **not yet built**)
+
+The reasoning complex $\mathfrak{K}$ + generalized Laplacian family $\delta^{\!*}\delta$ (companions
+III) is the one genuinely-new code family; `core/complex/` does not exist yet and ships behind the
+`DreamerAdapter` seam, flag-OFF (Track H). It has **no discharged invariant in this catalog today** —
+its verification obligations (property tests over the complex) are specified in
+`REASONING-COMPLEX-{MATHEMATICS,BUILD}.md` and land with the code. Recorded here so the account is
+complete; nothing is claimed as verified that is not.
+
+The catalog **is** the build target: every row is either already structural (I3, I5, I11, I13), or
+names the test/lint/promotion that discharges it — now read by family, so each object's guarantees sit
+together.
 
 ---
 

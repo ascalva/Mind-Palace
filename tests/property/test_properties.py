@@ -19,7 +19,7 @@ from core.factory.roles import PRE_DECLARED_MAX, RoleTemplate
 from core.factory.tools import ToolRegistry, ToolSpec
 from core.mirror import MirrorView
 from core.provenance import MIRROR_READABLE, Provenance
-from core.recursion import decay_bound
+from core.recursion import claim_confidence, decay_bound
 from core.selfcheck import FAIL, PASS, Source, check_grounding
 from core.stores.derived import DREAM, DerivationCycleError, DerivedStore
 
@@ -95,6 +95,37 @@ def test_I10_decay_is_non_increasing_in_depth(depth, gamma, grounding):
     assert decay_bound(depth + 1, grounding=grounding, gamma=gamma) <= (
         decay_bound(depth, grounding=grounding, gamma=gamma) + 1e-12
     )
+
+
+# --- Prompt R1 — the confidence clamp: c ∈ [0,1] and non-increasing in depth ----
+# The single definition c = min{1, γ^d·g·(1+λ(|Agr|−1))} may not produce c>1 or a c that rises
+# with depth, for ANY admissible (d, g, |Agr|, γ, λ) — including large agreement / grounding that
+# would push the raw product past 1 (the clamp must bite).
+
+@given(
+    depth=st.integers(min_value=0, max_value=20),
+    grounding=st.floats(min_value=0.0, max_value=1.0),
+    agreement=st.integers(min_value=1, max_value=50),
+    gamma=st.floats(min_value=0.01, max_value=0.99),
+    lam=st.floats(min_value=0.0, max_value=2.0),
+)
+def test_claim_confidence_in_unit_interval(depth, grounding, agreement, gamma, lam):
+    c = claim_confidence(depth, grounding=grounding, agreement=agreement, gamma=gamma, lam=lam)
+    assert 0.0 <= c <= 1.0
+
+
+@given(
+    depth=st.integers(min_value=0, max_value=20),
+    grounding=st.floats(min_value=0.0, max_value=1.0),
+    agreement=st.integers(min_value=1, max_value=50),
+    gamma=st.floats(min_value=0.01, max_value=0.99),
+    lam=st.floats(min_value=0.0, max_value=2.0),
+)
+def test_claim_confidence_non_increasing_in_depth(depth, grounding, agreement, gamma, lam):
+    deeper = claim_confidence(depth + 1, grounding=grounding, agreement=agreement,
+                              gamma=gamma, lam=lam)
+    here = claim_confidence(depth, grounding=grounding, agreement=agreement, gamma=gamma, lam=lam)
+    assert deeper <= here + 1e-12
 
 
 @settings(deadline=None, max_examples=50)

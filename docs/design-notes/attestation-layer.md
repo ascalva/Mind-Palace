@@ -1,5 +1,7 @@
 # Design note — Attestation layer: verifiable chain of custody for agent actions
 
+*Family tag → family 2 (regenerable derivation): an attestation chain is a signed path in the derivation DAG, terminating in authored leaves. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Extends `vault-runtime-auth.md` and
 `WHITEPAPER-FORMAL-PROPERTIES.md`. The building blocks are already in place; this
 note adds the signing layer that ties them into a verifiable chain. Honor at Phase

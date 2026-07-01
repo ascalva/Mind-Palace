@@ -1,5 +1,7 @@
 # Design note — Observed IoT sources + cross-source synthesis
 
+*Family tag → family 1 (the observed label) + family 5 (cross-source synthesis): IoT/observed data kept out of the mirror; the correlator as a capability distinct from the Dreamer. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Extends `observed-data-and-the-assistant-tier.md` and the
 dormant Phase-0 `sensor_readings` DuckDB schema. Honor when the assistant tier and
 advisor agents land (Phase 5+). The cross-source correlator is a separate capability

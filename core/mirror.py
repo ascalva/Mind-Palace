@@ -1,3 +1,8 @@
+# ── Family 1 boundary (labelings & information-flow) · symbols in docs/NOTATION.md ──
+# OBJECT:    π_MR — the projection onto the mirror-readable layers MR (family 1).
+# INVARIANT: in(Ω) ⊆ π_MR(V); observed/curated is unreachable to introspective agents Ω (I6).
+# ENFORCED:  structural — a non-MR view is unrepresentable (MirrorView.__post_init__ raises).
+#            Residual G11: guards the *data*, not the store handle.
 """The mirror projection as a TYPE (Invariant 6, BUILD-SPEC §8; gap G3).
 
 I6 — the firewall — requires that introspective agents (the dreamer; the curator's theme /

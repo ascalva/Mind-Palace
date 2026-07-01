@@ -1,6 +1,8 @@
 # The Mind Palace — Formal Models & Figures
 ### Technical companion to `WHITEPAPER.md` (v1.0, 2026-06-26)
 
+> *Notation: every load-bearing symbol (ρ, π_MR, 𝒜, D(t), 𝔎, …) is defined once in [`NOTATION.md`](NOTATION.md) — symbol ↔ code ↔ object ↔ family (companion IV §A).*
+
 This companion formalizes the design: it maps each philosophical commitment to the **sets,
 operators, and predicates** that realize it, with figures per subsystem. Section numbers track
 the white paper.

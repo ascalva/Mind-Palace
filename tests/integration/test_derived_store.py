@@ -9,8 +9,9 @@ import inspect
 
 import pytest
 
+from core.complex_types import HyperedgeRole
 from core.provenance import Provenance
-from core.stores.derived import DREAM, FINDING, DerivationCycleError, DerivedStore
+from core.stores.derived import DERIVES, DREAM, FINDING, DerivationCycleError, DerivedStore
 
 
 def _store(tmp_path):
@@ -118,3 +119,71 @@ def test_attestation_id_defaults_to_none(tmp_path):
     # A record written without an attestor (or before the layer existed) has no link.
     s = _store(tmp_path)
     assert s.add(kind=DREAM, summary="t", subjects=["a"]).attestation_id is None
+
+
+# --- the derivation hypergraph ℋ as a junction (Prompt R1, move 1) ---------------
+
+def test_add_populates_the_junction_with_typed_roles(tmp_path):
+    s = _store(tmp_path)
+    a = s.add(kind=DREAM, summary="t", subjects=["a"], derived_from=["dig-a", "dig-b"])
+    edges = s.hyperedges()
+    assert len(edges) == 1
+    he = edges[0]
+    assert he.head == a.id                                # single head κ (head-set size 1)
+    assert he.tails == {"dig-a", "dig-b"}                 # the tail set supp(κ)
+    assert he.rel_type == DERIVES
+    assert s.tails_of(a.id) == {"dig-a", "dig-b"}
+
+
+def test_junction_matches_derived_from_as_a_set(tmp_path):
+    # The normalized junction never drifts from the denormalized derived_from column.
+    s = _store(tmp_path)
+    for i, refs in enumerate([["x"], ["y", "z"], []]):
+        art = s.add(kind=DREAM, summary=f"d{i}", subjects=[f"n{i}"], derived_from=refs)
+        assert s.tails_of(art.id) == set(art.derived_from)
+
+
+def test_no_edges_means_no_hyperedge(tmp_path):
+    s = _store(tmp_path)
+    s.add(kind=DREAM, summary="t", subjects=["a"])        # no derived_from
+    assert s.hyperedges() == []
+
+
+def test_roles_stored_are_exactly_tail_and_head(tmp_path):
+    s = _store(tmp_path)
+    s.add(kind=DREAM, summary="t", subjects=["a"], derived_from=["dig-a"])
+    roles = {r[0] for r in s._conn.execute("SELECT DISTINCT role FROM hyperedge_nodes")}
+    assert roles == {HyperedgeRole.TAIL.value, HyperedgeRole.HEAD.value}
+
+
+def test_idempotent_readd_leaves_no_stale_tails(tmp_path):
+    # Re-adding the same artifact (content-addressed id) with a different tail set replaces the
+    # junction cleanly — no stale tails survive (junction stays == derived_from).
+    s = _store(tmp_path)
+    a = s.add(kind=DREAM, summary="v1", subjects=["a"], derived_from=["dig-a", "dig-b"])
+    s.add(kind=DREAM, summary="v2", subjects=["a"], derived_from=["dig-c"])
+    assert s.tails_of(a.id) == {"dig-c"}
+    assert len(s.hyperedges()) == 1
+
+
+def test_reset_clears_the_junction(tmp_path):
+    s = _store(tmp_path)
+    s.add(kind=DREAM, summary="t", subjects=["a"], derived_from=["dig-a"])
+    s.reset()
+    assert s.hyperedges() == []
+    assert s.count() == 0
+
+
+def test_backfill_from_a_preexisting_store(tmp_path):
+    # A store written before the junction existed: simulate by dropping the junction tables,
+    # then re-open — __post_init__ backfills ℋ from the surviving derived_from column.
+    path = tmp_path / "derived.sqlite"
+    s = DerivedStore(path)
+    a = s.add(kind=DREAM, summary="t", subjects=["a"], derived_from=["dig-a", "dig-b"])
+    s._conn.execute("DELETE FROM hyperedges")
+    s._conn.execute("DELETE FROM hyperedge_nodes")
+    s._conn.commit()
+    s.close()
+    reopened = DerivedStore(path)                          # backfill runs in __post_init__
+    assert reopened.tails_of(a.id) == {"dig-a", "dig-b"}
+    reopened.close()

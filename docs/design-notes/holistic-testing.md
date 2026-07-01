@@ -1,5 +1,7 @@
 # Design note — Holistic and logic-based testing: beyond unit and integration tests
 
+*Family tag → cross-cutting: the verification strategy across all five families (the assurance hierarchy — structural > static > runtime > property > assumption). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Extends WHITEPAPER-FORMAL-PROPERTIES.md (property-based
 tests already planned for I6/I9/I10/I13). This note adds the testing layers that
 cover emergent behaviors, cross-component invariants, and process correctness —

@@ -1,3 +1,10 @@
+# ── Family 3 boundary (guarded transition systems) · symbols in docs/NOTATION.md ──
+# OBJECT:    the job-queue lifecycle — a guarded transition system
+#            (QUEUED→RUNNING→DONE/FAILED/DEFERRED) with monotone anti-starvation aging.
+# INVARIANT: every transition is precondition-checked; queued jobs *eventually* run — aging
+#            never lifts a job above the REACTIVE floor (liveness, G6).
+# ENFORCED:  runtime guard + test — single-writer SQLite under an RLock; AgingPolicy is a
+#            no-op under normal load. Liveness is a supervisor progress guarantee, not safety.
 """Durable job queue — the scheduler's heartbeat (BUILD-SPEC §8, §13; roadmap §7).
 
 SQLite, WAL mode, **single-writer by design**: one supervisor owns this queue, so there is

@@ -1,5 +1,7 @@
 # Design note — Dream phase R&D charter (feature-flagged OFF)
 
+*Family tag → family 5 (the reasoning complex): the R&D charter for the interpretation engine (feature-flag OFF). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** research & development track, **feature-flag OFF by default**. Not committed
 spec; does not change the phased build. A detour to develop the interpretation engine; the
 main build resumes at Phase 8 (airlock) afterward. Ties together and extends the Phase 7

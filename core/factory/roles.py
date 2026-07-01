@@ -1,3 +1,10 @@
+# ── Family 1 boundary (labelings & information-flow) · symbols in docs/NOTATION.md ──
+# OBJECT:    𝒜(agent) — capability as a set of tool handles ordered by inclusion (a bounded
+#            meet-semilattice, top MAX = PRE_DECLARED_MAX; mint is the meet scope ∩ MAX).
+# INVARIANT: 𝒜 never exceeds scope ∩ MAX; skills are non-widening 𝒜(a ⊕ ς) = 𝒜(a) (I13);
+#            no shell/cred/net handle exists in MAX.
+# ENFORCED:  structural — RoleTemplate.__post_init__ refuses scope ⊄ MAX; the dispatcher holds
+#            only in-scope handles (dispatcher_for(resolved, …)); credentials are not a tool.
 """Base role library + the scope ceiling (BUILD-SPEC §9, §10; skills-and-scope).
 
 A role template declares two SEPARATE things (never conflated): the instructional frame

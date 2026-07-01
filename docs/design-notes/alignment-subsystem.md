@@ -1,5 +1,7 @@
 # Design note — Alignment as a subsystem: seeding, detection, surgery, reset (Phase 10 expansion)
 
+*Family tag → family 4 (metric geometry): alignment as fidelity of the regenerable layer to the frozen seed — the drift gauge D(t), the fixed points B/Θ, and the detect→surgery→reset loop. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only; expands Phase 10 and ties together the drift gauge (§15), the
 fixed points (§4), and the dream/interpreted layer (dream R&D track). Honor when Phase 10
 lands. Engages the Westworld/Blade-Runner framing as **engineering, not metaphysics**.

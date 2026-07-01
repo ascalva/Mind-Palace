@@ -1,3 +1,10 @@
+# ── Family 4 boundary (metric geometry) · symbols in docs/NOTATION.md ──
+# OBJECT:    D(t) = d(μ(s_t), B) — a one-sided L2 deterioration (pseudo)metric against the
+#            frozen anchor B; Θ is the tolerance band.
+# INVARIANT: healthy improvement = 0 drift (one-sided); a Constitution breach hard-trips
+#            D = ∞; B/Θ are frozen fixed points outside the lever set (boiling-frog, G4).
+# ENFORCED:  property-tested + owner-blessed frozen anchor — drift() is deterministic; B/Θ live
+#            in owner-only baseline.json (I9/§15), never written here. Detection only.
 """The alignment drift gauge D(t) = d(μ(s_t), B) (BUILD-SPEC §15; Track A, item A1; gap G4).
 
 The Voigt-Kampff analog of `alignment-subsystem.md` §2: a periodic, deterministic measure of

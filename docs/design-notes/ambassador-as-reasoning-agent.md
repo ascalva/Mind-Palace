@@ -1,5 +1,7 @@
 # Design note — The Ambassador as a reasoning agent: thinking, cadence, and transparent effort
 
+*Family tag → family 1 (labelings & flow): a pinned-scope agent (𝒜) that reads only the mirror (π_MR) and proposes tasks through the gate (family 3); a light consumer of the reasoning complex (family 5). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Refines and *corrects* `ambassador-interpretation-and-flow.md`
 and `nervous-system-and-ambassador.md` §4 with the owner's intent. Resolves the open
 questions those notes flagged (proactive vs. reactive, the intent-classifier floor, history

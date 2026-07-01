@@ -1,5 +1,7 @@
 # Design note — The Ambassador: interpretation, flow, and why it isn't a bottleneck
 
+*Family tag → families 1 + 3: intent interpretation routed to the human gate (a guarded transition), reading the corpus only through the firewall (π_MR). See [`../NOTATION.md`](../NOTATION.md).*
+
 > **⚠️ PARTIALLY SUPERSEDED (2026-06-28).** `ambassador-as-reasoning-agent.md` is the
 > **authoritative** Ambassador note and takes precedence wherever the two differ. In
 > particular, the **"thin dispatcher"** framing below is *corrected* there: the Ambassador

@@ -1,5 +1,7 @@
 # Design note — Roadmap & future directions (post-Phase-10 areas of interest)
 
+*Family tag → cross-cutting: post-Phase-10 directions spanning all families; each area notes its provenance/zone (family 1) implications. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** roadmap, NOT committed spec. Does **not** change Phases 0–10; the phased build
 proceeds unchanged. Captures the 2026-06-25 discussion so it's tracked and we can circle
 back. Each area lists where it attaches, its provenance/zone implications, and open

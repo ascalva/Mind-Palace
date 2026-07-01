@@ -1,5 +1,7 @@
 # Design note — Vault sync & capture: the owner's path to feed the system
 
+*Family tag → family 2 (regenerable derivation): incremental, idempotent, content-addressed re-ingest (unchanged=no-op, changed=re-embed, delete=tombstone, raw kept) + authored/dialogue capture (a family 1 label). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** **near-term, buildable now** — the practical path for the owner to start feeding the
 system his writings. Touches the existing Phase-1 ingest; **not a new phase.** The watcher is
 code; the sync transport is operational (documented in `runbook.md`).

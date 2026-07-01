@@ -1,5 +1,7 @@
 # Design note — Test directory reorganization
 
+*Family tag → cross-cutting: test-suite organization (by execution profile) for verifying all five families. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** actionable now. Migrate the flat `tests/` directory into category
 subdirectories driven by execution profile (speed, infrastructure, when-it-runs),
 not subject alone. Pair with pytest markers for cross-cutting selection. This is a

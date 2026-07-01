@@ -1,3 +1,10 @@
+# ── Family 3 boundary (guarded transition systems) · symbols in docs/NOTATION.md ──
+# OBJECT:    the self-mod gate — a guarded transition s′ = Δ·s iff G(Δ,s) else s.
+# INVARIANT: G_now(Δ,s) = approved ∧ golden(Δ·s) ≥ golden(B) ∧ D(Δ·s) ≤ Θ (I12);
+#            Δ never self-applies.
+# ENFORCED:  structural + FSM-verified — gate_admits is pure data-in/bool-out (no callback to
+#            Δ ⇒ no self-apply); FSM-checked over all 8 states (test_gate_fsm.py). Residual G5:
+#            `conforms` is absent, not stubbed True.
 """The human gate — seam for routing privileged requests (BUILD-SPEC §10, §14; Invariant 5).
 
 When the factory is asked for capability beyond an agent's scope ceiling, it routes the

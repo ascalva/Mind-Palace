@@ -5,9 +5,9 @@ carrying content-addressed authored evidence. The load-bearing rule: **evidence,
 persuasion**. The currency is *resolvable grounding* (`core.selfcheck.grounding_score`), never
 rhetoric — no model scores argument quality here, so the most eloquent claim cannot win.
 
-Confidence of a consensus group κ:
+Confidence of a group κ (the single clamped definition, `core.recursion.claim_confidence`):
 
-    c(κ) = γ^{d(κ)} · g(κ) · (1 + λ(|Agr(κ)| − 1))
+    c(κ) = min{1, γ^{d(κ)} · g(κ) · (1 + λ(|Agr(κ)| − 1))}
 
 where g(κ) is the authored-grounding score (the gate: g=0 ⇒ c=0, so agreement can never
 *manufacture* confidence from nothing — agreement is a **multiplier, not a vote**), |Agr(κ)| is
@@ -32,7 +32,7 @@ from config.loader import Config, get_config
 from core.dreaming.interpreters import Claim, run_panel
 from core.dreaming.rnd import require_rnd_enabled
 from core.mirror import MirrorView
-from core.recursion import DEFAULT_GAMMA, DEFAULT_LAMBDA, decay_bound
+from core.recursion import DEFAULT_GAMMA, DEFAULT_LAMBDA, claim_confidence
 from core.selfcheck import grounding_score
 from core.stores.derived import DREAM_LOG, DerivedStore
 
@@ -103,9 +103,10 @@ def adjudicate(claims: list[Claim], *, authored_digests: set[str],
         g = grounding_score(evidence, authored_digests)
         agreement = len(methods)
         # The corroboration bonus lifts grounded claims; g=0 keeps c=0 regardless of agreement.
-        confidence = decay_bound(AUTHORED_LEAF_DEPTH, grounding=g, gamma=gamma) * (
-            1 + lam * (agreement - 1)
-        )
+        # The single clamped definition (core.recursion) — c = min{1, γ^d·g·(1+λ(|Agr|−1))}; this
+        # callsite no longer assembles the bonus, so it cannot produce c>1 or a depth-rising c.
+        confidence = claim_confidence(AUTHORED_LEAF_DEPTH, grounding=g, agreement=agreement,
+                                      gamma=gamma, lam=lam)
         # Representative statement: the most comprehensive member (largest support), stable.
         rep = max(members, key=lambda m: (len(m.support), m.method, m.statement))
         entries.append(DreamLogEntry(

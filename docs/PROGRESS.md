@@ -1405,3 +1405,102 @@ extension so `ruff check .` correctly skips it — confirmed CI's actual invocat
 full logic suite still 482/482; live-tested `status`/`sandbox`/`check-imports`/`verify-attestation`/
 unknown-verb from `/tmp` in a fresh `zsh -l` shell. `docs/runbook.md` quick-ref + lifecycle section
 updated throughout to `mind-palace <verb>`.
+
+---
+
+## Mathematical reframing — Prompt R0: notation wiring (2026-07-01, documentation only, zero runtime risk)
+
+The first step of the companion-IV reframing (`docs/MATHEMATICAL-REFRAMING.md` §B.6 step 1–3, 5):
+propagate the shared vocabulary. **Pure documentation — no code logic changed**; only comment
+headers were added to code files. The five-families account (companion IV) now has a single glossary
+and every load-bearing boundary states its object/invariant/enforcement in place.
+
+**Built (5 deliverables):**
+1. **`docs/NOTATION.md`** (new) — the one glossary: symbol ↔ code name ↔ object ↔ family, for every
+   load-bearing symbol (ρ, π_MR, 𝒜, MAX, H, Σ, c, g, d, γ, λ, D(t), B, Θ, 𝔎, K_σ, ℋ, δ\*δ), grouped
+   by family, plus a supporting-notation table (MR, μ, Δ/s/s′, G/G_now, |Agr|, Cit/Ret). **Referenced
+   from the top of all six whitepapers** (I, technical, II, III-math, III-build, IV). Family 5 symbols
+   are marked **NOT YET BUILT** honestly (`core/complex/` does not exist; `ℋ` is only *seeded* today by
+   `derived_from`).
+2. **Boundary docstring headers** (companion IV §B.4) — the three-line `OBJECT / INVARIANT / ENFORCED`
+   comment header on each family 1–4 boundary: `core/mirror.py` (π_MR), `core/provenance.py` (ρ),
+   `core/stores/derived.py` (interpreted DAG), `ops/gate.py` (the gate FSM), `scheduler/queue.py`
+   (queue lifecycle), `eval/drift.py` (D(t)), `core/research/criteria.py` (π_public), and the factory
+   scope `core/factory/roles.py` (𝒜/MAX). Placed above the module docstring (comments don't disturb
+   `__doc__` — verified). **Honest residuals recorded inline** where enforcement is weaker than the
+   invariant: G11 (mirror guards data not the handle), G9 (authored-leaf by-convention), G5 (`conforms`
+   absent, not stubbed), and liveness-not-safety on the queue. Notation does not outrun enforcement.
+3. **Companion II regrouped by family** — `WHITEPAPER-FORMAL-PROPERTIES.md`'s flat I1–I13 catalog is now
+   read under the five family headings (A.1 labelings/flow: I1–I7,I11,I13; A.2 derivation: I9,I10;
+   A.3 automata: I8,I12; A.4 metric: the D(t)/G4 obligation; A.5 complex: not-yet-built). Every row's
+   formal statement, tier, and discharge is **verbatim-preserved** — only the grouping is new;
+   cross-family invariants filed under their primary family with a cross-ref.
+4. **Design-note family tags** — a one-line `*Family tag → …*` at the top of all **20** design notes,
+   each pointing back to `NOTATION.md`; genuinely cross-cutting notes (holistic-testing, roadmap,
+   test-organization) tagged "cross-cutting" honestly rather than forced into one family.
+
+**Verified:** full logic suite **unchanged at 482 passed / 4 skipped / 19 deselected** (green before
+and after — the ratchet held); ruff clean tree-wide; import firewall green (core reaches no
+network/edge); all 8 module docstrings intact after the comment headers; all 18 required symbols in the
+glossary; all 6 whitepapers reference it; all 20 design notes tagged. No flags flipped; no behavior
+changed.
+
+**Next (companion IV §B.6):** step 4 — **the small type moves** (each a reviewed, tested,
+behavior-preserving diff): `derived_from` → the hyperedge junction, the `c`-clamp as the single
+definition of confidence, and the signed-edge polarity enum. Then step 6 — **family 5** (`core/complex/`
++ Dreamer loop v2 per companions III, Track H) behind the `DreamerAdapter` seam, flag-OFF, trough-only.
+The DANGLING correlator capstone (Track D) and the A3 auditor remain from the wiring frontier.
+
+---
+
+## Mathematical reframing — Prompt R1: the three small type moves (2026-07-01, behavior-preserving)
+
+Companion IV §B.6 step 4: three reframings that each **delete an illegal state** (the
+`MirrorView`/`ProposedChange` move, §B.1). No behavior change; each verified by tests. Full logic
+suite **482 → 498 (+16)**, ruff clean, import firewall green.
+
+**Move 1 — the hyperedge junction (`core/stores/derived.py`).** The derivation hypergraph ℋ
+(companion III §1.2–§1.3) is now a normalized **junction**: `hyperedges` (one `derives` B-arc per
+artifact, `DERIVES` rel_type) + `hyperedge_nodes(role ∈ {tail, head})`, with a first-class
+`Hyperedge(edge_id, head, tails: frozenset, rel_type)` type. Each derivation is head κ + tail set
+supp(κ); today every head-set has size 1. **Additive + behavior-preserving:** the `derived_from`
+JSON column stays as the denormalized projection feeding the `Artifact` API and O(1) traversal;
+`add()` writes both together via `_write_hyperedge` and they never drift; `_backfill_hyperedges`
+(one-time, idempotent) migrates a pre-junction DB from the surviving column; `reset()` clears the
+junction too. **Acyclicity-at-insert is unchanged** (still guards on `derived_from` before any
+write). New read accessors `hyperedges()` / `tails_of(head)` are what family 5 (`core/complex/`)
+will consume. Tests (+7): typed-roles populate, junction == derived_from (as a set), no-edges ⇒
+no-hyperedge, exactly {tail,head} roles stored, idempotent re-add leaves no stale tails, reset
+clears it, backfill from a simulated pre-junction store.
+
+**Move 2 — the single confidence clamp (`core/recursion.py` + adjudicator).** `claim_confidence(depth,
+grounding, agreement, gamma, lam)` is now **THE** definition: `c = min{1, γ^d·g·(1+λ(|Agr|−1))}`.
+`decay_bound` stays the depth-decay *ceiling* γ^d·g (I10); `claim_confidence` multiplies in the
+bounded corroboration bonus and applies the **min{1,·} clamp**. The adjudicator no longer assembles
+the bonus itself (`core/dreaming/adjudicator.py` calls `claim_confidence`), so **no path can produce
+c>1 or a depth-rising c** — closing the companion III §7.2 clamp tension. **Provably a no-op today:**
+the R0 panel has 4 distinct methods (agreement ≤ 4), d=1, γ=0.5 ⇒ raw product ≤ 0.65 < 1, so the
+clamp changes nothing currently produced (unit test asserts `claim_confidence == old assembly` on
+those inputs; the dream-R&D and quality-determinism tests confirm end-to-end). Property tests (+2,
+Hypothesis over d≤20, agreement≤50, λ≤2, γ∈(0.01,0.99)): **c ∈ [0,1]** and **c non-increasing in
+depth** — the clamp bites when agreement/grounding would push the product past 1. Unit tests (+4):
+equals-unclamped-today, clamps-above-one, agreement-is-a-multiplier-not-a-vote (g=0 ⇒ c=0),
+rejects illegal inputs.
+
+**Move 3 — the signed-edge enum (`core/complex_types.py`, new leaf module).** Closed value-sets are
+now types, not free ints/strings: **`EdgeSign`** (`IntEnum`, SUPPORT=+1 / CONTRADICT=−1 — the value
+*is* the ±1 the signed-Laplacian arithmetic and the `edges.sign` column use; deletes the illegal
+`sign=3`/`0` state; a non-edge is an absent row, not sign 0) for the Prompt-H1 `edges` table, and
+**`HyperedgeRole`** (`StrEnum`, tail/head) used by move 1's junction now. Leaf module, stdlib-only
+imports, no network (firewall green). Tests (+3, new `tests/unit/test_complex_types.py`): ±1 values
+usable in arithmetic, {tail,head} membership, out-of-set values rejected.
+
+**Verified:** logic suite 498/498 (+16 new: derived +7, recursion +4, complex_types +3, properties
++2), ruff clean tree-wide on touched files, import firewall green (the new `core/complex_types`
+reaches no network/edge), acyclicity + all prior derived-store/adjudicator behavior unchanged. No
+flags flipped; dream R&D still OFF.
+
+**Next (companion IV §B.6):** step 6 — **family 5** (`core/complex/` build.py/laplacian.py/… + the
+Dreamer loop v2 per companions III, Track H, Prompt H1) behind the `DreamerAdapter` seam, flag-OFF,
+trough-only; the `edges` table + `EdgeSign` land there. Then the DANGLING correlator capstone
+(Track D) and the A3 auditor.

@@ -2,6 +2,9 @@
 ### A sealed, offline-first personal AI: a second brain that reflects a mind back to itself
 
 **Version 1.0 (living document) · 2026-06-26**
+
+> *Notation: every load-bearing symbol (ρ, π_MR, 𝒜, D(t), 𝔎, …) is defined once in [`NOTATION.md`](NOTATION.md) — symbol ↔ code ↔ object ↔ family (companion IV §A).*
+
 This document records the full scope, philosophy, design, technical decisions, security model,
 and rebuild path of the system. It is maintained alongside the code; sections marked *(built)*
 exist and are tested as of Phase 7. It is meant to be sufficient to rebuild the system from

@@ -1,5 +1,7 @@
 # Design note — Dreaming v2: a panel of interpreters with evidence-based adjudication
 
+*Family tag → family 5 (the reasoning complex): a panel of interpreters over the complex with evidence-based adjudication (c = γ^d·g·(1 + λ(|Agr|−1))). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only; an **expansion of the already-built Phase 7 dreamer**. Not
 committed; does not change Phases 0–10 scope. Honor as a post-Phase-7 enhancement. Builds
 directly on `core/dreaming/cluster.py`, `core/dreaming/dreamer.py`, `core/selfcheck.py`,

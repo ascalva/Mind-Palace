@@ -1,5 +1,7 @@
 # Design note — WASM sandbox runtime (wasmtime + Pyodide)
 
+*Family tag → family 1 (labelings & flow): the sandbox is powerless — 𝒜(exec) ∩ {net, vault, cred} = ∅ (I4); a WASM runtime for pure compute. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Scopes the `WasmRunner` seam declared but not implemented in
 Phase 4 (`core/sandbox/runner.py`). Not scheduled as a numbered phase — pick up
 opportunistically as a hardening upgrade once Podman's empirical gap (`docs/runbook.md` →

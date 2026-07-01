@@ -1,5 +1,7 @@
 # Design note — The nervous system: tamper response, verification, and the Ambassador
 
+*Family tag → family 3 (guarded transition systems): the scheduler/supervisor "nervous system" (queue lifecycle, tamper response) + the Ambassador front door (family 1). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Ties together (a) how the system reacts to detected
 tampering, (b) who verifies attestations and at what latency, and (c) the Ambassador —
 the conversational front door. Builds directly on shipped pieces: the attestation

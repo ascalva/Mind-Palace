@@ -1,5 +1,7 @@
 # Design note — Vault as runtime authorization layer
 
+*Family tag → family 1 (capability / information-flow): per-interaction runtime authorization — ephemeral scoped Vault tokens (object-capability), the credential analogue of 𝒜. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. Supersedes `secrets-management-evolution.md` (which framed
 Vault as a multi-machine secrets store — correct but incomplete). This note frames
 Vault as a **per-interaction runtime authorization layer**: every agent interaction

@@ -1,5 +1,7 @@
 # Design note — Evaluation: the dreamer output-quality suite (signal-vs-noise)
 
+*Family tag → family 5 (the reasoning complex), measured with family 4 (metric geometry): output-quality (signal-vs-noise) of the Dreamer, distinct from output-safety. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** evaluation + integration decision. Assesses an external contribution
 (`tests/quality/test_dreamer_quality.py`) against the existing testing story and folds
 it into Track F. **Verdict: adopt.** It fills the one genuinely missing dimension —

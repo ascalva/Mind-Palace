@@ -1,5 +1,7 @@
 # Design note — Recursive dreaming: compounding interpretation, bounded by grounding
 
+*Family tag → family 2 (regenerable derivation): the recursion-decay bound c ≤ γ^d·g that keeps compounding interpretation from amplifying — the acyclic derivation DAG with authored leaves (I10). See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only; extends `dreaming-v2-interpreter-panel.md` and the Phase 7 dreamer.
 The **highest-risk** dreaming feature — the one place the system's own outputs feed back as
 its own inputs. Build it **last** among dreaming features and **only after** the drift gauge

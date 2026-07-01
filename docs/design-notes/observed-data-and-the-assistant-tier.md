@@ -1,5 +1,7 @@
 # Design note — Observed data, the assistant tier, and the authored/observed firewall
 
+*Family tag → family 1 (labelings & flow): the observed provenance class and the authored/observed firewall — observed exhaust is quarantined from the mirror and the §15 baselines. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only, not implemented. Raised 2026-06-25 while scoping a "Jarvis-like"
 expansion (email/calendar/news/activity-history, multi-node compute). Steers Phases 3+
 and the airlock/interface work; nothing here changes Phases 0–2. Read alongside

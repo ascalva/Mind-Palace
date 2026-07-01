@@ -1,3 +1,10 @@
+# ── Family 1 boundary (labelings & information-flow) · symbols in docs/NOTATION.md ──
+# OBJECT:    ρ : V → P — the provenance labeling into an *unordered* set;
+#            MR = {authored-solo, authored-dialogue} is the load-bearing subset.
+# INVARIANT: ρ is invariant under derivation (only human promotion re-tags);
+#            mirror-readability = membership in MIRROR_READABLE (I6; the ρ-pin behind I5).
+# ENFORCED:  structural — MR-membership via MirrorView; ρ non-launderable (DerivedStore has
+#            no provenance param). The trust *preorder* is retired (G8): only the set matters.
 """Provenance classes for the data architecture (BUILD-SPEC §8; design-notes/
 observed-data-and-the-assistant-tier.md; the §1 provenance-spectrum growth path).
 

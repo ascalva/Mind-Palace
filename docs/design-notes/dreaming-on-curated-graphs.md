@@ -1,5 +1,7 @@
 # Design note — Dream R5: curated-graph dreaming + cross-graph resonance
 
+*Family tag → family 5 (the reasoning complex) over a family 1 label: dreaming on the curated graph (curated ∉ MIRROR_READABLE — the firewall holds) + cross-graph resonance. R&D, flag OFF. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** dream R&D extension **R5**, **feature-flag OFF**. Extends
 `dream-phase-rnd-charter.md` and reuses R0 (interpreter panel) + R1 (adjudicator). Build only
 after R0/R1 are solid and in a deliberate R&D session. Does not change the main build.

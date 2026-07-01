@@ -1,5 +1,7 @@
 # Design note — Secrets management evolution: Keychain → Vault
 
+*Family tag → family 1 (capability / information-flow): secrets as object-capability (Keychain → Vault); credentials are never a tool and are held off the model prompt. See [`../NOTATION.md`](../NOTATION.md).*
+
 **Status:** design only. The current `get_secret()` abstraction (config/loader.py)
 is already designed for this swap. Honor when the server build joins the Tailscale
 mesh and Zone B bridge code runs on a second machine. Do NOT build prematurely —
