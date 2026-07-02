@@ -17,7 +17,9 @@ from hypothesis import strategies as st
 from core.complex.blocks import sbm
 from core.complex.curvature import forman
 from core.complex.cut import grounding_cut
+from core.complex.support import grounding_with_support
 from core.complex.topology import long_lived_holes
+from core.selfcheck import grounding_score
 
 # --- H4: curvature sign on planted structure -------------------------------------
 
@@ -138,3 +140,17 @@ def test_sbm_on_a_blockless_graph_selects_one_block():
     """No planted structure (uniform density) ⇒ model selection must NOT invent themes."""
     A, _ = _planted_blocks(1, 20, p_in=0.5, p_out=0.5, seed=5)
     assert sbm(A, k_max=8).k == 1
+
+
+# --- H8: multi-path grounding reduces exactly to the flat score on flat evidence ------
+
+@settings(deadline=None, max_examples=60)
+@given(evidence=st.lists(
+    st.sampled_from(["a0", "a1", "a2", "a3", "ghost1", "ghost2", "ghost3"]),
+    min_size=0, max_size=8))
+def test_grounding_with_support_flat_equality(evidence):
+    """The behavior-preservation guarantee: with no interpreted refs in play (today's only live
+    case), the noisy-OR-generalized g equals `grounding_score` exactly — the confidence law and
+    every existing adjudication are untouched by the H8 seam."""
+    authored = {"a0", "a1", "a2", "a3"}
+    assert grounding_with_support(evidence, {}, authored) == grounding_score(evidence, authored)

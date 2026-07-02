@@ -62,6 +62,33 @@ the WASM sandbox substrate. All in their sections below.
 
 ---
 
+## Verifying a change — run live wherever possible (owner policy, 2026-07-02)
+
+The default `pytest` run deselects `live`/`podman`/`needs_*` — it's the fast, deterministic
+inner-loop ratchet (stores + the model-free reasoning/structural layer), and it stays green before
+and after every step. **It is no longer the finish line** for anything that touches an Ollama model
+tier or the sandbox — verify those live, as a matter of course, whenever the real thing is
+available:
+
+```sh
+./.venv/bin/pytest -m 'not live and not podman and not needs_vault and not needs_restic'  # the ratchet (fast, always)
+./.venv/bin/pytest -m live       # real Ollama: embedder + router/routine/synthesis/stretch tiers
+./.venv/bin/pytest -m podman     # real rootless-Podman run_python execution (separate axis, below)
+```
+
+**These are two different axes — don't conflate them.** `-m live` needs a pulled model + a running
+Ollama server (`ollama list` / `curl localhost:11434/api/version`); `-m podman` needs
+`podman machine list` showing `Currently running`. A live/dreaming change needs `-m live`, not
+`-m podman` — the Dreamer and the reasoning complex (`core/dreaming/`, `core/complex/`) run their
+own computation in-process (model-free, deterministic aside from the embed/synthesize calls) and
+never touch the sandbox. `-m podman` only matters for `core/sandbox/` itself or a role's
+`run_python` scope. Each live test has an honest `skipif` on the actual model/tier being pulled
+(e.g. `test_dreaming_live.py` needs the `synthesis` tier, `qwen3.6:27b`) — if a gate skips, that's
+the real state, not a mock standing in for it; say so rather than treating the offline suite as
+sufficient.
+
+---
+
 ## Prerequisites (Phase 0)
 - Python 3.11+ (built/verified on 3.14). Local venv at `.venv`.
 - Ollama running on loopback (`127.0.0.1:11434`).

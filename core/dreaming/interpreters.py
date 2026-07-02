@@ -53,6 +53,7 @@ BRIDGE = "bridge"
 DENSITY = "density"
 THEME = "theme"                 # H7: SBM blocks with posterior + model-selected count
 HOLE = "hole"                   # H5: long-lived H₁ — a conceptual gap, never a contradiction
+TENSION = "tension"             # H3/H8: frustrated triangles — commitments that can't co-hold
 CHANGE_POINT = "change_point"   # deferred seam
 
 
@@ -238,22 +239,59 @@ STRUCTURAL_INTERPRETERS: dict[str, StructuralInterpreter] = {
 }
 
 
+def build_structural_context(view: MirrorView, cfg: DreamRnDConfig, *,
+                             edges=None) -> StructuralContext:
+    """One pass's shared structural state: the σ-backbone complex (optionally with persisted
+    typed/signed edges overlaid — the tension lens's input) + the unthresholded distance matrix
+    (the persistence filtration). Authored-only by the constructor's input type."""
+    notes = note_centroids(view.rows())
+    return StructuralContext(
+        complex=build_complex(view, edges=edges, sim_floor=cfg.sigma),
+        distances=cosine_distance_matrix(
+            np.asarray([n.vector for n in notes], dtype=np.float64)),
+    )
+
+
+def tension_claims(kx: ReasoningComplex) -> list[Claim]:
+    """The tension lens (§2.3): every frustrated triangle — an odd number of − edges — is three
+    commitments that cannot all co-hold ("you keep circling this"). Consumes the signed adjacency
+    (contradiction = a persisted `contradicts` edge overlaid by `build_complex`); with no asserted
+    contradictions the graph is all-support and this honestly emits nothing. Dissonance lives
+    HERE, never in H₁ (§4.2)."""
+    from core.complex.balance import frustrated_triangles
+    claims: list[Claim] = []
+    for i, j, k in frustrated_triangles(kx.A_signed):
+        digests = (kx.nodes[i], kx.nodes[j], kx.nodes[k])
+        titles = [kx.titles.get(d, d) for d in digests]
+        claims.append(Claim(
+            method=TENSION,
+            statement=(f"'{titles[0]}', '{titles[1]}' and '{titles[2]}' are in tension — "
+                       f"they cannot all hold together (a frustrated triangle)"),
+            support=digests,
+            data={"triangle": list(digests)},
+        ))
+    return claims
+
+
+def collect_claims(graph: MirrorGraph, ctx: StructuralContext,
+                   cfg: DreamRnDConfig) -> list[Claim]:
+    """Run both registries (σ-graph lenses + structural lenses) plus the tension lens over
+    already-built state. The un-gated core of `run_panel`, shared with the loop-v2 dream pass
+    (which builds its own context so it can overlay persisted edges)."""
+    claims: list[Claim] = []
+    for interpret in INTERPRETERS.values():
+        claims.extend(interpret(graph, cfg))
+    for interpret_structural in STRUCTURAL_INTERPRETERS.values():
+        claims.extend(interpret_structural(ctx, cfg))
+    claims.extend(tension_claims(ctx.complex))
+    return claims
+
+
 def run_panel(view: MirrorView, *, config: Config | None = None) -> list[Claim]:
     """Run every registered interpreter (σ-graph lenses + structural lenses over one shared
     reasoning complex) and return all candidate claims (R0 — no adjudication). Refuses unless
     the R&D flag is on (hard boundary)."""
     cfg = require_rnd_enabled(config)
     graph = MirrorGraph.build(view, sigma=cfg.sigma)
-    rows = view.rows()
-    notes = note_centroids(rows)
-    ctx = StructuralContext(
-        complex=build_complex(view, sim_floor=cfg.sigma),   # the σ-backbone, authored-only
-        distances=cosine_distance_matrix(
-            np.asarray([n.vector for n in notes], dtype=np.float64)),
-    )
-    claims: list[Claim] = []
-    for interpret in INTERPRETERS.values():
-        claims.extend(interpret(graph, cfg))
-    for interpret_structural in STRUCTURAL_INTERPRETERS.values():
-        claims.extend(interpret_structural(ctx, cfg))
-    return claims
+    ctx = build_structural_context(view, cfg)
+    return collect_claims(graph, ctx, cfg)

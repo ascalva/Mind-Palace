@@ -24,6 +24,7 @@ A single-user, offline-first, privacy-sealed personal AI — a "mind palace" tha
 - **Ask, don't guess** on the decisions in BUILD-SPEC §20. For everything else, pick a sensible default and state it inline.
 - **Write tests as you build**, not after. Small, verifiable steps.
 - If a feature can't be built without violating §3 or the Constitution, **stop and surface it**.
+- **Verify live wherever possible, not just the offline suite (owner directive, 2026-07-02).** For any change touching an Ollama model tier (embedder/router/routine/synthesis/stretch) or the sandbox, run the matching live tier — `pytest -m live` and/or `pytest -m podman` — whenever the model is pulled / podman is up, as part of calling the work verified. The offline `-m 'not live'` suite stays the fast inner-loop ratchet; live is the outer gate before a session is "done," not an optional extra. Details + the sandbox-is-a-separate-axis clarification: `CONVENTIONS.md` → "Testing & validation".
 
 ## Build-session budget (you, the building agent)
 This is a large system — build it without exhausting your own context. (Distinct from the runtime context budgeter in BUILD-SPEC §13, which manages the *local* models at run time.)

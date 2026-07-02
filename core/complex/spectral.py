@@ -21,7 +21,7 @@ import numpy as np
 import scipy.sparse as sp
 from scipy.cluster.vq import kmeans2
 from scipy.sparse.csgraph import connected_components
-from scipy.sparse.linalg import ArpackNoConvergence, eigsh
+from scipy.sparse.linalg import eigsh
 
 from core.complex.build import cosine_adjacency
 from core.complex.laplacian import laplacian_sym
@@ -40,16 +40,20 @@ def _bottom_eigen(L: sp.csr_matrix, k: int) -> tuple[np.ndarray, np.ndarray]:
     """The k smallest (algebraic) eigenpairs of a symmetric PSD Laplacian, ascending.
 
     Uses `scipy.sparse.linalg.eigsh` with a FIXED start vector (deterministic ARPACK); falls back
-    to dense `eigh` for the tiny components where ARPACK's k < n−1 requirement can't be met."""
+    to dense `eigh` for the tiny components where ARPACK's k < n−1 requirement can't be met.
+    The start is a normalized ramp, not the uniform vector — on a regular component the uniform
+    vector is exactly L_sym's kernel eigenvector, and Lanczos breaks down (zero residual) when
+    started on an exact eigenvector. Any ARPACK failure falls back to dense, which is exact."""
     n = L.shape[0]
     k = max(1, min(k, n))
     if n <= _DENSE_MAX or k >= n - 1:
         vals, vecs = np.linalg.eigh(L.toarray())
         return vals[:k], vecs[:, :k]
-    v0 = np.ones(n) / np.sqrt(n)                    # fixed start ⇒ reproducible
+    v0 = np.arange(1, n + 1, dtype=float)           # fixed, never an exact eigenvector in practice
+    v0 /= np.linalg.norm(v0)
     try:
         vals, vecs = eigsh(L.astype(float), k=k, which="SA", v0=v0)
-    except ArpackNoConvergence:                     # rare on adversarial graphs — dense is exact
+    except Exception:                               # ARPACK breakdown/stall — dense is exact
         vals, vecs = np.linalg.eigh(L.toarray())
         vals, vecs = vals[:k], vecs[:, :k]
     order = np.argsort(vals)

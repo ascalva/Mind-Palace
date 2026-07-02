@@ -181,11 +181,14 @@ def constitution_intact(cfg: DriftConfig) -> bool:
 
 
 def drift_from_report(report: GoldenReport, baseline_metrics: dict[str, float], cfg: DriftConfig,
-                      *, intact: bool | None = None) -> DriftReport:
+                      *, intact: bool | None = None,
+                      structural: dict[str, float] | None = None) -> DriftReport:
     """Gauge from an already-computed golden report (so the validator evaluates once). `intact`
-    overrides the conformance check (tests pass it explicitly); None computes it from `cfg`."""
+    overrides the conformance check (tests pass it explicitly); None computes it from `cfg`.
+    `structural` optionally carries the A2 axes (a `SnapshotStore.latest_structural()` dict)."""
     is_intact = constitution_intact(cfg) if intact is None else intact
-    return drift(profile_from_report(report, constitution_intact=is_intact), baseline_metrics, cfg)
+    profile = profile_from_report(report, constitution_intact=is_intact, structural=structural)
+    return drift(profile, baseline_metrics, cfg)
 
 
 def load_drift_config(path: Path = BASELINE_PATH) -> DriftConfig:
@@ -205,12 +208,14 @@ def load_drift_config(path: Path = BASELINE_PATH) -> DriftConfig:
 
 
 def measure_drift(retriever: Retriever, *, golden=None, baseline: dict[str, float] | None = None,
-                  cfg: DriftConfig | None = None, intact: bool | None = None) -> DriftReport:
+                  cfg: DriftConfig | None = None, intact: bool | None = None,
+                  structural: dict[str, float] | None = None) -> DriftReport:
     """High-level entry: run the golden set through `retriever` and report D(t). Used standalone by
     the alignment report (A2) and the F4 trajectory harness; the gate uses `drift_from_report` to
-    avoid re-evaluating. Mirrors `eval.golden.evaluate`'s injectable-retriever seam."""
+    avoid re-evaluating. Mirrors `eval.golden.evaluate`'s injectable-retriever seam. `structural`
+    optionally feeds the A2 axes (from `core.complex.temporal.SnapshotStore.latest_structural`)."""
     golden = golden or load_golden_set()
     baseline = baseline or load_baseline()
     cfg = cfg or load_drift_config()
     report = evaluate(golden, retriever)
-    return drift_from_report(report, baseline, cfg, intact=intact)
+    return drift_from_report(report, baseline, cfg, intact=intact, structural=structural)

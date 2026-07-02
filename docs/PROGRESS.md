@@ -1626,6 +1626,88 @@ the `tension` lens (needs a contradiction detector to assert `contradicts` edges
 (structural snapshots feeding the A2 axes live), then the Dreamer loop v2 assembly (BUILD §3.1).
 Then the Track D correlator capstone and the A3 auditor.
 
+---
+
+## Track H — Prompt H8–H9: support propagation, temporal self-watching, the loop v2 (2026-07-02)
+
+The strong Dreamer is now ASSEMBLED end to end — multi-path support, the system watching its own
+structure evolve, and the BUILD §3.1 ten-step pass — all behind the existing dream-R&D hard
+boundary (`[dream_rnd] enabled=false`; **the live `dream()`/cron path is byte-for-byte untouched**,
+proven by test). No new flag: the loop v2 is the productionization of the R0/R1 engine that flag
+already gates; flipping it live remains a deliberate owner step.
+
+**H8 — `core/complex/support.py` (noisy-OR, §6.1).** `noisy_or` (1 − Π(1−s_p)),
+`support_scores` (memoized topological sweep over the derivation map — exact on the polytree,
+linear, cycle-defensive), and the adjudicator feed **`grounding_with_support`**: per evidence ref a
+*path strength* (authored → 1, interpreted node → its DAG-combined noisy-OR, unresolvable → 0),
+aggregated by **mean** — deliberately NOT a noisy-OR at the evidence level, so one good citation
+cannot carry nine junk ones (adjudication-not-voting held; padding test proves it). **Equals the
+flat `grounding_score` exactly whenever no ref is an interpreted node** — today's only live case —
+so R1's clamp law and every existing adjudication are numerically untouched (Hypothesis property +
+unit equality tests). `adjudicate()` gains the optional `support_of` seam (default None = flat
+score, unchanged); interpreted parents earn partial credit only once recursion exists.
+
+**H9 — `core/complex/temporal.py` (§5.4).** `compute_snapshot(K, distances=…)` → the BUILD §1.2
+invariants (β₀, Fiedler λ₂, frustration, mean Forman, frac-negative-curvature, SBM count,
+min-conductance, H₁ count — NULL, not a fake 0, when the distance matrix isn't supplied) +
+`SnapshotStore` (DuckDB, own file beside the derived store; append-only; `trajectory(metric)` with
+an allowlisted column set → the F4 time-series input; `latest_structural()` → the A2 axes dict).
+Drift wiring completed additively: `drift_from_report`/`measure_drift` gain optional
+`structural=…` passthrough → `Profile` → the A2 axes; snapshot→drift proven end to end.
+
+**The loop v2 (`Dreamer.dream_v2`, BUILD §3.1).** 1 BUILD 𝔎|_MR (one shared complex, persisted
+edges overlaid) → 2–5 LOCATE/THEME/TENSION/GAPS (`collect_claims` — the un-gated core factored out
+of `run_panel`, now including the **tension lens**: frustrated triangles from asserted
+`contradicts` edges, honestly empty on an all-support graph) → 6 SUPPORT (noisy-OR over the
+DerivedStore's derivation map) → 7 ADJUDICATE (confidence-ordered; c=0/no-evidence candidates never
+earn the model) → 8 SYNTHESIZE (**the only model seam** — one call per stored dream, each grounded
+in its candidate's authored evidence, mirror-not-oracle; call-count == stored-dream-count asserted)
+→ 9 STORE (interpreted-only, `derived_from` = authored leaves, `dream_pass_v2` attestation, data
+carries confidence/methods/statement/loop=v2) → 10 MEASURE (snapshot appended when a store is
+injected). `Dreamer` gains optional `edge_store`/`snapshots` fields (defaults None — every v1
+construction unchanged).
+
+**Real bug found + fixed (ARPACK):** the fixed start vector `v0 = ones/√n` IS the exact kernel
+eigenvector of a balanced all-positive component's L̄ (and of L_sym on regular components) —
+Lanczos breaks down on an exact-eigenvector start (ARPACK error −9, surfaced by Hypothesis).
+Fixed in `balance._lambda_min` + `spectral._bottom_eigen`: a normalized *ramp* start + dense-exact
+fallback on any ARPACK failure. **Semantics fix alongside:** `signed_spectrum` is now the **max
+over connected components** of λ_min(L̄) — the raw global λ_min is the *min* over components
+(block-diagonal L̄), so one balanced domain or a single isolated note would mask a frustrated
+triangle elsewhere; a dissonance detector must register tension anywhere (docstring states it;
+every prior balance property still holds).
+
+**Verified:** logic suite **533 → 552 (+19)** — `test_support` (+7: noisy-OR math, polytree
+exactness, unresolvable-refs, flat-equality, interpreted-parent partial credit, padding gate,
+cycle-defensive determinism), `test_temporal` (+4: planted invariants, contradiction raises
+frustration + NULL-h1 honesty, DuckDB roundtrip/trajectory/allowlist, snapshot→drift end to end),
+`test_dream_v2` (+7: flag-off refuses, end-to-end store/provenance/confidence/methods, synthesis-
+only-model-seam call count, confidence-ordered + earned, tension fires on an asserted
+contradiction + gauge sees it, two-pass trajectory, determinism, v1-untouched), flat-equality
+Hypothesis property (+1). ruff clean tree-wide; import firewall green; **F9 + the whole quality/
+binding suite green and untouched**; no flags flipped.
+
+**Next:** the owner's deliberate adoption steps — flip `[dream_rnd]` for a live v2 R&D session
+(and/or wire `dream_v2` + snapshots into the cron dream job in place of v1), tune the diffusion
+clusterer on the real Ollama embedder, and bless `frustration`/`min_conductance` baselines into
+`eval/golden/baseline.json` once real snapshots exist. Then the Track D correlator capstone and
+the A3 auditor.
+
+**Live-model verification (same day, owner asked "real models, not mocked?").** The honest split:
+the logic suite substitutes ONLY the two model seams (embedder + synthesizer — injected
+deterministic stand-ins); all stores and the entire structural/reasoning layer are the real code
+(model-free by design). The `-m live` tier runs real Ollama: executed now — **7 passed / 1 skipped
+(3m45s)** on the real `qwen3-embedding:4b` + generation tiers (librarian/factory/scheduler/golden/
+research/semantic-search/ollama). The one skip = v1 dreaming synthesis (`qwen3.6:27b` synthesis
+tier not pulled; embedding/router/routine/stretch all pulled). **Gap closed:** new
+`tests/e2e/test_dream_v2_live.py` — the full loop v2 with real models, same synthesis-tier skip
+convention as v1 (will run the moment the 27b is pulled). **And proven today** via a one-off
+stretch-tier smoke (`qwen3.6:35b-a3b`, pulled): real embedder → panel (density+theme corroborated)
+→ adjudication (confidence 0.55 = the clamp law exactly) → real 35b narration, grounded [[cited]],
+self-check PASSED → INTERPRETED store (loop=v2) → snapshot written (frustration 0.0,
+min_conductance 1.0). To exercise both committed live dreaming gates: `ollama pull qwen3.6:27b`
+(~17 GB), then `pytest -m live`.
+
 ## Forward layer — READ-ONLY AUDIT: prompt/Constitution integrity vs tamper & injection (2026-07-02)
 
 **Audit performed, nothing built** — pure investigation per the owner's mandate; no code/test/config
@@ -1647,3 +1729,33 @@ attestation-store/ambassador integration). Live `CONSTITUTION.md` hash verified 
 **Bottom line:** Threat A (injection) = good today for the authored-only surface; Threat B (tamper) =
 weak — one file fingerprinted, comparison dormant, no pre-dispatch gate, assembled prompts identity-free.
 **Next:** owner picks remediation priorities from the audit (natural neighbor: the A3 auditor).
+
+---
+
+## Policy change — live verification is now routine, not opt-in (2026-07-02, owner directive)
+
+Owner: "start running live but scoped tests, like dreamer functionality with an actual model,
+moving forward." Documentation updated to make this a standing rule, not a one-off: `CLAUDE.md` →
+"How to work" (new bullet), `CONVENTIONS.md` → "Testing & validation" (the policy + the sandbox
+clarification), `docs/runbook.md` (new "Verifying a change" section right after the quick-reference,
+with the exact commands). The offline `pytest -m 'not live and not podman and not needs_*'` suite
+(552 tests) stays the fast inner-loop ratchet; `-m live` / `-m podman` are now the outer verification
+step for anything touching a model tier or the sandbox, run whenever the real thing is available —
+not treated as a separate optional pass.
+
+**Corrected a premise along the way.** The owner's framing ("live tests will force us to use the
+sandbox, since a lot of the computation happens there") doesn't hold for this codebase: `core/
+dreaming/` and `core/complex/` have zero references to sandbox/podman/run_python (confirmed by
+grep) — the Dreamer/reasoning-complex runs its own computation in-process (model-free and
+deterministic except the embed/synthesize calls), never inside Podman. The sandbox (`-m podman`,
+currently 7/7 passing, podman-machine confirmed running) is exclusively the `run_python` **tool**
+path for agent-*authored* code (coder/data_analyst roles) — an orthogonal concern from live-model
+dreaming tests. `CONVENTIONS.md` now states this explicitly so it isn't re-conflated later.
+
+**Live-model status today:** `pytest -m live` → **7 passed / 1 skipped** (embedding + router/
+routine/stretch tiers real; the one skip is dreaming's `synthesis` tier, `qwen3.6:27b`, not yet
+pulled — confirmed via `ollama list` this session). The owner has started pulling it; once it
+lands, both committed dreaming live gates run for real: `test_dreaming_live.py` (v1) and the H8/H9
+session's new `test_dream_v2_live.py` (v2 loop) — the latter already smoke-tested end to end
+against the real `qwen3.6:35b-a3b` (stretch) tier and produced a correctly-grounded, self-check-
+passing narration (see the H8–H9 entry above).

@@ -26,20 +26,45 @@ _DENSE_MAX = 4
 
 
 def signed_spectrum(A_signed: sp.spmatrix) -> float:
-    """λ_min(L̄) — the smallest eigenvalue of the signed Laplacian (global dissonance proxy).
-    0 ⇔ the signed graph is balanced; > 0 ⇔ frustration. Deterministic (fixed ARPACK start)."""
+    """The dissonance proxy: the MAX over connected components of λ_min(L̄) on that component.
+
+    On a CONNECTED graph this is exactly §2.3's λ_min(L̄) (0 ⇔ balanced, Hou/Kunegis). On a
+    disconnected graph the raw global λ_min is the *min* over components (L̄ is block-diagonal),
+    so one balanced domain — or a single isolated note — would MASK a frustrated triangle
+    elsewhere. A dissonance detector must register tension anywhere, so we take the max; every
+    component balanced ⇔ 0 either way. Components of size < 2 are trivially balanced and skipped.
+    Deterministic (fixed ARPACK start; dense-exact fallback)."""
     n = A_signed.shape[0]
     if n < 2:
         return 0.0
-    L = signed_laplacian(A_signed)
-    if n <= _DENSE_MAX:
-        vals = np.linalg.eigvalsh(L.toarray())
-        return float(max(0.0, vals[0]))          # clamp tiny negative fp noise to 0
-    from scipy.sparse.linalg import ArpackNoConvergence, eigsh
-    v0 = np.ones(n) / np.sqrt(n)
+    from scipy.sparse.csgraph import connected_components
+    A_signed = A_signed.tocsr()
+    _n_comp, comp = connected_components(abs(A_signed), directed=False)
+    worst = 0.0
+    for c in np.unique(comp):
+        members = np.where(comp == c)[0]
+        if len(members) < 2:
+            continue
+        worst = max(worst, _lambda_min(signed_laplacian(A_signed[members][:, members])))
+    return worst
+
+
+def _lambda_min(L: sp.spmatrix) -> float:
+    """Smallest eigenvalue of one component's signed Laplacian (clamped at 0 for fp noise).
+
+    The fixed ARPACK start is a normalized ramp, NOT the uniform vector: on a balanced
+    all-positive component the uniform vector IS the exact kernel eigenvector, and Lanczos
+    breaks down when started on an exact eigenvector (zero residual ⇒ ARPACK error −9). Any
+    ARPACK failure falls back to the dense solve, which is exact."""
+    m = L.shape[0]
+    if m <= _DENSE_MAX:
+        return float(max(0.0, np.linalg.eigvalsh(L.toarray())[0]))
+    from scipy.sparse.linalg import eigsh
+    v0 = np.arange(1, m + 1, dtype=float)
+    v0 /= np.linalg.norm(v0)
     try:
         vals = eigsh(L.astype(float), k=1, which="SA", v0=v0, return_eigenvectors=False)
-    except ArpackNoConvergence:                  # dense is exact when ARPACK stalls
+    except Exception:                            # ARPACK breakdown/stall — dense is exact
         vals = np.linalg.eigvalsh(L.toarray())
     return float(max(0.0, vals[0]))
 

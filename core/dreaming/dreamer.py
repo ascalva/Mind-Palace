@@ -22,8 +22,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from core.attestation import Attestor
+from core.complex.support import grounding_with_support
+from core.complex.temporal import SnapshotStore, compute_snapshot
 from core.constitution import Message, frame_context
 from core.dreaming.cluster import Cluster, cluster_notes, note_centroids, note_snippets
+from core.dreaming.graph import MirrorGraph
+from core.dreaming.interpreters import build_structural_context, collect_claims
+from core.dreaming.rnd import require_rnd_enabled
 from core.mirror import MirrorView
 from core.selfcheck import SelfCheck, Source, SubjectiveJudge, self_evaluate
 from core.stores.derived import DREAM, Artifact, DerivedStore, artifact_id
@@ -87,6 +92,11 @@ class Dreamer:
     # (inputs = the authored cluster digests, output = the dream record) and the record links
     # back to it. None = no attestation (existing behavior unchanged).
     attestor: Attestor | None = None
+    # Loop-v2 seams (H8/H9; both optional — the v1 path never touches them): persisted
+    # typed/signed edges overlaid on the signed adjacency (the tension lens's input), and the
+    # structural-snapshot store the v2 pass appends to (§5.4). None = no edges / no snapshot.
+    edge_store: object | None = None
+    snapshots: SnapshotStore | None = None
     _snippets: dict[str, str] = field(default_factory=dict)
 
     def clusters(self) -> list[Cluster]:
@@ -151,6 +161,103 @@ class Dreamer:
             themes.append(Theme(titles=cluster.titles, summary=output,
                                 check=check, artifact=artifact))
         return themes
+
+    # ------------------------------------------------------------------ loop v2 (BUILD §3.1)
+    def dream_v2(self, *, config: object | None = None) -> list[Theme]:
+        """The strong-Dreamer pass — deterministic structure first, the earned model call last:
+
+            1. BUILD 𝔎|_MR (firewall structural: the complex is built from a MirrorView)
+          2–5. LOCATE / THEME / TENSION / GAPS — the interpreter panel over the complex
+            6. SUPPORT — noisy-OR multi-path grounding on the derivation DAG (§6.1)
+            7. ADJUDICATE — c = min{1, γ^d·g·(1+λ(|Agr|−1))}, confidence-ordered
+            8. SYNTHESIZE — the ONLY model call(s): narrate each selected candidate,
+               grounded in its authored evidence, mirror-not-oracle
+            9. STORE — interpreted-only, derives→authored leaves, acyclic, attested
+           10. MEASURE — append the structural snapshot (§5.4; feeds the A2 drift axes)
+
+        Gated by the dream-R&D hard boundary (`[dream_rnd] enabled`, OFF by default): the live
+        `dream()` above is UNCHANGED and remains the cron path until a deliberate flip. Every
+        structural judgment here is deterministic and model-free; `self.synthesize` is the only
+        model seam, invoked once per stored dream and nowhere else. Trough-only when wired
+        (a `dream` job routes to the synthesis tier, which the foreground gate blocks)."""
+        rnd = require_rnd_enabled(config)
+        view = MirrorView.project(self.store)
+        rows = view.rows()
+        self._snippets = note_snippets(rows, limit=_SNIPPET_CHARS)
+        titles: dict[str, str] = {}
+        for r in rows:
+            titles.setdefault(r["digest"], r.get("title", ""))
+        authored = set(titles)
+
+        # 1–5: one shared complex (persisted edges overlaid ⇒ the tension lens can fire),
+        # both lens registries + tension over it.
+        graph = MirrorGraph.build(view, sigma=rnd.sigma)
+        ctx = build_structural_context(view, rnd, edges=self.edge_store)
+        claims = collect_claims(graph, ctx, rnd)
+
+        # 6–7: multi-path support feeds g; the clamp law ranks.
+        from core.dreaming.adjudicator import adjudicate  # local: v1 constructions never pay it
+        refs_of = {a.id: a.derived_from for a in self.derived.all()}
+        entries = adjudicate(
+            claims, authored_digests=authored, agreement_jaccard=rnd.agreement_jaccard,
+            support_of=lambda ev: grounding_with_support(ev, refs_of, authored),
+        )
+
+        # 8–9: the earned narration, top candidates only; grounded or not kept quiet.
+        themes: list[Theme] = []
+        for entry in entries[: self.max_clusters]:
+            if not entry.evidence or entry.confidence <= 0.0:
+                continue                       # an ungrounded candidate has not earned the model
+            messages = frame_context(
+                DREAMER_ROLE, _DREAM_TASK,
+                context_blocks=[self._format_evidence(entry.statement, entry.evidence, titles)],
+            )
+            output = self.synthesize(messages)
+            sources = [Source(title=titles.get(d, d), digest=d) for d in entry.evidence]
+            check = self_evaluate(output, sources=sources, judge=self.judge)
+            subjects = tuple(titles.get(d, d) for d in entry.evidence)
+            attestation_id = None
+            if self.attestor is not None:
+                att = self.attestor.emit(
+                    agent_role="dreamer", action="dream_pass_v2",
+                    input_hashes=list(entry.evidence),
+                    output_hashes=[artifact_id(DREAM, None, subjects)],
+                )
+                attestation_id = att.id
+            artifact = self.derived.add(
+                kind=DREAM,
+                summary=output,
+                subjects=subjects,
+                data={"grounded": check.passed, "check": list(check.notes),
+                      "confidence": entry.confidence, "methods": list(entry.methods),
+                      "statement": entry.statement, "loop": "v2"},
+                derived_from=entry.evidence,   # authored leaves — acyclic, depth 1 (G2)
+                attestation_id=attestation_id,
+            )
+            themes.append(Theme(titles=subjects, summary=output, check=check,
+                                artifact=artifact))
+
+        # 10: the system watches its own structure evolve (§5.4 → the A2 drift axes).
+        if self.snapshots is not None:
+            self.snapshots.write(compute_snapshot(
+                ctx.complex, distances=ctx.distances,
+                sbm_k_max=rnd.sbm_k_max, hole_min_persistence=rnd.hole_min_persistence,
+            ))
+        return themes
+
+    def _format_evidence(self, statement: str, evidence: tuple[str, ...],
+                         titles: dict[str, str]) -> str:
+        """The synthesis context for one adjudicated candidate: the structural observation the
+        instruments made, plus the authored notes (the ONLY citable evidence) with snippets."""
+        blocks = [
+            f"[[{titles.get(d, d)}]]\n{self._snippets.get(d, '')[:_SNIPPET_CHARS]}"
+            for d in evidence
+        ]
+        return (
+            f"A structural pattern found across the notes: {statement}\n\n"
+            "Notes involved (the ONLY evidence you may cite):\n\n"
+            + "\n\n---\n\n".join(blocks)
+        )
 
 
 def build_dreamer(config: object | None = None, *, tier: str = "synthesis") -> Dreamer:

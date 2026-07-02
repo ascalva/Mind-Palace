@@ -26,6 +26,7 @@ tamper-evident: a dream log entry is pinned to sha256 evidence refs.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from config.loader import Config, get_config
@@ -91,16 +92,25 @@ def _consensus_groups(claims: list[Claim], *, threshold: float) -> list[list[int
 def adjudicate(claims: list[Claim], *, authored_digests: set[str],
                agreement_jaccard: float,
                gamma: float = DEFAULT_GAMMA,
-               lam: float = DEFAULT_LAMBDA) -> list[DreamLogEntry]:
+               lam: float = DEFAULT_LAMBDA,
+               support_of: Callable[[tuple[str, ...]], float] | None = None,
+               ) -> list[DreamLogEntry]:
     """Rank claims into a confidence-ordered dream log (no model; grounding decides). Agreement
     across DISTINCT interpreters multiplies confidence; a claim found by one lens still appears
-    (disagreement is information, not noise) — just lower."""
+    (disagreement is information, not noise) — just lower.
+
+    `support_of` (H8, §6.1): an optional multi-path grounding scorer — evidence refs → g via
+    noisy-OR message passing on the derivation DAG (`core.complex.support.grounding_with_support`
+    partially applied). None (the default) keeps the flat resolvability `grounding_score`; the two
+    are numerically identical whenever no evidence ref is an interpreted node (property-tested),
+    so the confidence law (R1's clamp) is untouched — only g's *computation* generalizes."""
     entries: list[DreamLogEntry] = []
     for idxs in _consensus_groups(claims, threshold=agreement_jaccard):
         members = tuple(claims[i] for i in idxs)
         methods = tuple(sorted({m.method for m in members}))      # DISTINCT methods, not a vote
         evidence = tuple(sorted({r for m in members for r in m.support}))
-        g = grounding_score(evidence, authored_digests)
+        g = (support_of(evidence) if support_of is not None
+             else grounding_score(evidence, authored_digests))
         agreement = len(methods)
         # The corroboration bonus lifts grounded claims; g=0 keeps c=0 regardless of agreement.
         # The single clamped definition (core.recursion) — c = min{1, γ^d·g·(1+λ(|Agr|−1))}; this
