@@ -149,3 +149,83 @@ def test_profile_from_report_maps_metrics():
     p = profile_from_report(report, constitution_intact=True)
     assert (p.recall_at_k, p.overlap, p.mean_distance) == (0.8, 0.3, 0.7)
     assert p.constitution_intact is True
+
+
+# --- A2: the structural axes (H6) — additive, never rewiring ----------------------------------
+
+_B_STRUCT = {**_B, "frustration": 0.05, "min_conductance": 0.30}
+
+
+def test_structural_axes_absent_leaves_drift_exactly_pre_a2():
+    # A profile without the A2 fields, even against a baseline that HAS them, produces exactly
+    # the original three axes — the extension is additive (Axis is a data change, not a rewrite).
+    r = drift(_p(recall=0.90), _B_STRUCT, _CFG)
+    assert set(r.per_axis) == {"recall_at_k", "overlap", "mean_distance"}
+    assert r.drift == pytest.approx(1.0)
+
+
+def test_structural_axes_appear_when_supplied():
+    p = Profile(recall_at_k=1.0, overlap=0.40, mean_distance=0.60, constitution_intact=True,
+                frustration=0.05, min_conductance=0.30)
+    r = drift(p, _B_STRUCT, _CFG)
+    assert set(r.per_axis) == {"recall_at_k", "overlap", "mean_distance",
+                               "frustration", "min_conductance"}
+    assert r.drift == 0.0                               # at baseline on every axis
+
+
+def test_rising_frustration_is_deterioration():
+    # frustration up 0.25 = one tolerance-unit (frustration_tol=0.25); capability at baseline.
+    p = Profile(recall_at_k=1.0, overlap=0.40, mean_distance=0.60, constitution_intact=True,
+                frustration=0.30, min_conductance=0.30)
+    r = drift(p, _B_STRUCT, _CFG)
+    assert r.per_axis["frustration"] == pytest.approx(1.0)
+    assert r.per_axis["min_conductance"] == 0.0
+    assert r.drift == pytest.approx(1.0)
+
+
+def test_falling_conductance_is_deterioration_and_rising_is_not():
+    worse = Profile(recall_at_k=1.0, overlap=0.40, mean_distance=0.60, constitution_intact=True,
+                    frustration=0.05, min_conductance=0.20)    # fell 0.10 = 1 unit (echo chamber)
+    better = Profile(recall_at_k=1.0, overlap=0.40, mean_distance=0.60, constitution_intact=True,
+                     frustration=0.0, min_conductance=0.50)    # both axes improved
+    assert drift(worse, _B_STRUCT, _CFG).per_axis["min_conductance"] == pytest.approx(1.0)
+    assert drift(better, _B_STRUCT, _CFG).drift == 0.0         # one-sided: improvement ≠ drift
+
+
+def test_profile_from_report_carries_structural_axes():
+    report = GoldenReport(per_query=(
+        QueryResult(id="q", retrieved=(), recall_at_k=0.8, overlap=0.3, mean_distance=0.7),
+    ))
+    p = profile_from_report(report, constitution_intact=True,
+                            structural={"frustration": 0.1, "min_conductance": 0.4})
+    assert (p.frustration, p.min_conductance) == (0.1, 0.4)
+    # and omitted ⇒ None ⇒ the axes stay off (pre-A2 behavior)
+    p0 = profile_from_report(report, constitution_intact=True)
+    assert p0.frustration is None and p0.min_conductance is None
+
+
+def test_alignment_snapshot_feeds_the_drift_profile():
+    # End to end: complex → alignment_snapshot → Profile → drift. Balanced all-support backbone
+    # at the blessed baseline ⇒ zero structural drift.
+    import numpy as np
+
+    from core.complex.build import build_complex
+    from core.complex.cut import alignment_snapshot
+    from core.mirror import MirrorView
+    rng = np.random.default_rng(0)
+    rows = []
+    for i in range(4):
+        rows.append({"digest": f"p{i}", "title": f"p{i}", "provenance": "authored-solo",
+                     "vector": list(np.array([1.0, 0, 0, 0]) + rng.normal(0, .02, 4))})
+    for i in range(4):
+        rows.append({"digest": f"s{i}", "title": f"s{i}", "provenance": "authored-solo",
+                     "vector": list(np.array([0.0, 0, 1.0, 0]) + rng.normal(0, .02, 4))})
+    snap = alignment_snapshot(build_complex(MirrorView(_rows=tuple(rows))))
+    assert snap["frustration"] == pytest.approx(0.0, abs=1e-6)   # no contradiction ⇒ balanced
+    assert 0.0 <= snap["min_conductance"] <= 1.0
+    baseline = {**_B, **snap}
+    p = Profile(recall_at_k=1.0, overlap=0.40, mean_distance=0.60, constitution_intact=True,
+                frustration=snap["frustration"], min_conductance=snap["min_conductance"])
+    r = drift(p, baseline, _CFG)
+    assert r.drift == 0.0
+    assert {"frustration", "min_conductance"} <= set(r.per_axis)

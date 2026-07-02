@@ -211,6 +211,10 @@ min_degree = 2                # a node needs this many σ-neighbours to be a gra
 bridge_clustering_max = 0.5   # local clustering coefficient <= this (degree>=2) => a bridge
 centrality_top_k = 5          # how many hub claims the centrality interpreter emits
 agreement_jaccard = 0.5       # support-set Jaccard >= this => interpreters corroborate one claim
+# Structural interpreters (H4-H7, backed by core/complex/). Declared bounds, not magic (G7):
+bridge_top_k = 5              # most-negative-curvature edges the bridge interpreter surfaces
+hole_min_persistence = 0.15   # min H1 lifetime (cosine-distance units) for a "long-lived" hole
+sbm_k_max = 8                 # model-selection cap for the SBM theme count (>= 1)
 
 [selfmod]
 # The self-modification loop (BUILD-SPEC §14, Phase 10 — the last + most privileged capability).

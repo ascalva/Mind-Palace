@@ -1555,3 +1555,95 @@ compute-only); the default single-linkage path and the whole existing quality/bi
 the real Ollama embedder's cosine statistics — §2.2 notes σ can drop), then the deferred instruments
 (curvature/topology/SBM/support = the rest of the strong-Dreamer pass, companion III §7) and the
 Dreamer loop v2. Then the DANGLING correlator capstone (Track D) and the A3 auditor.
+
+---
+
+## Track H — Prompt H4–H7: the structural interpreters (2026-07-02, new code behind the flag)
+
+The Dreamer now has real things to reason over: bridges, holes, alignment, themes-with-confidence —
+four new `core/complex/` instruments, each surfaced as a thin `Claim`-emitter in the R0 panel
+(BUILD §3.2 "each interpreter is a thin adapter over a `core/complex/` function"). All deterministic,
+model-free, flag-gated (`[dream_rnd] enabled=false` — `run_panel` still refuses by default; the live
+cron Dreamer is untouched). New dep: **`ripser`** (BUILD §2.2's adopted persistence backend; imported
+lazily inside `topology.persistence` — it drags plotting libs never used at module import).
+
+**H4 — `core/complex/curvature.py`.** Augmented Forman–Ricci (`Ric_F = 4 − deg(u) − deg(v) + 3·|△|`,
+computed on the σ-graph's support; O(#△), exact) + `most_negative_edges` (emission rule: κ ≤ 0, or
+only the minimum-κ edges when all are positive — never the whole graph; deterministic tie-break).
+**The panel's `bridge` lens upgraded from the local-clustering proxy to this instrument** (companion
+III §3.2's own framing: the proxy's principled replacement) — one claim per most-negative edge,
+support = the two linked notes. Ollivier–Ricci stays optional/ungated-out (§3.1), NOT built. The one
+pinned proxy test (`data["focus"]`) updated to assert the same planted intent (G1 carries every
+bridge) against the new instrument.
+
+**H5 — `core/complex/topology.py`.** `cosine_distance_matrix` + Vietoris–Rips persistence via ripser
+(the flag complex K_σ, §4.1) + `long_lived_holes`: H₁ features with lifetime ≥ `hole_min_persistence`,
+each completed into a **cycle witness** (representative cocycle edge + BFS path at the birth scale —
+the notes circling the hole; documented as a witness, not the unique minimal cycle). The `hole` lens
+surfaces them as **gaps, never contradictions** (§4.2 correction held in code and statement text —
+dissonance stays routed through `balance.py`/signed edges).
+
+**H6 — `core/complex/cut.py` + the A2 drift axes.** `conductance` (Φ(S) = w(∂S)/min(vol S, vol S̄)),
+`min_conductance` (worst community over the deterministic spectral partition — the echo-chamber
+axis), `grounding_cut` (min cut = max flow from an interpreted artifact to the authored leaves
+through its derivation refs; unit-capacity per ref, fixed-point-scaled integers for scipy's
+`maximum_flow`; multi-hop chains bottleneck correctly), `alignment_snapshot(K) → {frustration,
+min_conductance}`. **`eval/drift.py` extended additively (A2):** `Profile` gains optional
+`frustration`/`min_conductance` (default None), `DriftConfig` gains declared tolerances
+(`frustration_tol=0.25`, `conductance_tol=0.10`; readable from baseline.json's `drift` section), and
+`drift()` appends the axes **only when both the measured value and a blessed baseline key exist** —
+a profile without them produces exactly the pre-A2 drift (proven by test). Rising frustration and
+falling conductance are deterioration; improvement stays 0 (one-sided).
+
+**H7 — `core/complex/blocks.py`.** Light degree-corrected **Poisson SBM** (mean-field VEM, ~130
+lines per the BUILD §2.2 disposition): deterministic init from the diffusion embedding (fixed-seed
+kmeans2), fixed iteration budget, ICL/BIC-style model selection (Karrer–Newman objective −
+½·[k(k+1)/2]·ln W − ½·(k−1)·ln n; a **declared engineering penalty validated on planted graphs**,
+not a derived MDL bound — stated honestly in the docstring). Returns hard labels + the n×k
+**posterior** + the model-selected k. The `theme` lens emits one claim per non-singleton block with
+membership confidence and the **spectral cross-check** (`k_sbm` vs `k_spectral`, `counts_agree`) —
+§6.3's line held: the posterior organizes the graph, never certifies a thought.
+
+**Wiring.** `core/dreaming/interpreters.py`: new `StructuralContext` (one shared complex at σ +
+the unthresholded distance matrix, built once per pass from the MirrorView — non-authored claims
+unrepresentable) + `STRUCTURAL_INTERPRETERS` registry {bridge, hole, theme} run by `run_panel`
+alongside the σ-graph lenses. Three new `[dream_rnd]` tunables (declared bounds, G7):
+`bridge_top_k=5`, `hole_min_persistence=0.15`, `sbm_k_max=8`. **Package-init cycle broken**: 
+`core/complex/{build,spectral}` now lazy-import `core.dreaming.cluster` (the panel consumes the
+instruments, not vice versa; `core.dreaming.__init__` eagerly pulls the panel).
+
+**Verified:** logic suite **518 → 533 (+15)** — `test_structural_interpreters` property suite (+6:
+planted-bridge curvature sign incl. closed form, persistence bottleneck-stability under ≤ε jitter,
+grounding-cut monotonicity + chain bottleneck, SBM recovery k∈{2,3,4} at ≥0.95 co-membership +
+blockless-graph k=1), `test_structural_panel` (+3: planted ring hole surfaced-as-gap-never-
+contradiction, two concerns with posterior + cross-check, firewall/support-authored), drift A2
+(+6: axes-absent ⇒ exactly pre-A2 D, axes appear, rising frustration/falling conductance trip,
+one-sided improvement, `alignment_snapshot`→Profile→drift end to end). ruff clean tree-wide;
+import firewall green; **no flags flipped** (dream R&D OFF; live path untouched).
+
+**Next:** the remaining strong-Dreamer pieces — `support.py` (noisy-OR multi-path grounding, §6.1),
+the `tension` lens (needs a contradiction detector to assert `contradicts` edges), `temporal.py`
+(structural snapshots feeding the A2 axes live), then the Dreamer loop v2 assembly (BUILD §3.1).
+Then the Track D correlator capstone and the A3 auditor.
+
+## Forward layer — READ-ONLY AUDIT: prompt/Constitution integrity vs tamper & injection (2026-07-02)
+
+**Audit performed, nothing built** — pure investigation per the owner's mandate; no code/test/config
+changed; deliverable is `docs/audits/prompt-integrity-audit.md` (the single new file). Cited test
+subset re-run this session: 94/94 pass (adversarial + integrity + constitution/budget/factory units +
+attestation-store/ambassador integration). Live `CONSTITUTION.md` hash verified == blessed anchor.
+
+**Per-gap verdicts** (evidence + minimal-missing statements in the audit file):
+- **G1 CLOSED** — fingerprint = SHA-256 of raw `CONSTITUTION.md` only (`core/constitution.py:31`), lru-cached at process start; nothing else is in the hash.
+- **G2 OPEN** — no call site hashes the assembled prompt (`agents/ambassador/agent.py:147` et al.); only the Constitution has an identity.
+- **G3 OPEN** — no pre-dispatch gate anywhere; fingerprint recorded post-hoc in attestations; the blessed-anchor comparison runs only in the (OFF) self-mod validator/eval, not the live loop (`ops/lifecycle/launcher.py:144`, preflight has no fingerprint check).
+- **G4** — assembly code / skill defs (dormant) / ambassador context output: NOT covered; scope grants: structural tool ceiling covered, `[secrets].grant_roles` config unhashed; retrieved chunks: partial (digests attested, text never re-verified against digest).
+- **G5 PARTIAL** — record/store/crypto/verifier faithful to attestation-layer.md, BUT signing OFF in this deployment (records-only, unsigned); minor drifts: `signer` outside signed payload, `att_output` index never built.
+- **G6 PARTIAL** — interactive Ambassador IS attested live (read/propose/capture, wired via launcher), but no prompt/output hashes; classifier + Agent/MintedAgent.respond calls unattested.
+- **G7 PARTIAL** — injection-as-content + firewall + ceiling all structural, tested, passing, hash-free; missing the model-facing half (adversarial note through retrieval → non-obedience assert, holistic-testing §1c second half).
+- **G8 CLOSED** — vault does no prompt hashing and nothing expects it to (capability only).
+- **G9** — extra gaps: blessed check never scheduled at runtime; RAG chunks enter as role:"system"; `ContextParts.constitution` override seam; committed pubkeys are dev keys w/ seeds in repo + signing off ⇒ trail tamper-evidence nominal; role prompts have no recorded identity; A3 auditor/tripwire unbuilt.
+
+**Bottom line:** Threat A (injection) = good today for the authored-only surface; Threat B (tamper) =
+weak — one file fingerprinted, comparison dormant, no pre-dispatch gate, assembled prompts identity-free.
+**Next:** owner picks remediation priorities from the audit (natural neighbor: the A3 auditor).

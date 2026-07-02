@@ -15,6 +15,8 @@ isolated notes are dropped, matching the single-linkage clusterer's contract.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import scipy.sparse as sp
 from scipy.cluster.vq import kmeans2
@@ -23,7 +25,9 @@ from scipy.sparse.linalg import ArpackNoConvergence, eigsh
 
 from core.complex.build import cosine_adjacency
 from core.complex.laplacian import laplacian_sym
-from core.dreaming.cluster import Cluster, NoteVector
+
+if TYPE_CHECKING:  # annotation-only; runtime import is lazy (package-init cycle, see build.py)
+    from core.dreaming.cluster import Cluster, NoteVector
 
 # Determinism + scale knobs (companion III §2.3 contracts). A fixed ARPACK start vector and a fixed
 # k-means seed make every eigensolve/assignment reproducible run-to-run.
@@ -148,6 +152,8 @@ def diffusion_cluster_notes(notes: list[NoteVector], *, threshold: float = 0.62,
     of `threshold`, capped at 0.15) — deliberately *below* the single-linkage cut, because spectral
     structure, not a hard threshold, separates the themes. Returns `Cluster`s of ≥ `min_size`,
     largest first (ties by first member's title), fully deterministic."""
+    from core.dreaming.cluster import Cluster  # lazy: package-init cycle (see build.py)
+
     n = len(notes)
     if n == 0:
         return []

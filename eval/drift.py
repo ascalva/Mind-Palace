@@ -98,16 +98,24 @@ class DriftConfig:
     distance_tol: float = 0.05
     theta: float = 1.0                          # Θ — the tolerance band
     blessed_fingerprint: str | None = None      # the frozen-anchor Constitution identity
+    # A2 structural axes (core/complex/cut.alignment_snapshot). Declared tolerances (G7):
+    frustration_tol: float = 0.25               # one unit of rising dissonance λ_min(L̄)
+    conductance_tol: float = 0.10               # one unit of falling worst-community conductance
 
 
 @dataclass(frozen=True)
 class Profile:
-    """μ(s_t): the behavioral profile — capability rates ⊕ Constitution conformance (G4)."""
+    """μ(s_t): the behavioral profile — capability rates ⊕ Constitution conformance (G4),
+    optionally ⊕ the A2 structural axes (frustration rising / worst-community conductance
+    falling — `core/complex/cut.alignment_snapshot`). The structural fields default None:
+    a profile without them produces exactly the pre-A2 drift (additive, never rewiring)."""
 
     recall_at_k: float
     overlap: float
     mean_distance: float
     constitution_intact: bool
+    frustration: float | None = None        # λ_min(L̄) — dissonance (higher = worse)
+    min_conductance: float | None = None    # worst community Φ — echo chamber (lower = worse)
 
 
 @dataclass(frozen=True)
@@ -128,24 +136,38 @@ def drift(profile: Profile, baseline_metrics: dict[str, float], cfg: DriftConfig
         # The fixed point itself moved — categorically out of band, dominates every rate axis.
         return DriftReport(drift=math.inf, theta=cfg.theta, within_tolerance=False,
                            constitution_intact=False, per_axis={"constitution": math.inf})
-    axes = (
+    axes = [
         Axis("recall_at_k", profile.recall_at_k, baseline_metrics["recall_at_k"],
              cfg.recall_tol, higher_is_better=True),
         Axis("overlap", profile.overlap, baseline_metrics["overlap"],
              cfg.overlap_tol, higher_is_better=True),
         Axis("mean_distance", profile.mean_distance, baseline_metrics["mean_distance"],
              cfg.distance_tol, higher_is_better=False),
-    )
+    ]
+    # A2 structural axes — appended only when BOTH the measured value and a blessed baseline
+    # exist (additive: a profile/baseline without them yields exactly the pre-A2 drift).
+    if profile.frustration is not None and "frustration" in baseline_metrics:
+        axes.append(Axis("frustration", profile.frustration, baseline_metrics["frustration"],
+                         cfg.frustration_tol, higher_is_better=False))
+    if profile.min_conductance is not None and "min_conductance" in baseline_metrics:
+        axes.append(Axis("min_conductance", profile.min_conductance,
+                         baseline_metrics["min_conductance"],
+                         cfg.conductance_tol, higher_is_better=True))
     per_axis = {a.name: a.deterioration() for a in axes}
     d = math.sqrt(sum(v * v for v in per_axis.values()))
     return DriftReport(drift=d, theta=cfg.theta, within_tolerance=(d <= cfg.theta),
                        constitution_intact=True, per_axis=per_axis)
 
 
-def profile_from_report(report: GoldenReport, *, constitution_intact: bool) -> Profile:
+def profile_from_report(report: GoldenReport, *, constitution_intact: bool,
+                        structural: dict[str, float] | None = None) -> Profile:
+    """`structural` optionally carries the A2 axes (`core/complex/cut.alignment_snapshot`);
+    omitted (the default) the profile — and therefore D — is exactly pre-A2."""
     m = report.as_metrics()
+    s = structural or {}
     return Profile(recall_at_k=m["recall_at_k"], overlap=m["overlap"],
-                   mean_distance=m["mean_distance"], constitution_intact=constitution_intact)
+                   mean_distance=m["mean_distance"], constitution_intact=constitution_intact,
+                   frustration=s.get("frustration"), min_conductance=s.get("min_conductance"))
 
 
 def constitution_intact(cfg: DriftConfig) -> bool:
@@ -177,6 +199,8 @@ def load_drift_config(path: Path = BASELINE_PATH) -> DriftConfig:
         distance_tol=float(d.get("distance_tol", 0.05)),
         theta=float(d.get("drift_tolerance", 1.0)),
         blessed_fingerprint=d.get("constitution_fingerprint"),
+        frustration_tol=float(d.get("frustration_tol", 0.25)),
+        conductance_tol=float(d.get("conductance_tol", 0.10)),
     )
 
 

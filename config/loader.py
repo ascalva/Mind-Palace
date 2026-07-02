@@ -89,6 +89,10 @@ class DreamRnDConfig:
     bridge_clustering_max: float  # local clustering coefficient ceiling for a structural hole
     centrality_top_k: int         # how many hub claims the centrality interpreter emits
     agreement_jaccard: float      # support overlap at which interpreters corroborate one claim
+    # Structural interpreters (H4-H7) over core/complex/ — declared bounds (G7):
+    bridge_top_k: int             # most-negative-curvature edges the bridge interpreter surfaces
+    hole_min_persistence: float   # min H1 lifetime (cosine-distance units) for a long-lived hole
+    sbm_k_max: int                # model-selection cap for the SBM theme count (>= 1)
 
 
 @dataclass(frozen=True)
@@ -347,6 +351,9 @@ def load_config(path: Path | None = None) -> Config:
             bridge_clustering_max=float(rnd["bridge_clustering_max"]),
             centrality_top_k=int(rnd["centrality_top_k"]),
             agreement_jaccard=float(rnd["agreement_jaccard"]),
+            bridge_top_k=int(rnd["bridge_top_k"]),
+            hole_min_persistence=float(rnd["hole_min_persistence"]),
+            sbm_k_max=int(rnd["sbm_k_max"]),
         ),
         sandbox=SandboxConfig(
             runtime=str(s["runtime"]),

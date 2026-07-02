@@ -75,8 +75,13 @@ def test_every_claim_support_is_authored():
 
 
 def test_bridge_finds_the_structural_hole():
+    # H4: the bridge lens is Forman-curvature-backed — the most-negative (least-curved) edges
+    # are the cross-domain links, and on this graph every one of them runs THROUGH the bridge
+    # note G1 (no intra-cluster edge is bridge-like). Same planted intent, real instrument.
     bridges = [c for c in run_panel(_view(), config=_on_config()) if c.method == BRIDGE]
-    assert bridges and all(b.data["focus"] == "dG1" for b in bridges)   # G1 is the bridge
+    assert bridges and all("dG1" in b.support for b in bridges)         # G1 carries every bridge
+    assert all(len(b.support) == 2 for b in bridges)                     # edge lens: two endpoints
+    assert all("curvature" in b.data for b in bridges)
 
 
 # --- R1: the evidence-based adjudicator -----------------------------------------

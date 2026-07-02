@@ -19,13 +19,16 @@ Deterministic (fixed embeddings ⇒ fixed graph), model-free, Zone A (no network
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.sparse as sp
 
-from core.dreaming.cluster import NoteVector, note_centroids
 from core.mirror import MirrorView
 from core.provenance import Provenance
+
+if TYPE_CHECKING:  # annotation-only; the runtime import is lazy (see build_complex) to break
+    from core.dreaming.cluster import NoteVector  # the package-init cycle with core.dreaming
 
 # Stable provenance → integer layer code (companion III §1.1: layers are provenance strata).
 _LAYER_CODE = {p.value: i for i, p in enumerate(Provenance)}
@@ -109,6 +112,11 @@ def build_complex(view: MirrorView, *, edges=None, derived=None,
     asserted contradiction flips a pair's polarity to −w. `derived` (optional `DerivedStore`): the
     derivation hyperedges whose tails touch these authored nodes. Both default None (pure
     similarity backbone, no hyperedges), keeping the introspective pass self-contained."""
+    # Lazy: core.dreaming's eager __init__ imports the panel, which imports core.complex —
+    # importing its cluster module at OUR module load would close that cycle. The dependency
+    # direction is panel → instruments; this keeps the instruments importable standalone.
+    from core.dreaming.cluster import note_centroids
+
     rows = view.rows()
     notes = note_centroids(rows)
     nodes = tuple(nv.digest for nv in notes)
