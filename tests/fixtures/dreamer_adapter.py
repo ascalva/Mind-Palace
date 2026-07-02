@@ -81,9 +81,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from core.complex.spectral import diffusion_cluster_notes
 from core.dreaming.adjudicator import AUTHORED_LEAF_DEPTH
-from core.dreaming.cluster import Cluster, similarity_matrix
-from core.dreaming.dreamer import Dreamer
+from core.dreaming.cluster import Cluster, cluster_notes, similarity_matrix
+from core.dreaming.dreamer import Clusterer, Dreamer
 from core.provenance import Provenance
 from core.recursion import DEFAULT_LAMBDA
 from core.selfcheck import grounding_score
@@ -245,6 +246,10 @@ class MindPalaceDreamerAdapter:
     threshold: float = LEXICAL_THRESHOLD
     min_cluster_size: int = MIN_CLUSTER_SIZE
     max_clusters: int = MAX_CLUSTERS
+    # The clustering strategy behind the seam. Default = the Phase-7 single-linkage (the existing
+    # F9 baseline). `build_diffusion_dreamer_adapter()` swaps in the reasoning complex's diffusion
+    # clusterer (H2) so F9 can be run against the adopted subset without touching the default.
+    clusterer: Clusterer = cluster_notes
 
     # ---- row construction (the corpus → authored mirror rows) ----------------------------
     def _rows(self, notes: Sequence[Any]) -> list[dict[str, Any]]:
@@ -267,6 +272,7 @@ class MindPalaceDreamerAdapter:
             threshold=self.threshold,
             min_cluster_size=self.min_cluster_size,
             max_clusters=self.max_clusters,
+            clusterer=self.clusterer,
         )
 
     def _clusters(self, notes: Sequence[Any]) -> tuple[list[Cluster], Dreamer, set[str]]:
@@ -335,6 +341,15 @@ def build_real_dreamer_adapter() -> MindPalaceDreamerAdapter:
     return MindPalaceDreamerAdapter()
 
 
+def build_diffusion_dreamer_adapter() -> MindPalaceDreamerAdapter:
+    """Same binding, but the clustering runs through the reasoning complex's diffusion clusterer
+    (H2) instead of the single-linkage floor — the adopted-subset path F9 non-regression is run
+    against. Everything else (embedder, grounding, confidence) is identical, so a comparison
+    isolates the clusterer."""
+    return MindPalaceDreamerAdapter(clusterer=diffusion_cluster_notes)
+
+
 # Re-export the artifact kind so the binding test can assert on persisted DREAM rows without
 # reaching into core directly.
-__all__ = ["MindPalaceDreamerAdapter", "LexicalEmbedder", "build_real_dreamer_adapter", "DREAM"]
+__all__ = ["MindPalaceDreamerAdapter", "LexicalEmbedder", "build_real_dreamer_adapter",
+           "build_diffusion_dreamer_adapter", "DREAM"]

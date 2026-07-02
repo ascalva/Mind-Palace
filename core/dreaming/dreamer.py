@@ -34,6 +34,13 @@ from core.stores.vectorstore import VectorStore
 # code assembles the context and decides when to run — Invariant 3.)
 Synthesizer = Callable[[list[Message]], str]
 
+# A clusterer groups note centroids into themes: (notes, *, threshold, min_size) -> [Cluster].
+# The default is the deterministic cosine single-linkage (`cluster.cluster_notes`); the reasoning
+# complex's diffusion clusterer (`core.complex.spectral.diffusion_cluster_notes`) is a drop-in
+# selected behind the DreamerAdapter seam — it dissolves single-linkage chaining (companion III
+# §2.2). Both are model-free and deterministic; the live default is unchanged.
+Clusterer = Callable[..., list[Cluster]]
+
 DREAMER_ROLE = (
     "You are the dreaming agent of a sealed personal mind-palace. You are shown a cluster of "
     "the owner's OWN notes that group together by theme. Reflect that theme back to the owner "
@@ -71,6 +78,10 @@ class Dreamer:
     threshold: float = 0.62        # cosine similarity to join two notes into a theme
     min_cluster_size: int = 2
     max_clusters: int = 8          # cap the number of syntheses per run (scarce slot, §5)
+    # The clustering strategy (the DreamerAdapter seam). Default = the Phase-7 cosine
+    # single-linkage; inject `core.complex.spectral.diffusion_cluster_notes` to use the reasoning
+    # complex's principled clusterer instead. Behavior is unchanged unless a clusterer is injected.
+    clusterer: Clusterer = cluster_notes
     judge: SubjectiveJudge | None = None
     # Optional runtime proof layer: when present, each dream emits a signed-later attestation
     # (inputs = the authored cluster digests, output = the dream record) and the record links
@@ -87,8 +98,8 @@ class Dreamer:
         rows = MirrorView.project(self.store).rows()
         self._snippets = note_snippets(rows, limit=_SNIPPET_CHARS)   # grounding text per note
         notes = note_centroids(rows)
-        return cluster_notes(notes, threshold=self.threshold,
-                             min_size=self.min_cluster_size)[: self.max_clusters]
+        return self.clusterer(notes, threshold=self.threshold,
+                              min_size=self.min_cluster_size)[: self.max_clusters]
 
     def _format_cluster(self, cluster: Cluster) -> str:
         blocks = [

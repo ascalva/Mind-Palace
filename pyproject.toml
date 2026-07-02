@@ -12,6 +12,8 @@ dependencies = [
     "lancedb>=0.10",  # thought-graph vectors (embedded, no daemon)
     "numpy>=1.26",    # deterministic embedding clustering for dreaming/curation (§9)
     "cryptography>=42",  # Ed25519 signing of attestations (runtime proof layer); not a net lib
+    "scipy>=1.11",    # reasoning complex: sparse Laplacians + partial eigensolves (Zone A, compute-only)
+    "scikit-network>=0.31",  # reasoning complex: Louvain cross-check / spectral embed (offline, no net)
 ]
 
 [project.optional-dependencies]

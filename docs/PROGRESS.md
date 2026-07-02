@@ -1504,3 +1504,54 @@ flags flipped; dream R&D still OFF.
 Dreamer loop v2 per companions III, Track H, Prompt H1) behind the `DreamerAdapter` seam, flag-OFF,
 trough-only; the `edges` table + `EdgeSign` land there. Then the DANGLING correlator capstone
 (Track D) and the A3 auditor.
+
+---
+
+## Track H — Prompt H1–H3: the reasoning-complex core (2026-07-01, new code behind the seam)
+
+The foundation of the strong Dreamer — the object, the principled clusterer, rigorous
+contradiction (companions III §1–§2). All in a new **`core/complex/`** package (Zone A, model-free,
+deterministic, import-firewall green). **New dependencies:** `scipy` (sparse Laplacians + partial
+eigensolves) and `scikit-network` (Louvain cross-check) — the offline compute libs BUILD §2.2 adopts;
+both compute-only (not networking), declared in `pyproject.toml`.
+
+**H1 — the object.** `core/stores/edges.py` `EdgeStore`: the typed/signed **edges** table (the fiber
+(t, w, s, τ), BUILD §1.2) using the R1 `EdgeSign` enum — the persistent home for polarity the cosine
+graph can't carry (chiefly contradiction); idempotent content-ids; negative-strength refused; sign is
+the closed ±1 set. `core/complex/build.py` `build_complex(view: MirrorView) -> ReasoningComplex`:
+nodes + weighted cosine backbone A (symmetric, zero-diag, w≥0) + signed adjacency A_signed (= A until
+a persisted contradiction edge overlays −w) + derivation hyperedges (from the `DerivedStore` junction,
+touching these authored nodes). **The constructor takes a `MirrorView`, so a non-authored complex is
+unrepresentable** (I6 structural — the firewall is the input type).
+
+**H2 — the operator + the clusterer.** `core/complex/laplacian.py` (L = D−A, L_sym = I − D^{-1/2}AD^{-1/2},
+signed L̄ = D̄ − A_signed). `core/complex/spectral.py`: `fiedler` (λ₂ + vector), `diffusion_map`
+(heat-weighted bottom eigenvectors of L_sym via **`scipy.sparse.linalg.eigsh`**, fixed ARPACK start
+⇒ deterministic; dense-`eigh` fallback for tiny/near-full components and on ARPACK non-convergence),
+`spectral_labels` (per connected component, eigengap-selected k, NJW row-normalized `kmeans2` with a
+fixed seed), and **`diffusion_cluster_notes`** — a drop-in for `cluster.cluster_notes` (same signature
++ `Cluster` return) that dissolves single-linkage chaining (§2.2). Plus `louvain_labels` (scikit-network,
+deterministic `random_state=0`) — the second, modularity-based method for the §2.3 cross-check.
+**The clusterer is pluggable behind the seam, not the default:** `Dreamer.clusterer` (defaults to the
+Phase-7 single-linkage — **behavior unchanged**) and `MindPalaceDreamerAdapter.clusterer` +
+`build_diffusion_dreamer_adapter()`. Flipping the default is a deliberate later step (like a flag), not
+taken here.
+
+**H3 — rigorous contradiction.** `core/complex/balance.py`: `signed_spectrum` (λ_min(L̄), the global
+dissonance proxy — 0 ⇔ balanced, Hou/Kunegis), `frustrated_triangles` (odd-negative triangles — the
+*specific* unresolved tensions, O(#△)), `frustration` → (λ_min, triangles). Replaces the 0.1 draft's
+deferred contradiction judge with structure.
+
+**Verified:** logic suite **498 → 518 (+20)** — `test_complex` (build/Laplacian/clusterer/Fiedler/Louvain,
++8), `test_edges_store` (+5), `test_complex_properties` (determinism, spectral stability, frustration
+correctness, +4), `test_diffusion_clusterer` (+3). **F9 non-regression through `MindPalaceDreamerAdapter`
+passes: diffusion planted-signal recall (1.00) ≥ lexical baseline (1.00) and clears the F9 bar; noise
+max-confidence 0.10 ≤ 0.70 ceiling.** Balance enumerates a planted frustrated triangle. ruff clean
+tree-wide; import firewall green (`core/complex/` reaches no network/edge — scipy/sknetwork are
+compute-only); the default single-linkage path and the whole existing quality/binding suite are
+**unchanged**. No flags flipped; dream R&D still OFF; live cron dreamer still uses single-linkage.
+
+**Next:** flip the diffusion clusterer to the live default (a deliberate adoption step, once tuned on
+the real Ollama embedder's cosine statistics — §2.2 notes σ can drop), then the deferred instruments
+(curvature/topology/SBM/support = the rest of the strong-Dreamer pass, companion III §7) and the
+Dreamer loop v2. Then the DANGLING correlator capstone (Track D) and the A3 auditor.
