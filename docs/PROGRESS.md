@@ -955,3 +955,38 @@ no chunk-grain change, no hypergraph wiring.
 Track D correlator; owner picks. Loose ends flagged this session: uncommitted `docs/ORIENTATION.md`
 (untracked) + the `recursive-strata.md` I5 edit are finished-but-uncommitted; and `note_centroids`
 could later be expressed as a mean over `group_sources`.
+
+
+---
+
+## Docs cleanup + design-note audit (2026-07-03, docs-only, no code/config logic change)
+
+Owner-directed documentation reorg + a read-only audit of every design/audit/research note against
+the codebase. **No note bodies edited; no code touched except two doc-path strings in `config/`.**
+
+**Reorg (conservative, reversible; move-never-delete):** archived `docs/HANDOFF.md`→`archive/`
+(security/attestation track complete, 0 inbound refs); moved `hands-and-the-effector-layer.md`
+top-level→`design-notes/` (resolved 3 pre-existing dangling links; updated the 2 `config/`
+references — `defaults.toml`, `loader.py` — the only code touched, owner-approved); rotated
+`PROGRESS.md` phases 0–10 → `archive/PROGRESS-phases-0-10.md` (verbatim, append-only preserved; live
+file 1962→957 lines, Forward layer now the top); trimmed `CLAUDE.md`'s "Current phase" wall → 3-line
+pointer (verbatim snapshot in `archive/CLAUDE-current-phase-2026-07-03.md`; also fixed a stray
+unpaired fence); removed `docs/bundle/` cruft (3 `.DS_Store`); rebuilt `docs/README.md` as the
+canonical index. Every internal link verified resolving (57/57); the 4 recently-cross-linked notes
+(security-planes, recursive-strata, stability-adjudication, prompt-integrity-audit) left untouched.
+
+**Design-note audit (24 notes, verified against built code):** 9 realized, 6 partial, 9 parked/future;
+none obsolete. Per-note status + evidence now live in `docs/README.md`. Two stale self-statuses the
+index corrects, both **actionable**:
+1. `wasm-sandbox-runtime.md` header says "design only, not implemented," but `WasmRunner` +
+   `RoutingRunner` are **built** with a real wasmtime path (`core/sandbox/runner.py`); dormant only
+   because no WASI `python.wasm` asset is placed (`available()=False` → fails closed to Podman).
+2. `recursive-strata.md` §8's one authorized immediate action — reserve `DERIVED_STRATUM` (+ integer
+   `depth`) in `core/provenance.py` *before* the provenance migration relabels rows — is **undone**;
+   the enum has no such label. Cheaper to reserve now than to retrofit after `--apply`.
+Absence confirmed for the future tracks: Track L (all L-series artifacts absent), Track D correlator
+(`core/ingest/biometric.py` absent), R5 `CuratedView` absent. All feature flags confirmed OFF
+(dream_rnd, effectors, attestation, secrets, backup, selfmod). Nothing built, nothing flipped.
+
+**Note:** a concurrent build session was live in this tree during the reorg (added the Source-set
+work above); its changes were left untouched and never staged.

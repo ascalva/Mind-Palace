@@ -77,43 +77,61 @@ copies. `NOTATION.md` is load-bearing — cited by ~15 code file headers as the 
 
 ## Design notes (`design-notes/`)
 
-Parked or realized designs, each written with re-entry conditions. "Realized" = built; the note
-stays as rationale, not a live build target.
+Every note below was audited against the codebase on 2026-07-03 (read-only). Status is verified
+against what is **actually built**, not against the note's own header — where a note's self-declared
+status has gone stale, that is flagged. "Realized" = built (the note stays as rationale, not a live
+target); "partial" = foundations built, remainder tracked; "parked/future" = not built, with the
+re-entry condition stated in the note.
 
-| Doc | Status |
-|---|---|
-| [`attestation-layer.md`](design-notes/attestation-layer.md) | realized — security & attestation track |
-| [`secrets-management-evolution.md`](design-notes/secrets-management-evolution.md) | realized — Vault |
-| [`vault-runtime-auth.md`](design-notes/vault-runtime-auth.md) | realized — Vault |
-| [`vault-sync-and-capture.md`](design-notes/vault-sync-and-capture.md) | realized — sync |
-| [`wasm-sandbox-runtime.md`](design-notes/wasm-sandbox-runtime.md) | realized — WASM sandbox |
-| [`test-organization.md`](design-notes/test-organization.md) | realized — test reorg |
-| [`dreamer-quality-suite-evaluation.md`](design-notes/dreamer-quality-suite-evaluation.md) | realized — F9 |
-| [`ambassador-as-reasoning-agent.md`](design-notes/ambassador-as-reasoning-agent.md) | realized — Track B |
-| [`ambassador-interpretation-and-flow.md`](design-notes/ambassador-interpretation-and-flow.md) | realized — Track B |
-| [`dreaming-v2-interpreter-panel.md`](design-notes/dreaming-v2-interpreter-panel.md) | realized — R0/R1 |
-| [`hands-and-the-effector-layer.md`](design-notes/hands-and-the-effector-layer.md) | parked / in-progress — Track G; G1–G3 built (types, gate, read-only sensing), G4–G6 not yet |
-| [`skills-and-scope.md`](design-notes/skills-and-scope.md) | parked — referenced from `core/factory/__init__.py` |
-| [`dream-phase-rnd-charter.md`](design-notes/dream-phase-rnd-charter.md) | parked — flag OFF, referenced from `config/defaults.toml` |
-| [`recursive-strata.md`](design-notes/recursive-strata.md) | parked — cross-linked with `research/security-planes.md` and `stability-adjudication.md`; blocking on a foundation file-set verification pass |
-| [`stability-adjudication.md`](design-notes/stability-adjudication.md) | parked — cross-linked with `research/security-planes.md` and `recursive-strata.md` |
-| [`live-adoption-and-longitudinal-harness.md`](design-notes/live-adoption-and-longitudinal-harness.md) | parked — Track L, forward-looking from the Track-H core |
-| [`observed-data-and-the-assistant-tier.md`](design-notes/observed-data-and-the-assistant-tier.md) | parked — Track D |
-| [`observed-iot-and-cross-source-synthesis.md`](design-notes/observed-iot-and-cross-source-synthesis.md) | parked — Track D |
-| [`dreaming-on-curated-graphs.md`](design-notes/dreaming-on-curated-graphs.md) | parked — R5 |
-| [`recursive-dreaming-bounded-by-grounding.md`](design-notes/recursive-dreaming-bounded-by-grounding.md) | parked |
-| [`alignment-subsystem.md`](design-notes/alignment-subsystem.md) | parked — Phase-10 expansion |
-| [`nervous-system-and-ambassador.md`](design-notes/nervous-system-and-ambassador.md) | parked |
-| [`roadmap-and-future-directions.md`](design-notes/roadmap-and-future-directions.md) | parked — post-Phase-10 areas of interest |
-| [`holistic-testing.md`](design-notes/holistic-testing.md) | parked — Track F |
+### Realized (built; note retained as rationale)
+
+| Note | Track | Verified status & evidence |
+|---|---|---|
+| [`attestation-layer`](design-notes/attestation-layer.md) | security | Built — `core/attestation/{record,store,crypto,verify,attestor}.py`, Ed25519 + append-only store, `scripts/verify_attestation.py`. **Caveat:** `[attestation] enabled=false` here → live records are unsigned, dev keys only (`audits/prompt-integrity-audit.md` G5). |
+| [`vault-runtime-auth`](design-notes/vault-runtime-auth.md) | security | Built — per-interaction scoped tokens (`config/secrets_backend.py` + factory mint); production Vault (kv + AWS engine) stood up. `[secrets] enabled=false`, `grant_roles` empty by default. |
+| [`secrets-management-evolution`](design-notes/secrets-management-evolution.md) | security | Realized, then **superseded by `vault-runtime-auth`** (Vault as per-interaction auth, not just a multi-machine store). Kept for the Keychain-era rationale. |
+| [`vault-sync-and-capture`](design-notes/vault-sync-and-capture.md) | ingest | Built + live — `core/ingest/{sync,watch,catalog,purge}.py`; Syncthing-over-Tailscale operational (runbook). |
+| [`test-organization`](design-notes/test-organization.md) | testing | Built — `tests/` reorganized to the exact target tree (unit·integration·e2e·property·metamorphic·adversarial·integrity·emergent·longitudinal·quality + fixtures·keys). |
+| [`dreamer-quality-suite-evaluation`](design-notes/dreamer-quality-suite-evaluation.md) | F (F9) | Built — `tests/quality/` bound to the real Dreamer/DerivedStore. Decoy-proxy + `g`-support-count caveats remain open in the note. |
+| [`ambassador-as-reasoning-agent`](design-notes/ambassador-as-reasoning-agent.md) | B | Built — `agents/ambassador/` end-to-end. The **authoritative** Ambassador note; overrides the two older ones. |
+| [`dreaming-v2-interpreter-panel`](design-notes/dreaming-v2-interpreter-panel.md) | dream R&D (R0/R1) | Built behind the flag — `core/dreaming/{graph,interpreters,adjudicator}.py`; `[dream_rnd] enabled=false`, live path still the Phase-7 Dreamer. Seed of the Track-H reasoning complex. |
+
+### Partially realized (foundations built; remainder tracked)
+
+| Note | Track | Verified status & what remains |
+|---|---|---|
+| [`holistic-testing`](design-notes/holistic-testing.md) | F | Most categories have populated homes (adversarial·metamorphic·property·integrity·emergent). **Longitudinal is thin** (1 file); the longitudinal + attestation-as-oracle-at-scale layers land with Track L / F4. |
+| [`skills-and-scope`](design-notes/skills-and-scope.md) | factory | Scope ceiling + object-capability tools **built & enforced** (`core/factory/`, `PRE_DECLARED_MAX`). **Instructional-skill loading is dormant** — `RoleTemplate.skills` is declared but has no consumer (audit G4). Executable-skill catalog = Track G G4. Referenced from `core/factory/__init__.py`. |
+| [`observed-data-and-the-assistant-tier`](design-notes/observed-data-and-the-assistant-tier.md) | D | **Firewall realized** — `OBSERVED` provenance exists (`core/provenance.py`), excluded from `MIRROR_READABLE`; Track G sensing already emits observed-tier. **Future:** the assistant tier, observed-ingestion pipeline, advisor agents. |
+| [`nervous-system-and-ambassador`](design-notes/nervous-system-and-ambassador.md) | A/B | Ambassador front door (§4) **built** (Track B); recovery mode exists (`ops/lifecycle/`). **Unbuilt:** the async auditor (§2 = "A3") and the tamper tripwire/freeze (§1) — confirmed absent (audit G9.7). Ambassador framing superseded by `ambassador-as-reasoning-agent`. |
+| [`alignment-subsystem`](design-notes/alignment-subsystem.md) | A | **Detection foundations built** — drift gauge A1 (`eval/drift.py`), `DerivedStore.reset()`, Curator prune-flagging. **Future:** structural detection (A2), the auditor (A3), gated surgery, alignment-steering self-mod. |
+| [`wasm-sandbox-runtime`](design-notes/wasm-sandbox-runtime.md) | sandbox | ⚠️ **Note header is stale.** It says "design only, not implemented," but `WasmRunner` + `RoutingRunner` are **built** with a real wasmtime path (`core/sandbox/runner.py`; `build_runner` `wasm`/`routing` branches). **Dormant:** `available()=False` until a WASI `python.wasm` asset is placed → fails closed to Podman. Header wants a refresh to "runner built, asset-pending." |
+
+### Parked / future (not built; re-entry condition in the note)
+
+| Note | Track | Verified status & re-entry |
+|---|---|---|
+| [`hands-and-the-effector-layer`](design-notes/hands-and-the-effector-layer.md) | G | In progress — G1–G3 built (`ops/effects.py`, `ops/effect_gate.py`, `core/sensing.py`), `[effectors] enabled=false`. Next: G4 catalog, G5 reversible writes. Referenced from `config/`. |
+| [`observed-iot-and-cross-source-synthesis`](design-notes/observed-iot-and-cross-source-synthesis.md) | D | Future — the **correlator is absent** (no correlator module, no `core/ingest/biometric.py`). The `sensor_readings` slot exists (Phase 0, dormant). The Track-D capstone. |
+| [`live-adoption-and-longitudinal-harness`](design-notes/live-adoption-and-longitudinal-harness.md) | L | Future — **every L-series artifact is absent** (`shadow.py`, `runledger.py`, `verdicts.py`, `complex/manifest.py`, `scripts/{review,tune}.py`, `eval/longitudinal.py`, `config/tuning.toml`). Prereqs `migrate_provenance_split.py --apply` + `ingest_self_knowledge.py` exist (owner-run). Gates Track G's value. |
+| [`stability-adjudication`](design-notes/stability-adjudication.md) | dream R&D | Parked (flag-off). Interpreter-panel prereqs **landed** (`core/complex/{support,curvature,blocks,topology}.py`); its validation instrument — the Track-L L2 verdict store — is **absent**, so it stays parked. Cross-linked with `security-planes` §6. |
+| [`recursive-strata`](design-notes/recursive-strata.md) | L successor | Parked; re-entry = Track L L4. ⚠️ **Its one authorized immediate action is undone:** §8 says reserve `DERIVED_STRATUM` (+ integer `depth`) in the provenance taxonomy *before* the migration relabels rows — `core/provenance.py` has no such label yet. Cross-linked with `security-planes` + `stability-adjudication`. Owner-edited this session. |
+| [`recursive-dreaming-bounded-by-grounding`](design-notes/recursive-dreaming-bounded-by-grounding.md) | dream R&D (R3) | Future — recursion not built; gated on the drift gauge (now exists) + panel solidity. Largely **superseded as the formal treatment by `recursive-strata`**; retains the four safety rules the successor inherits. |
+| [`dreaming-on-curated-graphs`](design-notes/dreaming-on-curated-graphs.md) | dream R&D (R5) | Future — `CuratedView` (its precondition) is **absent**. Build after R0/R1, in a deliberate R&D session. |
+| [`dream-phase-rnd-charter`](design-notes/dream-phase-rnd-charter.md) | dream R&D | The charter for the R&D track: R0/R1 built (flag-off), R2–R5 future. `[dream_rnd] enabled=false`, not wired into cron. Referenced from `config/`. |
+| [`roadmap-and-future-directions`](design-notes/roadmap-and-future-directions.md) | cross-cutting | Umbrella roadmap (2026-06-25). Several threads **landed** (provenance spectrum split, Phase-3 concurrency, Phase-9 backups, attestation/signatures); much remains future (assistant tier, multimodal, dashboards/Phase 11, multi-node). Superseded as *sequencing* by `ROADMAP-V1.md`; kept for the rationale ROADMAP-V1 omits. |
+
+**Superseded framing, kept (not obsolete):** [`ambassador-interpretation-and-flow`](design-notes/ambassador-interpretation-and-flow.md) — Track B is built; its §1–4 interpretation/no-bottleneck analysis is valid, but the "thin dispatcher" framing is corrected by `ambassador-as-reasoning-agent` (the note self-flags this). Retained for the analysis.
+
+**Audit summary:** of 24 design notes — 9 realized, 6 partially realized, 9 parked/future. None is obsolete. Two carry a stale self-status the index corrects above (`wasm-sandbox-runtime` header; `recursive-strata`'s undone `DERIVED_STRATUM` reservation); three carry explicit supersession relationships (`secrets-management-evolution`, `recursive-dreaming-bounded-by-grounding`, `ambassador-interpretation-and-flow`).
 
 ## Research (`research/`) & audits (`audits/`)
 
-| Doc | Category | Status |
+| Doc | Category | Verified status |
 |---|---|---|
-| [`research/security-planes.md`](research/security-planes.md) | draft-research | draft, pending ratification (2026-07-03) — cross-linked with `recursive-strata.md`, `stability-adjudication.md`, `audits/prompt-integrity-audit.md` |
-| [`research/un-represent-ability.md`](research/un-represent-ability.md) | draft-research | draft — external-survey style |
-| [`audits/prompt-integrity-audit.md`](audits/prompt-integrity-audit.md) | historical / audit | current (2026-07-02) — cross-linked with `research/security-planes.md` |
+| [`research/security-planes.md`](research/security-planes.md) | draft-research | Draft, parked items with re-entry conditions. Three-plane composition (types · provenance · capabilities). **Foundation-file-set enumeration is blocking ratification on a repo verification pass** (§2); the Rust-via-PyO3 privileged-path split is parked with the default recorded; AEAD store-encryption parked; TLA+/Alloy + Hypothesis on the three invariants unscheduled. Candidate for promotion to `design-notes/`. Cross-linked with `recursive-strata`, `stability-adjudication`, `prompt-integrity-audit`. |
+| [`research/un-represent-ability.md`](research/un-represent-ability.md) | reference/research | External literature survey on "make illegal states unrepresentable" (Rust · Haskell · seL4 · F* · effect systems) — the raw material that seeded `security-planes`. Background reference, not a spec; no re-entry condition. |
+| [`audits/prompt-integrity-audit.md`](audits/prompt-integrity-audit.md) | audit (current) | Read-only audit (2026-07-02); **findings re-checked against code this session and still hold.** Threat A (injection-via-content): well-defended, structural, tested. Threat B (prompt/Constitution tampering): weak — only `CONSTITUTION.md` is fingerprinted, the blessed-anchor check is dormant in the live loop, the full-assembled-prompt fingerprint is OPEN, attestation signing is OFF, the A3 auditor/tripwire is unbuilt. Maps directly to future Threat-B hardening. Cross-linked with `security-planes` §2. |
 
 ## Planned but not yet written
 
