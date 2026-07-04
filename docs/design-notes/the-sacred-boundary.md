@@ -47,7 +47,10 @@ dissolving the dangerous capability, not by guarding it. See §3.
 3. **Typed and promotion-gated.** Derived material never silently becomes
    authored; promotion toward authored authority happens only through an owner
    verdict. Inbound content is typed by stratum and depth; outbound effects are
-   typed by blast radius.
+   typed by blast radius. This typing extends to **edges**: an edge carries the
+   authority entitled to assert it (`geometry` / `dreamer-proposed` /
+   `verdict-certified`), so the graph types its nodes by stratum and its edges by
+   who may draw them (`the-edge-model.md`).
 
 4. **Un-purchasable by expected value.** Bright lines bound the feasible set;
    no outcome, however large, buys past a gate. This governs the outbound
@@ -106,5 +109,15 @@ Do not sequence dependent work ahead of these.
 - `docs/design-notes/effector-risk-computation.md` — risk under gating (outbound
   channel: effects).
 
+Cross-cutting, added after the supersession-edge work:
+
+- `docs/design-notes/the-edge-model.md` — edge taxonomy and assertion authority
+  (statics): knowledge/fiber edges vs reasoning-path/supersession edges, which
+  edges feed the balance math.
+- `docs/design-notes/supersession-lifecycle.md` — supersession dynamics: proposed
+  → certified states, the authored-content gate, grounding maintenance, and the
+  depth / γ^d decay math.
+
 Build plan and reconciliation live in the builder prompt that accompanies this
-set (`builder-prompt.md`).
+set (`builder-prompt.md`, and `builder-prompt-edge-and-supersession.md` for the
+edge-model / lifecycle phase).

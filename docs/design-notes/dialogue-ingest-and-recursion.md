@@ -72,6 +72,14 @@ structures; they must not share the same edge type or store. Separating version
 history out of the balance-fed semantic edge store (that note's Constraint 2) is
 a prerequisite for implementing this vocabulary without collision.
 
+The full treatment of these operations as **reasoning paths** — three-place,
+warrant-bearing, built on a fiber substrate, typed by assertion authority — is in
+`the-edge-model.md`; their **dynamics** — proposed→certified states, the
+authored-content gate, grounding maintenance, and the depth / γ^d decay math — are
+in `supersession-lifecycle.md`. Note in particular that the committed
+`derived_from=[C]` is corrected there (§4.2): a revision grounds on its warrant's
+anchors, not on the claim it replaces.
+
 ## 5. Recursion and its governor
 
 The loop is the `recursive-strata.md` fixed-point iteration: ingest → dream →

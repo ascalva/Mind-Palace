@@ -1,8 +1,11 @@
-"""Dialogue operations — build plan Item 2b (dialogue-ingest-and-recursion.md §3–§4).
+"""Dialogue operations — build plan Item 2b + Item 9 (dialogue-ingest-and-recursion.md §3–§4;
+supersession-lifecycle.md §4.2, §5).
 
 A correction ACTS on claims (a supersede RELATION + a DERIVED conclusion), never entering as a peer
-authored node (the §2 failure). The conclusion is INTERPRETED so γ^d bounds it; the operations live
-in a store distinct from the version + balance-edge stores (§4A C3). Deterministic; no model.
+authored node (the §2 failure). The conclusion is INTERPRETED so γ^d bounds it, and grounds on the
+warrant's K₀ anchors, NEVER on the claim it discredits (Item 9) — so `g` does not collapse when C is
+superseded and a revision thread does not tower. The operations live in a store distinct from the
+version + balance-edge stores (§4A C3). Deterministic; no model.
 """
 
 from __future__ import annotations
@@ -16,7 +19,9 @@ from core.recursion_ops import (
     Supersede,
     apply_operations,
     no_op_analyzer,
+    stale_closure,
 )
+from core.selfcheck import grounding_score
 from core.stores.derived import DerivedStore
 
 
@@ -90,3 +95,83 @@ def test_default_analyzer_emits_no_operations(tmp_path):
     ops = no_op_analyzer("some dialogue text where I changed my mind about X")
     apply_operations(ops, ops_store=ops_store, derived=derived)
     assert ops == [] and ops_store.count() == 0 and derived.count() == 0
+
+
+# --- Item 9: revision grounds on the warrant's anchors, never on [C] (§4.2) ---
+
+def test_supersede_grounds_on_warrant_anchors_not_the_claim(tmp_path):
+    # The correction to committed Item 2b: C′.derived_from is the warrant's K₀ anchors, NEVER [C].
+    ops_store, derived = _stores(tmp_path)
+    apply_operations(
+        [Supersede(claim="noteC", conclusion="C prime",
+                   warrant="authA,authB answered it", anchors=("authA", "authB"))],
+        ops_store=ops_store, derived=derived,
+    )
+    art = derived.all(kind=DIALOGUE_CONCLUSION)[0]
+    assert set(art.derived_from) == {"authA", "authB"}     # grounds on the warrant's anchors ...
+    assert "noteC" not in art.derived_from                 # ... never the claim it discredits
+
+
+def test_a_thread_of_warrant_anchored_revisions_does_not_tower(tmp_path):
+    # The §4.4 falsifier: strictly-improving revisions each cite K₀ anchors → g stays high (1.0) and
+    # depth stays flat (1) along the thread — NO tower. The pre-fix predecessor-grounding towers.
+    ops_store, derived = _stores(tmp_path)
+    authored = {"authA", "authB"}
+
+    r1 = apply_operations([Supersede("noteC", "rev1", "w1", anchors=("authA", "authB"))],
+                          ops_store=ops_store, derived=derived).conclusions[0]
+    r2 = apply_operations([Supersede(r1, "rev2", "w2", anchors=("authA",))],
+                          ops_store=ops_store, derived=derived).conclusions[0]
+
+    # flat depth + flat grounding ratio along the thread — the healthy signature
+    assert derived.depth(r1) == 1 and derived.depth(r2) == 1
+    assert grounding_score(derived.tails_of(r1), authored) == 1.0
+    assert grounding_score(derived.tails_of(r2), authored) == 1.0
+
+    # negative control: had rev2 grounded on its predecessor (a DERIVED node), it would tower —
+    # depth rises (γ^d collapses) and flat grounding ratio falls to 0 (predecessor isn't authored)
+    towered = derived.add(kind="control", summary="rev2-bad", subjects=("x",), derived_from=[r1]).id
+    assert derived.depth(towered) == 2
+    assert grounding_score(derived.tails_of(towered), authored) == 0.0
+
+
+def test_default_anchors_inherit_surviving_grounding_never_the_claim(tmp_path):
+    # No explicit anchors: a revision of a DERIVED claim inherits its authored leaves (surviving
+    # grounding), never the claim; a revision of an AUTHORED claim is honestly ungrounded (∅).
+    ops_store, derived = _stores(tmp_path)
+    seed = derived.add(kind=DIALOGUE_CONCLUSION, summary="seed", subjects=("s",),
+                       derived_from=["authA"])
+    r = apply_operations([Supersede(seed.id, "rev of seed", "w")],
+                         ops_store=ops_store, derived=derived).conclusions[0]
+    assert set(derived.tails_of(r)) == {"authA"}           # inherited the surviving authored leaf
+    assert seed.id not in derived.tails_of(r)              # ... never the discredited claim
+    assert derived.depth(r) == 1                           # authored leaf → depth 1, no tower
+
+    r2 = apply_operations([Supersede("authZ", "rev of authored", "w")],
+                          ops_store=ops_store, derived=derived).conclusions[0]
+    assert derived.tails_of(r2) == frozenset()             # no false grounding on [authZ]
+
+
+def test_derived_cannot_outrank_authored_under_corrected_grounding(tmp_path):
+    # The γ^{d≥1} guarantee survives correction: C′ grounds on authored anchors, so depth ≥ 1 and
+    # decay_bound < 1 — it can never reach an authored claim's confidence of 1.0 (I1/I10).
+    ops_store, derived = _stores(tmp_path)
+    r = apply_operations([Supersede("noteC", "C prime", "w", anchors=("authA", "authB"))],
+                         ops_store=ops_store, derived=derived).conclusions[0]
+    assert derived.depth(r) >= 1 and decay_bound(derived.depth(r)) < 1.0
+
+
+def test_stale_closure_flags_grounding_descendants_not_the_revision_chain(tmp_path):
+    # Stale(C) = C's grounding-descendant closure (§5) — flagged for re-examination, not resolved.
+    ops_store, derived = _stores(tmp_path)
+    C = "authC"
+    d = derived.add(kind=DIALOGUE_CONCLUSION, summary="D", subjects=("d",), derived_from=[C])
+    e = derived.add(kind=DIALOGUE_CONCLUSION, summary="E", subjects=("e",), derived_from=[d.id])
+    assert stale_closure(derived, C) == {d.id, e.id}       # D grounds on C; E grounds on D
+
+    # a well-formed revision grounds on warrant anchors (not on C), so it does NOT extend Stale(C) —
+    # the §5 "interaction with §4.2": correction stops revision chains self-generating stale sets
+    rep = apply_operations([Supersede(C, "revC", "w", anchors=("authA",))],
+                           ops_store=ops_store, derived=derived)
+    assert set(rep.stale) == {d.id, e.id}
+    assert rep.conclusions[0] not in rep.stale

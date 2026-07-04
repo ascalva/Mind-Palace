@@ -81,7 +81,10 @@ duplicates.
 The running implementation records a version-supersession edge on amendment. The
 following constraints correct how it must be keyed and where it must live. They
 are the resolved design for these points, subject to the schema reality the
-builder confirms in Q7.
+builder confirms in Q7. Constraints 2–3 are generalized into a principled edge
+taxonomy in `the-edge-model.md` (E_geom ⊔ E_disp; note-version `supersedes` and
+claim `supersede` are distinct dispositional edges, both excluded from the
+balance Laplacian); the supersession *dynamics* live in `supersession-lifecycle.md`.
 
 **Constraint 1 — key edge endpoints on version identity, not content digest.**
 Supersession holds between *versions*, and version identity is not content.

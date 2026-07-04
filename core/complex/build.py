@@ -138,7 +138,17 @@ def build_complex(view: MirrorView, *, edges=None, derived=None,
 
 def _overlay_signed(A: sp.csr_matrix, idx: dict[str, int], edges) -> sp.csr_matrix:
     """A_signed = A (all support) with any persisted typed edges overlaid: an edge (u,v) present in
-    the store sets the pair to sign·w (contradiction ⇒ −w). Both endpoints must be nodes here."""
+    the store sets the pair to sign·w (contradiction ⇒ −w). Both endpoints must be nodes here.
+
+    **E_geom ⊔ E_disp partition invariant (the-edge-model.md §4; Item 7).** The balance math sees
+    `A_geom` (this matrix) — assembled from the `EdgeStore` alone (`authority = geometry`). The two
+    DISPOSITIONAL edge stores — note-version `supersedes` (`core/stores/versions.py`) and claim
+    `supersede` (`core/recursion_ops.py`) — are `E_disp`, and `build_complex` holds **no handle** to
+    either, so no dispositional edge can ever be assembled into `A_signed`/`L`. The exclusion is
+    STRUCTURAL (store separation), not a rel-type filter every consumer must remember; `EdgeStore`
+    itself refuses a `supersedes` rel-type (`core/stores/edges.py`). Falsifier: adding/removing a
+    version row or a claim-op changes any frustration / curvature / clustering result ⇒ E_disp has
+    leaked — fix at the store boundary, never here (`tests/integration/test_edge_partition.py`)."""
     if edges is None or A.shape[0] == 0:
         return A.copy()
     signed = A.tolil()

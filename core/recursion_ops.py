@@ -25,10 +25,16 @@ Three separations keep this honest (all confirmed against code):
   * **Distinct from version-supersedes (§4A C3).** Claim-`supersede` is warrant-bearing reasoning;
     note-`supersedes(v1,v2)` is a file edit (`core/stores/versions.py`). Different relations,
     different stores — never the same rel-type, never the balance-fed `EdgeStore`.
-  * **The conclusion is INTERPRETED.** C′ is minted via `DerivedStore.add(derived_from=[C])`, so
-    carries `INTERPRETED` provenance (I5) and a derivation depth, and `core.recursion` bounds its
-    confidence by γ^d (I10): a dialogue conclusion can never out-rank the authored claim it revised
-    without an owner verdict (I1).
+  * **The conclusion is INTERPRETED and grounds on the WARRANT'S anchors (Item 9).** C′ is minted
+    via `DerivedStore.add`, carrying `INTERPRETED` provenance (I5) and a derivation depth, so
+    `core.recursion` bounds its confidence by γ^d (I10): a dialogue conclusion can never out-rank
+    the authored claim it revised without an owner verdict (I1). Its `derived_from` is the warrant's
+    K₀-reaching anchors (surviving grounding of C + the dialogue's new evidence), **never `[C]`**:
+    grounding a revision on the claim it discredits cites what it declares wrong, and — because the
+    grounding ratio is transitive — collapses `g` the moment C is superseded and manufactures the
+    cross-stratum citation the tower is made of (supersession-lifecycle.md §4.2). The `C→C′`
+    relation is carried by the dispositional `ClaimOpStore` edge alone, not a grounding fiber; the
+    γ^{d≥1} "can't out-rank authored" guarantee comes from depth ≥ 1, not from grounding on C.
   * **Budgets floored (PD4).** The recursive-strata I5 population / edge budgets are parked;
     with none enforced these ops are recorded flatly and the Dreamer does not yet consume them
     recursively — exactly the non-recursive floor, recovering current behavior. The hook is named
@@ -67,11 +73,19 @@ class Supersede:
     """The dialogue concluded `conclusion`, which replaces `claim` in the active projection; the
     warrant is why. `claim` is an existing claim id (a note digest or an artifact id); `conclusion`
     is the new position's text, minted as a DERIVED interpreted claim on apply (never an authored
-    peer)."""
+    peer).
+
+    `anchors` are the warrant's K₀-reaching authored digests — the grounding `C′` actually rests on
+    (Item 9; supersession-lifecycle.md §4.2). **Never `[claim]`.** A `DialogueAnalyzer` supplies
+    them (surviving grounding of C + the dialogue's new evidence); left empty, apply inherits C's
+    *surviving authored grounding* (its `leaf_refs` — authored digests C reaches, never C itself),
+    so a first revision of an authored note with no new evidence is honestly ungrounded (g=0) rather
+    than falsely grounded on the claim it discredits."""
 
     claim: str
     conclusion: str
     warrant: str
+    anchors: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -194,23 +208,58 @@ class ApplyReport:
     conclusions: tuple[str, ...]    # the DERIVED conclusion artifact ids minted (γ^d applies)
     defeaters: int
     warrants: int
+    stale: tuple[str, ...] = ()     # grounding-descendants of the superseded claims (Stale(C), §5)
+                                    # — FLAGGED for re-examination, never cascade-retracted
+
+
+def stale_closure(derived: DerivedStore, claim: str) -> set[str]:
+    """`Stale(C) = { x : C is reachable from x along grounding fibers }` — C's grounding-descendant
+    closure (supersession-lifecycle.md §5). When C is superseded, every x that transitively grounds
+    on C routes its support through a dead node, so its grounding ratio `g` will fall; this names
+    them at the moment of supersession — the PROACTIVE complement to the detective grounding gauge.
+
+    These are **flagged for re-examination, not resolved**: whether a derived claim survives its
+    parent's revision is a semantic judgment the Dreamer proposes later (terminating in proposals,
+    never silent edits). Read-only; walks the `derived_from` DAG (`x → … → C`). Note the Item 9
+    grounding correction keeps a *revision chain* from self-generating this set — C′ grounds on
+    warrant anchors, not on its predecessor, so the closure holds only genuine dependents (§5)."""
+    children_of: dict[str, set[str]] = {}     # parent → the artifacts that derive_from it
+    for art in derived.all():
+        for parent in art.derived_from:
+            children_of.setdefault(parent, set()).add(art.id)
+    out: set[str] = set()
+    stack = [claim]
+    while stack:
+        for child in children_of.get(stack.pop(), ()):
+            if child not in out:
+                out.add(child)
+                stack.append(child)
+    return out
 
 
 def apply_operations(ops: Iterable[DialogueOp], *, ops_store: ClaimOpStore,
                      derived: DerivedStore) -> ApplyReport:
     """Apply dialogue operations: record each as a claim relation and re-project.
 
-    A `Supersede` mints its conclusion C′ as a DERIVED interpreted artifact (`derived_from=[C]`, so
-    γ^d bounds it — I10/I5) and records the supersede relation, so C leaves the active projection
-    without C′ ever entering as an authored peer (the §2 failure avoided). Defeaters/warrants are
-    recorded. Budgets are floored (PD4): no recursive-strata budget is enforced yet."""
+    A `Supersede` mints its conclusion C′ as a DERIVED artifact grounded on the WARRANT'S
+    K₀-reaching anchors — never on `[C]` (Item 9; supersession-lifecycle.md §4.2), so γ^d bounds it
+    (I10/I5) and C leaves the active projection without C′ entering as an authored peer (the §2
+    failure avoided) and without citing the claim it discredits. Explicit `op.anchors` win; empty
+    inherits C's *surviving authored grounding* (`leaf_refs(C)` — never C). On supersession we
+    also compute `Stale(C)` (§5) — grounding-descendants to flag for re-examination — surfaced in
+    the report for the digest; nothing is cascade-retracted. Budgets floored (PD4)."""
     superseded: list[str] = []
     conclusions: list[str] = []
     defeaters = warrants = 0
     for op in ops:
         if isinstance(op, Supersede):
+            # Item 9: ground C′ on the warrant's authored anchors, NOT on [C]. Explicit anchors win;
+            # else inherit C's surviving authored grounding (its leaf_refs — never C, never a
+            # derived ancestor). The C→C′ relation is the dispositional ClaimOpStore edge, not this.
+            anchors = (tuple(op.anchors) if op.anchors
+                       else tuple(sorted(derived.leaf_refs(op.claim))))
             art = derived.add(kind=DIALOGUE_CONCLUSION, summary=op.conclusion,
-                              subjects=(op.claim,), derived_from=[op.claim])
+                              subjects=(op.claim,), derived_from=list(anchors))
             ops_store.record(OpKind.SUPERSEDE, op.claim, related_id=art.id, text=op.warrant)
             superseded.append(op.claim)
             conclusions.append(art.id)
@@ -221,8 +270,12 @@ def apply_operations(ops: Iterable[DialogueOp], *, ops_store: ClaimOpStore,
             for claim in op.links:
                 ops_store.record(OpKind.RECORD_WARRANT, claim, text=op.warrant)
             warrants += 1
+    # Stale(C) over every claim superseded this batch — flagged, not resolved (§5).
+    stale: set[str] = set()
+    for c in superseded:
+        stale |= stale_closure(derived, c)
     return ApplyReport(superseded=tuple(superseded), conclusions=tuple(conclusions),
-                       defeaters=defeaters, warrants=warrants)
+                       defeaters=defeaters, warrants=warrants, stale=tuple(sorted(stale)))
 
 
 def open_claim_op_store(config: object | None = None) -> ClaimOpStore:
