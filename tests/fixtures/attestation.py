@@ -8,6 +8,7 @@ production secrets — see tests/keys/README.md).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
 from core.attestation import (
@@ -47,9 +48,14 @@ def dev_verifier(**kwargs):
 
 
 def attestor_with_store(
-    tmp_path: Path, *, fingerprint: str = TEST_FINGERPRINT, signer: Ed25519Signer | None = None
+    tmp_path: Path, *, fingerprint: str = TEST_FINGERPRINT, signer: Ed25519Signer | None = None,
+    clock: Callable[[], str] | None = None,
 ) -> tuple[AttestationStore, StoreAttestor]:
     """Return (store, attestor) sharing one append-only store under ``tmp_path``. Pass a
-    ``signer`` (e.g. ``dev_signer()``) to exercise the signed path."""
+    ``signer`` (e.g. ``dev_signer()``) to exercise the signed path. Pass a ``clock`` to FREEZE the
+    timestamp — needed when comparing ids across two attestors, since the id is over
+    ``signing_payload()`` (which includes the timestamp) and `_utcnow` can straddle a 1-second
+    boundary between two emits."""
     store = AttestationStore(tmp_path / "attestations.sqlite")
-    return store, StoreAttestor(store, fingerprint=lambda: fingerprint, signer=signer)
+    extra = {} if clock is None else {"clock": clock}
+    return store, StoreAttestor(store, fingerprint=lambda: fingerprint, signer=signer, **extra)

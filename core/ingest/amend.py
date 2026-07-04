@@ -27,9 +27,17 @@ coalesced. Only re-occurrences of a chunk WITHIN one document's version chain co
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 
 from core.ingest.chunk import Chunk
+
+
+def text_hash(text: str) -> str:
+    """SHA-256 of chunk text — the chunk content-hash for a raw text string, identical to
+    `Chunk.content_hash` for the same text. Lets the amendment path recognize an already-stored
+    row (a plain dict carrying `text`) by content, without re-wrapping it in a `Chunk`."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def chunk_point_id(doc_id: str, chunk: Chunk) -> str:

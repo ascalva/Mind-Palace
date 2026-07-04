@@ -73,3 +73,15 @@ def test_canonical_serialization_is_deterministic():
 def test_negative_seq_is_refused_at_the_boundary():
     with pytest.raises(ValueError):
         VerdictPayload(subject_id="x", verdict="promote", seq=-1, timestamp="t")
+
+
+def test_signed_verdict_survives_json_transport():
+    # The transport form (Ambassador carries this): round-trip through JSON preserves every field
+    # AND the signature still verifies — the receiver re-checks it against the owner public key.
+    import json
+
+    owner = _owner()
+    signed = sign_verdict(_payload(seq=3, subject="claim-7", verdict="wrong"), owner)
+    roundtrip = SignedVerdict.from_dict(json.loads(json.dumps(signed.to_dict())))
+    assert roundtrip == signed
+    assert roundtrip.verify(owner.public_b64())

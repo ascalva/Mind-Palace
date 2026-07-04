@@ -1201,3 +1201,117 @@ embedder-independent; verdict work is pure crypto/SQLite), so the live/podman ou
 **Next:** owner ratifies §4 semantics + takes a snapshot → wire Item 1c + run the re-index; and/or
 ratifies the verdict taxonomy → wire 4b into the Ambassador-as-transport path (a verify+apply seam
 separate from the Ambassador, plan R7).
+
+---
+
+## Sacred-boundary build plan — 4b-apply + Ambassador verdict transport + Part B applied (2026-07-04)
+
+Owner: "continue with 4b, the ambassador verdict transport surface, and the build-plan Part B." All
+three done. (Owner will run `migrate_chunk_keys.py --apply` later, once notes are exported/embedded.)
+
+**Built.**
+- **4b-apply — the supersession half (weight-promotion I1 stays parked).** `core/verdict/dispositions.py`
+  — append-only `DispositionStore` (`VerdictEffect` RETRACT/ENDORSE/RECORD; latest-wins by subject;
+  `retracted()` is the active-projection filter). `core/verdict/apply.py` — `effect_of` (wrong/noise →
+  RETRACT, novel_useful → ENDORSE, else RECORD) + `apply_verdict`; `build_verdict_receiver` now
+  verify+store+**APPLY**. `core/dreams_view.py` — `DreamsView` is the ACTIVE projection: a dream the
+  owner verdicted `wrong`/`noise` is dropped from surfacing (kept in history). Grounded in
+  ingest-identity §6, NOT the parked recursive-strata I1. Backward-compatible: no dispositions →
+  behavior byte-identical.
+- **Ambassador verdict transport (R7).** `agents/ambassador/agent.py` — a `verdict_transport` seam +
+  `transport_verdict` that CARRIES a signed verdict to the receiver and attests it, but never signs,
+  verifies, or applies one (each is a write outside its read+propose scope). `scripts/verdict.py` —
+  the owner CLI (`sign` via the Keychain owner seed / `submit` = verify+store+apply / `list` + gap
+  report). `core/verdict/payload.py` — `to_dict`/`from_dict` (JSON transport; the signature survives
+  and is re-verified). `build_ambassador` wires the disposition filter + the transport, fail-SAFE
+  (no owner key placed → no verdict channel, never a broken Voice).
+- **Part B reconciliation APPLIED** (owner-approved). 2 corrections + 6 cross-references, to the
+  design docs (not silent): verdict-authority §8 (**R4** — `security-planes` records the verdict store
+  + Ed25519-for-integrity, NOT a TOTP argument) and ingest-identity §9 (**R2** — supersession-as-edge
+  is introduced here, not in `recursive-strata`); cross-refs into live-adoption §3 (L2) + control
+  corpus, security-planes §6, recursive-strata I2 + §2, and hands §4.
+
+**Verified.** Offline **686 passed, 7 skipped** (+14 this segment: dispositions/apply/transport +
+serialization), ruff clean, import-lint (I2 seal) green. **Not committed** (owner is committing).
+*Noted, pre-existing + unrelated:* `tests/integrity/test_attestation_signatures.py::
+test_signing_does_not_change_the_content_address` is a latent flake — it compares two attestations'
+ids but their `_utcnow()` timestamps can straddle a 1-second boundary; green on re-run, a 1-line
+clock-freeze would harden it (owner's test, left untouched).
+
+**Gated / remaining.**
+- **1c `--apply`** — owner-operational, after notes are exported/embedded (nothing embedded yet).
+- **4b-apply WEIGHT promotion** (a derived node's edge weights rising) — still parked on
+  recursive-strata I1. `ENDORSE` is recorded but does not yet change weights.
+- **Ambassador conversational verdict *intent*** (recognizing a verdict inside a chat turn) — not
+  built; the CLI + the `transport_verdict` seam are the surface.
+
+---
+
+## Sacred-boundary build plan — Items 1c + verdict taxonomy/4b-wire + DERIVED_STRATUM (2026-07-04)
+
+Owner: "proceed with all three items, one at a time." Built all three, tightest-reversible first.
+No live data rewritten (the `--apply` re-index is owner-operational, below); default behavior of the
+verdict channel is off until a transport is wired.
+
+**Built.**
+- **Item 1 — `DERIVED_STRATUM` reservation (PD6).** `core/provenance.py`: one enum member, reserved
+  for promoted depth-carrying derived strata (recursive-strata §4/§8), **excluded from
+  `MIRROR_READABLE`** (never confusable with authored K₀). No consumer yet — the cheap half of the
+  action; the integer stratum `depth` lands with its consumer. Firewall/property tests green.
+- **Item 2 — verdict taxonomy (R3) + wire 4b.** `core/verdict/taxonomy.py` `VERDICT_TAXONOMY` =
+  the live-adoption §3 (L2) five verdicts (ratified; ≤5 review-fatigue bound). `core/verdict/apply.py`
+  — `receive_verdict` (verify against the owner key + append), `load_owner_pub_b64` (reuses the
+  committed `[attestation] owner_pub`; fail-closed if absent), `build_verdict_receiver`. SEPARATE
+  from the Ambassador (R7). `open_verdict_store` stays taxonomy-agnostic; the receiver applies the
+  ratified set. Fixed a package-init cycle (`apply` imported directly, not via `__init__`).
+- **Item 3 — Item 1c: the amendment rewrite (stored-data path; CODE done, live `--apply` gated).**
+  Doc-scoped chunk keys `(source_path, chunk_hash)` — `core/ingest/index.py` (`_chunk_row` single
+  row-builder, `index_records` content-addressed + intra-note dedup, new `index_amendment`). The id
+  VALUE changed; the vector-store SCHEMA did not (chunk-hash is derivable), so existing stores don't
+  error. `core/ingest/sync.py` `sync_path` is now a chunk-level diff: reuse unchanged chunks' vectors
+  (**no re-embed**), embed only changed/new, replace the projection by `source_path`, record a
+  `supersedes` version edge (`core/stores/edges.py` `SUPERSEDES`; wired in `build_vault_sync`).
+  `core/stores/vectorstore.py` `rows_for_source`/`delete_source`. `scripts/migrate_chunk_keys.py`
+  (dry-run default; `--apply` re-keys rows in place — see the 2026-07-04 fix below; the original
+  reset+re-ingest form was buggy). Behavior change: identical content at
+  two paths now indexes per-document (source-scoped), not shared — consistent with §4/§7; the
+  shared-content test still passes (it checks existence/searchability, not the sharing mechanism).
+
+**Verified.** Offline **679 passed, 7 skipped** (+7: verdict-apply 6, index-keying +1), no
+regressions; ruff clean; import-lint (I2 seal) green. **LIVE (owner directive — 1c touches the embed
+path):** `pytest -m live` ingest/retrieval tier PASSED against real `qwen3-embedding` (Ollama 0.30.7)
+— `test_semantic_search_live` + `test_librarian_live` + `test_golden_live` (3 passed, 108s): the new
+doc-scoped id scheme + index changes rank/retrieve correctly and hold the golden baseline. **Not
+committed** (owner is committing).
+
+**Gated / remaining.**
+- **1c `--apply` on live data NOT run** — `scripts/migrate_chunk_keys.py --apply` rebuilds the
+  owner's `~/.mind-palace` derived index (raw untouched, regenerable). Owner-operational; take the
+  restic snapshot first. Code + dry-run ready; new ingests already write doc-scoped keys.
+- **Item 4b-apply** — what `promote`/`supersede` DO to the graph — still parked on the promotion
+  mechanism (recursive-strata I1).
+- **Ambassador verdict-transport surface** — the conversational path to carry a signed verdict
+  inbound (a product decision) — not wired; `receive_verdict` is the ready seam.
+- **Part-B reconciliation cross-references** — still unapplied (await approval).
+
+---
+
+## Fix — chunk-key migration was a silent no-op (2026-07-04)
+
+Owner-flagged while reviewing the supersession-edge design: `scripts/migrate_chunk_keys.py --apply`
+reset the vector store then called `rescan()` — but `rescan()` is change-detected against the catalog
+(unchanged digest ⇒ `UNCHANGED` ⇒ skip), so on a populated store it would have **emptied the index
+and rebuilt nothing** (`palace reset` avoids this only because it also wipes the catalog).
+
+**Fixed** by replacing reset+re-ingest with an in-place **re-key**: `core/ingest/index.py`
+`rekey_store` / `rekey_preview` recompute each row's id to `(source_path, chunk_hash)` and rewrite
+the table with the **same vectors** — no re-embed, no Ollama, catalog + raw untouched, idempotent;
+identical chunks within a source coalesce (§3) and distinct docs' shared text stays two points (§7).
+The script is now a thin CLI over those. Moot on the owner's current empty store (fresh ingest
+already writes doc-scoped keys), but correct if ever run on a populated index.
+
+**Verified.** `tests/integration/test_rekey_migration.py` (4: migrate+preserve-vectors, coalesce,
+§7-two-points, idempotent). Full offline **690 passed, 7 skipped**; ruff clean; import-lint green.
+Also hardened a pre-existing flake surfaced earlier: `test_attestation_signatures::test_signing_does_
+not_change_the_content_address` now freezes the clock (`attestor_with_store(clock=…)`), since the id
+covers the timestamp and two `_utcnow()` emits could straddle a 1-second boundary. **Not committed.**

@@ -63,6 +63,8 @@ def build_ambassador(config: object | None = None, *, delegate=None, pending_res
     from core.stores.derived import open_derived_store
     from core.stores.rawstore import RawStore
     from core.stores.vectorstore import open_vector_store
+    from core.verdict.apply import OwnerKeyMissing, build_verdict_receiver
+    from core.verdict.dispositions import open_disposition_store
     from ops.ledger import open_ledger
     from scheduler.budget import Budgeter
 
@@ -74,7 +76,18 @@ def build_ambassador(config: object | None = None, *, delegate=None, pending_res
     attestor = build_attestor(cfg)
     ops_view = OpsView.over(open_attestation_store(cfg), open_ledger(cfg),
                             drift=(lambda: drift) if drift is not None else None)
-    dreams_view = DreamsView.over(derived if derived is not None else open_derived_store(cfg))
+    # The interpreted view is the ACTIVE projection: dreams the owner verdicted `wrong`/`noise` are
+    # dropped from surfacing (build plan Item 4b-apply; ingest-identity §6).
+    dispositions = open_disposition_store(cfg)
+    dreams_view = DreamsView.over(derived if derived is not None else open_derived_store(cfg),
+                                  dispositions=dispositions)
+    # Inbound verdict transport (R7): wire the verify+apply receiver only if the owner key is
+    # placed; else the Ambassador has no verdict channel (fail-SAFE — a missing key must not break
+    # the whole Voice). The CLI (scripts/verdict.py) is the primary transport surface either way.
+    try:
+        verdict_transport = build_verdict_receiver(cfg)
+    except OwnerKeyMissing:
+        verdict_transport = None
     raw = RawStore(cfg.paths.raw_store)
     capture = DialogueCapture(raw=raw, store=store, embedder=embedder,
                               catalog=VaultCatalog(cfg.paths.vault_catalog), attestor=attestor)
@@ -90,6 +103,7 @@ def build_ambassador(config: object | None = None, *, delegate=None, pending_res
         attestor=attestor,
         delegate=delegate,
         pending_results=pending_results,
+        verdict_transport=verdict_transport,
         interruption=InterruptionPolicy(parse_sensitivity(amb.interruption_sensitivity)),
         history_max_turns=amb.history_max_turns,
     )

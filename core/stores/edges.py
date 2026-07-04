@@ -27,6 +27,11 @@ SIMILAR = "similar"              # cosine backbone (usually recomputed, not stor
 SUPPORTS = "supports"            # one note reinforces another (+)
 CONTRADICTS = "contradicts"      # one note is in tension with another (−) — the balance input
 CONTEXTUALIZES = "contextualizes"
+# A versioned-amendment link (ingest-identity-and-amendment.md §4; build plan Item 1c): the edge
+# u=prev-version-digest → v=new-version-digest records "v2 supersedes v1" so an amendment ENHANCES
+# provenance (a version history) rather than destroying it. Sign is +1 (a successor relation, not a
+# tension); it is an authored-layer fact (the owner edited the note), not an interpreted one.
+SUPERSEDES = "supersedes"
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS edges (

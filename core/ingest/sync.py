@@ -26,11 +26,13 @@ from enum import Enum
 from pathlib import Path
 
 from core.attestation import Attestor
+from core.complex_types import EdgeSign
 from core.ingest.embed import Embedder
-from core.ingest.index import index_records
+from core.ingest.index import index_amendment
 from core.ingest.logseq import DEFAULT_EXCLUDE_DIRS, iter_vault, parse_note
 from core.ingest.pipeline import ingest_note
 from core.stores.catalog import VaultCatalog
+from core.stores.edges import SUPERSEDES, EdgeStore
 from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
@@ -70,9 +72,14 @@ class VaultSync:
     # ingest attestation ("the authorized watcher ingested digest D under Constitution F",
     # attestation-layer.md §3) — the authored leaf every dream chain bottoms out in. None = off.
     attestor: Attestor | None = None
+    # Optional versioned-amendment provenance: when present, an amendment records a `supersedes`
+    # edge (prev-version digest → new-version digest) so a note's history is a queryable chain
+    # rather than lost (ingest-identity-and-amendment.md §4). None = amendment still reuses/embeds
+    # chunk-level, just without the edge record.
+    edge_store: EdgeStore | None = None
 
     def sync_path(self, path: Path) -> SyncOutcome:
-        """Re-ingest one note. Idempotent: unchanged content is a no-op."""
+        """Re-ingest one note as a chunk-level amendment; unchanged content is a no-op."""
         parsed = parse_note(path, self.vault)
         source_path = parsed.source_path
         record = ingest_note(parsed, self.raw,                       # raw.add: keep + dedup
@@ -83,10 +90,12 @@ class VaultSync:
         if prev is not None and prev.active and prev.digest == digest:
             return SyncOutcome.UNCHANGED                            # content didn't change
 
-        # (Re)index this content. Delete first so re-indexing is idempotent (no duplicate
-        # rows if this digest was already present, e.g. reverted content or a dedup peer).
-        self.store.delete(digest=digest)
-        index_records([record], self.embedder, self.store)
+        # Chunk-level amendment (ingest-identity-and-amendment.md §4): reuse the vectors of chunks
+        # whose content is unchanged (NO re-embed), embed only changed/new chunks, and replace this
+        # note's projection under its stable `source_path`. Keyed by (source_path, chunk_hash), so a
+        # note's unchanged parts keep their point ids across edits — the §4 gap this closes.
+        existing = self.store.rows_for_source(source_path)
+        index_amendment(record, existing, self.embedder, self.store)
         self.catalog.record(source_path, digest, record.title)
         if self.attestor is not None:
             # input == output == the content digest: for AUTHORED content the bytes read and the
@@ -94,19 +103,20 @@ class VaultSync:
             self.attestor.emit(agent_role="vault_watcher", action="ingest_note",
                                input_hashes=[digest], output_hashes=[digest])
 
-        # If the file's *previous* content is now referenced by no active file, drop its
-        # derived rows (dead weight). Raw is kept regardless.
-        if prev is not None and prev.digest != digest:
-            if self.catalog.active_refs(prev.digest) == 0:
-                self.store.delete(digest=prev.digest)
+        # Record the version supersession (prev → new) so an amendment ENHANCES provenance — a
+        # queryable version chain, not a silent overwrite (§4). Authored-layer fact, +1 polarity.
+        if (self.edge_store is not None and prev is not None
+                and prev.active and prev.digest != digest):
+            self.edge_store.add(prev.digest, digest, sign=EdgeSign.SUPPORT,
+                                rel_type=SUPERSEDES, provenance=record.provenance.value)
         return SyncOutcome.INDEXED
 
     def handle_deleted(self, source_path: str) -> SyncOutcome:
-        """A vault file disappeared: tombstone it. Derived rows dropped (if now unreferenced),
-        catalog marked inactive, raw kept."""
-        digest = self.catalog.tombstone(source_path)
-        if digest is not None and self.catalog.active_refs(digest) == 0:
-            self.store.delete(digest=digest)
+        """A vault file disappeared: tombstone it and drop its projection (by `source_path`).
+        Source-scoped, so an identical-content file elsewhere keeps its own rows. Raw is kept
+        (sacred); true deletion is the separate, owner-gated purge (core/ingest/purge.py)."""
+        self.catalog.tombstone(source_path)
+        self.store.delete_source(source_path)
         return SyncOutcome.TOMBSTONED
 
     def rescan(self) -> SyncReport:
@@ -128,6 +138,7 @@ def build_vault_sync(config: object | None = None) -> VaultSync:
     from config.loader import get_config
     from core.attestation import build_attestor
     from core.ingest.embed import build_embedder
+    from core.stores.edges import open_edge_store
 
     cfg = config or get_config()
     return VaultSync(
@@ -138,4 +149,5 @@ def build_vault_sync(config: object | None = None) -> VaultSync:
         embedder=build_embedder(cfg),
         pattern=cfg.vault.pattern,
         attestor=build_attestor(cfg),
+        edge_store=open_edge_store(cfg),      # amendments record a `supersedes` version chain (§4)
     )

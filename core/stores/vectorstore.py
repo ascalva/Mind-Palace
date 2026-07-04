@@ -25,8 +25,8 @@ TABLE = "chunks"
 
 def _schema(dim: int) -> pa.Schema:
     return pa.schema([
-        ("id", pa.string()),            # f"{digest}:{chunk_index}"
-        ("digest", pa.string()),        # raw-store identity of the source note
+        ("id", pa.string()),            # doc-scoped content id: f"{source_path}:{chunk_hash}" (§4)
+        ("digest", pa.string()),        # raw-store identity of the source note's CURRENT version
         ("title", pa.string()),
         ("source_path", pa.string()),
         ("chunk_index", pa.int32()),
@@ -83,6 +83,26 @@ class VectorStore:
         if TABLE not in self._db.list_tables().tables:
             return
         self._table().delete(f"digest = '{digest}'")
+
+    def rows_for_source(self, source_path: str) -> list[dict[str, Any]]:
+        """Every stored chunk row for one source document (by `source_path`) — the note's current
+        projection. The amendment path (ingest-identity §4) reads this to REUSE unchanged chunks'
+        vectors instead of re-embedding. Python-side filter (single-user scale; avoids a quoting
+        hazard on arbitrary source paths, matching `all_rows`)."""
+        if TABLE not in self._db.list_tables().tables:
+            return []
+        return [r for r in self._table().to_arrow().to_pylist()
+                if r.get("source_path") == source_path]
+
+    def delete_source(self, source_path: str) -> None:
+        """Drop every derived row for one source document, by `source_path` (the stable doc identity
+        an amendment replaces a projection under — §4). Idempotent. Deletes by the rows' own ids
+        with single-quotes escaped, so an arbitrary source path never breaks the predicate."""
+        rows = self.rows_for_source(source_path)
+        if not rows:
+            return
+        ids = ", ".join("'" + str(r["id"]).replace("'", "''") + "'" for r in rows)
+        self._table().delete(f"id IN ({ids})")
 
     def relabel_provenance(self, old: str, new: str) -> int:
         """Rewrite every row's provenance from `old` to `new`. Returns rows relabeled.

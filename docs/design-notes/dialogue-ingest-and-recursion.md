@@ -64,6 +64,14 @@ Open for the builder to assess against real exported dialogues: whether
 `retract`, `split`, `merge`, and `confidence_adjust` are also required, and
 whether warrant is a first-class node or an edge annotation.
 
+**Distinct from version-supersession.** This claim-level `supersede(C, C′, W)` —
+warrant-bearing, a reasoning act — is a different relation from the note-version
+`supersedes(v1, v2)` in `ingest-identity-and-amendment.md` §4A (no warrant, a
+file edit). They are orthogonal and must be distinct rel-types in distinct
+structures; they must not share the same edge type or store. Separating version
+history out of the balance-fed semantic edge store (that note's Constraint 2) is
+a prerequisite for implementing this vocabulary without collision.
+
 ## 5. Recursion and its governor
 
 The loop is the `recursive-strata.md` fixed-point iteration: ingest → dream →

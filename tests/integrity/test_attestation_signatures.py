@@ -42,9 +42,14 @@ def test_emitted_signatures_verify(tmp_path):
 
 def test_signing_does_not_change_the_content_address(tmp_path):
     # The id is over signing_payload(), which excludes signature/signer — so the SAME action
-    # has the same id whether signed or not (the signature is verified independently, §2).
-    _, signed = attestor_with_store(tmp_path / "s", signer=dev_signer("supervisor"))
-    _, unsigned = attestor_with_store(tmp_path / "u")
+    # has the same id whether signed or not (the signature is verified independently, §2). Freeze
+    # the clock so both attestors stamp the SAME timestamp: otherwise the two emits could straddle a
+    # 1-second boundary and differ on the timestamp — an id change unrelated to signing (a flake).
+    def clock() -> str:
+        return "2026-06-27T00:00:00"
+
+    _, signed = attestor_with_store(tmp_path / "s", signer=dev_signer("supervisor"), clock=clock)
+    _, unsigned = attestor_with_store(tmp_path / "u", clock=clock)
     kw = dict(agent_role="dreamer", action="dream_pass", input_hashes=["d1"], output_hashes=["x"])
     a = signed.emit(**kw)
     b = unsigned.emit(**kw)

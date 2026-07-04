@@ -67,6 +67,15 @@ class VerdictPayload:
         """The exact bytes the owner signature covers."""
         return _canonical(self.subject_id, self.verdict, self.seq, self.timestamp)
 
+    def to_dict(self) -> dict:
+        return {"subject_id": self.subject_id, "verdict": self.verdict,
+                "seq": self.seq, "timestamp": self.timestamp}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> VerdictPayload:
+        return cls(subject_id=d["subject_id"], verdict=d["verdict"],
+                   seq=int(d["seq"]), timestamp=d["timestamp"])
+
 
 @dataclass(frozen=True)
 class SignedVerdict:
@@ -86,6 +95,17 @@ class SignedVerdict:
         key. Any failure mode (bad signature, wrong key, tampered field, malformed base64) returns
         False, never raises (delegates to `crypto.verify`)."""
         return verify(public_from_b64(public_b64), self.payload.signing_payload(), self.signature)
+
+    def to_dict(self) -> dict:
+        """The transport form — what the Ambassador (or any carrier) moves inbound. The signature
+        travels WITH the payload, so the receiver re-verifies against the owner public key."""
+        return {"payload": self.payload.to_dict(), "signature": self.signature,
+                "signer": self.signer}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> SignedVerdict:
+        return cls(payload=VerdictPayload.from_dict(d["payload"]),
+                   signature=d["signature"], signer=d["signer"])
 
 
 def sign_verdict(payload: VerdictPayload, signer: Ed25519Signer) -> SignedVerdict:

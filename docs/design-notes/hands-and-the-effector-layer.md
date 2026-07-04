@@ -143,6 +143,12 @@ The blast-radius metric is why the graduated port order is not a convention but 
 discipline**: the same "distance-against-a-frozen-reference" mathematics that governs alignment drift
 governs how far the hands are allowed to reach.
 
+> **Cross-ref (quantitative backing):** `design-notes/effector-risk-computation.md` derives this
+> port order from reversibility-as-reachability-contraction, adds the action-risk-vs-inaction-regret
+> decomposition, and pins the load-bearing rule that bright lines are **constraints on the feasible
+> set, never priced terms**. The current effector layer is already constraint-only (`ops/effects.py`,
+> `ops/effect_gate.py`); the note's interior optimizer is parked (build plan PD1).
+
 ---
 
 ## 5. What changes, what holds

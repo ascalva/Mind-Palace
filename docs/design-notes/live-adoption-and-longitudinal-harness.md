@@ -112,6 +112,12 @@ makes L3 tuning and L4 curves meaningful rather than aesthetic.
   writes a substantive *note* during review and wants it kept, that specific text can be captured
   through the existing `DialogueCapture` path as `authored-dialogue` — a deliberate, per-note act,
   never automatic.
+
+  > **Cross-ref (verdict authentication):** `design-notes/verdict-authority.md` extends this store
+  > with owner-attributable authentication — an Ed25519 signature over a canonical verdict payload +
+  > a monotonic sequence number (columns `signature`, `signer`, `seq`), so a compromised transport
+  > can drop/reorder but never forge a verdict. The plain schema here is the base; signing is the
+  > sacred-boundary upgrade. Built: `core/stores/verdicts.py` (store), `core/verdict/` (sign/apply).
 - `scripts/review.py` — a deterministic review REPL (no model call needed to display): presents each
   unverdicted novel claim with its kind, confidence, surface text, and the **actual cited chunks**
   (resolved through MirrorView so the owner judges against the real support, not the paraphrase);
@@ -195,6 +201,12 @@ confounds must be separable or the curves lie: corpus growth (mirror changes), c
   note, R5's infrastructure without R5's resonance step). Same config, frozen corpus ⇒ any movement
   on the control curve is *pipeline/config* effect isolated from corpus growth. This is what lets
   F4 assert "the tune helped" rather than "the corpus grew."
+
+  > **Cross-ref:** `design-notes/founding-corpus.md` §2.3 records why the founding corpus
+  > (deliberately coherent) can never double as this control, and why the two acts stay mechanically
+  > distinct. And `dialogue-ingest-and-recursion.md` §5–§6 is the closed-loop form of this study —
+  > the graph's trajectory under alternating ingest-events and sleep-events (derived reasoning
+  > re-entering), which the verdict store (L2) is the precondition for labeling.
 - **F4 lands here:** drift-trajectory asserts over ledger segments (deterioration one-sided, hard
   Constitution trip, tolerance-band regression between blessed checkpoints), plus F9's two
   drift-deferred tests moved to `longitudinal/` as planned. **Θ calibration** = after ~4 weeks of

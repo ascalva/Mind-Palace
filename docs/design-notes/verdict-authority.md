@@ -102,8 +102,16 @@ un-purchasable by expected value.)
 
 ## 8. Reconciliation
 
-The TOTP-is-wrong / Ed25519 direction is already recorded in
-`docs/research/security-planes.md`. This note is the fuller treatment; it adds
+The **verdict store** this authenticates is recorded in
+`docs/research/security-planes.md` §6 (the verdict-store inbox; owner-verdict
+promotion) and, concretely, `live-adoption-and-longitudinal-harness.md` §3 (L2 —
+the append-only `claim_verdicts` store). Those record the *store*; this note adds
+the **authentication** the plain schema lacked — Ed25519 over the canonical payload,
 the monotonic-sequence-number requirement, the payload-binding argument, and the
-Ambassador-as-transport degradation model. Builder to fold in or cross-reference,
-and to add a partially-superseded banner only if existing text conflicts.
+Ambassador-as-transport degradation model. This is an **extension**, so
+cross-reference; no existing text conflicts.
+
+**Correction (build plan R4):** an earlier draft said `security-planes.md` already
+records the "TOTP-wrong / Ed25519 direction." It does not — it records the verdict
+store (§6) and Ed25519-for-integrity (§5), but no TOTP argument; the TOTP-vs-Ed25519
+reasoning is original to this note. Built: `core/verdict/`, `core/stores/verdicts.py`.

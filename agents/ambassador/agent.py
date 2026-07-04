@@ -100,6 +100,10 @@ class Ambassador:
     # the Ambassador never imports the scheduler, keeping it pure + testable):
     delegate: Callable[[str, str], str] | None = None          # (query, conversation) -> task ref
     pending_results: Callable[[str], list[DeliveredResult]] | None = None  # completed → surface
+    # Inbound verdict transport (verdict-authority.md §4; build plan R7): the Ambassador CARRIES a
+    # signed owner verdict to the verify+apply seam — it never signs, verifies, or applies one (that
+    # would be a write, outside its read+propose scope). Injected like `delegate`; None = off.
+    verdict_transport: Callable[[object], object] | None = None
     interruption: InterruptionPolicy = field(default_factory=InterruptionPolicy)
     role_prompt: str = AMBASSADOR_ROLE
     history_max_turns: int = 6
@@ -121,6 +125,20 @@ class Ambassador:
     def handler(self, text: str) -> str:
         """The `CoreInbox` Handler: text -> reply text (single default conversation)."""
         return self.respond(text).reply
+
+    def transport_verdict(self, signed: object) -> object:
+        """Carry a signed owner verdict inbound to the verify+apply seam — TRANSPORT ONLY.
+
+        The Ambassador holds no verdict authority: it never signs, verifies, or applies a verdict
+        (each is outside its read+propose scope). It only forwards the signed artifact to the
+        injected receiver, which verifies against the owner PUBLIC key and applies it. A compromised
+        Ambassador can thus drop/reorder but never forge a verdict (verdict-authority.md §4). Raises
+        if no transport is wired — the Ambassador cannot manufacture verdict authority it lacks."""
+        if self.verdict_transport is None:
+            raise RuntimeError("no verdict transport wired — the Ambassador only carries verdicts, "
+                               "it cannot verify or apply them (verdict-authority.md §4)")
+        self._attest("transport_verdict")
+        return self.verdict_transport(signed)
 
     # --- dispatch -----------------------------------------------------------------------------
     def _dispatch(self, intent: Intent, text: str, conversation: str):

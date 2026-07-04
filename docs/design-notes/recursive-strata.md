@@ -20,6 +20,8 @@ Let K₀ be the authored complex (the current object of all reasoning). Each Dre
 
 and the generalized Laplacian is rebuilt on Kₙ. The Dreamer is thereby promoted from a function on notes to a map **D** on complexes, and the recursion is fixed-point iteration of D — not call-stack recursion. The natural questions become dynamical: what are D's attractors, does iteration converge or drift, what governs the basin.
 
+> **Cross-ref (ingest operations):** `design-notes/dialogue-ingest-and-recursion.md` is the concrete ingest-operation instantiation of this map D — the operation vocabulary (supersede / attach_defeater / record_warrant) that turns "a thought" into a graph change, composing with the I5 budgets and the γ^d bound (built: `core/recursion.py`; I5 budgets still parked).
+
 A **belief**, in this formalism, is an attractor: a derived cluster that survives repeated application of D and continues to earn verdicts. Fruitful-but-not-permanent is definitional — an attractor holds its basin only while renewal maintains it (§4).
 
 Strata are a typed layer of the complex like any other. Their contribution to the shared operator carries its own layer weight, which is where all governance attaches.
@@ -39,6 +41,8 @@ These extend existing invariants; none replaces one.
 **I1 — Promotion by verdict only.** A derived node's edge weights are increased only through an explicit owner verdict ("promote"), never through the Dreamer's own confidence scores, and never automatically. This is the existing verdicts-feed-tuning-through-the-owner's-hand invariant applied to the strata layer. Auto-promotion is self-modification and sits behind the same separate gate.
 
 **I2 — Decay by default.** Unrenewed derived weights decay on the temporal layer. Persistence must be earned repeatedly; no interpretation is grandfathered. The temporal layer, previously along for the ride, becomes load-bearing here. Decay rate is a manifest parameter (§5).
+
+> **Cross-ref (identity & amendment):** `design-notes/ingest-identity-and-amendment.md` gives the structural-layer instantiation — corrections are supersession + re-projection of the derived index, never in-place edits. Decay (I2) and *supersession* are distinct mechanisms: supersession as an edge type is introduced there (built as `SUPERSEDES`, `core/stores/edges.py`), not here.
 
 **I3 — Bounded strata contribution.** The strata layer weight in the generalized operator lives in the tuning manifest with a typed, bounded range whose ceiling keeps K₀ dominant. Whatever the bound is ratified to be, the authored corpus must remain the majority of the operator's mass. The floor is zero: setting the weight to 0 exactly recovers the single-pass Dreamer, which is the modularity guarantee — recursion is a dial, not a rewrite.
 

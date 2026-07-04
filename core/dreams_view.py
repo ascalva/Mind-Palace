@@ -34,17 +34,29 @@ class DreamsView:
 
     _all: Callable[..., list[Artifact]]
     _count: Callable[..., int]
+    # Optional active-projection filter: a duck-typed source of RETRACTED subject ids (a
+    # `DispositionStore.retracted`). When bound, a dream the owner verdicted `wrong`/`noise` is
+    # dropped from what is surfaced (§6). None = no verdict layer wired → surfaces every dream.
+    _retracted: Callable[[], set[str]] | None = None
 
     @classmethod
-    def over(cls, store: object) -> DreamsView:
-        """Bind the store's read methods. The returned view exposes those and only those — the
-        store's `add`/`reset` are unreachable through it."""
-        return cls(_all=store.all, _count=store.count)
+    def over(cls, store: object, *, dispositions: object | None = None) -> DreamsView:
+        """Bind the store's reads (+ an optional `retracted` disposition read).
+        The returned view exposes those and only those — the store's `add`/`reset` are unreachable
+        through it. Passing `dispositions` makes it the ACTIVE projection: retracted dreams are
+        excluded from `recent_dreams`. Omit it to keep the prior behavior byte-identical."""
+        return cls(_all=store.all, _count=store.count,
+                   _retracted=(dispositions.retracted if dispositions is not None else None))
 
     # --- reads -------------------------------------------------------------------------------
     def recent_dreams(self, limit: int = 5) -> list[Artifact]:
-        """The most recent thematic dreams, newest first (the store orders oldest-first)."""
-        return self._all(kind=DREAM)[::-1][:limit]
+        """The most recent thematic dreams, newest first (the store orders oldest-first), excluding
+        any the owner has RETRACTED by verdict — the active projection (ingest-identity §6)."""
+        dreams = self._all(kind=DREAM)[::-1]
+        if self._retracted is not None:
+            retracted = self._retracted()
+            dreams = [d for d in dreams if d.id not in retracted]
+        return dreams[:limit]
 
     def dream_count(self) -> int:
         return self._count(kind=DREAM)

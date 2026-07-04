@@ -44,6 +44,14 @@ class Provenance(StrEnum):
     AUTHORED_DIALOGUE = "authored-dialogue"  # owner's words to the Ambassador. Authored, mirror-ok
     CURATED = "curated"          # others' words the owner selected (books; self-knowledge graph)
     INTERPRETED = "interpreted"  # system inference over other data. Derived, regenerable, marked.
+    # RESERVED (recursive-strata.md §4/§8; build plan PD6) — promoted, depth-carrying derived
+    # strata: Dreamer outputs that re-enter reasoning as substrate. Self-generated — trusted as to
+    # ORIGIN (the attestation chain proves the Dreamer produced them), untrusted as to TRUTH (only
+    # owner verdicts confer that) — so NEVER mirror-readable and never confusable with authored K₀.
+    # No code consumes it yet: the label (and its future integer stratum `depth`) is reserved now so
+    # the recursive Dreamer unparks without a second migration (recursive-strata §8 action 1). A
+    # single enum entry — the cheap half of that action; the `depth` field lands with its consumer.
+    DERIVED_STRATUM = "derived-stratum"
     # RESERVED — not ingested yet. Third-party behavioral exhaust (Data Portability export,
     # web/social history, sensor streams). Low-trust, ASSISTANT-TIER ONLY, quarantined from
     # the mirror and from behavioral baselines (§15). Defined now so stores and queries are
