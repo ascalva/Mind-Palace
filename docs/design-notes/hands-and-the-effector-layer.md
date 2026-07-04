@@ -275,16 +275,20 @@ filtration (§4) — **you do not get a class until the one below is solid:**
 | G1 ✅ | The `Effect`/`EffectView` type + `ReversibilityClass` enum (illegal states unrepresentable) — `ops/effects.py` (2026-07-03) | — | — |
 | G2 ✅ | `ProposedEffect` gate generalization (family 3) + blast-radius-weighted approval — `ops/effect_gate.py`, 72-state FSM (2026-07-03) | — | G1, Phase-10 gate |
 | G3 ✅ | **Read-only sensing** effectors (class 1): sandboxed fetch → `observed`-tier — `core/sensing.py` + `edge/effectors/sensing.py`, flag-off (2026-07-03) | $\beta=0$ | G1, correlator |
-| G4 | The effector catalog + the SKILL-mining pipeline doc (the audit §8 as a process) | — | G1–G3 |
-| G5 | **Reversible writes** (class 2): draft, hold, stage — approval-light | small | G3 solid |
-| G6 | **Irreversible / external** (class 3): send, pay, actuate — full gate, JIT scoped credential, attested | large | G5 solid |
-| G7 | Blast-radius drift `Axis` (family 4) — watch effector reach against a frozen anchor | — | G3+, A1 |
+| G4 ✅ | The effector catalog + the SKILL-mining pipeline doc (the §8 audit as a process) — `ops/effect_catalog.py`, `docs/design-notes/skill-mining-pipeline.md` (2026-07-04) | — | G1–G3 |
+| G5 ✅ | **Reversible writes** (class 2): draft/hold/stage — approval-light, `MirrorView` tailoring, propose-never-send + durable `EffectLedger` — `core/effect_proposal.py`, `edge/effectors/writes.py`, `ops/effect_ledger.py` (2026-07-04) | small | G3 solid |
+| G6 ✅ | **Irreversible / external** (class 3): send/pay/actuate — full gate, per-action JIT scoped credential, attested record — `ops/effect_exec.py` (2026-07-04) | large | G5 solid |
+| G7 ✅ | Blast-radius drift `Axis` (family 4) — effector reach vs a frozen anchor, detection-only — `eval/effector_drift.py` (2026-07-04) | — | G3+, A1 |
 
-> **G1–G3 built 2026-07-03** (`docs/PROGRESS.md` → "Track G — Prompt G1–G3"). Sensing-only, β = 0,
-> whole surface `[effectors] enabled=false`. The `observed`-tier data path lands on the Track-D
-> correlator's intended seam (`core.sensing.ObservedView`). G3's tests are the "solid" floor G5
-> stands on — do not open the reversible class until they hold (§4). The durable EffectLedger
-> (execute/validate/rollback) is deferred to G5, where there is world state to roll back.
+> **G1–G3 built 2026-07-03; G4–G7 built 2026-07-04** (`docs/PROGRESS.md`). Track G is now
+> structurally complete: the catalog + pipeline (G4), the reversible class with its `MirrorView`-
+> tailored propose-never-send path and durable `EffectLedger` (G5), the irreversible class with a
+> per-action JIT credential and attested record (G6), and the blast-radius reach `Axis` (G7).
+> **The whole surface is still `[effectors] enabled=false`, and the wired ceiling is ε = SENSING**:
+> the acting classes are cataloged, built, and property-tested, but a reversible or irreversible
+> effect raises before it reaches any handoff (`EffectView.admit(..., ceiling=SENSING)`). Turning a
+> class on is a separate, deliberate act — raising ε past it once its tests are green (§4), and only
+> when Track H's model is deep enough to make its proposals worth tailoring (below).
 
 **The precondition holds:** Track G class-1 sensing can proceed in parallel with Track H (it is $\beta=0$,
 safe), but the *value* of the acting classes (G5–G6) is gated on Track H producing a model deep enough to

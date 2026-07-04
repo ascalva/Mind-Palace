@@ -54,9 +54,11 @@ Keep `core/` free of any import that can reach the network.
 
 ## Current phase
 > **Frontier:** all 10 numbered phases done (2026-06-28); forward layer building Track items
-> (`docs/ROADMAP-V1.md`). Latest: Track G G1–G3 — the hands at their safest end (β=0 read-only
-> sensing), whole surface FLAG-OFF.
-> **Next:** Track G G4 (effector catalog) or the Track D correlator — owner's call.
+> (`docs/ROADMAP-V1.md`). Latest: **Track G COMPLETE (G1–G7, 2026-07-04)** — the hands, all three
+> classes built (sensing β=0, reversible writes propose-never-send, irreversible JIT-credential) +
+> the catalog/pipeline + blast-radius drift axis. Whole surface FLAG-OFF, wired ceiling ε=SENSING.
+> **Next:** the Track D correlator (`observed`-tier consumer), or deepen Track H (the reasoning
+> complex) — Track G's *value* is gated on Track H's model depth. Owner's call.
 > **Resume from the newest entry in `docs/PROGRESS.md`** (full phase-by-phase history rotated to
 > `docs/archive/PROGRESS-phases-0-10.md`; prior current-phase detail:
 > `docs/archive/CLAUDE-current-phase-2026-07-03.md`). Builder prompt: `docs/BUILDER-PROMPT-FORWARD.md`.

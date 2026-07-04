@@ -1076,3 +1076,68 @@ ingest defaults (1200/150). Stronger options (per-chunk hashes, signed-chunk att
 natural next seam on this path — not built. **Not committed** (owner's role); no git actions taken.
 
 **Next:** main-track frontier still open — Track G G4 (effector catalog) or the Track D correlator.
+
+---
+
+## Track G — Prompt G4–G7: the acting hands (catalog, reversible, irreversible, blast-radius drift) (2026-07-04)
+
+Finishes Track G structurally (design note `hands-and-the-effector-layer.md` §10 table → G1–G7 ✅).
+Everything is **built behind the flag**: `[effectors] enabled=false`, and the WIRED ceiling stays
+ε = SENSING — the acting classes are cataloged, built, and property-tested, but a reversible or
+irreversible effect raises before it reaches any handoff (`EffectView.admit(..., ceiling=SENSING)`).
+Turning a class on is a separate, deliberate act (raising ε past it once its tests are green, §4).
+Assembles existing machinery (the gate, the ledger idiom, the Vault mint, the attestor, `MirrorView`,
+the drift `Axis`) — Track G "adds no new geometry."
+
+**Built.**
+- **G4 — catalog + pipeline.** `ops/effect_catalog.py` — the authoritative registry the gate now
+  CONSUMES (`ActuatorSpec`/`ACTUATORS`/`get_actuator` moved here from `effect_gate.py`; re-exported for
+  back-compat). Each hand is a `CatalogEntry` carrying the §8 audit evidence (`sandbox_profile`,
+  `source`, `audited`). Added the acting-class hands (draft_reply/calendar_hold/stage_file REVERSIBLE;
+  send_email IRREVERSIBLE) — cataloged but unreachable at ε=0. `ActuatorSpec.max_param_chars` (per-
+  actuator cap: 256 sensing, larger for content). Doc `docs/design-notes/skill-mining-pipeline.md` —
+  the §8 checklist as a repeatable process, each step tied to its code artifact.
+- **G5 — reversible writes.** `ops/effect_ledger.py::EffectLedger` — the durable
+  propose→approve→execute→validate/rollback FSM for effects (deferred from G2 "to where there is world
+  state to roll back"); reuses `ops.ledger.LedgerStatus`; `approve()` fail-closes if the strength does
+  not cover w(β). `core/effect_proposal.py::ReversibleWriteProposer` — tailors a `draft_reply` body by
+  reading a `MirrorView` (authored-only; the firewall by type), emits a `ProposedEffect`, **has no
+  send/stage path** (propose-never-send); refuses non-REVERSIBLE actuators. `edge/effectors/writes.py::
+  ReversibleWriteEffector` (Zone B, never imports core, off by default) — STAGES a draft envelope the
+  owner can delete; `rollback` unlinks; **traversal unrepresentable** (the effector picks the on-disk
+  name; a `stage_file` `name` param rides inside the envelope as data).
+- **G6 — irreversible / external.** `ops/effect_exec.py::IrreversibleExecutor` — refuses a non-
+  irreversible / under-approved / unproposed / unattested effect BEFORE minting (a doomed effect
+  causes NO mint), then mints a per-action JIT scoped Vault token at the moment of action
+  (`secrets.mint_token(scope, ttl)`), re-checks `effect_gate_admits` with the fresh capability,
+  performs via an injected Zone-B `EffectTransport`, and emits an attested action record with the
+  token **accessor** (never the token). `ExecRecord` has no token field; the credential is never
+  retained. `build_irreversible_executor` refuses unless `[secrets]` is enabled.
+- **G7 — blast-radius drift.** `eval/effector_drift.py` — effector reach (mean reversibility-class
+  index over proposals, β's monotone finite proxy) as a drift `Axis` against a frozen anchor, reusing
+  `eval.drift.Axis`'s one-sided deterioration. **Detection only**, deliberately kept OUT of the self-
+  mod gate's D(t) (effector reach ≠ golden-set capability). Reads the `EffectLedger`.
+- **Config.** `[effectors]` gains `ledger_db`, `drafts_dir`, `jit_credential_ttl` (inert while off).
+
+**Verified.** Offline **617→648 (+33, 4 skipped)**; ruff clean (repo-wide); import firewall green
+(`core/effect_proposal.py` in core reaches no network). New tests: `tests/unit/test_effect_catalog.py`
+(6), `tests/integration/test_effect_ledger.py` (7), `test_reversible_writes.py` (8), `test_effect_exec.py`
+(6), `test_effector_drift.py` (6). Property invariants green: unconstructable-without-approval, gate-
+weight monotone in β, observations observed-tier (existing G1–G3 suite), plus per-class approval-covers-
+w(β), no-mint-for-a-doomed-effect, token-never-retained. **LIVE SMOKE PASSED** (real routine tier
+`qwen3.5:9b`): `model_tailor` drafted a voiced reply body from an authored `MirrorView` (signed off
+"Best, A", matching the seeded voice note); the seeded **observed** exhaust row was projected out and
+did NOT appear in the draft (firewall held live); output was a `draft_reply` proposal, never sent.
+
+**Decisions.** The catalog OWNS the registry; the gate consumes it (one source of truth, `get_actuator`
+fail-closed). Acting classes are cataloged-but-unreachable (ε=SENSING) rather than absent — G5/G6 need
+them expressible, and three independent structural facts keep them off (ceiling, unconstructable-without-
+approval, no ambient capability). Reversible-write staging is a JSON draft envelope (a review surface),
+not the final artifact — keeps it reversible + traversal-proof. G7 is a STANDALONE gauge, not folded
+into the gate's D(t), to avoid conflating "hands reached further" with "retrieval regressed". Stronger
+seams named, not built: per-chunk/per-effect signed attestation at scale (Track L), standing approvals
++ plan-batching (§9 open questions), real Zone-B send/pay transports. **Not committed** (owner's role).
+
+**Next:** Track G's *value* is gated on Track H producing a model deep enough to tailor actions worth
+proposing (design note precondition) — build the engine, then raise ε. Open main-track frontier: the
+Track D correlator (the `observed`-tier consumer `core.sensing.ObservedView` is the seam it reads).
