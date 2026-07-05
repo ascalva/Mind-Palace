@@ -28,8 +28,10 @@ if ! git -C "$MP_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
 fi
 
 # --- Internal helpers -------------------------------------------------------
-_mp_label_ok() {  # labels become branch/dir/session names: keep them safe
-  [[ "$1" == [A-Za-z0-9][A-Za-z0-9_-]# ]] && return 0
+_mp_label_ok() {
+  if [[ "$1" =~ '^[A-Za-z0-9][A-Za-z0-9_-]*$' ]]; then
+    return 0
+  fi
   echo "mp: label must be alphanumeric with - or _ (no spaces/slashes): '$1'" >&2
   return 1
 }
