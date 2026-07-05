@@ -28,10 +28,8 @@ if ! git -C "$MP_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
 fi
 
 # --- Internal helpers -------------------------------------------------------
-_mp_label_ok() {
-  if [[ "$1" =~ '^[A-Za-z0-9][A-Za-z0-9_-]*$' ]]; then
-    return 0
-  fi
+_mp_label_ok() {  # labels become branch/dir/session names: keep them safe
+  [[ "$1" =~ '^[A-Za-z0-9][A-Za-z0-9_-]*$' ]] && return 0
   echo "mp: label must be alphanumeric with - or _ (no spaces/slashes): '$1'" >&2
   return 1
 }
@@ -44,16 +42,17 @@ mp-new() {
   local label="$1"
   [[ -z "$label" ]] && { echo "usage: mp-new <label>"; return 1; }
   _mp_label_ok "$label" || return 1
+  command -v git >/dev/null || { echo "mp: 'git' not found on PATH in this shell" >&2; return 1; }
 
-  local branch="claude-$label" path="$MP_WT_DIR/mp-$label" session="mp-$label"
+  local branch="claude-$label" wt="$MP_WT_DIR/mp-$label" session="mp-$label"
 
-  if [[ -d "$path" ]]; then
-    echo "mp: worktree exists ($path) — reattaching"
+  if [[ -d "$wt" ]]; then
+    echo "mp: worktree exists ($wt) — reattaching"
   else
     git -C "$MP_ROOT" rev-parse --verify --quiet "$MP_BASE" >/dev/null \
       || { echo "mp: base branch '$MP_BASE' not found"; return 1; }
-    echo "mp: creating worktree $path on new branch $branch (from $MP_BASE)"
-    git -C "$MP_ROOT" worktree add -b "$branch" "$path" "$MP_BASE" || return 1
+    echo "mp: creating worktree $wt on new branch $branch (from $MP_BASE)"
+    git -C "$MP_ROOT" worktree add -b "$branch" "$wt" "$MP_BASE" || return 1
   fi
 
   if tmux has-session -t "$session" 2>/dev/null; then
@@ -61,7 +60,7 @@ mp-new() {
   else
     # caffeinate -is holds the machine awake exactly as long as claude runs;
     # exec zsh leaves an interactive shell in the worktree when claude exits.
-    tmux new -s "$session" -c "$path" "caffeinate -is claude; exec zsh"
+    tmux new -s "$session" -c "$wt" "caffeinate -is claude; exec zsh"
   fi
 }
 
@@ -82,8 +81,8 @@ mp-attach() {  # usage: mp-attach <label>   (reattach without create logic)
     || echo "mp: no tmux session '$s' (see: mp-ls)"
 }
 mp-cd() {      # usage: mp-cd <label>   — cd this shell into the worktree
-  local path="$MP_WT_DIR/mp-$1"
-  [[ -d "$path" ]] && cd "$path" || echo "mp: no worktree at $path"
+  local wt="$MP_WT_DIR/mp-$1"
+  [[ -d "$wt" ]] && cd "$wt" || echo "mp: no worktree at $wt"
 }
 
 # --- See what's in flight ---------------------------------------------------
@@ -135,18 +134,18 @@ mp-push() { git -C "$MP_ROOT" push "$@"; }
 # --- Tear down a worktree + branch after merge -----------------------------
 # usage: mp-cleanup <label>   (refuses to delete unmerged work without override)
 mp-cleanup() {
-  local label="$1" branch="claude-$1" path="$MP_WT_DIR/mp-$1" session="mp-$1"
+  local label="$1" branch="claude-$1" wt="$MP_WT_DIR/mp-$1" session="mp-$1"
   [[ -z "$label" ]] && { echo "usage: mp-cleanup <label>"; return 1; }
 
   if git -C "$MP_ROOT" branch --merged "$MP_BASE" | grep -qw "$branch"; then
-    [[ -d "$path" ]] && git -C "$MP_ROOT" worktree remove "$path"
+    [[ -d "$wt" ]] && git -C "$MP_ROOT" worktree remove "$wt"
     git -C "$MP_ROOT" branch -d "$branch" 2>/dev/null
   else
     echo "mp: WARNING — $branch is not merged into $MP_BASE."
     local reply
     read "reply?remove worktree and DELETE unmerged branch anyway? [y/N] "
     [[ "$reply" == [yY] ]] || { echo "aborted — nothing removed"; return 1; }
-    [[ -d "$path" ]] && git -C "$MP_ROOT" worktree remove --force "$path"
+    [[ -d "$wt" ]] && git -C "$MP_ROOT" worktree remove --force "$wt"
     git -C "$MP_ROOT" branch -D "$branch" 2>/dev/null
   fi
 
