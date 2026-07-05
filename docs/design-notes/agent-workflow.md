@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-agent-workflow
-status: draft
+status: ratified
 created: 2026-07-05
 updated: 2026-07-05
 links:
@@ -34,16 +34,16 @@ The workflow applies existing store doctrine to the process layer itself:
 
 ## 3. Artifact taxonomy and state machines
 
-| Artifact | Location | States | Terminal |
-|---|---|---|---|
-| Brainstorm note | `docs/brainstorms/<topic>.md` | living (append-only) | — |
-| Design note | `docs/design-notes/<slug>.md` | draft → ratified → superseded | superseded |
-| Build plan | `docs/build-plans/<id>/plan.md` | proposed → ready → in-progress → complete \| parked \| superseded | complete, superseded |
-| Journal | `docs/build-plans/<id>/journal.md` | alive → sealed | sealed |
-| Finding | `docs/findings/<id>.md` | open → routed → resolved \| promoted | resolved, promoted |
-| Owner questions | `docs/inbox/owner-questions.md` | living (entries: open → answered → swept) | — |
-| Session capsule | fenced block in chat → appended to brainstorm note | — | — |
-| Book (design manual) | `docs/book/` (LaTeX) | living; edition-tagged syncs | — |
+| Artifact             | Location                                           | States                                                            | Terminal             |
+| -------------------- | -------------------------------------------------- | ----------------------------------------------------------------- | -------------------- |
+| Brainstorm note      | `docs/brainstorms/<topic>.md`                      | living (append-only)                                              | —                    |
+| Design note          | `docs/design-notes/<slug>.md`                      | draft → ratified → superseded                                     | superseded           |
+| Build plan           | `docs/build-plans/<id>/plan.md`                    | proposed → ready → in-progress → complete \| parked \| superseded | complete, superseded |
+| Journal              | `docs/build-plans/<id>/journal.md`                 | alive → sealed                                                    | sealed               |
+| Finding              | `docs/findings/<id>.md`                            | open → routed → resolved \| promoted                              | resolved, promoted   |
+| Owner questions      | `docs/inbox/owner-questions.md`                    | living (entries: open → answered → swept)                         | —                    |
+| Session capsule      | fenced block in chat → appended to brainstorm note | —                                                                 | —                    |
+| Book (design manual) | `docs/book/` (LaTeX)                               | living; edition-tagged syncs                                      | —                    |
 
 State transitions that matter:
 
@@ -52,7 +52,7 @@ State transitions that matter:
 - **Plan supersession** is three-place: (P, P′, warrant), where the warrant is a `spec-defect` finding. A defect never edits a plan in place; graduation mints P′ citing the finding, P flips to `superseded` with a `superseded_by` link. Same relation as claim supersession (see `supersession-lifecycle.md`), same reason: the discredited plan must remain inspectable, and P′ must ground on the warrant, not on P.
 - **Parked** requires a `re_entry` field. A plan or criterion without a re-entry condition cannot enter `parked`.
 - **Finding promotion**: a `discovery` or `spec-defect` finding that changes design mints a design-note supersession (or amendment) citing the finding as warrant, then flips to `promoted`.
-- **Book editions**: the book is a *derived projection* of the ratified record and the codebase — design notes remain authoritative for design, the repo for implementation. It synthesizes and asserts nothing without citing a source: an artifact id, or code by path plus git ref. Code snippets are included wherever they genuinely aid understanding; each is a copy annotated `source: path@ref`, so drift is detectable rather than silent. A scribe run ends by updating the sync marker (`docs/book/SYNC.md`: git ref + artifact ids incorporated); the commit is the edition. Draft notes never enter the book; parked decisions populate the future-work chapter verbatim with their re-entry conditions; superseded material may be retained as marked design-evolution remarks, warrant-linked — provenance as pedagogy.
+- **Book editions**: the book is a _derived projection_ of the ratified record and the codebase — design notes remain authoritative for design, the repo for implementation. It synthesizes and asserts nothing without citing a source: an artifact id, or code by path plus git ref. Code snippets are included wherever they genuinely aid understanding; each is a copy annotated `source: path@ref`, so drift is detectable rather than silent. A scribe run ends by updating the sync marker (`docs/book/SYNC.md`: git ref + artifact ids incorporated); the commit is the edition. Draft notes never enter the book; parked decisions populate the future-work chapter verbatim with their re-entry conditions; superseded material may be retained as marked design-evolution remarks, warrant-linked — provenance as pedagogy.
 
 ### Front-matter schemas
 
@@ -111,14 +111,14 @@ Parallel builders run in git worktrees. `.claude/state/active-plan` is worktree-
 
 Hooks are shell scripts; they cannot compel prose, so each is placed where a mechanical check has teeth. Registered in `.claude/settings.json`:
 
-| Hook | Event / matcher | Contract |
-|---|---|---|
-| `scope-guard` | PreToolUse: Edit\|Write\|MultiEdit | Read active plan id from `.claude/state/active-plan`; parse `write_scope` globs from plan front-matter; deny out-of-scope `file_path` with a reason string fed back to the agent. A global foundation-file denylist applies beneath any plan, in every session, orchestrator included. |
-| `gate-guard` | PreToolUse: Edit\|Write\|MultiEdit on `docs/design-notes/` and `docs/build-plans/*/plan.md` | Deny any edit performing a blessing transition — setting `status: ratified`, or `proposed → ready` — in every session, every role. Deny reason states: blessing transitions are owner-manual, made by hand outside a session. All other status transitions (`ready → in-progress → complete \| parked \| superseded`) pass. |
-| `session-brief` | SessionStart | Emit world-state to context: plans by status, unswept findings count, open owner questions, active worktree's plan if any. Record HEAD into `.claude/state/session-baseline` for the close-of-session audit. This is what makes bare `claude` land oriented. |
-| `journal-gate` | Stop | Block session end (decision: block, with reason) if (a) journal mtime predates the last commit in the worktree, (b) `git diff --name-only` against the plan's `write_scope` shows out-of-scope modifications, or (c) the diff since session baseline contains a blessing transition. (a) and (b) apply when a plan is active; (c) applies to every session. (b) and (c) are the post-hoc audit that catches Bash-mediated writes the pre-hoc guards cannot see. |
-| `staleness-nudge` | UserPromptSubmit | If journal is stale relative to HEAD, inject a one-line reminder into context. Advisory only. |
-| `compaction-marker` | PreCompact | Append a mechanical marker line (timestamp, event) to the journal so the post-compaction turn knows a compaction occurred and re-verifies state against the journal rather than trusting the summary. |
+| Hook                | Event / matcher                                                                             | Contract                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scope-guard`       | PreToolUse: Edit\|Write\|MultiEdit                                                          | Read active plan id from `.claude/state/active-plan`; parse `write_scope` globs from plan front-matter; deny out-of-scope `file_path` with a reason string fed back to the agent. A global foundation-file denylist applies beneath any plan, in every session, orchestrator included.                                                                                                                                                                          |
+| `gate-guard`        | PreToolUse: Edit\|Write\|MultiEdit on `docs/design-notes/` and `docs/build-plans/*/plan.md` | Deny any edit performing a blessing transition — setting `status: ratified`, or `proposed → ready` — in every session, every role. Deny reason states: blessing transitions are owner-manual, made by hand outside a session. All other status transitions (`ready → in-progress → complete \| parked \| superseded`) pass.                                                                                                                                     |
+| `session-brief`     | SessionStart                                                                                | Emit world-state to context: plans by status, unswept findings count, open owner questions, active worktree's plan if any. Record HEAD into `.claude/state/session-baseline` for the close-of-session audit. This is what makes bare `claude` land oriented.                                                                                                                                                                                                    |
+| `journal-gate`      | Stop                                                                                        | Block session end (decision: block, with reason) if (a) journal mtime predates the last commit in the worktree, (b) `git diff --name-only` against the plan's `write_scope` shows out-of-scope modifications, or (c) the diff since session baseline contains a blessing transition. (a) and (b) apply when a plan is active; (c) applies to every session. (b) and (c) are the post-hoc audit that catches Bash-mediated writes the pre-hoc guards cannot see. |
+| `staleness-nudge`   | UserPromptSubmit                                                                            | If journal is stale relative to HEAD, inject a one-line reminder into context. Advisory only.                                                                                                                                                                                                                                                                                                                                                                   |
+| `compaction-marker` | PreCompact                                                                                  | Append a mechanical marker line (timestamp, event) to the journal so the post-compaction turn knows a compaction occurred and re-verifies state against the journal rather than trusting the summary.                                                                                                                                                                                                                                                           |
 
 **Two-layer write enforcement, stated honestly.** The pre-hoc guard covers Edit/Write tools only; a builder can write files through Bash. Pre-hoc Bash pattern-denial is brittle and is parked (§14). The `journal-gate` diff audit is the backstop: any out-of-scope change in the worktree blocks session close with a reason, forcing revert-or-finding before the session can end. Pre-hoc porous, post-hoc tight.
 
@@ -126,14 +126,14 @@ Hooks are shell scripts; they cannot compel prose, so each is placed where a mec
 
 ## 7. Commands and skills
 
-| Command | Action |
-|---|---|
-| `/capture <topic>` | Append a pasted session capsule (or tolerate raw paste) to `docs/brainstorms/<topic>.md`, timestamped. |
-| `/graduate <design-note>` | Refuse unless `status: ratified`. Invoke graduate skill: decompose into one-session build plans against the template, emit as `status: proposed`, cross-link to design note. |
-| `/build <plan-id>` | Refuse unless `status: ready`. Write worktree state pointer, flip plan to `in-progress`, load the plan's contract (per its `contract` field) + context manifest, begin. |
-| `/resume <plan-id>` | Load plan + journal + context-manifest delta into a fresh session under the plan's contract. Must pass the fresh-agent test (§9). |
-| `/scribe` | Compute book debt — ratified or superseded design notes and promoted findings newer than `docs/book/SYNC.md` — and mint a sync plan (`contract: scribe`, `write_scope: docs/book/**`, the delta as context manifest) as `status: proposed`. Fixed acceptance on every sync plan: whole-book review, every snippet and code citation re-verified against HEAD, clean compile (latexmk or tectonic; default recorded on first run), zero undefined references, sync marker updated. Execution flows through `/build`. |
-| `/triage` | Sweep findings: route, batch owner questions, propose promotions (as supersessions with warrant), seal journals of completed plans, write PROGRESS checkpoint entries, sweep answered owner questions back to their origin artifacts. This is the reflection stage made mechanical. |
+| Command                   | Action                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/capture <topic>`        | Append a pasted session capsule (or tolerate raw paste) to `docs/brainstorms/<topic>.md`, timestamped.                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `/graduate <design-note>` | Refuse unless `status: ratified`. Invoke graduate skill: decompose into one-session build plans against the template, emit as `status: proposed`, cross-link to design note.                                                                                                                                                                                                                                                                                                                                        |
+| `/build <plan-id>`        | Refuse unless `status: ready`. Write worktree state pointer, flip plan to `in-progress`, load the plan's contract (per its `contract` field) + context manifest, begin.                                                                                                                                                                                                                                                                                                                                             |
+| `/resume <plan-id>`       | Load plan + journal + context-manifest delta into a fresh session under the plan's contract. Must pass the fresh-agent test (§9).                                                                                                                                                                                                                                                                                                                                                                                   |
+| `/scribe`                 | Compute book debt — ratified or superseded design notes and promoted findings newer than `docs/book/SYNC.md` — and mint a sync plan (`contract: scribe`, `write_scope: docs/book/**`, the delta as context manifest) as `status: proposed`. Fixed acceptance on every sync plan: whole-book review, every snippet and code citation re-verified against HEAD, clean compile (latexmk or tectonic; default recorded on first run), zero undefined references, sync marker updated. Execution flows through `/build`. |
+| `/triage`                 | Sweep findings: route, batch owner questions, propose promotions (as supersessions with warrant), seal journals of completed plans, write PROGRESS checkpoint entries, sweep answered owner questions back to their origin artifacts. This is the reflection stage made mechanical.                                                                                                                                                                                                                                 |
 
 Skills carry the depth the constitution omits: **graduate** (decomposition rules, session-sizing heuristics, split-at-graduation-never-mid-build), **build-plan** (template semantics, especially: interfaces pinned inline — signatures, schemas, invariants copied into the plan, never referenced — so the builder never infers design), **finding** (typing and routing), **checkpoint** (journal contract §9, semantic-boundary triggers, fresh-agent test), and **book** (chapter map, voice and register, TikZ conventions, notation-registry discipline, citation scheme — artifact ids and code `path@ref` — snippet provenance, sync semantics).
 
@@ -201,30 +201,30 @@ One session of work, cleanly scoped. Every artifact after BP-000 flows through t
 
 ## 13. Failure modes and mitigations
 
-| Failure | Mitigation |
-|---|---|
-| Bash write escapes pre-hoc scope guard | Stop-gate diff audit blocks session close (§6) |
-| Journal staleness | Semantic-boundary discipline + Stop gate + staleness nudge |
-| Compaction mid-criterion loses nuance | PreCompact marker forces post-compaction re-verification against journal; resume-over-compact norm shrinks the exposure window |
-| Capsule never emitted | `/capture` tolerates raw paste; orchestrator restructures |
-| Constitution bloat | Hard budget (~1 page); depth exiled to skills; reviewed at each triage that touches CLAUDE.md |
-| Hook script error fails open | Error trap emits loud `HOOK-FAILURE` line to transcript + journal marker; owner-directed standalone re-run; audit layer as catch-all |
-| Agent attempts a blessing transition | `gate-guard` pre-hoc deny; close-of-session audit blocks Bash-mediated flips |
-| Review fatigue at owner gates | `default_if_unanswered` + park semantics on every question; findings batched by `/triage`, never dripped |
-| Book drifts from the record | Sync marker + book-debt line in session brief; every claim cites a source (artifact id or code ref); draft notes barred |
-| Code snippets rot as the repo moves | Every snippet annotated `source: path@ref`; sync acceptance re-verifies all snippets and code citations against HEAD |
-| Scribe "fixes" design in prose | Write scope excludes design notes; gaps exit as findings, not edits |
-| Compile rot | Fixed acceptance on every sync plan: clean compile, zero undefined references, sync marker updated |
+| Failure                                | Mitigation                                                                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Bash write escapes pre-hoc scope guard | Stop-gate diff audit blocks session close (§6)                                                                                       |
+| Journal staleness                      | Semantic-boundary discipline + Stop gate + staleness nudge                                                                           |
+| Compaction mid-criterion loses nuance  | PreCompact marker forces post-compaction re-verification against journal; resume-over-compact norm shrinks the exposure window       |
+| Capsule never emitted                  | `/capture` tolerates raw paste; orchestrator restructures                                                                            |
+| Constitution bloat                     | Hard budget (~1 page); depth exiled to skills; reviewed at each triage that touches CLAUDE.md                                        |
+| Hook script error fails open           | Error trap emits loud `HOOK-FAILURE` line to transcript + journal marker; owner-directed standalone re-run; audit layer as catch-all |
+| Agent attempts a blessing transition   | `gate-guard` pre-hoc deny; close-of-session audit blocks Bash-mediated flips                                                         |
+| Review fatigue at owner gates          | `default_if_unanswered` + park semantics on every question; findings batched by `/triage`, never dripped                             |
+| Book drifts from the record            | Sync marker + book-debt line in session brief; every claim cites a source (artifact id or code ref); draft notes barred              |
+| Code snippets rot as the repo moves    | Every snippet annotated `source: path@ref`; sync acceptance re-verifies all snippets and code citations against HEAD                 |
+| Scribe "fixes" design in prose         | Write scope excludes design notes; gaps exit as findings, not edits                                                                  |
+| Compile rot                            | Fixed acceptance on every sync plan: clean compile, zero undefined references, sync marker updated                                   |
 
 ## 14. Parked decisions
 
-| Decision | Default recorded | Re-entry condition |
-|---|---|---|
-| Full brainstorm migration into Claude Code | Stay hybrid (chat + capsule) | After 5 graduations, compare capsule fidelity against a trial run of in-Code brainstorm sessions |
-| CI/schema lint of artifact front-matter | Manual + hook-level only | First observed state-machine violation in practice, or ≥ 3 artifact types churning schema |
-| Pre-hoc Bash write-pattern denial | Post-hoc audit only | Stop-gate audit catches ≥ 1 real escape |
-| Subagent decomposition pass inside `/graduate` | Single-context graduation | A multi-plan split ships with a scoping defect traced to decomposition quality |
-| PDF edition publishing cadence (tagged builds, committed PDFs) | Source-only commits; PDF built locally | First complete edition compiles clean end-to-end |
+| Decision                                                       | Default recorded                       | Re-entry condition                                                                               |
+| -------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Full brainstorm migration into Claude Code                     | Stay hybrid (chat + capsule)           | After 5 graduations, compare capsule fidelity against a trial run of in-Code brainstorm sessions |
+| CI/schema lint of artifact front-matter                        | Manual + hook-level only               | First observed state-machine violation in practice, or ≥ 3 artifact types churning schema        |
+| Pre-hoc Bash write-pattern denial                              | Post-hoc audit only                    | Stop-gate audit catches ≥ 1 real escape                                                          |
+| Subagent decomposition pass inside `/graduate`                 | Single-context graduation              | A multi-plan split ships with a scoping defect traced to decomposition quality                   |
+| PDF edition publishing cadence (tagged builds, committed PDFs) | Source-only commits; PDF built locally | First complete edition compiles clean end-to-end                                                 |
 
 ## 15. Cross-references
 

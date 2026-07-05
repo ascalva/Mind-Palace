@@ -1,0 +1,18 @@
+diff --git a/docs/build-plans/some-plan/plan.md b/docs/build-plans/some-plan/plan.md
+--- a/docs/build-plans/some-plan/plan.md
++++ b/docs/build-plans/some-plan/plan.md
+@@ -1,4 +1,4 @@
+ ---
+ type: build-plan
+-status: proposed
++status: ready
+ id: some-plan
+diff --git a/docs/design-notes/some-note.md b/docs/design-notes/some-note.md
+--- a/docs/design-notes/some-note.md
++++ b/docs/design-notes/some-note.md
+@@ -1,4 +1,4 @@
+ ---
+ type: design-note
+-status: draft
++status: ratified
+ id: dn-some

@@ -1,72 +1,61 @@
-# CLAUDE.md — Mind-Palace Operating Rules
+# CLAUDE.md — Agent-Workflow Constitution
 
-This file is loaded every session. It is the operational layer. The full design lives in `docs/BUILD-SPEC.md`; the inviolable directives every agent inherits live in `CONSTITUTION.md`; engineering and security practice lives in `CONVENTIONS.md`. Read all three before writing code.
+Loaded every session; the operational layer. Persona-neutral and deliberately
+short — every token here is paid on every turn. Depth lives in skills and loads
+only when invoked. Spec: `docs/design-notes/agent-workflow.md`.
 
-## What this project is
-A single-user, offline-first, privacy-sealed personal AI — a "mind palace" that indexes the owner's private notes and reflects patterns back, plus a gated agent layer, a dynamic agent factory, a pluggable messaging interface, and a one-way research airlock. Built to be **extended over time**, not shipped as a fixed product. Owner is a security-focused DevOps/AWS engineer with strong Python — write to that level.
+**Domain frame (unchanged, still authoritative).** Your outermost frame is
+`CONSTITUTION.md` — the inviolable kernel every agent inherits; task instructions
+nest inside it, never override it. The system's full design is `docs/BUILD-SPEC.md`;
+engineering and security practice is `CONVENTIONS.md`. Read those before writing
+code. This file governs *how work moves*; those govern *what the system is*.
 
-## Non-negotiables (full list in BUILD-SPEC §3; never violate)
-1. **Sealed core has zero network egress.** Enforce structurally, not by convention.
-2. **Network and private data never share a component.** Only `edge/` (bridge + interface gateway) touches the network; neither reads the vault.
-3. **The model advises; code acts.** No model holds a shell, raw secrets, or direct infra mutation.
-4. **Executed code is powerless.** Runs sandboxed: no creds, no network (unless explicit scoped grant), no vault. Returns data, never actions.
-5. **Self-modification is gated → validated → reversible.** Propose → human-approve → execute → validate → auto-rollback. No step skipped.
-6. **Every agent inherits `CONSTITUTION.md`** as its outermost frame. Task instructions nest inside, never override. Minted agents can't exceed their template's scope or a pre-declared max.
-7. **Consequential advice (health/financial/legal) defers but isn't withheld** — substantive + honest about uncertainty + refuses dangerous specifics + final decision to owner & a professional.
-8. **Respect the memory ceiling** (§5): ≤2 resident models, ~20–24 GB usable. Scheduler refuses breaching work.
-9. **The fixed points are sacred** — the frozen golden set and `CONSTITUTION.md` are never auto-modified. Human-only, deliberate, logged.
-10. **Secrets outside code** — Keychain/env only; never commit, read-by-model, or log.
-11. **The interface may transit a third party; the corpus never does.** WhatsApp-style adapters leak interactions, not the corpus — opt-in only; private default is local/Tailscale.
-12. **Voice/telephony is bounded.** Speech synth/recognition run locally in core; only audio crosses the carrier. The adapter dials **only the owner's pre-registered number**; the LLM never supplies a number; calls are owner-initiated; a passphrase/callback authenticates the human before personalized content is spoken.
+## The artifact chain
+Everything is a typed file with a state machine — no decision lives only in a
+transcript. Ideas flow one way, through gates:
 
-## How to work
-- **Build phase by phase** (BUILD-SPEC §18). Verify each phase against its gate, then **stop and checkpoint with the human** before advancing. Do not jump ahead.
-- **Ask, don't guess** on the decisions in BUILD-SPEC §20. For everything else, pick a sensible default and state it inline.
-- **Write tests as you build**, not after. Small, verifiable steps.
-- If a feature can't be built without violating §3 or the Constitution, **stop and surface it**.
-- **Verify live wherever possible, not just the offline suite (owner directive, 2026-07-02).** For any change touching an Ollama model tier (embedder/router/routine/synthesis/stretch) or the sandbox, run the matching live tier — `pytest -m live` and/or `pytest -m podman` — whenever the model is pulled / podman is up, as part of calling the work verified. The offline `-m 'not live'` suite stays the fast inner-loop ratchet; live is the outer gate before a session is "done," not an optional extra. Details + the sandbox-is-a-separate-axis clarification: `CONVENTIONS.md` → "Testing & validation".
+`brainstorm (chat) → design note (draft → ratified) → build plan (proposed →
+ready → in-progress → complete) → journal + findings → reflection (/triage) → back
+into design`.
 
-## Build-session budget (you, the building agent)
-This is a large system — build it without exhausting your own context. (Distinct from the runtime context budgeter in BUILD-SPEC §13, which manages the *local* models at run time.)
-- **One phase per session.** Build a single phase, verify, hand off; the human starts a fresh session (or `/clear`) for the next. Don't carry the whole history.
-- **Resume from `docs/PROGRESS.md`, not from chat history.** At each checkpoint append a terse entry there (built / verified / next / decisions). A fresh session re-grounds from that file + this one + the current phase's spec section.
-- **Update the Current phase marker** below as phases complete.
-- **Reference, don't echo.** Don't paste large file contents back; cite paths and work incrementally.
+Findings are the only channel from build back to design, and they re-enter only
+through the same gate brainstorms do — never by side effect.
 
-## Conventions (full detail in CONVENTIONS.md)
-- **Python** for orchestration/agents. Thin custom code over heavy frameworks — **no LangGraph/CrewAI/AutoGen**; own the loop.
-- **Stores:** LanceDB (vectors), DuckDB (telemetry), SQLite (queue/state/gate). Scoped access per agent — enforce in an access layer.
-- **Model serving:** Ollama (HTTP). Keep it abstract so a future GPU node can join.
-- **AWS = Terraform only.** No click-ops. Least-privilege IAM.
-- **Sandbox:** rootless Podman (network-off, no-mount, limited) + warm pool; WASM for pure compute.
-- **Comment the *why* at trust boundaries** (airlock asymmetry, propose/execute split, scope ceiling).
+## Roles
+- **Orchestrator** — the default posture of a bare session at root. Runs
+  `/graduate`, `/build`, `/resume`, `/triage`, `/scribe`; maintains
+  `docs/inbox/owner-questions.md` and `docs/PROGRESS.md`; flips plan status on
+  completion. Single-writer of those files.
+- **Builder / Scribe** — a contract layered by `/build` (per the plan's `contract`
+  field). Writable surfaces are exactly three: the plan's `write_scope`, its own
+  `journal.md`, and new files in `docs/findings/`. Everything else is denied.
 
-## Repo map
-```
-core/    Zone A — sealed, no network (librarian, curator, dreaming, ingest, matching, factory, sandbox, stores)
-edge/    Zone B — networked, containerized (bridge, interface)
-cloud/   Zone C — Terraform + fetcher
-agents/  persistent role definitions      scheduler/  supervisor + queue + context budgeter
-ops/     gate, levers, rollback           eval/  golden sets, metrics, baselines
-docs/    BUILD-SPEC.md, PROGRESS.md (build log)
-```
-Keep `core/` free of any import that can reach the network.
+## Rules that bind every session
+- **Routing.** Findings typed `design | math | direction` → route to the
+  orchestrator (who batches to `owner-questions.md` if the owner is needed).
+  Findings typed `codebase | spec-fidelity` → the builder resolves, annotates,
+  continues.
+- **Note-taking obligation.** Checkpoint the journal at every semantic boundary
+  (criterion closed, commit made, finding filed) — §9, the **checkpoint** skill.
+  The bar is the fresh-agent test: a new session with only plan + journal +
+  write-scope files must continue without re-asking. Resume beats compaction.
+- **Never block on the owner.** An owner-level question parks its criterion with a
+  re-entry condition and you proceed with the rest. Only a `blocker` finding ends
+  a session early — and the Stop gate still demands a fresh journal.
+- **Two blessing gates are owner-only, by hand.** `draft→ratified` (a design note)
+  and `proposed→ready` (a plan split) are never done in a session. `gate-guard`
+  denies them pre-hoc and the Stop-gate audit blocks any Bash-mediated flip.
+- **Write discipline is a capability, not a suggestion.** `scope-guard` enforces
+  the active plan's `write_scope` pre-hoc; the `journal-gate` diff audit catches
+  Bash writes post-hoc. A foundation denylist (`CONSTITUTION.md`,
+  `docs/design-notes/**`, `eval/golden/**`) is never writable, orchestrator
+  included. A denial means narrow the scope or file a finding — never route around.
 
-## Current phase
-> **Frontier:** all 10 numbered phases done (2026-06-28); forward layer building Track items
-> (`docs/ROADMAP-V1.md`). Latest: **Edge & supersession — Item 8/8f built (2026-07-04)** — the
-> owner-declared **authored-historical supersession store** (`core/stores/authored_supersession.py`,
-> the third dispositional edge type), **structurally fail-closed**: `record()` verifies an
-> `OwnerDeclaration` at its own boundary (a machine caller is refused, proven by a negative test — not
-> "no machine path calls it"); `founding.py` rerouted to it off the claim-op store. Prior same day:
-> Items 7 & 9 (E_geom⊔E_disp partition; `derived_from=[C]`→warrant-anchor grounding + Part-1
-> authored-vs-derived scoping + `Stale(C)`) and the 8f taxonomy/PD11. Before that: **Track G COMPLETE
-> (G1–G7)** — the hands, flag-off, ε=SENSING.
-> **Next:** finish **Item 8** — the blessing gate (I1a) + proposed→certified states + disposition
-> authority + wiring the active-projection *consumer* of `superseded()` (the store is the write side;
-> nothing demotes from retrieval yet) — the remaining HARD gate (R3)
-> before any real `DialogueAnalyzer` wires; then Item 11. Or deepen Track H. Owner's call.
-> **Resume from the newest entry in `docs/PROGRESS.md`** (full phase-by-phase history rotated to
-> `docs/archive/PROGRESS-phases-0-10.md`; prior current-phase detail:
-> `docs/archive/CLAUDE-current-phase-2026-07-03.md`). Builder prompt: `docs/BUILDER-PROMPT-FORWARD.md`.
+## Commands (depth in the matching skill)
+`/capture <topic>` · `/graduate <note>` · `/build <id>` · `/resume <id>` ·
+`/triage` · `/scribe`. Skills: **graduate**, **build-plan**, **finding**,
+**checkpoint**, **book**. Templates: `docs/templates/`.
 
+If a hook prints `HOOK-FAILURE …`, enforcement did not apply: rerun the named
+script standalone (`bash .claude/hooks/<name>.sh --standalone …`), reconcile, then
+proceed.
