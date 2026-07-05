@@ -100,8 +100,8 @@ Partition the edge set:
 - **E_geom** — knowledge / fiber edges (`authority = geometry`). Signed. **Feeds**
   the balance math.
 - **E_disp** — dispositional edges: note-version `supersedes` (Item 6, version
-  store) **and** claim-level `supersede` (reasoning paths, claim-op store).
-  **Excluded** from the balance math.
+  store), claim-level `supersede` (reasoning paths, claim-op store), **and
+  authored-historical `supersede`** (§4a). All **excluded** from the balance math.
 
 The signed adjacency and Laplacian are assembled from **E_geom only**:
 
@@ -124,6 +124,31 @@ relations. *Falsifier:* adding or removing a dispositional edge changes any
 clustering, frustration, or curvature result → `E_disp` has leaked into `A_geom`
 → the partition is not structural and must be fixed at the store boundary.
 
+## 4a. A third dispositional edge: authored-historical `supersede` (PD11)
+
+The founding corpus records "a later musing supersedes an earlier one." Apply the
+**one-line test** — *does the edge connect two versions of one document, or two
+documents?* A founding `supersede(A, B)` has `A`, `B` at **different `source_paths`**
+(distinct authored notes), so it connects **two documents**. That rules out both
+existing dispositional types:
+
+- **not note-version `supersedes`** — that relation is *within one `doc_id`*, keyed
+  `(doc_id, version_seq)` and derived from consecutive versions of the **same**
+  document; it structurally cannot key a cross-document relation;
+- **not claim `supersede`** — it carries **no warrant**, is **no reasoning act**, and
+  **mints no derived alternative**; both endpoints stay authored (K₀).
+
+So it is a **third E_disp member: authored-historical `supersede`** — both endpoints
+K₀, both persist in the log, dispositional (never in `A_geom`), and its authority is
+**the owner's hand at authoring time** (`authority = authored-ingest`). Because that
+*is* the owner's hand, establishing the historical chain needs **no verdict gate**
+(the blessing gate fires only if such an edge would demote a currently *active,
+retrievable* K₀ note). It gets its **own store** keyed on the two authored digests —
+**not** the version store, and emphatically **not** a synthesized shared `doc_id`
+(a fabricated identity is the content-digest-as-version-key failure family,
+`ingest-identity-and-amendment.md` §4A C1). Build: `edge-and-supersession-build-plan.md`
+Item 8 / 8f + PD11.
+
 ## 5. The model at a glance
 
 | Class | Arity | Authority | Feeds `L`? | Store |
@@ -131,8 +156,10 @@ clustering, frustration, or curvature result → `E_disp` has leaked into `A_geo
 | knowledge / fiber (support, contradiction) | 2-place | geometry | **yes** | balance-edge store |
 | note-version `supersedes` | 2-place, directed | geometry (file edit) | no | version store |
 | claim `supersede` (reasoning path) | 3-place `(C,C′,W)`, directed | dreamer-proposed → verdict-certified | no | claim-op store |
+| authored-historical `supersede` (§4a) | 2-place, directed | authored-ingest (owner's hand at authoring) | no | authored-supersession store |
 
-Three distinct stores; the balance math holds a handle only to the first.
+Four edge classes across four stores; the balance math holds a handle only to the
+first (`E_geom`). The three dispositional stores are structurally unreachable from `L`.
 
 ## 6. Reconciliation
 

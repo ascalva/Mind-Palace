@@ -29,12 +29,13 @@ Three separations keep this honest (all confirmed against code):
     via `DerivedStore.add`, carrying `INTERPRETED` provenance (I5) and a derivation depth, so
     `core.recursion` bounds its confidence by γ^d (I10): a dialogue conclusion can never out-rank
     the authored claim it revised without an owner verdict (I1). Its `derived_from` is the warrant's
-    K₀-reaching anchors (surviving grounding of C + the dialogue's new evidence), **never `[C]`**:
-    grounding a revision on the claim it discredits cites what it declares wrong, and — because the
-    grounding ratio is transitive — collapses `g` the moment C is superseded and manufactures the
-    cross-stratum citation the tower is made of (supersession-lifecycle.md §4.2). The `C→C′`
-    relation is carried by the dispositional `ClaimOpStore` edge alone, not a grounding fiber; the
-    γ^{d≥1} "can't out-rank authored" guarantee comes from depth ≥ 1, not from grounding on C.
+    K₀ anchors (surviving grounding of C + the dialogue's new evidence). Grounding a revision on a
+    *derived* `[C]` is refused — it cites what it discredits and, because the grounding ratio is
+    transitive, collapses `g` when C is superseded and builds the cross-stratum tower (§4.2).
+    Grounding on an *authored* `[C]` is legitimate: bedrock does not decay, so g=1 and the
+    revision is not weightless. The `C→C′` relation is carried by the
+    dispositional `ClaimOpStore` edge alone, not a grounding fiber; the γ^{d≥1} "can't out-rank
+    authored" guarantee comes from depth ≥ 1.
   * **Budgets floored (PD4).** The recursive-strata I5 population / edge budgets are parked;
     with none enforced these ops are recorded flatly and the Dreamer does not yet consume them
     recursively — exactly the non-recursive floor, recovering current behavior. The hook is named
@@ -76,11 +77,13 @@ class Supersede:
     peer).
 
     `anchors` are the warrant's K₀-reaching authored digests — the grounding `C′` actually rests on
-    (Item 9; supersession-lifecycle.md §4.2). **Never `[claim]`.** A `DialogueAnalyzer` supplies
-    them (surviving grounding of C + the dialogue's new evidence); left empty, apply inherits C's
-    *surviving authored grounding* (its `leaf_refs` — authored digests C reaches, never C itself),
-    so a first revision of an authored note with no new evidence is honestly ungrounded (g=0) rather
-    than falsely grounded on the claim it discredits."""
+    (Item 9; supersession-lifecycle.md §4.2). A `DialogueAnalyzer` supplies them (surviving
+    grounding of C + the dialogue's new evidence). Left empty, apply falls back by C's type: a
+    DERIVED C inherits its surviving authored leaves (`leaf_refs`, **never `[C]`** — a derived claim
+    decays or is superseded without a verdict, so routing grounding through it is unsafe); an
+    AUTHORED (K₀) C grounds on `[C]` itself (bedrock — authored content does not decay, so g=1 and
+    the revision is not weightless). The discredited claim is refused as grounding *only* when
+    derived."""
 
     claim: str
     conclusion: str
@@ -241,23 +244,35 @@ def apply_operations(ops: Iterable[DialogueOp], *, ops_store: ClaimOpStore,
                      derived: DerivedStore) -> ApplyReport:
     """Apply dialogue operations: record each as a claim relation and re-project.
 
-    A `Supersede` mints its conclusion C′ as a DERIVED artifact grounded on the WARRANT'S
-    K₀-reaching anchors — never on `[C]` (Item 9; supersession-lifecycle.md §4.2), so γ^d bounds it
-    (I10/I5) and C leaves the active projection without C′ entering as an authored peer (the §2
-    failure avoided) and without citing the claim it discredits. Explicit `op.anchors` win; empty
-    inherits C's *surviving authored grounding* (`leaf_refs(C)` — never C). On supersession we
-    also compute `Stale(C)` (§5) — grounding-descendants to flag for re-examination — surfaced in
-    the report for the digest; nothing is cascade-retracted. Budgets floored (PD4)."""
+    A `Supersede` mints its conclusion C′ as a DERIVED artifact grounded on the WARRANT'S K₀
+    anchors (Item 9; supersession-lifecycle.md §4.2), so γ^d bounds it (I10/I5) and C leaves the
+    active projection without C′ entering as an authored peer (the §2 failure avoided). Explicit
+    `op.anchors` win; empty falls back by C's type — a DERIVED C inherits its `leaf_refs` (never
+    `[C]`, which decays); an AUTHORED C grounds on `[C]` (bedrock, g=1, so the revision is not
+    weightless). On supersession we also compute `Stale(C)` (§5) — grounding-descendants to flag for
+    re-examination — surfaced in the report for the digest; nothing is cascade-retracted. Budgets
+    floored (PD4)."""
     superseded: list[str] = []
     conclusions: list[str] = []
     defeaters = warrants = 0
     for op in ops:
         if isinstance(op, Supersede):
-            # Item 9: ground C′ on the warrant's authored anchors, NOT on [C]. Explicit anchors win;
-            # else inherit C's surviving authored grounding (its leaf_refs — never C, never a
-            # derived ancestor). The C→C′ relation is the dispositional ClaimOpStore edge, not this.
-            anchors = (tuple(op.anchors) if op.anchors
-                       else tuple(sorted(derived.leaf_refs(op.claim))))
+            # Item 9: ground C′ on the warrant's K₀ anchors. Explicit anchors always win; else the
+            # fallback depends on whether C is authored or derived, because the [C] prohibition only
+            # targets grounding through something that DECAYS / is superseded without a verdict:
+            #   * C DERIVED → inherit its authored leaves (leaf_refs), NEVER [C]: a derived C decays
+            #     / can be superseded silently, so routing g through it is self-staleness
+            #     (supersession-lifecycle §4.2). An ungrounded derived C ⇒ ∅ (honestly ungrounded).
+            #   * C AUTHORED (K₀) → ground on [C]: authored content is bedrock — it does not decay
+            #     (I2 is derived-only) and persists, so g=1 is legitimate and C′ is not weightless.
+            #     If C is later demoted by verdict, C′ lands in Stale(C) and is re-examined — not a
+            #     reason to refuse grounding on it.
+            if op.anchors:
+                anchors: tuple[str, ...] = tuple(op.anchors)
+            elif derived.is_artifact(op.claim):
+                anchors = tuple(sorted(derived.leaf_refs(op.claim)))     # derived C: never [C]
+            else:
+                anchors = (op.claim,)                                    # authored C: bedrock, g=1
             art = derived.add(kind=DIALOGUE_CONCLUSION, summary=op.conclusion,
                               subjects=(op.claim,), derived_from=list(anchors))
             ops_store.record(OpKind.SUPERSEDE, op.claim, related_id=art.id, text=op.warrant)

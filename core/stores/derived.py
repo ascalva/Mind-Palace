@@ -216,6 +216,14 @@ class DerivedStore:
         return rec
 
     # --- derivation graph (gap G2 / Invariant 10) --------------------------------
+    def is_artifact(self, ref: str) -> bool:
+        """True if `ref` is an interpreted (DERIVED) artifact id; False if it is an authored leaf
+        digest (external, depth 0). The public authored-vs-derived predicate for a grounding
+        decision — e.g. a `supersede` may ground a revision on an authored `C` (bedrock, g=1) but
+        never on a derived `C` (which decays / is superseded without a verdict); see
+        `core.recursion_ops.apply_operations`."""
+        return self._is_artifact(ref)
+
     def _is_artifact(self, ref: str) -> bool:
         """True if `ref` is an interpreted artifact id (an internal node); otherwise it is an
         authored leaf digest (external, depth 0)."""

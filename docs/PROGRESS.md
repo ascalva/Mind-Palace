@@ -1453,3 +1453,45 @@ sub-item 8f) — the remaining HARD gate (R3) before any real `DialogueAnalyzer`
 built `VerdictStore`/`DispositionStore`. Then Item 11 (γ^d·g exclusion confirmation, now unblocked by
 9). Item 10 parked on the Ollivier-Ricci gate; Item 12 = PD8 (promotion vs depth cap). **Item 8 is a
 fresh session** — resume from this entry + the build plan's Item 8.
+
+*(Items 7 & 9 above committed by owner as `a9e8423` "feat: Revision to edges" + release `1.1.0`.)*
+
+---
+
+## Edge & supersession — Item 9 Part-1 correction (g=0) + 8f taxonomy (2026-07-04)
+
+Follow-up on the owner-committed Items 7 & 9 (`a9e8423`). Owner caught a latent bug in the Item 9
+grounding fallback + asked to resolve one Item-8 design question before it's built.
+
+**Part 1 — authored-revision `g=0` bug (CONFIRMED + FIXED).** Item 9's empty-anchors fallback used
+`leaf_refs(C)` unconditionally. For an **authored (K₀)** `C`, `leaf_refs(C)` walks `_edges_of` which
+returns `[]` for any non-artifact (`core/stores/derived.py:226,267`) ⇒ `∅` ⇒ `derived_from=[]` ⇒
+`g=0` ⇒ `decay_bound=0` (scratch-confirmed: an authored-note rephrase minted **weightless**, a silent
+"blessed content vanishes" with no verdict). **Fix:** scope the `[C]` prohibition to *derived* `C`
+(the thing that decays / is superseded without a verdict — the real target). Empty-anchors fallback,
+by `C`'s type via new `DerivedStore.is_artifact`: derived `C` → inherit `leaf_refs(C)` (never `[C]`);
+authored `C` → `[C]` itself (bedrock — does not decay, so `g=1`, not weightless). If `C` is later
+demoted by verdict, `C′` lands in `Stale(C)` and is re-examined — the maintenance path, not a reason
+to refuse grounding. `core/recursion_ops.py` + `core/stores/derived.py`.
+
+**Part 2 — 8f founding-supersession taxonomy (RESOLVED, design-only; PD11).** The one-line test —
+*two versions of one document, or two documents?* A founding `supersede(A,B)` has `A,B` at different
+`source_paths` (`core/ingest/founding.py:114-123`) → two documents. The version store's
+`PRIMARY KEY (doc_id, version_seq)` (`core/stores/versions.py:57,99`) **cannot** key a
+cross-`source_path` relation (confirmed), and it carries no warrant / mints no alternative → not a
+claim-`supersede` either. **Decision:** its own **authored-historical `supersede`** — a third E_disp
+dispositional edge type (owner-authority at authoring time, ungated for chain-establishment), its own
+store keyed on the two authored digests. Rejected: reuse the version store (unkeyable); synthesize a
+shared `doc_id` (fabricated identity, §4A C1 failure family). Documented `the-edge-model.md` §4a/§5;
+implementation is Item 8/8f. Safe to defer — `founding.py:121`'s claim-op records are inert
+(`superseded()` has no consumer; active projection filters on `DispositionStore.retracted`,
+`core/dreams_view.py:56`).
+
+**Verified.** `tests/integration/test_dialogue_ops.py`: split the default-anchors test into the
+derived case (inherit leaves, never claim) + a new `test_authored_revision_grounds_on_bedrock_not_weightless`
+(`g=1`, `decay_bound>0`). No-tower falsifier + all Item-9 tests still green. Full offline **715 passed,
+7 skipped**; ruff clean; seal green. Deterministic core → live gate N/A. **Committed this session**
+(owner-requested).
+
+**Next unchanged:** Item 8 (now with 8f resolved to an authored-historical edge type) — fresh session,
+resume from here + the build plan's Item 8 / PD11.

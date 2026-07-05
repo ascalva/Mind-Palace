@@ -588,16 +588,39 @@ owner-verdict removal from a dialogue-op removal → the authority tag is missin
 stores). Leans on the indexing policy (unpromoted derived not retrievable — holds by construction,
 Q11) so the unpromoted alternative is safe to mint immediately.
 
-**Sub-item 8f — founding routing fix (R5, ratified).** Route K₀↔K₀ founding supersessions
-(`core/ingest/founding.py:121-123`) to the **version store** (Item 6), not the claim-op store — a
-founding revision is *authoring a version relation*, not *authorizing a demotion*. Founding is **not**
-a fourth authority. The gate fires **only** if a supersession would demote an *active, retrievable* K₀
-note; establishing the chain (v1→v2, v2 active) is ungated. **Design wrinkle to resolve here:**
-founding items are distinct `source_paths`, not versions of one `doc_id`, so the version store's
-`(doc_id, version_seq)` model does not directly hold a cross-document founding supersession — decide
-between a shared identity-lineage `doc_id` for a founding revision pair vs. a cross-doc dispositional
-relation, before implementing. *Acceptance:* a founding K₀↔K₀ supersession leaves no `ClaimOpStore`
-row and does not remove the superseded note from retrieval unless it was the active version.
+**Sub-item 8f — founding routing fix (R5; taxonomy RESOLVED 2026-07-04, design-only this session).**
+Re-route K₀↔K₀ founding supersessions (`core/ingest/founding.py:121-123`) off the **claim-op store**.
+
+*The one-line test — does the edge connect two versions of one document, or two documents?* A founding
+`supersede(A, B)` has `A`, `B` at **different `source_paths`** (`founding.py:114-123`: `prior` and
+`record.digest` are two distinct authored notes). So it connects **two documents** → it is **not** a
+note-version `supersedes`; and it carries **no warrant, no reasoning act, mints no derived
+alternative** → it is **not** a claim-`supersede`. It is a **third thing: an authored-historical
+supersession** — both endpoints K₀, both persist in the log, **dispositional** (E_disp, structurally
+excluded from the balance math), **owner-authority** (asserted at *authoring* time, which *is* the
+owner's hand, so it needs no verdict gate to establish the historical chain).
+
+**Decision (recorded, PD11): option (b) — its own authored-historical dispositional edge type**, a
+third E_disp member distinct from note-version `supersedes` and claim `supersede` (documented in
+`the-edge-model.md` §4–§5).
+- **Rejected — option (a), reuse the version store as-is.** Its `PRIMARY KEY (doc_id, version_seq)`
+  keys versions of **one** `source_path` and derives supersession from consecutive `version_seq`
+  *within one `doc_id`* (`core/stores/versions.py:57,99-103`); it **cannot** represent a
+  cross-`source_path` relation. Confirmed unkeyable, not merely awkward.
+- **Rejected — synthesize a shared `doc_id`** for a founding revision pair to force it into the
+  version key. A fabricated identity is the same failure family as content-digest-as-version-key
+  (`ingest-identity-and-amendment.md` §4A C1) and will surface as corruption later. **Do not.**
+
+*Gate scope (consistent with R5):* establishing the chain (A historical, B active) is **ungated** —
+owner's hand at authoring. The blessing gate fires **only** if a founding supersession would demote a
+currently *active, retrievable* K₀ note. *Safe to defer to implementation:* `founding.py:121`'s
+current claim-op records are **inert** — `ClaimOpStore.superseded()` has **no consumer** (grep), and
+the wired active projection filters on `DispositionStore.retracted` (owner verdicts) only
+(`core/dreams_view.py:56-58`), so nothing is hidden today. **Implementation is Item 8/8f, next
+session** (new authored-historical store keyed on the two authored digests + re-route `founding.py`).
+*Acceptance (at implementation):* a founding K₀↔K₀ supersession leaves **no `ClaimOpStore` row**,
+records an authored-historical edge instead, and removes the superseded note from retrieval only if it
+was the active version.
 
 ---
 
@@ -607,9 +630,13 @@ Touches stored data: NO new rows while the analyzer is no-op.**
 
 > **Built.** `core/recursion_ops.py`: (1) `Supersede` gains `anchors: tuple[str,...] = ()` (the
 > warrant's K₀-reaching authored digests); `apply_operations` now mints C′ with
-> `derived_from = op.anchors` — or, when empty, C's *surviving authored grounding*
-> (`derived.leaf_refs(op.claim)`) — **never `[C]`**. The C→C′ relation is carried by the
-> `ClaimOpStore` edge alone. (2) `stale_closure(derived, claim)` computes `Stale(C)` (the
+> `derived_from = op.anchors`, or — when empty — a fallback **scoped by C's type** (Part 1
+> correction, `DerivedStore.is_artifact`): a **derived** C inherits its `leaf_refs` (**never `[C]`**,
+> which decays); an **authored** (K₀) C grounds on `[C]` itself (bedrock — does not decay, g=1, so
+> the revision is **not weightless**). The naive "never `[C]`" fallback produced `g=0`/`c=0` for an
+> authored-note rephrase (a silent "blessed content vanishes" bug — scratch-confirmed and fixed). The
+> C→C′ relation is carried by the `ClaimOpStore` edge alone. (2) `stale_closure(derived, claim)`
+> computes `Stale(C)` (the
 > grounding-descendant closure over `derived_from`); `ApplyReport` gains a `stale` field surfacing the
 > flagged-for-re-examination set (never cascade-retracted). Docstrings corrected per Part B.2.
 > **Verified** by five new tests in `tests/integration/test_dialogue_ops.py`: grounds-on-anchors-
@@ -782,11 +809,30 @@ with provenance-migration `--apply`, not worth it pre-corpus-reorg. *Re-entry:* 
 corpus reorganization/rename campaign; adopt a rename-stable id (front-matter uuid or per-doc
 surrogate) then.
 
+**PD11 — Founding K₀↔K₀ supersession taxonomy (R5 / Item 8 sub-item 8f). RESOLVED 2026-07-04.**
+*Decision:* **option (b) — its own authored-historical dispositional edge type**, a third E_disp
+member distinct from note-version `supersedes` and claim `supersede`. *Rejected (a):* reuse the
+version store — `PRIMARY KEY (doc_id, version_seq)` cannot key a cross-`source_path` relation
+(`core/stores/versions.py:57,99-103`), confirmed unkeyable. *Rejected:* synthesize a shared `doc_id`
+to force the version key — a fabricated identity, same failure family as content-digest-as-version-key
+(`ingest-identity-and-amendment.md` §4A C1). *Properties:* both endpoints K₀; dispositional (excluded
+from balance math); owner-authority at authoring time ⇒ ungated for chain-establishment, gated only if
+it demotes an active retrievable note. *Implementation:* Item 8/8f, next session (a store keyed on the
+two authored digests + re-route `founding.py:121`); safe to defer (the current claim-op records are
+inert — no `superseded()` consumer). Documented in `the-edge-model.md` §4–§5.
+
 **Resolved (recorded, not open) — grounding-maintenance propagation (Item 9 / supersession-lifecycle
 §5).** **Flag-for-re-examination**, not cascade. *Rejected:* *nothing* (grounding rot accumulates
 silently) and *cascade-retract* (auto-resolves a semantic judgment). *Re-entry:* if the `|Stale(C)|`
 digest backlog outgrows owner review capacity, revisit a bounded auto-proposal budget — still
 proposal-terminating, never silent.
+
+**Resolved (recorded, not open) — authored-vs-derived grounding fallback (Item 9 / Part 1, 2026-07-04).**
+A `supersede` with no explicit anchors grounds C′ by C's type: **derived** C → inherit `leaf_refs(C)`,
+never `[C]`; **authored** C → `[C]` (bedrock, g=1). *Rejected:* the uniform "never `[C]`" rule — it
+made an authored-note rephrase weightless (`g=0`, scratch-confirmed), a silent blessed-content-vanishes
+bug. The `[C]` prohibition targets grounding through content that **decays or is superseded without a
+verdict** — an authored C does neither.
 
 ---
 

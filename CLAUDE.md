@@ -54,14 +54,17 @@ Keep `core/` free of any import that can reach the network.
 
 ## Current phase
 > **Frontier:** all 10 numbered phases done (2026-06-28); forward layer building Track items
-> (`docs/ROADMAP-V1.md`). Latest: **Edge & supersession plan Items 7 & 9 built (2026-07-04)** —
-> E_geom⊔E_disp partition made structural+tested, and the committed `derived_from=[C]` corrected so
-> revisions ground on the warrant's K₀ anchors (never the claim they discredit) + `Stale(C)`
-> grounding-maintenance (`docs/design-notes/build-plans/edge-and-supersession-build-plan.md`). Prior:
-> **Track G COMPLETE (G1–G7)** — the hands, flag-off, ceiling ε=SENSING.
+> (`docs/ROADMAP-V1.md`). Latest: **Edge & supersession plan Items 7 & 9 built + Part-1/8f follow-up
+> (2026-07-04)** — E_geom⊔E_disp partition made structural+tested; `derived_from=[C]` corrected so
+> revisions ground on the warrant's K₀ anchors + `Stale(C)` maintenance; **Part-1 fix:** the empty-
+> anchors fallback is scoped by C's type — a *derived* C inherits `leaf_refs` (never `[C]`), an
+> *authored* C grounds on `[C]` bedrock (g=1, was weightlessly g=0); **8f taxonomy resolved (PD11):**
+> founding K₀↔K₀ supersession is its own authored-historical dispositional edge type
+> (`docs/design-notes/build-plans/edge-and-supersession-build-plan.md`). Prior: **Track G COMPLETE
+> (G1–G7)** — the hands, flag-off, ε=SENSING.
 > **Next:** **Item 8** of the edge/supersession plan (blessing gate + proposed→certified + disposition
-> authority + R5 founding-routing) — the remaining HARD gate (R3) before any real `DialogueAnalyzer`
-> wires; then Item 11. Or deepen Track H / the Track D correlator. Owner's call.
+> authority + 8f founding-routing to the authored-historical store) — the remaining HARD gate (R3)
+> before any real `DialogueAnalyzer` wires; then Item 11. Or deepen Track H. Owner's call.
 > **Resume from the newest entry in `docs/PROGRESS.md`** (full phase-by-phase history rotated to
 > `docs/archive/PROGRESS-phases-0-10.md`; prior current-phase detail:
 > `docs/archive/CLAUDE-current-phase-2026-07-03.md`). Builder prompt: `docs/BUILDER-PROMPT-FORWARD.md`.

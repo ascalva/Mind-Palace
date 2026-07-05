@@ -135,21 +135,30 @@ def test_a_thread_of_warrant_anchored_revisions_does_not_tower(tmp_path):
     assert grounding_score(derived.tails_of(towered), authored) == 0.0
 
 
-def test_default_anchors_inherit_surviving_grounding_never_the_claim(tmp_path):
-    # No explicit anchors: a revision of a DERIVED claim inherits its authored leaves (surviving
-    # grounding), never the claim; a revision of an AUTHORED claim is honestly ungrounded (∅).
+def test_default_anchors_for_a_derived_revision_inherit_leaves_never_the_claim(tmp_path):
+    # No explicit anchors, DERIVED C: inherit its surviving authored leaves — never the claim itself
+    # (a derived C decays / can be superseded without a verdict, so routing g through it is unsafe).
     ops_store, derived = _stores(tmp_path)
     seed = derived.add(kind=DIALOGUE_CONCLUSION, summary="seed", subjects=("s",),
                        derived_from=["authA"])
     r = apply_operations([Supersede(seed.id, "rev of seed", "w")],
                          ops_store=ops_store, derived=derived).conclusions[0]
     assert set(derived.tails_of(r)) == {"authA"}           # inherited the surviving authored leaf
-    assert seed.id not in derived.tails_of(r)              # ... never the discredited claim
+    assert seed.id not in derived.tails_of(r)              # ... never the discredited derived claim
     assert derived.depth(r) == 1                           # authored leaf → depth 1, no tower
 
-    r2 = apply_operations([Supersede("authZ", "rev of authored", "w")],
-                          ops_store=ops_store, derived=derived).conclusions[0]
-    assert derived.tails_of(r2) == frozenset()             # no false grounding on [authZ]
+
+def test_authored_revision_grounds_on_bedrock_not_weightless(tmp_path):
+    # Part 1 correction: superseding an AUTHORED (K₀) note with no anchors must NOT be weightless.
+    # Authored content is bedrock (does not decay — I2 is derived-only), so C′ grounds on [C] → g=1;
+    # the [C] prohibition applies only to a DERIVED C. Guards against a silent "blessed content
+    # vanishes" bug (empty derived_from ⇒ g=0 ⇒ c=0 ⇒ not retrievable, with no verdict).
+    ops_store, derived = _stores(tmp_path)
+    r = apply_operations([Supersede("authZ", "a rephrase of authZ", "clarified wording")],
+                         ops_store=ops_store, derived=derived).conclusions[0]
+    assert set(derived.tails_of(r)) == {"authZ"}           # grounds on the authored bedrock, not ∅
+    g = grounding_score(derived.tails_of(r), authored={"authZ"})
+    assert g == 1.0 and decay_bound(derived.depth(r), grounding=g) > 0.0   # NOT weightless
 
 
 def test_derived_cannot_outrank_authored_under_corrected_grounding(tmp_path):
