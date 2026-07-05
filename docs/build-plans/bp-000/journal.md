@@ -116,3 +116,5 @@ consulted only lightly (write-channel properties are already internalized in §2
 
 ## Markers
 - [2026-07-05T19:09:38Z] HOOK-FAILURE scope-guard: unexpected exit rc=77 — enforcement NOT applied
+- [2026-07-05T19:17:04Z] Live Stop-gate fired (hooks now active): blocked on owner's uncommitted design-note changes (agent-workflow.md ratification + new core-integrity.md draft) — not session writes; filed finding-0003.
+- [2026-07-05T19:20:15Z] Reconciled: owner committed the blessing (0b21de6, accountable §10); re-anchored session-baseline to HEAD; Stop-gate now passes (rc=0). (c) stale-baseline facet added to finding-0003.

@@ -1,15 +1,18 @@
 ---
 type: design-note
 id: dn-agent-workflow
-status: ratified
+status: draft
 created: 2026-07-05
 updated: 2026-07-05
 links:
   - docs/design-notes/supersession-lifecycle.md
   - docs/research/security-planes.md
   - docs/design-notes/sacred-boundary/ (write-channel properties)
+  - docs/findings/finding-0001.md (warrant, amendment A2)
+  - docs/findings/finding-0003.md (warrant, amendment A1)
 supersedes: null
 warrant: null
+amendments: [A1 (finding-0003), A2 (finding-0001)]
 ---
 
 # Agent Workflow: Brainstorm → Design → Build → Reflection
@@ -34,16 +37,16 @@ The workflow applies existing store doctrine to the process layer itself:
 
 ## 3. Artifact taxonomy and state machines
 
-| Artifact             | Location                                           | States                                                            | Terminal             |
-| -------------------- | -------------------------------------------------- | ----------------------------------------------------------------- | -------------------- |
-| Brainstorm note      | `docs/brainstorms/<topic>.md`                      | living (append-only)                                              | —                    |
-| Design note          | `docs/design-notes/<slug>.md`                      | draft → ratified → superseded                                     | superseded           |
-| Build plan           | `docs/build-plans/<id>/plan.md`                    | proposed → ready → in-progress → complete \| parked \| superseded | complete, superseded |
-| Journal              | `docs/build-plans/<id>/journal.md`                 | alive → sealed                                                    | sealed               |
-| Finding              | `docs/findings/<id>.md`                            | open → routed → resolved \| promoted                              | resolved, promoted   |
-| Owner questions      | `docs/inbox/owner-questions.md`                    | living (entries: open → answered → swept)                         | —                    |
-| Session capsule      | fenced block in chat → appended to brainstorm note | —                                                                 | —                    |
-| Book (design manual) | `docs/book/` (LaTeX)                               | living; edition-tagged syncs                                      | —                    |
+| Artifact | Location | States | Terminal |
+|---|---|---|---|
+| Brainstorm note | `docs/brainstorms/<topic>.md` | living (append-only) | — |
+| Design note | `docs/design-notes/<slug>.md` | draft → ratified → superseded | superseded |
+| Build plan | `docs/build-plans/<id>/plan.md` | proposed → ready → in-progress → complete \| parked \| superseded | complete, superseded |
+| Journal | `docs/build-plans/<id>/journal.md` | alive → sealed | sealed |
+| Finding | `docs/findings/<id>.md` | open → routed → resolved \| promoted | resolved, promoted |
+| Owner questions | `docs/inbox/owner-questions.md` | living (entries: open → answered → swept) | — |
+| Session capsule | fenced block in chat → appended to brainstorm note | — | — |
+| Book (design manual) | `docs/book/` (LaTeX) | living; edition-tagged syncs | — |
 
 State transitions that matter:
 
@@ -52,7 +55,7 @@ State transitions that matter:
 - **Plan supersession** is three-place: (P, P′, warrant), where the warrant is a `spec-defect` finding. A defect never edits a plan in place; graduation mints P′ citing the finding, P flips to `superseded` with a `superseded_by` link. Same relation as claim supersession (see `supersession-lifecycle.md`), same reason: the discredited plan must remain inspectable, and P′ must ground on the warrant, not on P.
 - **Parked** requires a `re_entry` field. A plan or criterion without a re-entry condition cannot enter `parked`.
 - **Finding promotion**: a `discovery` or `spec-defect` finding that changes design mints a design-note supersession (or amendment) citing the finding as warrant, then flips to `promoted`.
-- **Book editions**: the book is a _derived projection_ of the ratified record and the codebase — design notes remain authoritative for design, the repo for implementation. It synthesizes and asserts nothing without citing a source: an artifact id, or code by path plus git ref. Code snippets are included wherever they genuinely aid understanding; each is a copy annotated `source: path@ref`, so drift is detectable rather than silent. A scribe run ends by updating the sync marker (`docs/book/SYNC.md`: git ref + artifact ids incorporated); the commit is the edition. Draft notes never enter the book; parked decisions populate the future-work chapter verbatim with their re-entry conditions; superseded material may be retained as marked design-evolution remarks, warrant-linked — provenance as pedagogy.
+- **Book editions**: the book is a *derived projection* of the ratified record and the codebase — design notes remain authoritative for design, the repo for implementation. It synthesizes and asserts nothing without citing a source: an artifact id, or code by path plus git ref. Code snippets are included wherever they genuinely aid understanding; each is a copy annotated `source: path@ref`, so drift is detectable rather than silent. A scribe run ends by updating the sync marker (`docs/book/SYNC.md`: git ref + artifact ids incorporated); the commit is the edition. Draft notes never enter the book; parked decisions populate the future-work chapter verbatim with their re-entry conditions; superseded material may be retained as marked design-evolution remarks, warrant-linked — provenance as pedagogy.
 
 ### Front-matter schemas
 
@@ -91,11 +94,13 @@ docs/
   PROGRESS.md
 ```
 
-Parallel builders run in git worktrees. `.claude/state/active-plan` is worktree-local, so concurrent sessions never collide on enforcement state.
+**Worktree isolation is a hard invariant, not merely a parallelism convenience — the Stop-gate scope audit depends on it for soundness.** That audit (§6) cannot distinguish a builder's out-of-scope Bash write from an owner's legitimate parallel untracked file: to git, both are uncommitted, untracked, out-of-scope paths, and no attribution separates them. A dedicated worktree removes the ambiguity — every uncommitted delta in it is the session's own, so "out-of-scope change present" and "the session violated scope" become the same proposition. `.claude/state/active-plan` and `.claude/state/session-baseline` are worktree-local, so concurrent sessions never collide on enforcement state. The one place the invariant cannot hold is bootstrap (BP-000), which necessarily runs in the main worktree; §12 records the consequence and the reconciliation.
 
 ## 5. Roles and write discipline
 
-**CLAUDE.md is a persona-neutral constitution** (~one page): artifact chain, routing rule, note-taking obligation, never-block-on-owner rule, pointer to commands. Depth lives in skills and loads only when invoked. Every constitution token is paid on every turn of every session; the budget is enforced by review, not hope.
+**CLAUDE.md is a persona-neutral constitution** (~one page): artifact chain, routing rule, note-taking obligation, never-block-on-owner rule, pointer to commands. Depth (templates, scoping heuristics, register) lives in skills and loads only when invoked.
+
+One category is exempt from the thinness rule: **safety-critical non-negotiables stay inline, never behind a pointer.** The domain bright lines — the mind-palace kernel digest, the sacred-boundary constraints, the never-cross rules — remain in the auto-loaded surface, because a guardrail that is not in context at the moment it is relevant is not a guardrail. A skill that must be invoked to be seen is fine for a template and unacceptable for a constraint. This is the standing resolution of oq-0001 (warrant: finding-0001): replacing the operational CLAUDE.md must not demote the non-negotiables digest to pointer-only; the digest is re-homed into the workflow constitution's always-loaded body. Every *other* constitution token is paid on every turn and is justified by review, not hope — but guardrails are not on that ledger.
 
 **Orchestrator** is the default posture of a bare `claude` session at root. Duties: run `/graduate`, spawn/resume builders, run `/triage` sweeps, maintain `owner-questions.md`, write PROGRESS.md checkpoints, flip plan status on completion. Single-writer set: `PROGRESS.md`, `docs/inbox/owner-questions.md`, plan front-matter status fields, `docs/findings/` (triage annotations).
 
@@ -111,29 +116,33 @@ Parallel builders run in git worktrees. `.claude/state/active-plan` is worktree-
 
 Hooks are shell scripts; they cannot compel prose, so each is placed where a mechanical check has teeth. Registered in `.claude/settings.json`:
 
-| Hook                | Event / matcher                                                                             | Contract                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `scope-guard`       | PreToolUse: Edit\|Write\|MultiEdit                                                          | Read active plan id from `.claude/state/active-plan`; parse `write_scope` globs from plan front-matter; deny out-of-scope `file_path` with a reason string fed back to the agent. A global foundation-file denylist applies beneath any plan, in every session, orchestrator included.                                                                                                                                                                          |
-| `gate-guard`        | PreToolUse: Edit\|Write\|MultiEdit on `docs/design-notes/` and `docs/build-plans/*/plan.md` | Deny any edit performing a blessing transition — setting `status: ratified`, or `proposed → ready` — in every session, every role. Deny reason states: blessing transitions are owner-manual, made by hand outside a session. All other status transitions (`ready → in-progress → complete \| parked \| superseded`) pass.                                                                                                                                     |
-| `session-brief`     | SessionStart                                                                                | Emit world-state to context: plans by status, unswept findings count, open owner questions, active worktree's plan if any. Record HEAD into `.claude/state/session-baseline` for the close-of-session audit. This is what makes bare `claude` land oriented.                                                                                                                                                                                                    |
-| `journal-gate`      | Stop                                                                                        | Block session end (decision: block, with reason) if (a) journal mtime predates the last commit in the worktree, (b) `git diff --name-only` against the plan's `write_scope` shows out-of-scope modifications, or (c) the diff since session baseline contains a blessing transition. (a) and (b) apply when a plan is active; (c) applies to every session. (b) and (c) are the post-hoc audit that catches Bash-mediated writes the pre-hoc guards cannot see. |
-| `staleness-nudge`   | UserPromptSubmit                                                                            | If journal is stale relative to HEAD, inject a one-line reminder into context. Advisory only.                                                                                                                                                                                                                                                                                                                                                                   |
-| `compaction-marker` | PreCompact                                                                                  | Append a mechanical marker line (timestamp, event) to the journal so the post-compaction turn knows a compaction occurred and re-verifies state against the journal rather than trusting the summary.                                                                                                                                                                                                                                                           |
+| Hook | Event / matcher | Contract |
+|---|---|---|
+| `scope-guard` | PreToolUse: Edit\|Write\|MultiEdit | Read active plan id from `.claude/state/active-plan`; parse `write_scope` globs from plan front-matter; deny out-of-scope `file_path` with a reason string fed back to the agent. A global foundation-file denylist applies beneath any plan, in every session, orchestrator included. |
+| `gate-guard` | PreToolUse: Edit\|Write\|MultiEdit on `docs/design-notes/` and `docs/build-plans/*/plan.md` | Deny any edit performing a blessing transition — setting `status: ratified`, or `proposed → ready` — in every session, every role. Deny reason states: blessing transitions are owner-manual, made by hand outside a session. All other status transitions (`ready → in-progress → complete \| parked \| superseded`) pass. |
+| `session-brief` | SessionStart | Emit world-state to context: plans by status, unswept findings count, open owner questions, active worktree's plan if any. Record HEAD into `.claude/state/session-baseline` for the close-of-session audit. This is what makes bare `claude` land oriented. |
+| `journal-gate` | Stop | Block session end (decision: block, with reason) if (a) journal mtime predates the last commit in the worktree; (b) the session's uncommitted delta contains any path outside the plan's `write_scope`; or (c) the working tree contains an *uncommitted* blessing transition relative to `HEAD`. (a) and (b) apply when a plan is active; (c) applies to every session. (b) and (c) are the post-hoc audit that catches Bash-mediated writes the pre-hoc guards cannot see. See the two clarifications below. |
+| `staleness-nudge` | UserPromptSubmit | If journal is stale relative to HEAD, inject a one-line reminder into context. Advisory only. |
+| `compaction-marker` | PreCompact | Append a mechanical marker line (timestamp, event) to the journal so the post-compaction turn knows a compaction occurred and re-verifies state against the journal rather than trusting the summary. |
 
-**Two-layer write enforcement, stated honestly.** The pre-hoc guard covers Edit/Write tools only; a builder can write files through Bash. Pre-hoc Bash pattern-denial is brittle and is parked (§14). The `journal-gate` diff audit is the backstop: any out-of-scope change in the worktree blocks session close with a reason, forcing revert-or-finding before the session can end. Pre-hoc porous, post-hoc tight.
+**Two-layer write enforcement, stated honestly.** The pre-hoc guard covers Edit/Write tools only; a builder can write files through Bash. Pre-hoc Bash pattern-denial is brittle and is parked (§14). The `journal-gate` audit is the backstop: any out-of-scope change blocks session close with a reason, forcing revert-or-finding before the session can end. Pre-hoc porous, post-hoc tight.
+
+**Clarification on (b) — untracked-inclusive, and why (warrant: finding-0003).** The delta must be computed untracked-inclusive: `git status --porcelain -uall` filtered against `write_scope` (equivalently `git diff --name-only` unioned with `git ls-files --others --exclude-standard`). Plain `git diff` omits new files entirely, and plain `--porcelain` collapses a wholly-new directory to a single entry that won't match a deeper scope glob — so `-uall` (file-granular, untracked-inclusive) is required. This is load-bearing: a Bash-written file is *untracked*, and it is precisely the write the pre-hoc guard cannot see, so an audit that ignored untracked paths could not satisfy §12 criterion 2. The check is sound only under the worktree-isolation invariant (§4): there, every uncommitted path is the session's own, so a flagged out-of-scope path is a genuine violation rather than someone else's parallel work.
+
+**Clarification on (c) — diff against `HEAD`, not the session baseline (warrant: finding-0003).** The blessing detector compares the working tree to `HEAD`, flagging only an *uncommitted* `→ ratified` or `proposed → ready` flip. The reason is that a committed blessing is already accountable — attributable to its commit author, which is exactly §10's "deliberate, logged." Diffing against the session baseline (HEAD-at-start) instead made a blessing *committed mid-session* keep firing until the baseline was manually re-anchored — a spurious block on an already-accountable act. Anchoring to `HEAD` makes a committed blessing self-clear with no re-anchoring, while still catching an in-flight flip that has not yet been recorded. `session-baseline` is retained only for the SessionStart brief's "what changed this session" narration; enforcement does not depend on it.
 
 **Failure posture: fail open, fail loud.** Claude Code hooks fail open on script error; that platform behavior is not configurable. The compensating contract: every script runs under an error trap that emits a conspicuous `HOOK-FAILURE <name>: <detail> — enforcement NOT applied` line to stderr, surfaced in the transcript, and appends a marker line to the journal. Every script is dual-mode — hook invocation via stdin JSON, standalone invocation via file arguments — so "rerun the hook" is a literal instruction: on a flagged failure, the owner tells the session to re-invoke the script manually and reconcile before proceeding. Scripts stay trivial (a glob match, an mtime compare, a diff) so the trap path is the rare path, and the Stop-gate audit remains the catch-all beneath it.
 
 ## 7. Commands and skills
 
-| Command                   | Action                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/capture <topic>`        | Append a pasted session capsule (or tolerate raw paste) to `docs/brainstorms/<topic>.md`, timestamped.                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `/graduate <design-note>` | Refuse unless `status: ratified`. Invoke graduate skill: decompose into one-session build plans against the template, emit as `status: proposed`, cross-link to design note.                                                                                                                                                                                                                                                                                                                                        |
-| `/build <plan-id>`        | Refuse unless `status: ready`. Write worktree state pointer, flip plan to `in-progress`, load the plan's contract (per its `contract` field) + context manifest, begin.                                                                                                                                                                                                                                                                                                                                             |
-| `/resume <plan-id>`       | Load plan + journal + context-manifest delta into a fresh session under the plan's contract. Must pass the fresh-agent test (§9).                                                                                                                                                                                                                                                                                                                                                                                   |
-| `/scribe`                 | Compute book debt — ratified or superseded design notes and promoted findings newer than `docs/book/SYNC.md` — and mint a sync plan (`contract: scribe`, `write_scope: docs/book/**`, the delta as context manifest) as `status: proposed`. Fixed acceptance on every sync plan: whole-book review, every snippet and code citation re-verified against HEAD, clean compile (latexmk or tectonic; default recorded on first run), zero undefined references, sync marker updated. Execution flows through `/build`. |
-| `/triage`                 | Sweep findings: route, batch owner questions, propose promotions (as supersessions with warrant), seal journals of completed plans, write PROGRESS checkpoint entries, sweep answered owner questions back to their origin artifacts. This is the reflection stage made mechanical.                                                                                                                                                                                                                                 |
+| Command | Action |
+|---|---|
+| `/capture <topic>` | Append a pasted session capsule (or tolerate raw paste) to `docs/brainstorms/<topic>.md`, timestamped. |
+| `/graduate <design-note>` | Refuse unless `status: ratified`. Invoke graduate skill: decompose into one-session build plans against the template, emit as `status: proposed`, cross-link to design note. |
+| `/build <plan-id>` | Refuse unless `status: ready`. Write worktree state pointer, flip plan to `in-progress`, load the plan's contract (per its `contract` field) + context manifest, begin. |
+| `/resume <plan-id>` | Load plan + journal + context-manifest delta into a fresh session under the plan's contract. Must pass the fresh-agent test (§9). |
+| `/scribe` | Compute book debt — ratified or superseded design notes and promoted findings newer than `docs/book/SYNC.md` — and mint a sync plan (`contract: scribe`, `write_scope: docs/book/**`, the delta as context manifest) as `status: proposed`. Fixed acceptance on every sync plan: whole-book review, every snippet and code citation re-verified against HEAD, clean compile (latexmk or tectonic; default recorded on first run), zero undefined references, sync marker updated. Execution flows through `/build`. |
+| `/triage` | Sweep findings: route, batch owner questions, propose promotions (as supersessions with warrant), seal journals of completed plans, write PROGRESS checkpoint entries, sweep answered owner questions back to their origin artifacts. This is the reflection stage made mechanical. |
 
 Skills carry the depth the constitution omits: **graduate** (decomposition rules, session-sizing heuristics, split-at-graduation-never-mid-build), **build-plan** (template semantics, especially: interfaces pinned inline — signatures, schemas, invariants copied into the plan, never referenced — so the builder never infers design), **finding** (typing and routing), **checkpoint** (journal contract §9, semantic-boundary triggers, fresh-agent test), and **book** (chapter map, voice and register, TikZ conventions, notation-registry discipline, citation scheme — artifact ids and code `path@ref` — snippet provenance, sync semantics).
 
@@ -190,7 +199,7 @@ The system self-hosts. This note, once ratified, graduates by hand into a single
 Acceptance criteria for BP-000:
 
 1. Bare `claude` at root emits the session brief and behaves as orchestrator.
-2. On a toy plan: an out-of-scope Edit is denied pre-hoc with reason; an out-of-scope Bash write is caught by the Stop-gate audit and blocks close.
+2. On a toy plan: an out-of-scope Edit is denied pre-hoc with reason; an out-of-scope Bash write — untracked, invisible to the pre-hoc guard — is caught by the Stop-gate untracked-inclusive audit (§6b) and blocks close.
 3. Kill/resume round-trip on the toy plan passes the fresh-agent test.
 4. A stub capsule → `/capture` → hand-ratified stub note → `/graduate` yields a well-formed `proposed` plan.
 5. `/triage` on a synthetic finding routes it, drafts an owner-question entry, and writes a PROGRESS checkpoint.
@@ -199,32 +208,37 @@ Acceptance criteria for BP-000:
 
 One session of work, cleanly scoped. Every artifact after BP-000 flows through the machinery it built. The book is deliberately excluded from BP-000: its scaffold and first edition are the first scribe plans through the finished machinery — split by chapter cluster if the seeding pass exceeds one session, per the standard rule.
 
+**Bootstrap worktree caveat.** BP-000 runs in the main worktree, not a dedicated one, so the isolation invariant (§4) does not hold *during bootstrap only*. If the owner is drafting or ratifying design notes in parallel (the chat-side path, §8), those uncommitted changes will trip the Stop-gate scope audit (§6b) and blessing audit (§6c) — the builder sees out-of-scope untracked files and an uncommitted ratification it did not make. This is expected behavior, not a defect: it is the fail-loud → owner-reconcile protocol (§6) exercising itself on live state, and the correct response is exactly what it prescribes — the builder surfaces the state and refuses to touch the owner's notes or to weaken its own audit; the owner reconciles by committing the parallel work (a ratification wants committing anyway, §10), after which the audits read clean. The builder must not "fix" the block by editing the hook or by committing the owner's design notes on their behalf; both are recorded as prohibited responses. Every plan after BP-000 runs isolated and never meets this case.
+
 ## 13. Failure modes and mitigations
 
-| Failure                                | Mitigation                                                                                                                           |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Bash write escapes pre-hoc scope guard | Stop-gate diff audit blocks session close (§6)                                                                                       |
-| Journal staleness                      | Semantic-boundary discipline + Stop gate + staleness nudge                                                                           |
-| Compaction mid-criterion loses nuance  | PreCompact marker forces post-compaction re-verification against journal; resume-over-compact norm shrinks the exposure window       |
-| Capsule never emitted                  | `/capture` tolerates raw paste; orchestrator restructures                                                                            |
-| Constitution bloat                     | Hard budget (~1 page); depth exiled to skills; reviewed at each triage that touches CLAUDE.md                                        |
-| Hook script error fails open           | Error trap emits loud `HOOK-FAILURE` line to transcript + journal marker; owner-directed standalone re-run; audit layer as catch-all |
-| Agent attempts a blessing transition   | `gate-guard` pre-hoc deny; close-of-session audit blocks Bash-mediated flips                                                         |
-| Review fatigue at owner gates          | `default_if_unanswered` + park semantics on every question; findings batched by `/triage`, never dripped                             |
-| Book drifts from the record            | Sync marker + book-debt line in session brief; every claim cites a source (artifact id or code ref); draft notes barred              |
-| Code snippets rot as the repo moves    | Every snippet annotated `source: path@ref`; sync acceptance re-verifies all snippets and code citations against HEAD                 |
-| Scribe "fixes" design in prose         | Write scope excludes design notes; gaps exit as findings, not edits                                                                  |
-| Compile rot                            | Fixed acceptance on every sync plan: clean compile, zero undefined references, sync marker updated                                   |
+| Failure | Mitigation |
+|---|---|
+| Bash write (untracked) escapes pre-hoc scope guard | Stop-gate untracked-inclusive audit blocks close (§6b); sound under worktree isolation (§4) |
+| Committed blessing keeps firing the Stop gate (re-anchor loop) | (c) diffs against `HEAD`, not the session baseline — committed = accountable, self-clears (§6c) |
+| Owner's parallel untracked work trips the scope audit | Only possible in a shared worktree; isolation (§4) removes it; bootstrap is the one documented exception (§12) |
+| Safety non-negotiables orphaned from context | Kept inline in the auto-loaded constitution, exempt from the thinness rule (§5) |
+| Journal staleness | Semantic-boundary discipline + Stop gate + staleness nudge |
+| Compaction mid-criterion loses nuance | PreCompact marker forces post-compaction re-verification against journal; resume-over-compact norm shrinks the exposure window |
+| Capsule never emitted | `/capture` tolerates raw paste; orchestrator restructures |
+| Constitution bloat | Hard budget (~1 page); depth exiled to skills; reviewed at each triage that touches CLAUDE.md |
+| Hook script error fails open | Error trap emits loud `HOOK-FAILURE` line to transcript + journal marker; owner-directed standalone re-run; audit layer as catch-all |
+| Agent attempts a blessing transition | `gate-guard` pre-hoc deny; close-of-session audit blocks Bash-mediated flips |
+| Review fatigue at owner gates | `default_if_unanswered` + park semantics on every question; findings batched by `/triage`, never dripped |
+| Book drifts from the record | Sync marker + book-debt line in session brief; every claim cites a source (artifact id or code ref); draft notes barred |
+| Code snippets rot as the repo moves | Every snippet annotated `source: path@ref`; sync acceptance re-verifies all snippets and code citations against HEAD |
+| Scribe "fixes" design in prose | Write scope excludes design notes; gaps exit as findings, not edits |
+| Compile rot | Fixed acceptance on every sync plan: clean compile, zero undefined references, sync marker updated |
 
 ## 14. Parked decisions
 
-| Decision                                                       | Default recorded                       | Re-entry condition                                                                               |
-| -------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Full brainstorm migration into Claude Code                     | Stay hybrid (chat + capsule)           | After 5 graduations, compare capsule fidelity against a trial run of in-Code brainstorm sessions |
-| CI/schema lint of artifact front-matter                        | Manual + hook-level only               | First observed state-machine violation in practice, or ≥ 3 artifact types churning schema        |
-| Pre-hoc Bash write-pattern denial                              | Post-hoc audit only                    | Stop-gate audit catches ≥ 1 real escape                                                          |
-| Subagent decomposition pass inside `/graduate`                 | Single-context graduation              | A multi-plan split ships with a scoping defect traced to decomposition quality                   |
-| PDF edition publishing cadence (tagged builds, committed PDFs) | Source-only commits; PDF built locally | First complete edition compiles clean end-to-end                                                 |
+| Decision | Default recorded | Re-entry condition |
+|---|---|---|
+| Full brainstorm migration into Claude Code | Stay hybrid (chat + capsule) | After 5 graduations, compare capsule fidelity against a trial run of in-Code brainstorm sessions |
+| CI/schema lint of artifact front-matter | Manual + hook-level only | First observed state-machine violation in practice, or ≥ 3 artifact types churning schema |
+| Pre-hoc Bash write-pattern denial | Post-hoc audit only | Stop-gate audit catches ≥ 1 real escape |
+| Subagent decomposition pass inside `/graduate` | Single-context graduation | A multi-plan split ships with a scoping defect traced to decomposition quality |
+| PDF edition publishing cadence (tagged builds, committed PDFs) | Source-only commits; PDF built locally | First complete edition compiles clean end-to-end |
 
 ## 15. Cross-references
 
@@ -232,3 +246,10 @@ One session of work, cleanly scoped. Every artifact after BP-000 flows through t
 - `docs/research/security-planes.md` — capability enforcement at boundaries; the scope-guard/audit pair is its workflow-plane instance. Foundation-file denylist originates there.
 - Sacred Boundary design set — the four write-channel properties; §2.3 applies them to agent state.
 - `docs/PROGRESS.md` — receives a checkpoint entry when this note is filed, and per completed plan thereafter.
+
+## 16. Amendment log
+
+Amendments to a ratified note are warranted by findings and re-ratified by hand (defect patches amend in place; substantive pivots supersede — the same distinction the store draws between amendment and supersession). Each entry records the warrant and the change.
+
+- **A1** — warrant: finding-0003 (surfaced by BP-000, first live run). §6(b) specified untracked-inclusive (`git status -uall`) rather than `git diff --name-only`, because a Bash write is untracked and criterion 2 could not otherwise be satisfied; the soundness dependency on worktree isolation (§4) is made explicit. §6(c) re-anchored from the session baseline to `HEAD`, so a mid-session *committed* blessing self-clears instead of forcing a manual re-anchor. §12 gains the bootstrap-worktree caveat. Both changes eliminate the two reconciliation loops observed on day one while preserving every enforcement guarantee.
+- **A2** — warrant: finding-0001 / oq-0001. §5 exempts safety-critical non-negotiables from the constitution thinness rule: the domain bright-line digest stays inline in the auto-loaded surface rather than demoted to a pointer, on the principle that an out-of-context guardrail is not a guardrail.
