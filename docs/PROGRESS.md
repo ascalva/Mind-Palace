@@ -1538,3 +1538,74 @@ states on claim-`supersede` + the verdict transition; disposition-authority reco
 of `superseded()` (nothing demotes from retrieval yet — the store is the write side). Machine-inferred
 authored↔authored supersessions route through that gate (Item 10 candidates), never this store. Then
 Item 11 (γ^d·g exclusion confirmation). **Item 8-gate is a fresh session** — resume from here.
+
+---
+
+## Agent-workflow layer — bp-000 sealed: bootstrap the workflow machinery (2026-07-05, /triage)
+
+First checkpoint of the **agent-workflow meta-layer** — the constitution + hook enforcement that
+governs how build work moves, distinct from the domain Track A–H build above. Spec:
+`docs/design-notes/agent-workflow.md`. bp-000/bp-001 were hand-minted bootstrap plans (the machinery
+that would `/graduate` and gate them did not yet exist); their journals were hand-sealed, so this is
+only the orchestrator's deferred single-writer PROGRESS checkpoint (out of plan write_scope by design,
+finding-0002).
+
+**Built.** `CLAUDE.md` (persona-neutral workflow constitution); `.claude/settings.json` + six
+dual-mode hooks (`scope-guard`, `gate-guard`, `session-brief`, `journal-gate`, `staleness-nudge`,
+`compaction-marker`) over shared `.claude/hooks/_lib.py`; six commands + five skills + four templates
+(`docs/templates/`); `docs/inbox/owner-questions.md`. Full list: `docs/build-plans/bp-000/plan.md`.
+
+**Verified.** `docs/build-plans/bp-000/acceptance/run.sh` — criteria 1–7 green (PASS=13, FAIL=0):
+brief+orchestrator posture; pre-hoc scope deny + post-hoc Bash catch; fresh-agent resume;
+capture→graduate status-gate; triage routing; blessing denied+caught on both Edit and Bash paths;
+HOOK-FAILURE alarm + standalone recovery.
+
+**Next.** Sealed. Enforcement contract finalized by bp-001 (A1/A2) and bp-002 (A3) below.
+
+**Decisions.** Bootstrap exception (hand-mint at in-progress; the owner's execute-instruction is the
+blessing) documented in `plan.md`. `docs/PROGRESS.md` deliberately outside bp-000 write_scope to
+protect the domain log (finding-0002) — hence this orchestrator-written entry.
+
+---
+
+## Agent-workflow layer — bp-001 sealed: amendments A1 + A2 (2026-07-05, /triage)
+
+**Built.** A1 + A2 landed against `docs/design-notes/agent-workflow.md` §16. `.claude/hooks/_lib.py`:
+`cmd_stop_audit` (c) re-anchored to `git diff HEAD` (`_diff_text_head()`) so a *committed* blessing
+self-clears while an *uncommitted* one still blocks; (b) confirmed already untracked-inclusive +
+file-granular (`git status --porcelain -uall`), left unchanged. `CLAUDE.md`: the 12-item domain
+non-negotiables digest re-homed into the always-loaded body (the one thing exempt from constitution
+thinness, §5).
+
+**Verified.** `docs/build-plans/bp-001/acceptance/run.sh` — 18/18 (bp-000 1–7 re-run by reference +
+(c)-committed self-clears under a deliberately stale baseline, (c)-uncommitted blocks, (b)-regression,
+digest-fidelity). Independently re-checked by a 4-reviewer adversarial pass (code-correctness /
+harness-fidelity / digest-fidelity / discipline-state) — all resolved.
+
+**Next.** Sealed. Surfaced finding-0004 + finding-0005 (both resolved via bp-002).
+
+**Decisions.** finding-0003 → promoted (A1 warrant); finding-0001 → resolved + oq-0001 → answered (A2:
+re-home the safety digest only — repo map / phase marker / live-verify stay pointer-only). Hand-mint
+justified by authority (owner pre-ratified A1/A2 at §16), not bootstrap.
+
+---
+
+## Agent-workflow layer — bp-002 (A3) landed + committed; plan held at `proposed` (2026-07-05, /triage note — NOT a seal)
+
+Recorded for completeness, **not** a completion seal. bp-002's work (amendment A3) is implemented and
+committed (`0e9fc90`, merged `c17a456`) and its findings are terminal, but the plan is **deliberately
+held at `status: proposed`**: the session executed under owner authority yet performed no owner-only
+`proposed → ready` blessing (plan Provenance note). No seal is written until the owner rules on the
+lifecycle.
+
+**Landed.** `.claude/hooks/_lib.py`: `_untracked_under()` + `_untracked_blessing()` make Stop-gate (c)
+untracked-inclusive over `docs/design-notes/**` + `docs/build-plans/**/plan.md`, closing the
+Bash-minted-`ready`-plan hole (A3, §6c). finding-0004 ambient-path exclusion locked
+(`.claude/settings.local.json` gitignored, `868ed17`). Verified by
+`docs/build-plans/bp-002/acceptance/run.sh` — 6/6 (18 prior by reference + 0005-regression /
+0005-legit / committed-blessing / (c)-uncommitted / 0004 before-after).
+
+**Owner-pending (non-blocking).** (1) Whether to fold bp-002 into the formal
+`ready → in-progress → complete` lifecycle (a hand blessing; a committed blessing now self-clears the
+audits). (2) §14-parked *pre-hoc* denylist of `docs/build-plans/**/plan.md` `status: ready` writes, as
+belt-and-suspenders over A3's post-hoc catch. finding-0005 → promoted; finding-0004 → resolved.

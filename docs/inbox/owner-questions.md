@@ -14,7 +14,7 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
 ---
 
 ## oq-0001 — Should CLAUDE.md re-home any of the pre-BP-000 domain digest?
-- status: answered
+- status: swept
 - origin: docs/findings/finding-0001.md
 - blocking: false
 - question: BP-000 replaced the pre-BP-000 CLAUDE.md (mind-palace operating rules)
