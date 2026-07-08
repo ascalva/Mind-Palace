@@ -1,11 +1,32 @@
+---
+type: design-note
+id: dn-secrets-management-evolution
+status: superseded
+created: 2026-06-27
+updated: 2026-07-07
+links:
+  - docs/design-notes/vault-runtime-auth.md
+  - docs/audits/archive-recommendation.md
+supersedes: null
+superseded_by: dn-vault-runtime-auth
+warrant: finding-0022
+---
+
 # Design note — Secrets management evolution: Keychain → Vault
 
-*Family tag → family 1 (capability / information-flow): secrets as object-capability (Keychain → Vault); credentials are never a tool and are held off the model prompt. See [`../NOTATION.md`](../NOTATION.md).*
+> **⚠️ SUPERSEDED (2026-07-07).** `vault-runtime-auth.md` is the authoritative Vault
+> note and takes precedence wherever the two differ. It reframes Vault from a
+> multi-machine secrets store to a **per-interaction runtime authorization layer**
+> (its own words: this note was "correct but incomplete"), and the audit confirms the
+> successor's design is the one actually built (`cloud/terraform/vault_engine.tf`,
+> dynamic secrets engine). Residual value here: the tipping-point analysis (§1), the
+> secret taxonomy (§5), and the what-not-to-do list (§6) remain useful reference.
 
-**Status:** design only. The current `get_secret()` abstraction (config/loader.py)
-is already designed for this swap. Honor when the server build joins the Tailscale
-mesh and Zone B bridge code runs on a second machine. Do NOT build prematurely —
-Keychain is correct for a single-machine deployment.
+_Family tag → family 1 (capability / information-flow): secrets as object-capability (Keychain → Vault); credentials are never a tool and are held off the model prompt. See [`../NOTATION.md`](../NOTATION.md)._
+
+**Status:** superseded by `vault-runtime-auth.md` — see banner. Keychain remains
+correct for a single-machine deployment; the `get_secret()` abstraction below is
+still the swap surface.
 
 ---
 
@@ -94,13 +115,13 @@ are unaware of the backend. The swap is entirely behind this function.
 
 ## 5. Secret taxonomy (what moves to Vault)
 
-| Secret | Current | With Vault |
-|--------|---------|-----------|
-| AWS bridge role credentials | Keychain (static) | Vault AWS engine (dynamic, TTL=1h) |
-| Oura API token | Keychain (Mac) | Vault KV (accessible from both machines) |
-| Financial read-only API key | Keychain (future) | Vault KV |
-| Vault unseal / KMS auth | — | Keychain (server host) — the bottom turtle |
-| AWS SSO (owner-operated) | Keychain (stays) | Stays — owner-operated, not code-operated |
+| Secret                      | Current           | With Vault                                 |
+| --------------------------- | ----------------- | ------------------------------------------ |
+| AWS bridge role credentials | Keychain (static) | Vault AWS engine (dynamic, TTL=1h)         |
+| Oura API token              | Keychain (Mac)    | Vault KV (accessible from both machines)   |
+| Financial read-only API key | Keychain (future) | Vault KV                                   |
+| Vault unseal / KMS auth     | —                 | Keychain (server host) — the bottom turtle |
+| AWS SSO (owner-operated)    | Keychain (stays)  | Stays — owner-operated, not code-operated  |
 
 Note: AWS SSO credentials stay in Keychain because they are **owner-operated** (you
 run `aws sso login`), not code-operated. Vault manages code-operated credentials

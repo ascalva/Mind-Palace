@@ -1,6 +1,19 @@
+---
+type: design-note
+id: dn-vault-runtime-auth
+status: draft
+created: 2026-06-27
+updated: 2026-07-07
+links:
+  - docs/design-notes/secrets-management-evolution.md
+supersedes: dn-secrets-management-evolution
+superseded_by: null
+warrant: finding-0022
+---
+
 # Design note — Vault as runtime authorization layer
 
-*Family tag → family 1 (capability / information-flow): per-interaction runtime authorization — ephemeral scoped Vault tokens (object-capability), the credential analogue of 𝒜. See [`../NOTATION.md`](../NOTATION.md).*
+_Family tag → family 1 (capability / information-flow): per-interaction runtime authorization — ephemeral scoped Vault tokens (object-capability), the credential analogue of 𝒜. See [`../NOTATION.md`](../NOTATION.md)._
 
 **Status:** design only. Supersedes `secrets-management-evolution.md` (which framed
 Vault as a multi-machine secrets store — correct but incomplete). This note frames
@@ -13,15 +26,15 @@ naturally to the server. Honor at Phase 5 (agent factory + dispatcher).
 
 ## 0. The gap this closes
 
-The current object-capability model scopes *store handles* at the code level — the
+The current object-capability model scopes _store handles_ at the code level — the
 dreamer gets a `MirrorView`, not a raw vector store handle. But there is no
-equivalent enforcement at the *credential* level. Any code that imports `config` can
+equivalent enforcement at the _credential_ level. Any code that imports `config` can
 call `get_secret()` and retrieve any credential. Vault agent tokens close this:
 
-| Layer | Enforcement | Mechanism |
-|-------|------------|-----------|
-| Store access | Structural (code) | Scoped handles — `MirrorView`, `TelemetryWriter` |
-| Credential access | Runtime (Vault) | Scoped ephemeral tokens minted per interaction |
+| Layer             | Enforcement       | Mechanism                                        |
+| ----------------- | ----------------- | ------------------------------------------------ |
+| Store access      | Structural (code) | Scoped handles — `MirrorView`, `TelemetryWriter` |
+| Credential access | Runtime (Vault)   | Scoped ephemeral tokens minted per interaction   |
 
 Together: neither code nor runtime can exceed declared scope. The model never holds a
 real credential — only an ephemeral token code minted for it, scoped to what this
@@ -89,19 +102,19 @@ successes and denials — denials are as informative as successes for alignment 
 
 Policies are narrow by default — grant the minimum, document why each grant exists.
 
-| Role | Permitted paths | Rationale |
-|------|----------------|-----------|
-| `dreamer` | `kv/oura-daily-aggregates` (read) | Biometric aggregates for correlator only |
-| `dreamer` | *(nothing else)* | No AWS, no financial, no raw API tokens |
-| `bridge` | `aws/creds/bridge-role` (dynamic) | S3 access, TTL=1h, expires automatically |
-| `bridge` | `kv/oura-api-token` (read) | Polls Oura API on the owner's behalf |
-| `research-airlock` | `aws/creds/airlock-role` (dynamic) | Research S3 bucket only |
-| `advisor` | `kv/financial-readonly-key` (read) | Financial data advisor agent |
-| `advisor` | `kv/oura-api-token` (read) | Can query current biometric state |
-| `correlator` | `kv/oura-daily-aggregates` (read) | Cross-source synthesis |
-| `correlator` | *(no financial, no AWS)* | Correlates observed signals only |
-| `supervisor` | Token creation for all roles | Mints; cannot read role secrets directly |
-| `gate` | `kv/gate-ledger-key` (read/write) | Gate state encryption only |
+| Role               | Permitted paths                    | Rationale                                |
+| ------------------ | ---------------------------------- | ---------------------------------------- |
+| `dreamer`          | `kv/oura-daily-aggregates` (read)  | Biometric aggregates for correlator only |
+| `dreamer`          | _(nothing else)_                   | No AWS, no financial, no raw API tokens  |
+| `bridge`           | `aws/creds/bridge-role` (dynamic)  | S3 access, TTL=1h, expires automatically |
+| `bridge`           | `kv/oura-api-token` (read)         | Polls Oura API on the owner's behalf     |
+| `research-airlock` | `aws/creds/airlock-role` (dynamic) | Research S3 bucket only                  |
+| `advisor`          | `kv/financial-readonly-key` (read) | Financial data advisor agent             |
+| `advisor`          | `kv/oura-api-token` (read)         | Can query current biometric state        |
+| `correlator`       | `kv/oura-daily-aggregates` (read)  | Cross-source synthesis                   |
+| `correlator`       | _(no financial, no AWS)_           | Correlates observed signals only         |
+| `supervisor`       | Token creation for all roles       | Mints; cannot read role secrets directly |
+| `gate`             | `kv/gate-ledger-key` (read/write)  | Gate state encryption only               |
 
 The supervisor holds **token creation authority only** — it cannot read the secrets
 it mints tokens for. This is the same principle as the dispatcher holding handles
@@ -111,15 +124,15 @@ but not being the agent.
 
 ## 4. Secrets taxonomy (what lives in Vault)
 
-| Secret | Engine | Notes |
-|--------|--------|-------|
-| AWS bridge role | `aws/` (dynamic) | TTL=1h; replaces static key |
-| AWS airlock role | `aws/` (dynamic) | TTL=1h |
-| Oura API token | `kv/` (static) | Personal access token; rotated manually |
-| Financial read-only key | `kv/` (static) | No transaction scope — enforced by broker |
-| Future API tokens | `kv/` (static) | Same pattern |
-| Vault unseal key | macOS Keychain | The bottom turtle; never in Vault |
-| AWS SSO (owner-operated) | macOS Keychain | Owner-operated; not code-operated |
+| Secret                   | Engine           | Notes                                     |
+| ------------------------ | ---------------- | ----------------------------------------- |
+| AWS bridge role          | `aws/` (dynamic) | TTL=1h; replaces static key               |
+| AWS airlock role         | `aws/` (dynamic) | TTL=1h                                    |
+| Oura API token           | `kv/` (static)   | Personal access token; rotated manually   |
+| Financial read-only key  | `kv/` (static)   | No transaction scope — enforced by broker |
+| Future API tokens        | `kv/` (static)   | Same pattern                              |
+| Vault unseal key         | macOS Keychain   | The bottom turtle; never in Vault         |
+| AWS SSO (owner-operated) | macOS Keychain   | Owner-operated; not code-operated         |
 
 AWS SSO stays in Keychain — it's used by `aws sso login`, an owner-operated action,
 not by any agent. Vault manages code-operated credentials only.
@@ -129,6 +142,7 @@ not by any agent. Vault manages code-operated credentials only.
 ## 5. Integration with existing architecture
 
 **`config/loader.py` `get_secret()`:**
+
 ```python
 def get_secret(name: str, token: str | None = None) -> str:
     """
