@@ -47,7 +47,9 @@ def repo_root() -> str:
     try:
         out = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, check=True,
+            capture_output=True,
+            text=True,
+            check=True,
         )
         return os.path.realpath(out.stdout.strip())
     except Exception:
@@ -247,8 +249,11 @@ def journal_for(plan_rel: str) -> str:
 # Artifact classification (for gate-guard)
 # --------------------------------------------------------------------------- #
 def is_design_note(path_rel: str) -> bool:
-    return path_rel.startswith("docs/design-notes/") and path_rel.endswith(".md") \
+    return (
+        path_rel.startswith("docs/design-notes/")
+        and path_rel.endswith(".md")
         and not path_rel.rstrip("/").endswith("design-notes")
+    )
 
 
 def is_build_plan(path_rel: str) -> bool:
@@ -287,8 +292,10 @@ def cmd_scope_check(file_path: str) -> int:
         return 0
     # 1. Foundation denylist — absolute, beneath any plan, every session.
     if matches_any(fp, DENYLIST):
-        print(f"DENY: foundation file '{fp}' is never writable by a session "
-              f"(design-note §6 denylist); route a finding instead.")
+        print(
+            f"DENY: foundation file '{fp}' is never writable by a session "
+            f"(design-note §6 denylist); route a finding instead."
+        )
         return 0
     # 2. Plan write-scope capability.
     plan = active_plan_path()
@@ -303,10 +310,12 @@ def cmd_scope_check(file_path: str) -> int:
         print("ALLOW")
         return 0
     pid = os.path.basename(os.path.dirname(plan))
-    print(f"DENY: '{fp}' is outside plan '{pid}' write_scope "
-          f"{plan_write_scope(plan)} (+ its journal, + docs/findings/**). "
-          f"A builder writes only its capability, its journal, and findings "
-          f"(design-note §5). Revert, narrow, or raise a finding.")
+    print(
+        f"DENY: '{fp}' is outside plan '{pid}' write_scope "
+        f"{plan_write_scope(plan)} (+ its journal, + docs/findings/**). "
+        f"A builder writes only its capability, its journal, and findings "
+        f"(design-note §5). Revert, narrow, or raise a finding."
+    )
     return 0
 
 
@@ -317,15 +326,15 @@ def cmd_gate_check(file_path: str, new_status) -> int:
         print("ALLOW")
         return 0
     cur = status_of(fp)  # on-disk status (None if new file)
-    reason = ("blessing transitions are owner-manual, made by hand outside any "
-              "agent session (design-note §10). ")
+    reason = (
+        "blessing transitions are owner-manual, made by hand outside any "
+        "agent session (design-note §10). "
+    )
     if dn and new_status == "ratified" and cur != "ratified":
-        print(f"DENY: {reason}Design-note ratification "
-              f"({cur or 'new'}→ratified) on '{fp}' denied.")
+        print(f"DENY: {reason}Design-note ratification ({cur or 'new'}→ratified) on '{fp}' denied.")
         return 0
     if bp and new_status == "ready" and cur != "ready":
-        print(f"DENY: {reason}Plan readiness "
-              f"({cur or 'new'}→ready) on '{fp}' denied.")
+        print(f"DENY: {reason}Plan readiness ({cur or 'new'}→ready) on '{fp}' denied.")
         return 0
     print("ALLOW")
     return 0
@@ -367,7 +376,10 @@ def _changed_files() -> list:
             # -uall lists untracked files individually (not collapsed to a dir),
             # so file paths match a deep write_scope glob correctly.
             ["git", "status", "--porcelain", "--no-renames", "-uall"],
-            capture_output=True, text=True, cwd=ROOT, check=True,
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=True,
         ).stdout
     except Exception:
         return []
@@ -388,7 +400,9 @@ def _diff_text_head() -> str:
     try:
         return subprocess.run(
             ["git", "diff", "HEAD", "--", "docs/design-notes", "docs/build-plans"],
-            capture_output=True, text=True, cwd=ROOT,
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
         ).stdout
     except Exception:
         return ""
@@ -425,7 +439,10 @@ def _untracked_under(prefixes) -> list:
     try:
         out = subprocess.run(
             ["git", "ls-files", "--others", "--exclude-standard", "--", *prefixes],
-            capture_output=True, text=True, cwd=ROOT, check=True,
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=True,
         ).stdout
     except Exception:
         return []
@@ -461,30 +478,41 @@ def cmd_stop_audit(diff_file: str | None) -> int:
         journal = journal_for(plan)
         j_abs = os.path.join(ROOT, journal)
         try:
-            last_commit = int(subprocess.run(
-                ["git", "log", "-1", "--format=%ct"],
-                capture_output=True, text=True, cwd=ROOT, check=True,
-            ).stdout.strip() or "0")
+            last_commit = int(
+                subprocess.run(
+                    ["git", "log", "-1", "--format=%ct"],
+                    capture_output=True,
+                    text=True,
+                    cwd=ROOT,
+                    check=True,
+                ).stdout.strip()
+                or "0"
+            )
         except Exception:
             last_commit = 0
         if last_commit and os.path.exists(j_abs):
             if os.path.getmtime(j_abs) < last_commit:
                 reasons.append(
                     f"(a) journal '{journal}' mtime predates the last commit — "
-                    f"checkpoint before close (§9).")
+                    f"checkpoint before close (§9)."
+                )
         elif not os.path.exists(j_abs):
             reasons.append(f"(a) journal '{journal}' is missing for the active plan.")
 
         allowed = list(plan_write_scope(plan))
         plandir = os.path.dirname(plan)
         allowed += [plan, f"{plandir}/journal.md", "docs/findings/**"]
-        oos = [f for f in _changed_files()
-               if f and not matches_any(f, allowed) and not matches_any(f, DENYLIST)]
+        oos = [
+            f
+            for f in _changed_files()
+            if f and not matches_any(f, allowed) and not matches_any(f, DENYLIST)
+        ]
         deny = [f for f in _changed_files() if f and matches_any(f, DENYLIST)]
         if oos:
             reasons.append(
                 "(b) out-of-scope changes in the worktree (Bash-mediated writes "
-                f"the pre-hoc guard cannot see): {oos}. Revert or route a finding.")
+                f"the pre-hoc guard cannot see): {oos}. Revert or route a finding."
+            )
         if deny:
             reasons.append(f"(b) foundation files modified: {deny}.")
     else:
@@ -511,7 +539,8 @@ def cmd_stop_audit(diff_file: str | None) -> int:
         reasons.append(
             f"(c) uncommitted blessing transition vs HEAD: {bless}. Blessing is "
             f"owner-manual (§10) — commit it (then it is accountable) or revert "
-            f"the Bash-mediated flip.")
+            f"the Bash-mediated flip."
+        )
 
     # A3 (warrant finding-0005): the (c) detector is untracked-inclusive over the
     # blessing surfaces. The tracked diff above sees a *flip of an existing artifact*
@@ -528,7 +557,8 @@ def cmd_stop_audit(diff_file: str | None) -> int:
             f"plan is legitimate only at status: proposed (a design note at draft); a "
             f"blessed status on an untracked file is a from-nothing blessing (§6c, "
             f"A3). Commit it (then it is accountable to its author) or revert the "
-            f"Bash-mediated creation.")
+            f"Bash-mediated creation."
+        )
 
     if reasons:
         print("BLOCK: " + " ".join(reasons))
@@ -550,8 +580,9 @@ def cmd_brief() -> int:
                 st = read_front_matter(pm).get("status", "?") or "?"
                 plans.setdefault(str(st), []).append(pid)
     if plans:
-        lines.append("Plans: " + "; ".join(
-            f"{st}={','.join(ids)}" for st, ids in sorted(plans.items())))
+        lines.append(
+            "Plans: " + "; ".join(f"{st}={','.join(ids)}" for st, ids in sorted(plans.items()))
+        )
     else:
         lines.append("Plans: (none yet)")
 
@@ -584,8 +615,10 @@ def cmd_brief() -> int:
     if not os.path.isdir(os.path.join(ROOT, "docs", "book")):
         lines.append("Book: not yet scaffolded — first scribe plan pending (§12).")
 
-    lines.append("Duties: /graduate · /build · /resume · /triage · /scribe · /capture. "
-                 "Never block on the owner (§5); park + finding + continue.")
+    lines.append(
+        "Duties: /graduate · /build · /resume · /triage · /scribe · /capture. "
+        "Never block on the owner (§5); park + finding + continue."
+    )
     print("\n".join(lines))
     return 0
 
@@ -596,15 +629,22 @@ def cmd_staleness() -> int:
         return 0
     j_abs = os.path.join(ROOT, journal_for(plan))
     try:
-        head_ct = int(subprocess.run(
-            ["git", "log", "-1", "--format=%ct"],
-            capture_output=True, text=True, cwd=ROOT, check=True,
-        ).stdout.strip() or "0")
+        head_ct = int(
+            subprocess.run(
+                ["git", "log", "-1", "--format=%ct"],
+                capture_output=True,
+                text=True,
+                cwd=ROOT,
+                check=True,
+            ).stdout.strip()
+            or "0"
+        )
     except Exception:
         return 0
     if head_ct and os.path.exists(j_abs) and os.path.getmtime(j_abs) < head_ct:
-        print("⟳ journal is stale relative to HEAD — checkpoint at the next "
-              "semantic boundary (§9).")
+        print(
+            "⟳ journal is stale relative to HEAD — checkpoint at the next semantic boundary (§9)."
+        )
     return 0
 
 
@@ -627,8 +667,11 @@ def cmd_marker(text: str) -> int:
 
 def main(argv) -> int:
     if not argv:
-        print("usage: _lib.py <scope-check|gate-check|gate-check-hook|"
-              "stop-audit|brief|staleness|marker> [args]", file=sys.stderr)
+        print(
+            "usage: _lib.py <scope-check|gate-check|gate-check-hook|"
+            "stop-audit|brief|staleness|marker> [args]",
+            file=sys.stderr,
+        )
         return 64
     cmd = argv[0]
     if cmd == "scope-check":
@@ -636,8 +679,7 @@ def main(argv) -> int:
     if cmd == "scope-check-hook":
         return cmd_scope_check_hook()
     if cmd == "gate-check":
-        return cmd_gate_check(argv[1] if len(argv) > 1 else "",
-                              argv[2] if len(argv) > 2 else None)
+        return cmd_gate_check(argv[1] if len(argv) > 1 else "", argv[2] if len(argv) > 2 else None)
     if cmd == "gate-check-hook":
         return cmd_gate_check_hook()
     if cmd == "stop-audit":
