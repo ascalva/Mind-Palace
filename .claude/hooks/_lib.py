@@ -22,7 +22,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 # --- Foundation-file denylist (design-note §6, §10; origin: security-planes.md).
 # Never writable by any session, orchestrator included, beneath any plan. These
@@ -195,7 +195,7 @@ def _normalize_status(v):
 
 def read_front_matter(path_abs: str) -> dict:
     try:
-        with open(path_abs, "r", encoding="utf-8") as fh:
+        with open(path_abs, encoding="utf-8") as fh:
             return parse_front_matter(fh.read())
     except Exception:
         return {}
@@ -218,7 +218,7 @@ def active_plan_path() -> str | None:
     collide on enforcement state (design-note §4)."""
     ptr = os.path.join(ROOT, ".claude", "state", "active-plan")
     try:
-        with open(ptr, "r", encoding="utf-8") as fh:
+        with open(ptr, encoding="utf-8") as fh:
             val = fh.read().strip()
     except Exception:
         return None
@@ -528,7 +528,7 @@ def cmd_stop_audit(diff_file: str | None) -> int:
     # narration and is deliberately not consulted here.
     if diff_file:
         try:
-            with open(diff_file, "r", encoding="utf-8") as fh:
+            with open(diff_file, encoding="utf-8") as fh:
                 diff = fh.read()
         except Exception:
             diff = ""
@@ -654,7 +654,7 @@ def cmd_marker(text: str) -> int:
         # Best-effort: nothing to mark without an active journal.
         return 0
     j_abs = os.path.join(ROOT, journal_for(plan))
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ts = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     line = f"- [{ts}] {text}\n"
     try:
         os.makedirs(os.path.dirname(j_abs), exist_ok=True)
