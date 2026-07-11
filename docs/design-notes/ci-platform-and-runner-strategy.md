@@ -1,20 +1,20 @@
 ---
 type: design-note
 id: dn-ci-platform-and-runner-strategy
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 created: 2026-07-11
 updated: 2026-07-11
 links:
-  - docs/findings/finding-0034.md          # warrant-in-fact: runner-minutes bottleneck → this note
-  - docs/findings/finding-0032.md          # folded: needs:[] gate topology (subsumed on GitHub)
+  - docs/findings/finding-0034.md # warrant-in-fact: runner-minutes bottleneck → this note
+  - docs/findings/finding-0032.md # folded: needs:[] gate topology (subsumed on GitHub)
   - docs/design-notes/attestation-layer.md # the witness this note re-points
-  - .gitlab-ci.yml                         # the gate being replaced
-  - .github/workflows/ci.yml               # the stale workflow being rebuilt
-  - ops/ci_witness.py                      # the deploy-attestation machinery
-  - .releaserc.json                        # release commit-back — the divergence constraint
+  - .gitlab-ci.yml # the gate being replaced
+  - .github/workflows/ci.yml # the stale workflow being rebuilt
+  - ops/ci_witness.py # the deploy-attestation machinery
+  - .releaserc.json # release commit-back — the divergence constraint
 supersedes: null
 superseded_by: null
-warrant: null            # promotion (finding → design), not a supersession
+warrant: null # promotion (finding → design), not a supersession
 ---
 
 # CI platform and runner strategy — the gate moves to GitHub Actions; MicroVM runners park on triggers
@@ -36,7 +36,7 @@ points; (3) where semantic-release runs — jointly with the repo-host question 
 to force; (4) the disposition of `.gitlab-ci.yml`; (5) whether/when self-hosted AWS Lambda
 MicroVM runners enter; (6) the disposition of finding-0032's `needs:[]` remedy.
 
-**Out of scope:** the *content* of the gates (ruff / import-firewall / mypy split / pytest
+**Out of scope:** the _content_ of the gates (ruff / import-firewall / mypy split / pytest
 tiers / vault-axis are settled design — bp-008, finding-0029; they port verbatim, they are
 not redesigned here); the WASM sandbox and effector designs themselves; the repo's public
 posture (already public, owner-confirmed 2026-07-11).
@@ -63,7 +63,7 @@ SSH). Before any GitHub-ward move, the tree had to be checked. Evidence, 2026-07
   (Invariant 12) is correctly absent. No personal email in tracked content (git author
   metadata is public by nature of a public repo — accepted).
 - GitLab's `secret_detection` job has run green on every push all month (it is partly
-  *what burned the minutes*).
+  _what burned the minutes_).
 
 **Residual, carried into Plan A:** the history scan above is pattern-based, not
 entropy-based. The first plan runs a real scanner (gitleaks) once over **full history**
@@ -77,7 +77,7 @@ is intact.
 ## 3. Principles
 
 - **P1 — The gate must not depend on a metered budget.** The failure mode just observed:
-  quota exhaustion silently removes the only release path. A gate that can be *used up*
+  quota exhaustion silently removes the only release path. A gate that can be _used up_
   is not a gate. (GitHub Actions on a public repo is unlimited-free; the entire
   minute-conservation apparatus — `rules:changes`, batched pushes — was a workaround for
   P1 being violated, and is not ported.)
@@ -93,13 +93,13 @@ is intact.
 - **P4 — Isolation follows the workload.** Hosted runners are sufficient for
   deterministic gates over public code (lint, types, model-free tests). Firecracker
   MicroVM isolation is Invariant 4 ("executed code is powerless") realized at the infra
-  layer — it becomes *load-bearing* only when CI itself executes untrusted or
+  layer — it becomes _load-bearing_ only when CI itself executes untrusted or
   AI-generated code. Build it then, not now.
 - **P5 — No diverging release shape.** `.releaserc.json:46-55` commits release artifacts
   back to main (`@semantic-release/git`: CHANGELOG.md, package.json, terraform
   versions.tf). A release host that is not the origin host therefore **forks main** and
-  breaks the push-mirror (non-fast-forward). Consequence: *"move semantic-release to
-  GitHub" and "GitLab stays origin" cannot both hold.* The release-home decision is
+  breaks the push-mirror (non-fast-forward). Consequence: _"move semantic-release to
+  GitHub" and "GitLab stays origin" cannot both hold._ The release-home decision is
   jointly the repo-host decision — this is the one structural fact the findings had not
   yet surfaced.
 
@@ -131,7 +131,7 @@ pin them inline at graduation):
   wheel constraint, `.gitlab-ci.yml:35-38`), `ubuntu-latest`.
 - **ratchet:** `ruff check .` + `uv run python scripts/check_imports.py` (Invariant 2
   static proof, finding-0014) + `pytest -m 'not live and not podman and not needs_vault
-  and not needs_restic'`.
+and not needs_restic'`.
 - **type-gate:** mypy hard-zero over `core agents eval ops scheduler scripts` + the
   tests/ baseline pinned at exactly 69 (finding-0029; a different count in either
   direction blocks) + `ops.type_gate` Tier-2/bare-ignore scans (`.gitlab-ci.yml:111-127`).
@@ -143,10 +143,10 @@ pin them inline at graduation):
   Additionally the owner enables GitHub-native **secret scanning + push protection**
   (free on public repos) in repo settings — a console toggle, listed as an owner step.
 - **Topology:** jobs independent by default — no stage ordering exists to suppress a
-  gate, which is finding-0032's remedy *by construction* (see D6). `concurrency` with
+  gate, which is finding-0032's remedy _by construction_ (see D6). `concurrency` with
   `cancel-in-progress` replaces `interruptible: true`. Triggers: `push: branches: [main]`
-  + `workflow_dispatch`; **no `paths:` filters** (P2). `live`/`podman`/`longitudinal`
-  tiers stay local by design (runbook §Verifying), exactly as on GitLab.
+  - `workflow_dispatch`; **no `paths:` filters** (P2). `live`/`podman`/`longitudinal`
+    tiers stay local by design (runbook §Verifying), exactly as on GitLab.
 - **Not ported, deliberately:** `rules:changes` (a P1-violation workaround; obsolete under
   unlimited minutes) and any `needs:` topology.
 - **Same plan:** tombstone `.gitlab-ci.yml` (`workflow.rules → when: never` + a banner
@@ -258,14 +258,14 @@ verdict hygiene still favor unit-boundary pushes).
 
 ## Parked decisions
 
-| # | Decision | Default recorded | Re-entry condition |
-|---|---|---|---|
-| 1 | Repo-host end-state (origin → GitHub) | Interim shape: GitLab origin + local owner-run releases; diverging shape never built | The owner's D4 ruling at ratification; or first mirror/branch-CI friction |
-| 2 | MicroVM runner lane | Not built | Any D7 trigger fires |
-| 3 | `.gitlab-ci.yml` final deletion | Tombstoned, retained | D4 rules origin migration |
-| 4 | Docs/Pages host | GitHub Pages at Plan C | Owner URL preference at ratification |
-| 5 | PR/branch CI | None (mirror is main-only; matches today's main-only gate rules) | Origin migration (D4) enables it |
-| 6 | GitHub-native secret scanning + push protection | On (owner console toggle at Plan A) | — (free on public repos) |
+| #   | Decision                                        | Default recorded                                                                     | Re-entry condition                                                        |
+| --- | ----------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| 1   | Repo-host end-state (origin → GitHub)           | Interim shape: GitLab origin + local owner-run releases; diverging shape never built | The owner's D4 ruling at ratification; or first mirror/branch-CI friction |
+| 2   | MicroVM runner lane                             | Not built                                                                            | Any D7 trigger fires                                                      |
+| 3   | `.gitlab-ci.yml` final deletion                 | Tombstoned, retained                                                                 | D4 rules origin migration                                                 |
+| 4   | Docs/Pages host                                 | GitHub Pages at Plan C                                                               | Owner URL preference at ratification                                      |
+| 5   | PR/branch CI                                    | None (mirror is main-only; matches today's main-only gate rules)                     | Origin migration (D4) enables it                                          |
+| 6   | GitHub-native secret scanning + push protection | On (owner console toggle at Plan A)                                                  | — (free on public repos)                                                  |
 
 ## Cross-references
 

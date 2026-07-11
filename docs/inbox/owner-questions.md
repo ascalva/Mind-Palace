@@ -347,4 +347,13 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   (GitLab 0 min; GitHub red-at-install), deploy stays hard-blocked (no attestable green), and
   pushing stays unconstrained. D4 defaults to (ii) interim. Parks on finding-0034; re-entry —
   owner ratifies here/by hand, or the monthly GitLab reset arrives and the metered leak resumes.
-- answer:
+- answer: **RATIFIED + D4 = (i) END-STATE** (owner, 2026-07-11). The owner hand-flipped the
+  note `draft → ratified` (the blessing gate proper) and ruled in-session: *"semantic release
+  happens on the GitHub side — GitHub is shaping up to be the new home for releases and
+  running CI tests."* So GitHub becomes origin per D4(i): release runs on GitHub
+  (`workflow_dispatch`, witness-dispatched), `@semantic-release/gitlab → @semantic-release/github`,
+  mirror reverses/retires, PR/branch CI unlocks. Plan B carries the release relocation (the
+  note §5 anticipated this iff D4 ruled end-state); the origin re-point + mirror reversal are
+  owner-console steps carried in Plan B as owner-steps with park conditions. Answer transcribed
+  by the orchestrator (a ruling record, not a blessing gate — the gate was the owner's hand
+  edit). Swept when /triage runs.
