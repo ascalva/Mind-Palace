@@ -42,9 +42,9 @@ class FakeEffectTransport:
     The real send/pay transports are edge-side; this proves the wiring without a network."""
 
     def __init__(self):
-        self.calls: list[tuple[str, dict, str]] = []
+        self.calls: list[tuple[str, dict[str, str], str]] = []
 
-    def perform(self, actuator: str, params: dict, *, token: str) -> str:
+    def perform(self, actuator: str, params: dict[str, str], *, token: str) -> str:
         self.calls.append((actuator, dict(params), token))
         return f"receipt-{actuator}-001"
 
