@@ -2,7 +2,9 @@
 
 > A knowledge system built around a single question: what does it mean for a system to know _why_ it believes something?
 
-It's deliberately limited in scope — it trades breadth of action for provability — with a formal structure that lets it reason about how its own knowledge holds together. Runs locally, core preserved. Built with the thing it's trying to understand.
+It's deliberately limited in scope — it trades breadth of action for provability — with a formal structure that lets it reason about how its own knowledge holds together. Runs locally, core sealed. Built with the thing it's trying to understand.
+
+Two names, deliberately: **mind-palace** is the framework — this repository. **Ouroboros** is the live instance — the always-on daemon dreaming over one person's corpus, named by its own founding note ("is that the name i would give this study on process? ouroboros"). The framework is public; the corpus never is.
 
 ## What it is
 
@@ -14,46 +16,66 @@ The point isn't to produce answers. It's to produce answers that carry their rea
 
 A few ideas do most of the load-bearing work:
 
-- **Make the wrong state unrepresentable, not merely discouraged.** Origin labels, capability limits, and the de-identification airlock are the same pattern — typed labels constraining flow, enforced by making the illegal flow impossible to express rather than by asking components to behave.
+- **Make the wrong state unrepresentable, not merely discouraged.** Provenance labels, capability ceilings, and the de-identification airlock are the same pattern — typed constraints on flow, enforced by making the illegal flow impossible to express rather than by asking components to behave. Where a runtime guarantee can be promoted to a static one, it is: the import firewall proves the sealed core can't *name* the network; the type plane makes accidental promotion of derived content a compile-time error.
 - **Read and write are separated by construction.** A read-only view into memory and a write-only view into the world are distinct objects; nothing that reflects can also act, by type.
-- **Formalize only what earns it.** A type exists to delete an illegal state. Otherwise a docstring. Otherwise nothing.
+- **Every consequential act is attested.** Ingests, dreams, verdicts, CI results, credential rotations, deployments — each lands in an append-only, hash-chained, signed record. "The system did X" is a queryable claim, not a memory.
+- **Formalize only what earns it.** A type exists to delete an illegal state; a formalism must constrain, not decorate. Otherwise a docstring. Otherwise nothing.
 - **The core is preserved; everything else is expendable.** The system is designed around what has to survive, not around what happens to be running.
 
 ## Architecture at a glance
 
 - **Ambassador** — the reasoning layer you interact with. Computationally light, reaches for deterministic tools when exactness matters, and is plain about how much effort a given answer took.
-- **Dreamer** — the offline layer that works over the structure of what's stored. The current frontier (see Status).
-- **Store, and its two views** — memory, a read-only reflection of it, and a write-only path to external effect. The asymmetry is deliberate and enforced.
-- **Provenance and scope** — every item carries its origin and what it's permitted to affect; flow that would violate either can't be represented.
+- **Dreamer** — the offline layer that works over the structure of what's stored. Deterministic clustering feeds model synthesis; outputs are content-addressed proposals that can never silently become beliefs.
+- **Store, and its typed views** — memory, a read-only reflection of it (`MirrorView`: authored words only, enforced at construction), and a write-only path to external effect. The asymmetry is deliberate and enforced.
+- **Provenance and scope** — every item carries its origin class and what it may affect; the self-model reads only what the owner actually wrote. Code itself enters as a *sensed stream* — the repo is an instrument, never a voice in the mirror.
 - **Airlock** — a one-way path for outside research. De-identified on the way out, unable to reach back in.
 
-## Status
+## Status — stated honestly
 
-The base build (Phases 0–10) is complete and running. Forward work is organized as tracks: senses, voice, the offline reasoning layer, world interaction, hardening, and testing.
+The base build (Phases 0–10) is complete; the live instance runs always-on under launchd with a graceful, gated deployment path. "Complete" is not "wired": this repo distinguishes **built** (code + tests exist), **deployed** (present in the running system), and **wired** (active in the live loop) — and its own audit found the summaries were the least honest surface, so this one names the gaps.
 
-The current frontier is the reasoning layer — moving the Dreamer from summarizing structure toward reasoning over it. That's the precondition for everything downstream, so it comes before breadth, not after.
+Wired and live today: ingestion (notes within seconds, code per commit), dreaming on a six-hour cadence with content-addressed idempotency, the provenance firewall, the attestation chain, strict-typed core (mypy zero, enforced), CI on every push, deploy-gated releases. Built but deliberately dormant, awaiting their design gates: retrieval demotion for superseded content, the supersession certification layer, effectors (the "hands" — flag-off at every tier), recursive dreaming (parked on an adoption criterion it hasn't earned yet).
+
+The current frontier is the reasoning layer — moving the Dreamer from summarizing structure toward reasoning over it — and the entanglement between the corpus and the code that implements it.
 
 An honest note on scope: the engineering rigor here governs _how_ outputs are produced — their provenance, their limits, whether they still hold. Whether the outputs are actually insightful is a separate question the reasoning layer has to earn against real use, not against provability alone. That gap is named on purpose.
 
 ## How it's built
 
-Mind Palace is assembled by Claude Code (Opus 4.8), one verified phase at a time, against a fixed specification and a set of invariants it treats as inviolable. A human directs the architecture; the agent implements; each phase is a self-contained, verifiable unit; and the most dangerous capability — self-modification — is built last, after the scaffolding that constrains it exists.
+By a human and AI agents in a gated loop, in the open. The human owns direction and every blessing; agents propose, implement, and verify — and structurally *cannot* perform the acts reserved for the owner. The workflow is itself a typed artifact chain: brainstorm → design note (ratified only by hand) → build plan (blessed only by hand) → build → findings, which re-enter design through the same gate. Enforcement is hooks, not etiquette: write-scopes are capabilities, blessing transitions are denied to agents pre-hoc and audited post-hoc against committed history, and the guards carry regression harnesses proven to fail against the code that preceded them.
 
-The recursion is the point. It's a system for reasoning carefully about AI, built with AI, in the open.
+Builds run as supervised parallel agents in isolated worktrees; merges are scrutinized diffs, never trust. Code reaches the live system through exactly one gate — `deploy`: clean tree, tests green locally, pipeline green remotely *and attested*, graceful cycle, successor verified, release cut. The build's own history is a first-class dataset: every commit's structure (symbols, signatures, imports, typed headers) is snapshotted into a queryable ledger by a model-less sensor agent — the system tracks its own construction.
 
-Build mechanics — the operating rules, the master spec, and the append-only build log — live in `CLAUDE.md`, `docs/BUILD-SPEC.md`, and `docs/PROGRESS.md`.
+The recursion is the point. It's a system for reasoning carefully about AI, built with AI, whose corpus opens with its owner thinking about what it means to build it.
+
+## Rigor, verifiable
+
+Claims above are checkable, not vibes:
+
+```sh
+uv sync --extra dev
+uv run pytest -q -m 'not live and not podman'   # the deterministic tier: 750+ tests
+uv run mypy                                      # core/ strict: 0 errors, enforced
+uv run python scripts/check_imports.py           # the sealed core names no network module
+bash docs/build-plans/bp-010/acceptance/run.sh   # the write-guard harness, 11 cases
+sqlite3 data/attestations.sqlite 'select agent_role, action, count(*) from attestations group by 1,2'
+```
+
+Structural invariants carry structural tests — e.g. the balance mathematics is proven bit-identical under injection of dispositional edges, and the blessing gates' harnesses include the laundering, comment-evasion, and deletion paths. Live axes (`-m live`, `-m podman`, a dev-Vault CI service) verify against the real substrates, honestly skipped when absent.
 
 ## Running it
 
-Local by design. It runs on your own hardware against a local model, with notes in Obsidian and the core backed up, encrypted. Nothing about it depends on a service staying up.
+Local by design. Your hardware, a local model server, notes in a plain markdown vault, the core backed up encrypted. Nothing about it depends on a service staying up. `docs/runbook.md` is the operational manual — from `uv sync` to the always-on launchd lifecycle.
 
 ## Repository
 
-- `CLAUDE.md` — operating rules loaded every build session. Start here.
+- `CLAUDE.md` — operating rules loaded every agent session. Start here.
 - `CONSTITUTION.md` — the fixed directives every agent inherits.
-- `CONVENTIONS.md` — engineering and security practice.
+- `CONVENTIONS.md` — engineering and security practice, including the commit and deploy rules.
 - `docs/BUILD-SPEC.md` — the full master specification.
+- `docs/design-notes/` — the ratified design record (status-guarded: drafts are working material, ratified notes are immutable to agents).
 - `docs/PROGRESS.md` — the build log, maintained across sessions.
+- `docs/runbook.md` — how to run, verify, and operate it.
 
 ## License
 
