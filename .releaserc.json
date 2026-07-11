@@ -1,5 +1,7 @@
 {
-  "branches": ["main"],
+  "branches": [
+    "main"
+  ],
   "tagFormat": "v${version}",
   "plugins": [
     [
@@ -7,13 +9,34 @@
       {
         "preset": "conventionalcommits",
         "releaseRules": [
-          { "type": "feat", "release": "minor" },
-          { "type": "fix", "release": "patch" },
-          { "type": "patch", "release": "patch" },
-          { "type": "infra", "release": "patch" },
-          { "type": "breaking", "release": "major" },
-          { "type": "docs", "release": false },
-          { "type": "chore", "release": false }
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "patch",
+            "release": "patch"
+          },
+          {
+            "type": "infra",
+            "release": "patch"
+          },
+          {
+            "type": "breaking",
+            "release": "major"
+          },
+          {
+            "type": "docs",
+            "release": false
+          },
+          {
+            "type": "chore",
+            "release": false
+          }
         ]
       }
     ],
@@ -22,10 +45,21 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "package.json", "terraform/**/versions.tf"],
+        "assets": [
+          "CHANGELOG.md",
+          "package.json",
+          "terraform/**/versions.tf"
+        ],
         "message": "chore(release): ${nextRelease.version}"
       }
     ],
-    "@semantic-release/gitlab"
+    [
+      "@semantic-release/gitlab",
+      {
+        "successComment": false,
+        "failComment": false,
+        "failTitle": false
+      }
+    ]
   ]
 }
