@@ -1,6 +1,6 @@
 ---
 type: finding
-id: finding-0035
+id: finding-0036
 status: resolved
 created: 2026-07-11
 updated: 2026-07-11

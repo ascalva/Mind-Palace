@@ -103,7 +103,7 @@ main, did NOT push.
 ## Entry — 2026-07-11 — Item 7 COMPLETE — extraction at projection time
 
 `ops/code_sensor.py` + `tests/unit/test_reference_extraction.py` (8 tests) +
-`docs/findings/finding-0035.md`.
+`docs/findings/finding-0036.md`.
 - `extract_references(docstring, source_line)` — the Lane-1 docstring pass: bp-011's
   probe regexes VERBATIM (`v4_reference_scan.py` — the measured precision belongs to
   those expressions; rewriting them would orphan the measurement). Validated patterns
@@ -116,7 +116,7 @@ main, did NOT push.
   (20%). The Item 7 falsifier is test-pinned: the fixture PLANTS a [[wikilink]] and
   dotted symbol-mentions and asserts no edge carries them and every minted edge's
   (direction, ref_type) ∈ VALIDATED_PATTERNS.
-- **Spec-fidelity resolution (finding-0035, resolved in-session):** Item 7's
+- **Spec-fidelity resolution (finding-0036, resolved in-session):** Item 7's
   "populates references_out and mints the corresponding edges" literally covers only
   code→corpus, but the pinned pattern set includes corpus_to_code/path-mention (rank 2,
   100%, 211/364 edges — the finding-0021 corroboration direction) and no other item
