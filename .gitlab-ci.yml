@@ -32,7 +32,10 @@ secret_detection:
 # runners have no Ollama, no nested virt, no Vault, no restic repo (runbook §Verifying).
 ratchet:
   stage: lint
-  image: ghcr.io/astral-sh/uv:python3.14-bookworm-slim
+  # 3.12, not 3.14: scikit-network's locked version ships linux wheels only for
+  # cp311/cp312 (uv.lock); the slim runner can't build it from sdist. Local dev runs
+  # 3.14 — CI validating the 3.12 floor is within requires-python >= 3.11.
+  image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
   interruptible: true
   variables:
     GIT_DEPTH: "1"
