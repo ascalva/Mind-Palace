@@ -1,3 +1,18 @@
+# [1.3.0](https://gitlab.com/ascalva-projects/mind-palace/compare/v1.2.0...v1.3.0) (2026-07-11)
+
+
+### Bug Fixes
+
+* **core:** Message becomes a TypedDict; annotate factory/server entry points ([08a4d0c](https://gitlab.com/ascalva-projects/mind-palace/commit/08a4d0c0d2b285a4a387ebb3819e5cd3b0cbd751))
+* **core:** type the config parameter family as Config | None ([8a945a0](https://gitlab.com/ascalva-projects/mind-palace/commit/8a945a01575e4ec28f54c66f8af10e2461883ad8))
+
+
+### Features
+
+* **core:** Authored[T]/Derived[T] static shadow + verdict-gated promote() stub (bp-009 Item 10) ([5a6e9c5](https://gitlab.com/ascalva-projects/mind-palace/commit/5a6e9c546cc4877de2f7d9c935d5dd52e7fc4e74))
+* **core:** typedshims boundary wrappers for lancedb/sknetwork/psutil ([54ebbcb](https://gitlab.com/ascalva-projects/mind-palace/commit/54ebbcb59fc18033f5d5db48d7da795af503c71d))
+* **hooks:** A8 status-aware design-note guard — draft-writable, blessed-immutable ([4fe6ad4](https://gitlab.com/ascalva-projects/mind-palace/commit/4fe6ad46aea727d5cf2470367a629c0c070d9393))
+
 # [1.2.0](https://gitlab.com/ascalva-projects/mind-palace/compare/v1.1.0...v1.2.0) (2026-07-11)
 
 
