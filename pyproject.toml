@@ -21,6 +21,7 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.5",
     "hypothesis>=6.0",   # property-based tests for the invariant catalog (I6/I9/I10/I13)
+    "mypy>=1.13",
 ]
 # Zone B (edge) ONLY — never a core dependency. The research-airlock bridge talks to S3 with
 # boto3; the import-firewall (ops/import_lint.py) forbids boto3 anywhere under core/. The
@@ -88,3 +89,32 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.ruff.lint.per-file-ignores]
 # Embedded dashboard HTML/CSS/JS asset — long template lines, not code (server.py stays linted).
 "edge/monitor/page.py" = ["E501"]
+
+[tool.mypy]
+# type-system-as-core-audit.md §2.5 — the two-tier checked region (ratified 2026-07-11).
+# GLOBAL settings are the Tier-2 interim floor: every module that imports core is analyzed,
+# untyped defs are still checked, and args flowing into core calls can't silently be Any.
+# Tier-3 (edge/, cloud/ — zero core imports, measured V1a 2026-07-11) is unchecked by
+# RECORDED DEFAULT, not deferred debt. Report-only until B-2 wires the gate.
+files = ["core", "agents", "eval", "ops", "scheduler", "scripts", "tests"]
+explicit_package_bases = true       # scripts/ are entry points, not a package: scripts/eval.py
+                                    # must resolve as scripts.eval, not collide with eval/
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+# Tier 1 — core/: strict components (mypy forbids `strict` inside overrides; expanded here).
+[[tool.mypy.overrides]]
+module = "core.*"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_any_generics = true
+disallow_untyped_decorators = true
+warn_return_any = true
+
+# V2 (2026-07-11): no py.typed — interim ignores; §2.5 boundary wrappers quarantine these
+# to one typed module per dependency when B-1's build lands.
+[[tool.mypy.overrides]]
+module = ["lancedb.*", "sknetwork.*", "psutil.*", "watchdog.*"]
+ignore_missing_imports = true
