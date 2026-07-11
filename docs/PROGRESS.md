@@ -1973,3 +1973,49 @@ both under-estimate — the sizing runs conservative).
 
 **Next session (supervision-tier):** inspect bp-013 worktree/journal → scrutinize+merge+seal (+
 register the reset target) → batch-push → bp-014 (full-strength) → finding-0032 CI plan → /triage.
+
+---
+
+### Checkpoint 2026-07-11 (late evening) — trilogy COMPLETE (bp-013 sealed); CI/runner pivots to priority
+
+**bp-013 SEALED — the code-observation trilogy is DONE.** Lane-1 reference edges (B-c),
+merged `d824abc`, sealed `ef9319e`. Resume builder (opus, 54k/44 calls) finished Item 8 after
+the prior session's builder landed Items 6-7; the resume-from-worktree path worked cleanly
+(builder correctly refused to merge when it saw main had advanced — good discipline).
+- **Item 8 isolation proof PASSES, genuinely** — plants real edges whose corpus endpoints ARE
+  node digests of the complex (both directions, validated ref_types), proves the full instrument
+  stack (frustration/curvature/clustering) bit-identical with/without a populated store. B-c
+  falsifier now automated forever. `core/complex/**` + `core/stores/edges.py` untouched.
+- **Triple-green on main:** ruff clean · mypy 0/69 (finding-0029 baseline) · firewall OK ·
+  **804 passed**.
+- **Item 7 both-directions accepted** (finding-0036, renumbered from a 0035 collision with the
+  self-resume-practice finding) — §1's objective pins the whole bp-011 validated set incl.
+  corpus→code/path-mention (rank 2, 100%, the finding-0021 direction).
+- **Parked Q4 reset target REGISTERED** (`11ffc01`): `reference_edges.sqlite` joins
+  `reset_targets()` + the corpus-wipe test seed; `test_lifecycle.py` 20/20.
+
+**B-c family closes.** Lane 1 built + proven isolated; Lane 2 (semantic proposals) + B-d (the
+detangling consumer) remain gated on Track D. No deploy needed (write-side; finding-0020 class).
+
+**CI/RUNNER — the trigger fired, now PRIORITY (owner-directed 2026-07-11 eve).**
+- **GitLab shared runners are EXHAUSTED (0 min)** — no working GitLab gate at all until reset.
+  finding-0034's "minute floor" re-entry trigger has fired.
+- **GitHub mirror confirmed PUBLIC** → unlimited free GitHub Actions. finding-0034's "cheapest
+  fix of ALL" branch is now live. Push-mirror (main-only, SSH) is a platform feature (not a CI
+  job), so it still mirrors; the hops are fine — the real gap is `.github/workflows/ci.yml` is
+  STALE (no mypy type-gate, no SAST/secret-detection, no semantic-release, pre-uv) = a FALSE
+  GREEN if trusted.
+- **Owner's fork** (captured in finding-0034 evening addendum): GitHub as (a) destination, (b)
+  bootstrap → AWS Lambda MicroVM runners (MicroVM tooling is GitHub-Actions-FIRST = the mature
+  path), or (c) both/split (GitHub-hosted for the cheap gate; MicroVM where Firecracker isolation
+  is load-bearing). Owner chose: **mint a proper design note + plan (Fable/xhigh)**, not a
+  supervision hack. finding-0032's GitLab `needs:[]` is largely SUBSUMED by a GitHub migration.
+- Pushing is now unconstrained (GitLab pipelines dead; owner: "doesn't matter if you push").
+
+**bp-014 READY** (owner-blessed) — worktree-aware ROOT resolution (finding-0031). Now that the
+trilogy's done, sequenced next among the BUILD units. Full-strength (enforcement layer).
+
+**Next session — DESIGN-TIER (Fable/xhigh):** promote finding-0034 + finding-0032 → runner-strategy
+design note (structured on the a/b/c fork; first gate = confirm nothing sensitive in the public
+tree) → ratify (owner) → /graduate. Then supervision-tier: bp-014, then /triage (sweep findings
+0027-0036, batch owner questions, promotions). Owner desk: oq-0003..0010.
