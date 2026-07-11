@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-010
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/agent-workflow.md # amendment A8 (pending owner paste — see §0)
 contract: builder

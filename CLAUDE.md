@@ -64,9 +64,11 @@ through the same gate brainstorms do — never by side effect.
   denies them pre-hoc and the Stop-gate audit blocks any Bash-mediated flip.
 - **Write discipline is a capability, not a suggestion.** `scope-guard` enforces
   the active plan's `write_scope` pre-hoc; the `journal-gate` diff audit catches
-  Bash writes post-hoc. A foundation denylist (`CONSTITUTION.md`,
-  `docs/design-notes/**`, `eval/golden/**`) is never writable, orchestrator
-  included. A denial means narrow the scope or file a finding — never route around.
+  Bash writes post-hoc. A foundation denylist (`CONSTITUTION.md`, `eval/golden/**`,
+  `eval/golden.py`) is never writable, orchestrator included. Design notes are
+  status-guarded (A8): `draft` is agent-writable working material;
+  `ratified`/`superseded` are agent-immutable (HEAD-keyed, laundering-proof).
+  A denial means narrow the scope or file a finding — never route around.
 
 ## Commands (depth in the matching skill)
 `/capture <topic>` · `/graduate <note>` · `/build <id>` · `/resume <id>` ·

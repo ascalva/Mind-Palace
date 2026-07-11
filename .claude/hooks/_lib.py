@@ -26,12 +26,14 @@ from datetime import UTC, datetime
 
 # --- Foundation-file denylist (design-note §6, §10; origin: security-planes.md).
 # Never writable by any session, orchestrator included, beneath any plan. These
-# are the sacred fixed points (CONSTITUTION §V, §9): the constitution, the
-# ratified design record, the frozen golden set. Blessing *transitions* on plans
-# and notes are a separate concern handled by gate-guard.
+# are the sacred fixed points (CONSTITUTION §V, §9): the constitution and the
+# frozen golden set. Design notes left this list under amendment A8 (warrant
+# finding-0025): they are guarded by STATUS, not location — draft notes are
+# agent-writable working material (cmd_scope_check's status arm + the (b2)
+# HEAD-keyed Stop clause protect the ratified/superseded record instead).
+# Blessing *transitions* on plans and notes remain gate-guard's concern.
 DENYLIST = [
     "CONSTITUTION.md",
-    "docs/design-notes/**",
     "eval/golden/**",
     "eval/golden.py",
 ]
@@ -209,6 +211,29 @@ def status_of(path_rel: str):
     return s if isinstance(s, str) and s else None
 
 
+def _head_status_of(path_rel: str):
+    """Front-matter status of the file AT HEAD (the committed truth), or None when the
+    file does not exist at HEAD. The Stop-side design-note clause (b2) compares against
+    THIS, never the working tree: post-hoc, a Bash write has already happened, so the
+    on-disk status may be the laundered value (A8, finding-0025 Correction 2 — the same
+    read-HEAD discipline as _blessing_in_diff). Normalized with _normalize_status for A5
+    parity: comment evasion must not survive the HEAD read either."""
+    try:
+        out = subprocess.run(
+            ["git", "show", f"HEAD:{path_rel}"],
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=True,
+        ).stdout
+    except Exception:
+        return None
+    s = parse_front_matter(out).get("status")
+    if isinstance(s, str) and s:
+        s = _normalize_status(s)
+    return s if isinstance(s, str) and s else None
+
+
 # --------------------------------------------------------------------------- #
 # Active-plan resolution
 # --------------------------------------------------------------------------- #
@@ -297,6 +322,21 @@ def cmd_scope_check(file_path: str) -> int:
             f"(design-note §6 denylist); route a finding instead."
         )
         return 0
+    # 1b. Design notes — guarded by STATUS, not location (A8, warrant finding-0025).
+    #     On-disk status is the committed truth here: pre-hoc, the write has not
+    #     happened yet. Ratified/superseded = the blessed/historical record,
+    #     agent-immutable in content AND status (the Bash/laundering paths are the
+    #     Stop audit's (b2) clause). Draft or new notes are working material and
+    #     fall through to the normal capability check.
+    if is_design_note(fp):
+        st = status_of(fp)
+        if st in ("ratified", "superseded"):
+            print(
+                f"DENY: design note '{fp}' is {st} — the blessed record is "
+                f"agent-immutable (A8). Evolve it via supersession or a finding "
+                f"at the owner's gate, never in place."
+            )
+            return 0
     # 2. Plan write-scope capability.
     plan = active_plan_path()
     if plan is None:
@@ -519,6 +559,25 @@ def cmd_stop_audit(diff_file: str | None) -> int:
         deny = [f for f in _changed_files() if f and matches_any(f, DENYLIST)]
         if deny:
             reasons.append(f"(b) foundation files modified: {deny}.")
+
+    # (b2) design-note immutability, HEAD-keyed -> every session (A8, warrant
+    # finding-0025 Correction 2). The working tree's status can be laundered by a
+    # Bash write; HEAD's cannot. Any modification or deletion of a note that is
+    # ratified/superseded AT HEAD blocks close — symmetric with (c)'s read-HEAD
+    # blessing detection, and untracked-new notes pass (no HEAD status: legal
+    # draft creation; a forged untracked blessing is (c)'s _untracked_blessing).
+    tampered = [
+        f
+        for f in _changed_files()
+        if f and is_design_note(f) and _head_status_of(f) in ("ratified", "superseded")
+    ]
+    if tampered:
+        reasons.append(
+            f"(b2) blessed design notes modified/deleted vs HEAD: {tampered} — "
+            "ratified/superseded notes are agent-immutable (A8). Revert the "
+            "session's change, or the owner commits their own edit (then it is "
+            "accountable)."
+        )
 
     # (c) uncommitted blessing transition -> every session. Diff the working tree
     # against HEAD, not the session baseline (§6c, A1; warrant finding-0003): a
