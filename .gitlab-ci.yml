@@ -69,3 +69,38 @@ ratchet:
     - uv run ruff check .
     - uv run python scripts/check_imports.py   # Invariant 2 static proof in CI (finding-0014)
     - uv run pytest -q -m 'not live and not podman and not needs_vault and not needs_restic'
+
+# The vault axis in CI: a disposable dev-mode Vault as a service container proves the
+# committed AppRole policies against a REAL server (tests/e2e/test_secrets_vault_live.py
+# auto-skips without one — in CI it never skips). Scoped tighter than the ratchet: only
+# auth-layer-relevant paths trigger it, so the budget cost is near zero in steady state.
+vault-axis:
+  stage: lint
+  image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+  interruptible: true
+  services:
+    - name: hashicorp/vault:latest
+      alias: vault
+  variables:
+    GIT_DEPTH: "1"
+    UV_CACHE_DIR: .uv-cache
+    VAULT_DEV_ROOT_TOKEN_ID: "ci-root-disposable"
+    VAULT_ADDR: "http://vault:8200"
+    VAULT_TOKEN: "ci-root-disposable"
+  cache:
+    key:
+      files: [uv.lock]
+    paths: [.uv-cache]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        paths:
+          - "core/**/*"
+          - "ops/vault/**/*"
+          - "tests/e2e/test_secrets_vault_live.py"
+          - "pyproject.toml"
+          - "uv.lock"
+          - ".gitlab-ci.yml"
+  script:
+    - uv sync --frozen --extra dev
+    - uv run pytest -q -m needs_vault

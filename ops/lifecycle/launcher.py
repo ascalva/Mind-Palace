@@ -210,6 +210,10 @@ class Launcher:
     # launchd label — all injectable for tests.
     gate_cmd: tuple[str, ...] = ("uv", "run", "pytest", "-q", "-m",
                                  "not live and not podman and not needs_vault and not needs_restic")
+    # remote half of the gate + release-on-deploy (ops/ci_witness.py). Subprocesses, not
+    # imports: the witness talks to gitlab.com and must stay outside this sealed process.
+    ci_check_cmd: tuple[str, ...] | None = ("uv", "run", "scripts/ci_witness.py", "check")
+    ci_release_cmd: tuple[str, ...] | None = ("uv", "run", "scripts/ci_witness.py", "release")
     deploy_wait_s: float = 60.0
     deploy_poll_s: float = 0.5
     launchd_label: str = "com.mind-palace.palace"
@@ -371,6 +375,12 @@ class Launcher:
                 print("deploy: REFUSED — the ratchet is red. Fix or (emergencies only) "
                       "--skip-tests.")
                 return 1
+        if self.ci_check_cmd is not None and not skip_tests:
+            print("deploy gate: ci-witness (remote pipeline must be green for HEAD)")
+            if subprocess.run([*self.ci_check_cmd, commit], cwd=self.repo_root).returncode != 0:
+                print("deploy: REFUSED — no attested green pipeline for HEAD. Push first, "
+                      "wait for CI, or (emergencies only) --skip-tests.")
+                return 1
         managed = _launchd_managed(self.launchd_label)
         repo_plist = self.repo_root / "ops/lifecycle/com.mind-palace.palace.plist"
         installed = Path.home() / "Library/LaunchAgents/com.mind-palace.palace.plist"
@@ -397,6 +407,9 @@ class Launcher:
                 if new.commit_sha == commit:
                     print(f"deploy: OK — {run.commit_sha[:12]} → {commit[:12]} "
                           f"(run #{run.id} → #{new.id}, pid {new.pid}).")
+                    if self.ci_release_cmd is not None:
+                        # release-on-deploy: best-effort, never fails a verified deploy
+                        subprocess.run([*self.ci_release_cmd, commit], cwd=self.repo_root)
                     return 0
             time.sleep(self.deploy_poll_s)
         print(f"deploy: TIMED OUT after {self.deploy_wait_s:.0f}s waiting for the successor "

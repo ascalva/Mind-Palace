@@ -266,12 +266,13 @@ def live_run(tmp_path):
 
 
 def _deploy_launcher(tmp_path, runs, monkeypatch, *, head="newsha", branch="main",
-                     dirty=False, managed=True, gate=("true",)):
+                     dirty=False, managed=True, gate=("true",), ci=("true",)):
     monkeypatch.setattr("ops.lifecycle.launcher.git_state", lambda _r: (head, dirty))
     monkeypatch.setattr("ops.lifecycle.launcher._git_branch", lambda _r: branch)
     monkeypatch.setattr("ops.lifecycle.launcher._launchd_managed", lambda _l: managed)
     return Launcher(cfg=_cfg(tmp_path), runs=runs, repo_root=tmp_path,  # tmp: no plist → no drift
-                    gate_cmd=gate, deploy_wait_s=2.0, deploy_poll_s=0.05)
+                    gate_cmd=gate, ci_check_cmd=ci, ci_release_cmd=None,
+                    deploy_wait_s=2.0, deploy_poll_s=0.05)
 
 
 def test_deploy_refuses_without_live_run(tmp_path, monkeypatch):
@@ -299,6 +300,12 @@ def test_deploy_refuses_red_gate(tmp_path, live_run, monkeypatch):
     runs, _ = live_run
     assert _deploy_launcher(tmp_path, runs, monkeypatch, gate=("false",)).deploy() == 1
     assert runs.last().active                        # gate refused BEFORE any drain
+
+
+def test_deploy_refuses_red_ci_witness(tmp_path, live_run, monkeypatch):
+    runs, _ = live_run
+    assert _deploy_launcher(tmp_path, runs, monkeypatch, ci=("false",)).deploy() == 1
+    assert runs.last().active                        # refused BEFORE any drain
 
 
 def test_deploy_cycles_and_verifies_successor(tmp_path, live_run, monkeypatch):
