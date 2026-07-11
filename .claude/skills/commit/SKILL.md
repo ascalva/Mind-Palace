@@ -38,6 +38,8 @@ description: How and when to commit in this repo — the CONVENTIONS §Commits h
   code-sensor ledger (`data/code_snapshots.sqlite`) parses the header into
   `ctype`/`scope`/`subject` lookup columns beside the commit's structural snapshot.
   A malformed header degrades lookup, not just style. Merge commits are exempt.
-- **Never push** unless the owner asks; never amend or rebase published history.
+- **Push to origin is routine** (owner standing rule, 2026-07-11: the remote mirrors the
+  current state; `mind-palace deploy` is the one gate that needs the owner in the loop).
+  Never amend or rebase published history; never run `deploy` yourself — the owner fires it.
 - **After a main commit**, the hook prints `code-sensor sync: ingested=1 …`. If it
   didn't, the sensor missed — `uv run scripts/snapshot_code.py` heals idempotently.
