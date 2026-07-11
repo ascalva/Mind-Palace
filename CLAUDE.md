@@ -73,7 +73,9 @@ through the same gate brainstorms do — never by side effect.
 ## Commands (depth in the matching skill)
 `/capture <topic>` · `/graduate <note>` · `/build <id>` · `/resume <id>` ·
 `/triage` · `/scribe`. Skills: **graduate**, **build-plan**, **finding**,
-**checkpoint**, **commit**, **delegate**, **book**. Templates: `docs/templates/`.
+**checkpoint**, **commit**, **delegate**, **context-economy**, **book**.
+Templates: `docs/templates/`. Sessions are disposable, artifacts are not — end at
+unit boundaries with a resume brief (context-economy skill; owner rule 2026-07-11).
 Run commands via `uv run` (CONVENTIONS §Language) — never `./.venv/bin/...` paths.
 The orchestrator may spawn supervised parallel builders in worktrees for `ready`
 plans (owner rule 2026-07-11; depth + right-sizing in the **delegate** skill).

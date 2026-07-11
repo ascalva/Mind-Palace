@@ -63,6 +63,9 @@ When unsure, size up — a wrong-sized cheap agent costs a rerun plus review tim
   restart (journal), restart beats rescue (worktrees are cheap).
 - Findings remain the only channel from build back to design: a delegated builder files
   them exactly as a session builder would (finding skill routing rules).
+- **Record the economics**: the completion notification's measured usage (tokens, tool
+  calls, duration, model) goes into the plan's seal entry — the per-plan cost ledger
+  (context-economy skill).
 
 ## What never loosens
 
