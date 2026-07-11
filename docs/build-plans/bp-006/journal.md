@@ -6,6 +6,17 @@ write-scope files must continue without re-asking anything already answered.
 
 ---
 
+## Seal — 2026-07-11 — /triage — bp-006 `complete`, journal sealed
+
+**Seal.** Plan flipped `in-progress → complete` and this journal sealed by the orchestrator.
+Merged `999d4f9` (58 files; core strict-GREEN 183→0; typedshims born; T3 11/183≈6%; T1=0).
+CI on the merge: ratchet 74s ✓, vault-axis 94s ✓. First delegated build: builder died at the
+spend limit mid-Item-4; orchestrator resumed in-worktree from plan+journal (fresh-agent test,
+live). PD-4 evidence routed as finding-0027. Worktree retired. No narrative entries after this.
+
+---
+
+
 ## Entry — 2026-07-11 — Item 4 complete: core strict-GREEN (orchestrator resumed a dead builder)
 
 **Resume note (delegate skill, fresh-agent test exercised for real).** The delegated builder
