@@ -99,3 +99,54 @@ main, did NOT push.
   103 source files".
 - Hook note: Edit/Write tools worked normally this session (no finding-0031 denial so
   far — no Bash-mediated write workaround needed).
+
+## Entry — 2026-07-11 — Item 7 COMPLETE — extraction at projection time
+
+`ops/code_sensor.py` + `tests/unit/test_reference_extraction.py` (8 tests) +
+`docs/findings/finding-0035.md`.
+- `extract_references(docstring, source_line)` — the Lane-1 docstring pass: bp-011's
+  probe regexes VERBATIM (`v4_reference_scan.py` — the measured precision belongs to
+  those expressions; rewriting them would orphan the measurement). Validated patterns
+  only; exact duplicates collapse deterministically (first wins). source_line = the
+  docstring owner's line (module = 1, probe convention; symbols.lineno now selected in
+  `_observations_for`'s SQL).
+- `VALIDATED_PATTERNS` = {(code_to_corpus, note-citation), (code_to_corpus,
+  path-mention), (corpus_to_code, path-mention)} — the three 100%-precision entries of
+  `ranked_patterns_for_bp013`. DROPPED below the bar: wikilink (0%), symbol-mention
+  (20%). The Item 7 falsifier is test-pinned: the fixture PLANTS a [[wikilink]] and
+  dotted symbol-mentions and asserts no edge carries them and every minted edge's
+  (direction, ref_type) ∈ VALIDATED_PATTERNS.
+- **Spec-fidelity resolution (finding-0035, resolved in-session):** Item 7's
+  "populates references_out and mints the corresponding edges" literally covers only
+  code→corpus, but the pinned pattern set includes corpus_to_code/path-mention (rank 2,
+  100%, 211/364 edges — the finding-0021 corroboration direction) and no other item
+  extracts it. Implemented BOTH directions in the same attested pass: corpus→code scans
+  the commit's OWN tree (`git show sha:path`, deterministic §2.2 — not the working tree)
+  over docs/design-notes|findings|brainstorms with the probe regex. Reversal seam if the
+  orchestrator prefers the literal reading: delete `_corpus_reference_edges` + its call.
+- Endpoint details: `:line` suffixes on corpus→code mentions are STRIPPED from the typed
+  code endpoint (an endpoint is a path, not a path:line); targets otherwise stored AS
+  WRITTEN (bare filenames unresolved — consumer-side judgment, journaled at session
+  start). corpus_kind='path' everywhere (Q2 — no vault-note target is resolvable today).
+- Attestation: WITHIN `project_observations`, no new kind (test-pinned: attestation
+  action set is exactly {ingest_commit, project_observations}). The batch content hash
+  now covers references_out (it rides `to_dict()`); the corpus→code half is not in the
+  hash but is deterministically re-derivable from the sha (journaled, acceptable — the
+  attestation covers the action, output identity unchanged in shape from bp-012/Q5).
+- Idempotency: minting is gated by `_project`'s is_projected short-circuit AND the
+  store's content identity — re-sync mints 0 (tested); `backfill_observations()` mints
+  for unprojected history (tested); a sensor without the reference store degrades to
+  exact B-b behavior (tested; bp-012's 17 existing projection/observation tests pass
+  UNCHANGED — no existing test edited).
+- Consequence journaled: commits already projected by bp-012 (marked in `projections`)
+  will never retro-mint edges — same versioned-re-interpretation posture as
+  references_out itself; history enters via backfill (PD-d, owner nod) or a future
+  φ_code re-projection design. Also: `core/stores/code_observations.py`'s docstring
+  line "references_out ... is emitted EMPTY by B-b; the extractor is B-c / bp-013"
+  is now historical on its trailing clause — that file is OUT of bp-013's write_scope,
+  so left untouched; flagging for the orchestrator (one-line doc touch-up at merge, or
+  leave — the sentence is still true as written about B-b itself).
+- `build_code_sensor` wires `reference_edges=open_reference_edge_store(cfg)`; module
+  docstring updated (six handles; Lane-1 paragraph).
+- Acceptance: 8 passed (+ bp-012's 17 unchanged); ruff clean; `mypy core ops` strict →
+  "Success: no issues found in 130 source files".
