@@ -710,4 +710,61 @@ acceptance table for both Items 6 and 7, and the seal-ready journal entry.
 
 ---
 
+## Entry — 2026-07-11 — test_cron.py + operator family (245 → 89); Edit tool recovered
+
+**`test_cron.py` (104 → 100).** Read the file fully first, per plan. `FakeDreamer`/
+`FakeCurator` vs `cron_handlers`'s `Dreamer`/`Curator` params are the finding-0029 shape —
+left measured, parked. `job = SimpleNamespace()` passed where `Handler = Callable[[Job], str |
+None]` expects a `Job`: read `scheduler/cron.py` and confirmed both `dream_handler`/
+`curate_handler` ignore their `Job` argument entirely — `cast(Job, SimpleNamespace())` is the
+honest fix (a placeholder that genuinely doesn't matter here), not a core-signature question.
+The `str | None` return also needed explicit `is not None` narrowing before the `in` operator.
+
+**The Edit/Write tool recovered mid-entry** (the hook-harness cross-worktree issue from the
+prior entry self-resolved once the concurrent bp-010 session's `active-plan` pointer cleared) —
+confirmed and used normally for the rest of this entry.
+
+**`operator` family (8 → 0), same "narrow a real postcondition" T2 shape, four files.**
+`test_sourceset.py`: `SourceSet.best_distance() -> float | None` compared directly; both groups
+asserted non-empty just above (so `None` is unreachable here) — named + asserted before
+comparing. `test_selfmod.py`: `Proposal.rollback_reason -> str | None` checked with `in` right
+after asserting `status is ROLLED_BACK` (`mark_rolled_back` always sets a reason) — two sites.
+`test_supervisor.py`: `Job.error -> str | None` checked with `in` right after asserting `state
+== DEFERRED` (the ceiling-refusal path always sets an error). `test_vault_sync_wiring.py`: same
+`Handler` return shape as `test_cron.py`, AND the same `object()`-as-`Job` argument shape
+(handler ignores its `Job` param — confirmed by reading `scheduler/vault_sync.py` — so
+`cast(Job, object())`).
+
+**Two unrelated errors closed in `test_supervisor.py` while in the file:** a `list.append(...)
+or "value"` idiom (`func-returns-value`, same shape fixed in `test_verdict_dispositions.py`/
+`test_lifecycle.py` earlier this session) rewritten as a named function; `handlers: dict[str,
+Callable[..., str | None]] = {}` given an explicit annotation (`var-annotated` — the dict is
+populated by key-assignment AFTER construction, so mypy can't infer its value type from the
+empty literal alone).
+
+**T1 check: none found.** Every one of these 8 `operator` errors traced to a genuine state-
+machine/postcondition guarantee already true by construction (ROLLED_BACK implies a reason,
+ceiling-deferred implies an error, a non-empty source group has a distance) — no test was
+silently passing over a case that could actually be `None` at runtime.
+
+**Verification:** `ruff check tests/` clean; pytest 743 passed / 4 skipped; `uv run mypy` → 89
+(from 245 at Item 7's start — 156 errors closed this build so far). Commits `935488a`,
+`1bbe2b4`.
+
+**Per-item running state:** Item 6 done (0 outside tests/). Item 7: 245 → **89**. Findings:
+finding-0029, finding-0030 (both parked). Families fully closed: `import-not-found`,
+`type-arg`, `operator`. Remaining (from the last full breakdown): `arg-type` (~69, overwhelming
+majority finding-0029-shaped) · `union-attr` (~5, not yet re-checked post this entry) · `index`
+(~5) · `var-annotated` (~4, one just closed, check remainder) · `return-value` (~3) ·
+`func-returns-value` (~3, one just closed) · `import-untyped`/`dict-item`/`attr-defined` (1
+each).
+
+**Next action:** re-measure fresh, then `index`/`var-annotated`/`return-value`/
+`func-returns-value` remainder + the three 1-off stragglers, grouped by file. After those:
+confirm every remaining error is either finding-0029-shaped (`arg-type` on a Fake-vs-concrete-
+core-class) or finding-0030-adjacent (none expected there) — that is the honest floor for this
+plan's Item 7, and the point to write the final acceptance-table entry and hand back.
+
+---
+
 ## Markers
