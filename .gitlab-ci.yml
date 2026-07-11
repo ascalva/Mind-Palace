@@ -53,6 +53,7 @@ ratchet:
           - "scripts/**/*"
           - "tests/**/*"
           - "config/**/*"
+          - ".claude/**/*"       # hook/skill python is repo code: repo-wide ruff covers it
           - "edge/**/*"
           - "cloud/**/*"
           - "pyproject.toml"
