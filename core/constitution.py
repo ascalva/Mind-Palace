@@ -15,12 +15,20 @@ from __future__ import annotations
 import hashlib
 from functools import lru_cache
 from pathlib import Path
+from typing import TypedDict
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CONSTITUTION_PATH = REPO_ROOT / "CONSTITUTION.md"
 
-# Message-shaped context, compatible with the Ollama chat API.
-Message = dict  # {"role": "system"|"user"|"assistant", "content": str}
+
+class Message(TypedDict):
+    """One chat turn, Ollama chat-API shaped (bp-006 T2 convention: TypedDict).
+
+    Runtime-identical to the plain dict this replaced — TypedDict is erased to
+    dict — but the shape now crosses module boundaries visibly to the checker."""
+
+    role: str  # "system" | "user" | "assistant"
+    content: str
 
 
 @lru_cache(maxsize=1)

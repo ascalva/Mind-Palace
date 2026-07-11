@@ -35,6 +35,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+from config.loader import Config
 from core.attestation import Attestor
 from core.ingest.embed import Embedder
 from core.ingest.index import index_records
@@ -134,7 +135,7 @@ def ingest_founding(items: Iterable[FoundingItem], raw: RawStore, store: VectorS
 
 
 def build_and_ingest_founding(items: Iterable[FoundingItem],
-                              config: object | None = None) -> FoundingReport:
+                              config: Config | None = None) -> FoundingReport:
     """Wire + run the founding ingest against the configured stores + embedder (owner-run; needs the
     live embedder — see scripts/ingest_founding.py)."""
     from config.loader import get_config

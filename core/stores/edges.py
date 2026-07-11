@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
 from core.complex_types import EdgeSign
 
 # Binary relation types (a small, mostly-closed set; kept as string constants rather than an enum
@@ -111,7 +112,8 @@ class EdgeStore:
         return [self._row(r) for r in self._conn.execute(sql, params).fetchall()]
 
     def count(self) -> int:
-        return self._conn.execute("SELECT count(*) FROM edges").fetchone()[0]
+        row = self._conn.execute("SELECT count(*) FROM edges").fetchone()
+        return int(row[0]) if row else 0
 
     def reset(self) -> None:
         """Drop all edges. Similarity edges are regenerable; asserted edges are re-derivable by
@@ -137,7 +139,7 @@ class EdgeStore:
         self._conn.close()
 
 
-def open_edge_store(config: object | None = None) -> EdgeStore:
+def open_edge_store(config: Config | None = None) -> EdgeStore:
     from config.loader import get_config
 
     cfg = config or get_config()

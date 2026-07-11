@@ -58,6 +58,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Protocol
 
+from config.loader import Config
 from core.stores.derived import DerivedStore
 
 DIALOGUE_CONCLUSION = "dialogue_conclusion"   # the DerivedStore artifact kind a Supersede mints
@@ -199,7 +200,8 @@ class ClaimOpStore:
                 for r in self._conn.execute("SELECT * FROM claim_ops ORDER BY at, op_id")]
 
     def count(self) -> int:
-        return self._conn.execute("SELECT count(*) FROM claim_ops").fetchone()[0]
+        row = self._conn.execute("SELECT count(*) FROM claim_ops").fetchone()
+        return int(row[0]) if row else 0
 
     def close(self) -> None:
         self._conn.close()
@@ -293,7 +295,7 @@ def apply_operations(ops: Iterable[DialogueOp], *, ops_store: ClaimOpStore,
                        defeaters=defeaters, warrants=warrants, stale=tuple(sorted(stale)))
 
 
-def open_claim_op_store(config: object | None = None) -> ClaimOpStore:
+def open_claim_op_store(config: Config | None = None) -> ClaimOpStore:
     from config.loader import get_config
 
     cfg = config or get_config()

@@ -26,6 +26,8 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 
+from config.loader import Config
+
 
 class VerdictEffect(StrEnum):
     """What a verdict does to its subject claim in the ACTIVE projection.
@@ -113,13 +115,14 @@ class DispositionStore:
                     "SELECT * FROM dispositions ORDER BY verdict_seq").fetchall()]
 
     def count(self) -> int:
-        return self._conn.execute("SELECT count(*) FROM dispositions").fetchone()[0]
+        row = self._conn.execute("SELECT count(*) FROM dispositions").fetchone()
+        return int(row[0]) if row else 0
 
     def close(self) -> None:
         self._conn.close()
 
 
-def open_disposition_store(config: object | None = None) -> DispositionStore:
+def open_disposition_store(config: Config | None = None) -> DispositionStore:
     from config.loader import get_config
 
     cfg = config or get_config()

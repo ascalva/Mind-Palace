@@ -112,7 +112,8 @@ def _spectral_labels_component(A: sp.csr_matrix, *, k_max: int) -> np.ndarray:
     rownorm[rownorm == 0.0] = 1.0
     unit = embedding / rownorm
     _centroids, labels = kmeans2(unit, k, seed=_KMEANS_SEED, minit="++", missing="warn")
-    return labels.astype(np.int64)
+    out: np.ndarray = labels.astype(np.int64)
+    return out
 
 
 def spectral_labels(A: sp.csr_matrix, *, k_max: int = 8) -> np.ndarray:
@@ -142,8 +143,9 @@ def louvain_labels(A: sp.csr_matrix, *, resolution: float = 1.0) -> np.ndarray:
     n = A.shape[0]
     if n < 2:
         return np.zeros(n, dtype=np.int64)
-    from sknetwork.clustering import Louvain
-    return Louvain(resolution=resolution, random_state=0).fit_predict(A).astype(np.int64)
+    from core.typedshims.sknetwork import louvain_labels as _louvain_labels
+
+    return _louvain_labels(A, resolution=resolution, random_state=0)
 
 
 def diffusion_cluster_notes(notes: list[NoteVector], *, threshold: float = 0.62,

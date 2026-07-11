@@ -49,8 +49,10 @@ import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
+from config.loader import Config
 from core.provenance import Provenance
 from core.research.criteria import DeidentificationError, clean_term
 from ops.effects import Effect, EffectView, ReversibilityClass
@@ -71,7 +73,7 @@ def _utcnow() -> str:
     return datetime.now(UTC).replace(tzinfo=None).isoformat(timespec="seconds")
 
 
-def _atomic_write_json(path: Path, obj: dict) -> None:
+def _atomic_write_json(path: Path, obj: dict[str, Any]) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(obj), encoding="utf-8")
     tmp.replace(path)  # the effector never reads a partial request
@@ -108,7 +110,7 @@ class SenseRequest:
         for t in self.terms:
             clean_term(t)  # the shared conservative scrubber — raises on doubt
 
-    def to_request(self) -> dict:
+    def to_request(self) -> dict[str, Any]:
         """The outbound wire payload — de-identified fields only, no corpus content."""
         return {
             "id": self.id,
@@ -154,7 +156,7 @@ class SensedObservation:
     error: str = ""
 
     @classmethod
-    def from_dict(cls, d: dict) -> SensedObservation:
+    def from_dict(cls, d: dict[str, Any]) -> SensedObservation:
         return cls(
             request_id=str(d.get("request_id", "")),
             upstream=str(d.get("upstream", "")),
@@ -163,7 +165,7 @@ class SensedObservation:
             error=str(d.get("error", "")),
         )
 
-    def to_row(self) -> dict:
+    def to_row(self) -> dict[str, Any]:
         """The observed-tier row. Provenance is HARDCODED — there is no parameter, so no caller
         can launder a sensed result into an authored (or any other) class; the only way this
         data enters a store or view is wearing `observed` (I5's unforgeability, reflected)."""
@@ -191,7 +193,7 @@ class ObservedView:
     two views PARTITION the tiers with no representable overlap (Invariant 6, both directions).
     """
 
-    _rows: tuple[dict, ...] = ()
+    _rows: tuple[dict[str, Any], ...] = ()
 
     def __post_init__(self) -> None:
         bad = [r.get("provenance") for r in self._rows
@@ -212,7 +214,7 @@ class ObservedView:
         differently-labeled row past the type (fail-closed)."""
         return cls(_rows=tuple(o.to_row() for o in observations))
 
-    def rows(self) -> list[dict]:
+    def rows(self) -> list[dict[str, Any]]:
         """The observed rows (a fresh list; the view is immutable)."""
         return list(self._rows)
 
@@ -269,7 +271,7 @@ class SensingHandoff:
         return out
 
 
-def build_sensing_handoff(config: object | None = None) -> SensingHandoff:
+def build_sensing_handoff(config: Config | None = None) -> SensingHandoff:
     """Wire the core-side sensing handoff. REFUSES (fail-closed) unless `[effectors] enabled`
     — the whole Track-G surface is OFF by default; a fresh clone cannot emit a sense request
     until the owner deliberately turns the flag on."""

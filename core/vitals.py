@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-
-import psutil
+from typing import Any
 
 from core.stores.telemetry import TelemetryWriter
+from core.typedshims.psutil import cpu_percent, loadavg_1m, process_rss, virtual_memory
 
 _GB = 1024 ** 3
 
@@ -26,21 +26,21 @@ class Reading:
     metric: str
     value: float
     unit: str
-    labels: dict | None = None
+    labels: dict[str, Any] | None = None
 
 
 def collect_system_vitals() -> list[Reading]:
-    vm = psutil.virtual_memory()
-    proc = psutil.Process(os.getpid())
+    vm = virtual_memory()
     readings = [
         Reading("mem.total_gb", vm.total / _GB, "GB"),
         Reading("mem.available_gb", vm.available / _GB, "GB"),  # headroom vs model budget
         Reading("mem.used_pct", vm.percent, "%"),
-        Reading("cpu.percent", psutil.cpu_percent(interval=None), "%"),
-        Reading("proc.rss_gb", proc.memory_info().rss / _GB, "GB"),
+        Reading("cpu.percent", cpu_percent(), "%"),
+        Reading("proc.rss_gb", process_rss(os.getpid()) / _GB, "GB"),
     ]
-    if hasattr(psutil, "getloadavg"):
-        readings.append(Reading("load.1m", psutil.getloadavg()[0], "procs"))
+    load1 = loadavg_1m()
+    if load1 is not None:
+        readings.append(Reading("load.1m", load1, "procs"))
     return readings
 
 

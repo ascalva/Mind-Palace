@@ -35,6 +35,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
 from core.verdict.payload import SignedVerdict, VerdictPayload
 
 _DDL = """
@@ -187,7 +188,8 @@ class VerdictStore:
 
     def count(self) -> int:
         with self._lock:
-            return self._conn.execute("SELECT count(*) FROM verdicts").fetchone()[0]
+            row = self._conn.execute("SELECT count(*) FROM verdicts").fetchone()
+        return int(row[0]) if row else 0
 
     def close(self) -> None:
         with self._lock:
@@ -201,7 +203,7 @@ def _row(r: sqlite3.Row) -> VerdictRecord:
     )
 
 
-def open_verdict_store(config: object | None = None,
+def open_verdict_store(config: Config | None = None,
                        allowed_verdicts: Iterable[str] | None = None) -> VerdictStore:
     """Wire a VerdictStore beside the other core stores. `allowed_verdicts` is the ratified
     taxonomy once the owner decides it (build plan R3); None keeps the honest accept-any default."""

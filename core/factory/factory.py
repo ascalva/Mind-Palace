@@ -16,8 +16,9 @@ advises, code acts (Invariant 3).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
+from config.loader import Config
 from core.constitution import Message, frame_context
 from core.factory.registry import AgentRegistry
 from core.factory.roles import BASE_ROLES, PRE_DECLARED_MAX, RoleTemplate
@@ -35,6 +36,7 @@ from ops.gate import GateRequest, HumanGate
 if TYPE_CHECKING:  # annotations only — no runtime import (config.secrets_backend stays lazy)
     from config.secrets_backend import MintedToken, SecretsBackend
     from core.attestation.attestor import Attestor
+    from core.sandbox.broker import ExecutionBroker
 
 
 @dataclass
@@ -89,7 +91,7 @@ class MintedAgent:
                                self.build_context(task, history=history), think=think)
         return out, self_evaluate(out, judge=judge)   # advisory => no retrieval sources
 
-    def invoke(self, tool_id: str, args: dict) -> ToolResult:
+    def invoke(self, tool_id: str, args: dict[str, Any]) -> ToolResult:
         """Action path: dispatch a tool the agent is scoped for. An out-of-scope id is
         unreachable in the dispatcher → route to the human gate and refuse (§10)."""
         try:
@@ -161,7 +163,8 @@ class AgentFactory:
                                vault_token_accessor=minted.accessor)
 
 
-def build_factory(config=None, *, broker=None) -> AgentFactory:
+def build_factory(config: Config | Literal[False] | None = None, *,
+                  broker: ExecutionBroker | None = None) -> AgentFactory:
     """Wire a factory against the real model server + default tool registry (run_python is
     available only if a sandbox `broker` is supplied). When `[secrets]` is enabled, also wire the
     credential-grant path: a backend (mint authority), the attestor (records accessors), and the

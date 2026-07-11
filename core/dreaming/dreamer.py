@@ -21,6 +21,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+from config.loader import Config
 from core.attestation import Attestor
 from core.complex.support import grounding_with_support
 from core.complex.temporal import SnapshotStore, compute_snapshot
@@ -32,6 +33,7 @@ from core.dreaming.rnd import require_rnd_enabled
 from core.mirror import MirrorView
 from core.selfcheck import SelfCheck, Source, SubjectiveJudge, self_evaluate
 from core.stores.derived import DREAM, Artifact, DerivedStore, artifact_id
+from core.stores.edges import EdgeStore
 from core.stores.vectorstore import VectorStore
 
 # A synthesizer maps an assembled (Constitution-first) context -> the reflection text. The
@@ -95,7 +97,7 @@ class Dreamer:
     # Loop-v2 seams (H8/H9; both optional — the v1 path never touches them): persisted
     # typed/signed edges overlaid on the signed adjacency (the tension lens's input), and the
     # structural-snapshot store the v2 pass appends to (§5.4). None = no edges / no snapshot.
-    edge_store: object | None = None
+    edge_store: EdgeStore | None = None
     snapshots: SnapshotStore | None = None
     _snippets: dict[str, str] = field(default_factory=dict)
 
@@ -163,7 +165,7 @@ class Dreamer:
         return themes
 
     # ------------------------------------------------------------------ loop v2 (BUILD §3.1)
-    def dream_v2(self, *, config: object | None = None) -> list[Theme]:
+    def dream_v2(self, *, config: Config | None = None) -> list[Theme]:
         """The strong-Dreamer pass — deterministic structure first, the earned model call last:
 
             1. BUILD 𝔎|_MR (firewall structural: the complex is built from a MirrorView)
@@ -260,7 +262,7 @@ class Dreamer:
         )
 
 
-def build_dreamer(config: object | None = None, *, tier: str = "synthesis") -> Dreamer:
+def build_dreamer(config: Config | None = None, *, tier: str = "synthesis") -> Dreamer:
     """Wire a Dreamer against the real configured stores + synthesis model. Pulling the
     synthesis-tier model is required only to actually run it (the unit path injects a fake)."""
     from config.loader import get_config

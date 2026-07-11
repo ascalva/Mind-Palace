@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from config.loader import Config, get_config
 from core.constitution import Message
-from core.models.loader import TwoSlotLoader
+from core.models.loader import ModelConfig, TwoSlotLoader
 from core.models.ollama_client import OllamaClient
 from core.models.registry import Registry
 
@@ -25,7 +25,7 @@ class ModelServer:
     def version(self) -> str:
         return self.client.version()
 
-    def ensure_pinned(self, *, warm: bool = True):
+    def ensure_pinned(self, *, warm: bool = True) -> ModelConfig:
         return self.loader.ensure_pinned(warm=warm)
 
     def chat(self, tier: str, messages: list[Message], *,

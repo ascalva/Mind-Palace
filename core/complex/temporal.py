@@ -18,10 +18,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import duckdb
 
 import numpy as np
 from scipy.sparse.csgraph import connected_components
 
+from config.loader import Config
 from core.complex.balance import signed_spectrum
 from core.complex.blocks import sbm
 from core.complex.build import ReasoningComplex
@@ -113,7 +118,7 @@ class SnapshotStore:
     gauge (A2) and the F4 longitudinal harness consume."""
 
     path: Path
-    _conn: object = field(init=False, repr=False)
+    _conn: duckdb.DuckDBPyConnection = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         import duckdb  # heavy import kept local to construction (telemetry-store convention)
@@ -133,7 +138,8 @@ class SnapshotStore:
         )
 
     def count(self) -> int:
-        return self._conn.execute("SELECT count(*) FROM structural_snapshots").fetchone()[0]
+        row = self._conn.execute("SELECT count(*) FROM structural_snapshots").fetchone()
+        return int(row[0]) if row else 0
 
     def trajectory(self, metric: str) -> list[tuple[str, float]]:
         """The time series of one invariant, oldest first — the F4 drift-trajectory input.
@@ -163,7 +169,7 @@ class SnapshotStore:
         self._conn.close()
 
 
-def open_snapshot_store(config: object | None = None) -> SnapshotStore:
+def open_snapshot_store(config: Config | None = None) -> SnapshotStore:
     from config.loader import get_config
 
     cfg = config or get_config()

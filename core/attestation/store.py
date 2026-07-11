@@ -15,9 +15,11 @@ from __future__ import annotations
 import json
 import sqlite3
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from config.loader import Config
 from core.attestation.record import Attestation
 
 _DDL = """
@@ -63,7 +65,7 @@ class AttestationChain:
     def constitution_fingerprints(self) -> set[str]:
         return {a.constitution_fingerprint for a in self.attestations}
 
-    def verify_signatures(self, verify) -> bool:
+    def verify_signatures(self, verify: Callable[[Attestation], bool]) -> bool:
         """Step-3 hook: True iff `verify(att)` holds for every link. The caller supplies the
         verifier appropriate to the phase (unsigned records have no signature to check)."""
         return all(verify(a) for a in self.attestations)
@@ -143,14 +145,15 @@ class AttestationStore:
 
     def count(self) -> int:
         with self._lock:
-            return self._conn.execute("SELECT count(*) FROM attestations").fetchone()[0]
+            row = self._conn.execute("SELECT count(*) FROM attestations").fetchone()
+        return int(row[0]) if row else 0
 
     def close(self) -> None:
         with self._lock:
             self._conn.close()
 
 
-def open_attestation_store(config: object | None = None) -> AttestationStore:
+def open_attestation_store(config: Config | None = None) -> AttestationStore:
     from config.loader import get_config
 
     cfg = config or get_config()

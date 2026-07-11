@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from config.loader import Config
 from core.sandbox.policy import SandboxPolicy
 from core.sandbox.pool import SandboxBusyError, WarmPool
 from core.sandbox.runner import SandboxRunner, build_runner
@@ -36,20 +37,22 @@ class ExecutionBroker:
         self._log(spec)
         try:
             if self.pool is not None and spec.language == self.pool.language:
-                return self._run_pooled(spec)
+                return self._run_pooled(self.pool, spec)
             return self.runner.run_once(spec, self.policy)
         finally:
             self._in_flight -= 1
 
-    def _run_pooled(self, spec: ExecSpec) -> ExecResult:
-        container = self.pool.acquire()
+    def _run_pooled(self, pool: WarmPool, spec: ExecSpec) -> ExecResult:
+        # The pool arrives as a parameter (narrowed non-None by run()'s guard) so the
+        # requirement is visible in the signature instead of an unchecked deref of self.pool.
+        container = pool.acquire()
         healthy = False
         try:
             result = self.runner.exec_in(container, spec)
             healthy = not result.timed_out
             return result
         finally:
-            self.pool.release(container, healthy=healthy)
+            pool.release(container, healthy=healthy)
 
     def _log(self, spec: ExecSpec) -> None:
         if self.telemetry is None:
@@ -67,7 +70,8 @@ class ExecutionBroker:
             self.pool.shutdown()
 
 
-def build_broker(config=None, *, telemetry: TelemetryWriter | None = None) -> ExecutionBroker:
+def build_broker(config: Config | None = None, *,
+                 telemetry: TelemetryWriter | None = None) -> ExecutionBroker:
     """Wire a broker from config: the configured runtime + a warm pool sized to the
     concurrency cap."""
     from config.loader import get_config

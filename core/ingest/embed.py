@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from config.loader import EmbeddingConfig
+from config.loader import Config, EmbeddingConfig
 from core.models.ollama_client import OllamaClient
 
 
@@ -34,7 +34,7 @@ class Embedder:
         return self.client.embed(self.config.model, [wrapped])[0]
 
 
-def build_embedder(config: object | None = None) -> Embedder:
+def build_embedder(config: Config | None = None) -> Embedder:
     from config.loader import get_config
 
     cfg = config or get_config()

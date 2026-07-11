@@ -24,7 +24,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import Any
 
+from config.loader import Config
 from core.attestation import Attestor
 from core.dreaming.cluster import (
     Cluster,
@@ -55,7 +57,7 @@ class CurationFinding:
     subkind: str
     subjects: tuple[str, ...]
     detail: str
-    data: dict
+    data: dict[str, Any]
     digests: tuple[str, ...] = ()   # authored note digests this finding is derived FROM (G2)
 
 
@@ -176,7 +178,7 @@ class Curator:
         )
 
 
-def build_curator(config: object | None = None) -> Curator:
+def build_curator(config: Config | None = None) -> Curator:
     """Wire a Curator against the real configured stores. Contradiction detection stays
     deferred unless a detector is supplied (e.g. one backed by the synthesis model)."""
     from config.loader import get_config

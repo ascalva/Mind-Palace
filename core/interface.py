@@ -21,6 +21,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
+
+from config.loader import Config
 
 # query text -> answer text. Wires to the librarian / factory; injected so the inbox stays
 # model-agnostic and testable.
@@ -34,7 +37,7 @@ def _utcnow() -> str:
     return datetime.now(UTC).replace(tzinfo=None).isoformat(timespec="seconds")
 
 
-def _atomic_write_json(path: Path, obj: dict) -> None:
+def _atomic_write_json(path: Path, obj: dict[str, Any]) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(obj), encoding="utf-8")
     tmp.replace(path)   # rename is atomic; the gateway never reads a partial response
@@ -83,7 +86,7 @@ class CoreInbox:
             time.sleep(poll_interval)
 
 
-def build_core_inbox(config=None) -> CoreInbox:
+def build_core_inbox(config: Config | None = None) -> CoreInbox:
     """Wire the inbox to the **Ambassador** — the conversational front door (Track B). The
     Ambassador reasons about intent and routes to retrieve / explain / status / capture inline,
     delegating heavy work; conversations are captured as `authored-dialogue`.
