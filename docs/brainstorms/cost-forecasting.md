@@ -115,3 +115,33 @@ first cut)?
 Status: design-tier; generalizes the cost-forecasting thread into a sensor-architecture
 question. Cross-ref: `code-observation-projection.md` (the seam), the evolution study. Park for
 a Fable/xhigh design session.
+
+---
+
+## 2026-07-11 — projecting the WORLDVIEW onto the stratum; supersession = the view's evolution recorded (owner)
+
+Owner extension: the agent projects not just readings but its "world view" / sensor-view onto
+the observed stratum — and we then observe how THAT changes over time. **Key realization: this
+is already a primitive, not new machinery.** The interpreter contract
+(`code-observation-projection.md` §2.2) makes *re-interpretation = versioned supersession at
+the same identity key.* The interpreter IS the view. So when the agent's way-of-seeing changes,
+re-projecting the SAME source under the NEW view creates a SUPERSEDING observation at the same
+key — and the supersession chain is the fossil record of the changing worldview.
+
+Consequence: the observed stratum records not just "what the world was" but "how the agent SAW
+it at each point in time" — an **epistemology-over-time**. For the self-sensor specifically: it
+records how the agent's model of ITSELF evolved. Ouroboros at another turn — observing the
+evolution of one's own way of seeing.
+
+Why it stays safe (extends the passive-stratum argument): the supersession chain is a HISTORY,
+write-side, not a live feedback loop. The current view's projections accumulate as versioned
+data without the view reshaping behavior in-loop. "Watch the worldview change" WITHOUT "the
+worldview changing itself uncontrollably."
+
+Concrete: **bp-012's §2.2 interpreter contract is LITERALLY this for the code sensor** — improve
+the interpreter, re-project, supersede; the version chain shows how the reading of the code
+evolved. The owner's insight generalizes it across all sensors (incl. the self-sensor): every
+sensor records readings AND the evolution of its interpretive view, via supersession.
+
+Status: design-tier capstone of the self-sensor thread; ties it to EXISTING interpreter/
+supersession machinery (a buildable hook, not just philosophy). Park for the design session.
