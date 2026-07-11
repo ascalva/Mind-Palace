@@ -23,6 +23,7 @@ dev = [
     "ruff>=0.5",
     "hypothesis>=6.0",   # property-based tests for the invariant catalog (I6/I9/I10/I13)
     "mypy>=1.13",
+    "scipy-stubs>=1.14", # scipy ships no py.typed; maintained stubs keep core/complex in the checked region
 ]
 # Zone B (edge) ONLY — never a core dependency. The research-airlock bridge talks to S3 with
 # boto3; the import-firewall (ops/import_lint.py) forbids boto3 anywhere under core/. The
@@ -114,8 +115,11 @@ disallow_any_generics = true
 disallow_untyped_decorators = true
 warn_return_any = true
 
-# V2 (2026-07-11): no py.typed — interim ignores; §2.5 boundary wrappers quarantine these
-# to one typed module per dependency when B-1's build lands.
+# V2 (2026-07-11): no py.typed upstream. `lancedb`/`sknetwork`/`psutil` are wrapped by the
+# §2.5 boundary shims (core/typedshims/{lancedb,sknetwork,psutil}.py — bp-006 Item 2); each
+# shim carries its own per-line warranted ignore, so no blanket override remains for them.
+# `watchdog` alone keeps the interim override: an OPTIONAL extra, lazily imported inside
+# core/ingest/watch.py, and possibly absent from the environment entirely.
 [[tool.mypy.overrides]]
-module = ["lancedb.*", "sknetwork.*", "psutil.*", "watchdog.*"]
+module = ["watchdog.*"]
 ignore_missing_imports = true

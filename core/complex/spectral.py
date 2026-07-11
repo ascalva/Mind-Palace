@@ -142,8 +142,9 @@ def louvain_labels(A: sp.csr_matrix, *, resolution: float = 1.0) -> np.ndarray:
     n = A.shape[0]
     if n < 2:
         return np.zeros(n, dtype=np.int64)
-    from sknetwork.clustering import Louvain
-    return Louvain(resolution=resolution, random_state=0).fit_predict(A).astype(np.int64)
+    from core.typedshims.sknetwork import louvain_labels as _louvain_labels
+
+    return _louvain_labels(A, resolution=resolution, random_state=0)
 
 
 def diffusion_cluster_notes(notes: list[NoteVector], *, threshold: float = 0.62,

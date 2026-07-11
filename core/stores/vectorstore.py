@@ -15,10 +15,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import lancedb
 import pyarrow as pa
 
 from core.provenance import Provenance
+from core.typedshims.lancedb import VectorTable, connect
 
 TABLE = "chunks"
 
@@ -43,9 +43,9 @@ class VectorStore:
 
     def __post_init__(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._db = lancedb.connect(str(self.path))
+        self._db = connect(str(self.path))
 
-    def _table(self):
+    def _table(self) -> VectorTable:
         if TABLE in self._db.list_tables().tables:
             return self._db.open_table(TABLE)
         return self._db.create_table(TABLE, schema=_schema(self.dim))
