@@ -48,27 +48,17 @@ In the `amendments:` list add:
   becomes workable — task capability still never exceeds what §5 grants.
 ```
 
-## Edit 3 — §5 hook-contract row (scope-guard description) — RUN, don't paste
+## Edit 3 — §5 hook-contract row — ONE-LINE command (indentation-proof)
 
-The row is a markdown TABLE CELL: pasted newlines break it. Run this instead (one line
-lands in the cell):
+The row is a markdown table cell (pasted newlines break it) and heredocs break under
+copy indentation. Paste this single line as-is:
 
-```bash
-python3 - <<'PYEOF'
-from pathlib import Path
-p = Path("docs/design-notes/agent-workflow.md")
-t = p.read_text()
-old = "A global foundation-file denylist applies beneath any plan, in every session, orchestrator included."
-new = ("A global foundation-file denylist (`CONSTITUTION.md`, `eval/golden/**`, `eval/golden.py`) "
-       "applies beneath any plan, in every session, orchestrator included. Design notes are guarded "
-       "by STATUS, not location (A8): draft notes are agent-writable working material; "
-       "ratified/superseded notes are agent-immutable — enforced pre-hoc on on-disk status and "
-       "post-hoc against HEAD status (laundering-proof).")
-assert old in t, "target sentence not found"
-p.write_text(t.replace(old, new, 1))
-print("edit 3 applied — single line, table intact")
-PYEOF
 ```
+perl -0777 -i -pe 's{A global foundation-file denylist applies beneath any plan, in every session, orchestrator included\.}{A global foundation-file denylist (`CONSTITUTION.md`, `eval/golden/**`, `eval/golden.py`) applies beneath any plan, in every session, orchestrator included. Design notes are guarded by STATUS, not location (A8): draft notes are agent-writable working material; ratified/superseded notes are agent-immutable — enforced pre-hoc on on-disk status and post-hoc against HEAD status (laundering-proof).}' docs/design-notes/agent-workflow.md && git add docs/design-notes/agent-workflow.md && git commit -m "docs(design): A8 edit 3 — scope-guard row gains the status-aware description"
+```
+
+NOTE: edits 1+2 were ratified and committed 2026-07-11 (`8a5131e`) — this edit is the
+remaining descriptive row only.
 
 ---
 
