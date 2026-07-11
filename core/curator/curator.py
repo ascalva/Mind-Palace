@@ -25,6 +25,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+from config.loader import Config
 from core.attestation import Attestor
 from core.dreaming.cluster import (
     Cluster,
@@ -176,7 +177,7 @@ class Curator:
         )
 
 
-def build_curator(config: object | None = None) -> Curator:
+def build_curator(config: Config | None = None) -> Curator:
     """Wire a Curator against the real configured stores. Contradiction detection stays
     deferred unless a detector is supplied (e.g. one backed by the synthesis model)."""
     from config.loader import get_config

@@ -18,6 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from config.loader import Config
 from core.constitution import Message, frame_context
 from core.factory.registry import AgentRegistry
 from core.factory.roles import BASE_ROLES, PRE_DECLARED_MAX, RoleTemplate
@@ -161,7 +162,7 @@ class AgentFactory:
                                vault_token_accessor=minted.accessor)
 
 
-def build_factory(config=None, *, broker=None) -> AgentFactory:
+def build_factory(config: Config | None = None, *, broker=None) -> AgentFactory:
     """Wire a factory against the real model server + default tool registry (run_python is
     available only if a sandbox `broker` is supplied). When `[secrets]` is enabled, also wire the
     credential-grant path: a backend (mint authority), the attestor (records accessors), and the

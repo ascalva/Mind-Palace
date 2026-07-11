@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 from scipy.sparse.csgraph import connected_components
 
+from config.loader import Config
 from core.complex.balance import signed_spectrum
 from core.complex.blocks import sbm
 from core.complex.build import ReasoningComplex
@@ -163,7 +164,7 @@ class SnapshotStore:
         self._conn.close()
 
 
-def open_snapshot_store(config: object | None = None) -> SnapshotStore:
+def open_snapshot_store(config: Config | None = None) -> SnapshotStore:
     from config.loader import get_config
 
     cfg = config or get_config()

@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
 from core.research.criteria import Paper, ResearchCriteria
 
 REQUESTS = "requests"
@@ -104,7 +105,7 @@ class ResearchAirlock:
         return out
 
 
-def build_airlock(config: object | None = None) -> ResearchAirlock:
+def build_airlock(config: Config | None = None) -> ResearchAirlock:
     """Wire the core-side airlock against the configured handoff directory."""
     from config.loader import get_config
 

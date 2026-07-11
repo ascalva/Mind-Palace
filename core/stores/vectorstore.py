@@ -17,6 +17,7 @@ from typing import Any
 
 import pyarrow as pa
 
+from config.loader import Config
 from core.provenance import Provenance
 from core.typedshims.lancedb import VectorTable, connect
 
@@ -152,7 +153,7 @@ class VectorStore:
         return q.limit(k).to_list()
 
 
-def open_vector_store(config: object | None = None) -> VectorStore:
+def open_vector_store(config: Config | None = None) -> VectorStore:
     from config.loader import get_config
 
     cfg = config or get_config()

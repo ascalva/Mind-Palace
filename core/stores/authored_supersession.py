@@ -38,6 +38,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Final
 
+from config.loader import Config
+
 # Private construction guard: only `owner_declaration()` holds it, so a valid `OwnerDeclaration`
 # cannot be fabricated by a caller that merely imports this module (a model/scheduler/dreamer path).
 _OWNER_TOKEN: Final = object()
@@ -159,7 +161,7 @@ class AuthoredSupersessionStore:
         self._conn.close()
 
 
-def open_authored_supersession_store(config: object | None = None) -> AuthoredSupersessionStore:
+def open_authored_supersession_store(config: Config | None = None) -> AuthoredSupersessionStore:
     from config.loader import get_config
 
     cfg = config or get_config()

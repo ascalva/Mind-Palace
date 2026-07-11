@@ -18,6 +18,7 @@ import threading
 from dataclasses import dataclass
 from pathlib import Path
 
+from config.loader import Config
 from core.attestation.record import Attestation
 
 _DDL = """
@@ -150,7 +151,7 @@ class AttestationStore:
             self._conn.close()
 
 
-def open_attestation_store(config: object | None = None) -> AttestationStore:
+def open_attestation_store(config: Config | None = None) -> AttestationStore:
     from config.loader import get_config
 
     cfg = config or get_config()

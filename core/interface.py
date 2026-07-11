@@ -22,6 +22,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
+
 # query text -> answer text. Wires to the librarian / factory; injected so the inbox stays
 # model-agnostic and testable.
 Handler = Callable[[str], str]
@@ -83,7 +85,7 @@ class CoreInbox:
             time.sleep(poll_interval)
 
 
-def build_core_inbox(config=None) -> CoreInbox:
+def build_core_inbox(config: Config | None = None) -> CoreInbox:
     """Wire the inbox to the **Ambassador** — the conversational front door (Track B). The
     Ambassador reasons about intent and routes to retrieve / explain / status / capture inline,
     delegating heavy work; conversations are captured as `authored-dialogue`.

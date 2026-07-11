@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
 from core.complex_types import EdgeSign
 
 # Binary relation types (a small, mostly-closed set; kept as string constants rather than an enum
@@ -137,7 +138,7 @@ class EdgeStore:
         self._conn.close()
 
 
-def open_edge_store(config: object | None = None) -> EdgeStore:
+def open_edge_store(config: Config | None = None) -> EdgeStore:
     from config.loader import get_config
 
     cfg = config or get_config()

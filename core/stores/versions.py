@@ -35,6 +35,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
+
 
 def _utcnow() -> str:
     return datetime.now(UTC).replace(tzinfo=None).isoformat(timespec="seconds")
@@ -113,7 +115,7 @@ def _row(r: sqlite3.Row) -> Version:
     return Version(doc_id=r["doc_id"], version_seq=r["version_seq"], digest=r["digest"], at=r["at"])
 
 
-def open_version_store(config: object | None = None) -> VersionStore:
+def open_version_store(config: Config | None = None) -> VersionStore:
     from config.loader import get_config
 
     cfg = config or get_config()

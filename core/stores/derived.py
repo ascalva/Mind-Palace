@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from config.loader import Config
 from core.complex_types import HyperedgeRole
 from core.provenance import Provenance
 
@@ -412,7 +413,7 @@ class DerivedStore:
         self._conn.close()
 
 
-def open_derived_store(config: object | None = None) -> DerivedStore:
+def open_derived_store(config: Config | None = None) -> DerivedStore:
     from config.loader import get_config
 
     cfg = config or get_config()

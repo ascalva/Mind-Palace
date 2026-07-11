@@ -18,6 +18,7 @@ import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from config.loader import Config
 from core.attestation import Attestor
 from core.ingest.embed import Embedder
 from core.ingest.index import index_records
@@ -68,7 +69,7 @@ class DialogueCapture:
         return record.digest
 
 
-def build_dialogue_capture(config: object | None = None) -> DialogueCapture:
+def build_dialogue_capture(config: Config | None = None) -> DialogueCapture:
     """Wire a DialogueCapture against the configured stores + embedder."""
     from config.loader import get_config
     from core.attestation import build_attestor

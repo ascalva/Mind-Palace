@@ -21,6 +21,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+from config.loader import Config
 from core.attestation import Attestor
 from core.complex.support import grounding_with_support
 from core.complex.temporal import SnapshotStore, compute_snapshot
@@ -163,7 +164,7 @@ class Dreamer:
         return themes
 
     # ------------------------------------------------------------------ loop v2 (BUILD §3.1)
-    def dream_v2(self, *, config: object | None = None) -> list[Theme]:
+    def dream_v2(self, *, config: Config | None = None) -> list[Theme]:
         """The strong-Dreamer pass — deterministic structure first, the earned model call last:
 
             1. BUILD 𝔎|_MR (firewall structural: the complex is built from a MirrorView)
@@ -260,7 +261,7 @@ class Dreamer:
         )
 
 
-def build_dreamer(config: object | None = None, *, tier: str = "synthesis") -> Dreamer:
+def build_dreamer(config: Config | None = None, *, tier: str = "synthesis") -> Dreamer:
     """Wire a Dreamer against the real configured stores + synthesis model. Pulling the
     synthesis-tier model is required only to actually run it (the unit path injects a fake)."""
     from config.loader import get_config

@@ -17,6 +17,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
+from config.loader import Config
 from core.stores.verdicts import VerdictRecord, VerdictStore
 from core.verdict.dispositions import DispositionStore, VerdictEffect
 from core.verdict.payload import SignedVerdict
@@ -27,7 +28,7 @@ class OwnerKeyMissing(RuntimeError):
     unverifiable verdict is never stored). Place `[attestation] owner_pub` before receiving."""
 
 
-def load_owner_pub_b64(config: object | None = None) -> str:
+def load_owner_pub_b64(config: Config | None = None) -> str:
     """The owner's base64 Ed25519 public key from the committed `[attestation] owner_pub` file —
     the same non-secret key material the attestation verifier already loads
     (`core/attestation/verify.load_public_keys`). Raises `OwnerKeyMissing` if absent, so a verdict
@@ -75,7 +76,7 @@ def apply_verdict(record: VerdictRecord, dispositions: DispositionStore) -> Verd
 
 
 def build_verdict_receiver(
-    config: object | None = None,
+    config: Config | None = None,
 ) -> Callable[[SignedVerdict], VerdictRecord]:
     """Wire (store, owner key) from config into a `receive(signed)` closure — the transport seam a
     scheduler/interface layer calls with a `SignedVerdict` it carried inbound. The store is opened

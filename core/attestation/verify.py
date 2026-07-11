@@ -18,6 +18,7 @@ from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
+from config.loader import Config
 from core.attestation.crypto import public_from_b64
 from core.attestation.crypto import verify as _verify
 from core.attestation.record import Attestation
@@ -58,7 +59,7 @@ def load_public_keys(
     return keys
 
 
-def build_verifier(config: object | None = None) -> Callable[[Attestation], bool]:
+def build_verifier(config: Config | None = None) -> Callable[[Attestation], bool]:
     """Wire a verifier from the configured public-key paths (`[attestation]`)."""
     from config.loader import get_config
 

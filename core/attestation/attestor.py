@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Protocol
 
+from config.loader import Config
 from core.attestation.crypto import Ed25519Signer
 from core.attestation.record import Attestation
 from core.attestation.store import AttestationStore
@@ -88,7 +89,7 @@ class StoreAttestor:
         return att
 
 
-def build_attestor(config: object | None = None) -> StoreAttestor:
+def build_attestor(config: Config | None = None) -> StoreAttestor:
     """Wire a StoreAttestor against the configured append-only attestation store.
 
     Signing is owner-gated: only when `[attestation] enabled = true` is a supervisor signer

@@ -51,6 +51,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
+from config.loader import Config
 from core.provenance import Provenance
 from core.research.criteria import DeidentificationError, clean_term
 from ops.effects import Effect, EffectView, ReversibilityClass
@@ -269,7 +270,7 @@ class SensingHandoff:
         return out
 
 
-def build_sensing_handoff(config: object | None = None) -> SensingHandoff:
+def build_sensing_handoff(config: Config | None = None) -> SensingHandoff:
     """Wire the core-side sensing handoff. REFUSES (fail-closed) unless `[effectors] enabled`
     — the whole Track-G surface is OFF by default; a fresh clone cannot emit a sense request
     until the owner deliberately turns the flag on."""
