@@ -324,3 +324,27 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   builder set MAIN's active-plan pointer) falsely scoped the orchestrator to bp-011, so the
   Edit-tool scope-guard would deny these legitimate orchestrator writes — documented workaround
   per finding-0031's precedent. Swept when /triage runs.
+
+---
+
+## oq-0014 — Ratify `ci-platform-and-runner-strategy.md`, and rule D4 (release home = repo host)?
+- status: open
+- origin: docs/design-notes/ci-platform-and-runner-strategy.md (promoted from finding-0034 + finding-0032)
+- blocking: true   # the only working CI gate + the deploy-attestation path hang on it (GitLab minutes = 0)
+- question: The runner/CI strategy note is drafted per your 2026-07-11 direction: GitHub Actions
+  becomes the authoritative gate now (repo public → unlimited free; Gate-0 public-tree check
+  CLEARED — see note §2); AWS Lambda MicroVM runners PARK on three named triggers (§4 D7);
+  finding-0032's `needs:[]` closes as subsumed-by-construction (D6). Two asks: (1) ratify the
+  note by hand (`status: draft → ratified`) so `/graduate` can mint Plan A (parity gate — the
+  stale GitHub workflow is currently red-at-install on every mirrored main push), Plan B
+  (witness re-point), Plan C (docs home). (2) Rule **D4**: `.releaserc.json`'s commit-back
+  means the release host must BE the origin host — so either (i) **end-state, recommended:
+  GitHub becomes origin** (release via workflow_dispatch, plugin swap, PR/branch CI unlocked),
+  or (ii) **interim default: GitLab stays origin and you cut releases locally**
+  (`npm run release`, zero minutes, no divergence). The diverging shape (GitHub-hosted release
+  + GitLab origin) is forbidden either way.
+- default_if_unanswered: the note stays draft and ungraduatable — the CI gate stays dead
+  (GitLab 0 min; GitHub red-at-install), deploy stays hard-blocked (no attestable green), and
+  pushing stays unconstrained. D4 defaults to (ii) interim. Parks on finding-0034; re-entry —
+  owner ratifies here/by hand, or the monthly GitLab reset arrives and the metered leak resumes.
+- answer:

@@ -10,7 +10,7 @@ updated: 2026-07-11
 links:
   - docs/build-plans/bp-008/journal.md   # Entry 4: the demo-branch episode
   - .gitlab-ci.yml                        # type-gate and ratchet jobs (lint stage)
-resolution: owner-adopted 2026-07-11 — mint a CI-scoped plan (needs:[] on type-gate + ratchet)
+resolution: owner-adopted 2026-07-11; folded same day into dn-ci-platform-and-runner-strategy D6 — subsumed by construction on GitHub Actions (independent jobs); the standalone GitLab needs:[] plan is NOT minted
 ---
 
 # finding-0032 — Should CI gates (`type-gate`, `ratchet`) run via `needs: []`, independent of the `.pre` stage?

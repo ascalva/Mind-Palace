@@ -2019,3 +2019,33 @@ trilogy's done, sequenced next among the BUILD units. Full-strength (enforcement
 design note (structured on the a/b/c fork; first gate = confirm nothing sensitive in the public
 tree) → ratify (owner) → /graduate. Then supervision-tier: bp-014, then /triage (sweep findings
 0027-0036, batch owner questions, promotions). Owner desk: oq-0003..0010.
+
+### Checkpoint 2026-07-11 (night) — CI/runner design note DRAFTED (Fable/xhigh); ratification asked (oq-0014)
+
+**`docs/design-notes/ci-platform-and-runner-strategy.md` drafted** (promotes finding-0034, folds
+finding-0032). The owner's (a)/(b)/(c) fork resolves as a SEQUENCE: **(a) GitHub Actions becomes
+the authoritative gate now** (unlimited free, public repo); **(b) MicroVM runners PARK on three
+triggers** (CI executes untrusted/AI code · hosted limits bite · repo goes private); (c) arrives
+exactly when a trigger fires. Grounding done this session:
+- **Gate 0 CLEARED** — public-tree check: 669 tracked files clean (only synthetic golden corpus +
+  reconciliation audits); full-history pattern scan 0 hits (AKIA/PEM/glpat/ghp/xox/sk-); PII =
+  555-fixtures only. Residual: one real gitleaks full-history run → Plan A acceptance item.
+- **New structural fact (P5):** `.releaserc.json` commit-back (`@semantic-release/git`) means the
+  release host MUST be the origin host — "semantic-release on GitHub + GitLab origin" would fork
+  main and break the mirror. So release-home = repo-host decision → **D4, the ratification ruling**
+  (recommended end-state: GitHub becomes origin; interim default: GitLab origin + owner cuts
+  releases locally, zero minutes).
+- **Live observation:** Actions DO fire on mirror pushes, and the stale workflow is **red-at-install**
+  (not false-green): `pip install -e '.[dev]'` fails in both installing jobs (run 29169533661 on
+  `ef9319ea`); dep-free `import-firewall` passes. A re-pointed witness today would hard-block deploy
+  → parity (Plan A) strictly precedes the witness re-point (Plan B).
+- **finding-0032 → closed as SUBSUMED** (D6: GitHub jobs are independent by construction; no GitLab
+  `needs:[]` plan minted). finding-0034 → promoted (resolution lines updated on both).
+- **Consequences sketched for /graduate:** Plan A (parity gate: uv + ruff + check_imports + mypy
+  0/69 split + pytest markers + vault service-container + semgrep/gitleaks + tombstone
+  `.gitlab-ci.yml`; NO paths-filters — every main sha yields a verdict, P2) · Plan B (ci_witness
+  GitHub backend, Keychain `github-api`, absent-grace) · Plan C (docs → GitHub Pages).
+- **oq-0014 filed (blocking: true):** ratify the note + rule D4. Desk now oq-0003..0010 + 0014.
+
+**Next:** if ratified → `/graduate` the note (Fable/xhigh). Else → bp-014 (opus/default,
+supervision; finding-0031 fix + finding-0035 hook mechanism). Then /triage.

@@ -11,7 +11,7 @@ links:
   - .gitlab-ci.yml                          # workflow.rules + the included security/release templates
   - docs/findings/finding-0032.md           # sibling CI-topology finding (needs:[]); fold together
   - docs/memory/... (push & deploy policy)  # deploy needs an attested green pipeline
-resolution: null
+resolution: promoted 2026-07-11 — docs/design-notes/ci-platform-and-runner-strategy.md (draft; ratification asked as oq-0014)
 ---
 
 # finding-0034 — CI runner-minutes are a deploy-blocking bottleneck; every push burns them
