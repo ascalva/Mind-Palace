@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-012
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/code-observation-projection.md
 contract: builder
@@ -9,7 +9,8 @@ write_scope:
   - "core/stores/code_observations.py"
   - "core/sensing.py"
   - "ops/code_sensor.py"
-  - "ops/lifecycle/launcher.py"   # oq-0013: owner-concurred (Item 4 reset registration), 2026-07-11
+  # oq-0013: owner-concurred (Item 4 reset registration), 2026-07-11
+  - "ops/lifecycle/launcher.py"
   - "tests/**"
   - "docs/findings/**"
   - "docs/build-plans/bp-012/**"
