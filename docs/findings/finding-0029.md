@@ -71,21 +71,38 @@ cast site).
 
 ## Re-entry condition
 
+**Final measurement (Item 7 close, bp-007):** every mypy error left in `tests/**` at the
+end of this plan's Item 7 — 69 errors in 20 files, entirely `arg-type` (66) and
+`return-value` (3), ZERO of any other kind — is this exact shape. Confirmed classes
+(each verified by reading the real signature, not inferred from the error text alone):
+`core/ingest/embed.py: Embedder`, `core/models/server.py: ModelServer`,
+`core/stores/vectorstore.py: VectorStore`, `core/stores/rawstore.py: RawStore`,
+`core/sandbox/*.py: WasmRunner`/`PodmanRunner`/`SandboxPolicy`, `core/dreaming/dreamer.py:
+Dreamer`, `core/curator/curator.py: Curator`, `core/ingest/sync.py: VaultSync`,
+`scheduler/queue.py: Job` (via `cron_handlers`'s `Dreamer`/`Curator` params, not `Job`
+itself — `Job`-as-parameter sites were fixable in-scope, see journal), and — confirmed
+during Item 7's `operator`/`return-value` sweep, not just suspected — `eval/drift.py:
+DriftReport`: `core/ops_view.py: OpsView.over`'s `drift: Callable[[], DriftReport] |
+None` param rejects `tests/integrity/test_ops_view.py`'s `_FakeDrift`, which provides
+only `within_tolerance`/`constitution_intact` of `DriftReport`'s five fields, by design —
+a narrower Protocol is exactly what `OpsView` needs there, not the full report shape.
+
 A future build plan with `core/**` in its write_scope (or an owner-approved narrow
-exception) takes each of the six named classes (`Embedder`, `ModelServer`, `VectorStore`,
-`RawStore`, `WasmRunner`, `PodmanRunner`) — plus `DriftReport` if it reproduces the same
-shape on inspection — and either (a) introduces a Protocol at the exact call sites that
-accept them as injected dependencies (the `ChatServer` precedent, `agents/ambassador/
-agent.py`), narrowed to only the methods actually called through that parameter (per
-this session's `ops/lifecycle/launcher.py` lesson: a Protocol should match the caller's
-actual usage, not the full concrete class), or (b) records a reasoned decision that a
-concrete-class requirement is intentional for some of them (e.g. if a class is never
-faked in tests, tightening it to a Protocol would add complexity with no payoff) and
-narrows this finding's scope accordingly. Until then, bp-007 parks these ~37+ `arg-type`
-errors UNFIXED under a warranted-but-scattered fallback (see journal for which sites got
-a local, narrowly-warranted `cast`/`# type: ignore` where the alternative was leaving the
-whole file red, versus which were left as measured, un-silenced red — recorded per-site
-in the Item-7 journal entries).
+exception) takes each of these confirmed classes and either (a) introduces a Protocol at
+the exact call sites that accept them as injected dependencies (the `ChatServer`
+precedent, `agents/ambassador/agent.py`), narrowed to only the methods actually called
+through that parameter (per this session's `ops/lifecycle/launcher.py` lesson: a
+Protocol should match the caller's actual usage, not the full concrete class), or (b)
+records a reasoned decision that a concrete-class requirement is intentional for some of
+them (e.g. if a class is never faked in tests, tightening it to a Protocol would add
+complexity with no payoff) and narrows this finding's scope accordingly. Until then,
+bp-007 leaves these 69 `arg-type`/`return-value` errors UNFIXED and measured-red — no
+`cast`/`# type: ignore` was applied to any of them (the falsifier line was crossed
+zero times: this finding's whole point is that per-site casts would be the anti-pattern,
+so none were added at these specific sites — every `cast`/`# type: ignore` bp-007 DID
+apply elsewhere this session was for a genuinely different, narrower reason, recorded
+per-site in the Item-7 journal entries, e.g. "this Job/Config argument is a documented
+placeholder the handler never reads").
 
 ## Routing
 

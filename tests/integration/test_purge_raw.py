@@ -34,7 +34,9 @@ def _index(sync: VaultSync, name: str, content: str) -> str:
     p = sync.vault / name
     p.write_text(content, encoding="utf-8")
     sync.sync_path(p)
-    return sync.catalog.get(str(p)).digest
+    entry = sync.catalog.get(str(p))
+    assert entry is not None   # just synced this exact path
+    return entry.digest
 
 
 def test_purge_refused_without_confirm(tmp_path):

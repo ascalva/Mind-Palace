@@ -148,9 +148,13 @@ def test_status_is_plain_language_and_uses_no_model(tmp_path):
 
 
 def test_task_delegates_and_narrates_effort(tmp_path):
-    delegated = []
-    amb, att_store, _store = _amb(
-        tmp_path, delegate=lambda q, c: delegated.append((q, c)) or "task-1")
+    delegated: list[tuple[str, str]] = []
+
+    def _delegate(q: str, c: str) -> str:
+        delegated.append((q, c))
+        return "task-1"
+
+    amb, att_store, _store = _amb(tmp_path, delegate=_delegate)
     turn = amb.respond("look into whether I've been more anxious lately")
 
     assert turn.intent is Intent.TASK

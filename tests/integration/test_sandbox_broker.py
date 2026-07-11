@@ -43,7 +43,7 @@ def test_timeout_result_discards_the_container():
 
 
 def test_concurrency_cap_blocks_reentrant_run():
-    holder = {}
+    holder: dict[str, ExecutionBroker] = {}
 
     class Reentrant(FakeRunner):
         def run_once(self, spec, policy):
