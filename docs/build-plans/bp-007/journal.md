@@ -527,4 +527,55 @@ narrowing gaps — watch for a hidden T1 per the plan's explicit warning).
 
 ---
 
+## Entry — 2026-07-11 — finding-0029 filed; **dict splat family closed (179 → 165)
+
+**finding-0029 filed** (`docs/findings/finding-0029.md`, ftype `discovery`, route
+`orchestrator`) for the systemic core-injectable-as-concrete-class pattern named in the prior
+entry — parked with a re-entry condition (a future core-scoped plan takes `Embedder`/
+`ModelServer`/`VectorStore`/`RawStore`/`WasmRunner`/`PodmanRunner` through the same
+Protocol-at-call-site treatment `ChatServer` got this session). Sequence starts at
+finding-0029 per the orchestrator's mid-run note (finding-0028 is bp-009's, already merged to
+`main`). Commit `98baaa9`.
+
+**The `**dict` splat family (same shape as `test_effect_gate_fsm.py`, different call surface).**
+`tests/unit/test_backup_plan.py`'s `_plan(**kw)`: `BackupPlan` is a frozen dataclass, so the
+`dict()` + `**base`/`base.update(kw)` pattern became a module-level `_BASE_PLAN` instance +
+`dataclasses.replace(_BASE_PLAN, **kw)` — direct rerun of the `test_effect_gate_fsm.py` fix.
+`tests/integration/test_attestation_store.py`'s `_att(**kw)` and `tests/integrity/
+test_attestation_signatures.py`'s `_signed(**kw)`: **different shape** — `Attestation.create`
+is a classmethod FACTORY, not the dataclass itself, so `dataclasses.replace` doesn't apply.
+Read every call site first (`grep _att(` / `grep _signed(`) to find which kwargs are ever
+actually overridden, then rewrote each helper to take those as EXPLICIT typed keyword params
+(defaults matching the original dict literal) instead of a bare `**kw` — more code than a
+splat, but each parameter's real type stays visible to the checker and to a reader.
+`tests/integrity/test_attestation_vault_join.py`'s one `**base` site was narrow enough (only
+`vault_token_accessor` varies) for a local closure instead of a reusable helper.
+
+**One more `type-arg` closed while in this file family:** `tests/fixtures/attestation.py`'s
+`dev_public_keys() -> dict` (bare) → `dict[str, Ed25519PublicKey]` — read
+`core/attestation/verify.py`'s `make_verifier(public_keys: dict[str, Ed25519PublicKey], ...)`
+first rather than defaulting to `dict[str, Any]`; this fixture's return type IS
+`make_verifier`'s exact input shape, a known type, not an open payload.
+
+**Verification:** `ruff check tests/` clean; pytest 743 passed / 4 skipped; `uv run mypy` →
+165 (from 179). Commit `2471443`.
+
+**Per-item running state:** Item 6 done (0 outside tests/). Item 7: 245 → 165 so far. Findings:
+finding-0029 filed (parked, not blocking). Remaining error kinds (re-measure needed for exact
+current breakdown, but expect from the Item-7-start kind tally minus what's now closed):
+`union-attr` ~36 (the `X | None` narrowing family — next), remaining `arg-type` (mostly the
+finding-0029-shaped Fake-vs-concrete-class errors, now measured red and left as such per the
+finding's park), `type-arg` remainder, `operator` 10, `index` 5, `func-returns-value` few
+left, `var-annotated` 4, `return-value` 3.
+
+**Next action:** the `union-attr` family — `tests/integration/test_vault_sync.py`'s
+`CatalogEntry | None` (11 of its 13 errors) and `tests/integration/test_lifecycle.py`'s
+`RunRecord | None` (both seen recurring in every mypy tail this session) are the two biggest
+concentrations. Per the plan's explicit T1 warning, read each site's actual runtime guarantee
+before asserting past it — some may be genuine "catalog lookup after a fresh add, never None"
+narrowing gaps (T2, safe to assert); a few might reveal a real reachable None the test
+currently doesn't cover (T1 — file a finding, don't silently assert).
+
+---
+
 ## Markers
