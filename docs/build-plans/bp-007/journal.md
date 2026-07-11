@@ -156,4 +156,56 @@ existing psutil boundary shim in `core/typedshims/psutil.py` — reuse rather th
 
 ---
 
+## Entry — 2026-07-11 — Item 6 continued: ops ledger family + apply/code_sensor (ops 74 → 51)
+
+**ops/apply.py (2), ops/code_sensor.py (2).** Mechanical: `read_overlay`/`write_overlay`'s
+`{section: {key: value}}` typed `dict[str, dict[str, float | int]]` (the exact scalar
+`_format`/`write_overlay` already coerce to — no guessing, read the coercion code first);
+`build_code_sensor`'s `config: object | None` → `Config | None`, same family as scheduler/agents.
+
+**ops/effect_ledger.py (5), ops/ledger.py (6) — the propose/decide ledger family.** Same
+`config: object | None` fix on `open_effect_ledger`/`open_ledger`. `EffectRecord.params` and
+`propose()`'s `params` typed `dict[str, str]` (matched to `core/effect_proposal.py`'s already-
+strict convention for the identical shape — this ledger is downstream of that proposal type, so
+consistency matters more than re-deriving). `Proposal.metrics` / `mark_validated` /
+`mark_rolled_back` typed `dict[str, Any]` (open validation-metrics payload, JSON-serialized,
+no fixed key set — the open-payload convention, not TypedDict).
+
+**Real defect found (not a T1 behavior bug, but a broken-warrant T3 the plan's Item 6 grep
+would have missed without reading it): both ledgers' `propose()` had `return self.get(new_id)
+# type: ignore[return-value]`.** Once `disallow_any_generics` was in and I touched the file,
+mypy started reporting `arg-type` at that line (lastrowid: `int | None` → `get(int)`) — NOT
+covered by the `return-value` ignore code, so the ignore was silently doing nothing for the
+actual error mypy now emits (it would still have suppressed the ORIGINAL return-value mismatch
+had that fired first, but arg-type fires first and slips through). Fixed by narrowing instead
+of ignoring, per the T3 preference order (bp-006 journal: narrowing > cast > ignore): `assert
+lastrowid is not None` (sqlite3 always sets it after a successful INSERT — same shape as
+`scheduler/queue.py`'s fix earlier this session). `ops/ledger.py` had FOUR MORE of the same
+stale `# type: ignore[return-value]` pattern at every post-write re-fetch (`_decide`,
+`mark_executed`, `mark_validated`, `mark_rolled_back`) — these were legitimately covering a
+real (different) mismatch (`_require()` guarantees the row exists but mypy can't see that
+narrowing across an intervening `UPDATE`), so replaced all four with a shared `_get_or_die()`
+helper that documents the guarantee and asserts it, rather than four independent bare ignores.
+Net: no bare/mismatched ignores remain in either ledger file.
+
+**Verification:** `uv run mypy ops/apply.py ops/code_sensor.py ops/effect_ledger.py
+ops/ledger.py` → clean; `ruff check .` clean (one line-length wrap needed on `mark_validated`'s
+new signature); pytest 743 passed / 4 skipped. Commit `e39fe90`.
+
+**Per-item running state:** eval 1→0 ✓ · scheduler 10→0 ✓ · agents 16→0 ✓ ·
+ops 74→51 (apply/code_sensor/effect_ledger/ledger done; remaining: `ops/lifecycle/launcher.py`
+21, `ops/ci_witness.py` 13, `ops/backup/plan.py` 10, `ops/lifecycle/children.py` 4,
+`ops/effect_exec.py` 4, `ops/selfmod.py` 3, `ops/lifecycle/snapshot.py` 2, `ops/lifecycle/
+runs.py` 2) · scripts 0 (clean) · tests 243 (Item 7, not started).
+
+**Next action:** `ops/selfmod.py` (3) and `ops/effect_exec.py` (4) next (small, likely same
+families), then the `ops/lifecycle/` cluster (launcher.py is the biggest single file at 21 —
+read it fully before touching, since it has the genuinely-different `Callable[[], Job]` vs
+`Callable[[], None]` mismatch and several `object`-typed attribute chains that may need a
+small Protocol like agents/ambassador/agent.py's `ChatServer`), then `ops/ci_witness.py` (13)
+and `ops/backup/plan.py` (10, `CompletedProcess` type-arg family — mechanical, `subprocess.run`
+return types).
+
+---
+
 ## Markers
