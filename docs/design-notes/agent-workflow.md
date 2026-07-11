@@ -15,6 +15,7 @@ links:
   - docs/findings/finding-0006.md (warrant, amendment A5)
   - docs/findings/finding-0007.md (warrant, amendment A4)
   - docs/findings/finding-0008.md (warrant, amendment A6)
+  - docs/findings/finding-0025.md (warrant, amendment A8)
 supersedes: null
 warrant: null
 amendments:
@@ -26,6 +27,7 @@ amendments:
     A4 (finding-0007),
     A5 (finding-0006),
     A6 (finding-0008),
+    A8 (finding-0025),
   ]
 ---
 
@@ -278,3 +280,23 @@ Amendments to a ratified note are warranted by findings and re-ratified by hand 
 - **A4** — warrant: finding-0007 (discovery: hand-written domain build prompts were consistently richer than the bootstrap-era template). The single build-plan template (`docs/templates/build-plan.md`) is upgraded to the investigate→reconcile→plan form: per-item acceptance _and_ named falsifier, `path:line`-cited investigation for plans touching existing code, banner-vs-cross-reference reconciliation (never silent replacement), explicit math field-guide clauses (measures / valid-when / fails-its-keep-if), blast-radius ordering, and dependency-edge / parallelizable marking. One template, not two tiers; sections that don't apply are marked `N/A — <reason>`, never omitted — the explicit N/A being itself an accountability act. §3 gains the per-item and section fields; §7 upgrades the graduate skill to a grounded planning pass (reads code, grounds claims, proposes reconciliation, emits a `proposed` plan approved item-by-item, implements nothing) and the build-plan skill to the richer template semantics. Rationale for a single richer template over a lean/heavy split: a two-tier scheme would force a routing decision at graduation and risk under-grounding a plan mistyped as trivial; N/A-marking gives the same relief without the fork.
 - **A5** — warrant: finding-0006 (discovery, surfaced by `/scribe` minting bp-003 from the template; empirically verified). Adds status-value normalization to the blessing-detection contract (§6): the parser strips a trailing ` #` YAML comment from the `status` value before the exact-equality comparison, scoped to the status path only. Closes a bright-line hole in which a comment-bearing status line (`status: ready # x`) parsed to a value `!= "ready"` and thereby escaped **all three** blessing detectors — including the pre-hoc `gate-guard` Edit path that finding-0005 left intact — a silent, one-directional weakening reachable by ordinary template-following habit, since the template's own line 4 modeled the pattern. The template must no longer carry an inline comment on its status line.
 - **A6** — warrant: finding-0008 (spec-defect, surfaced by bp-003 installing A4). Reconciles the §3 build-plan schema prose to the A4 template's field placement, closing a self-contradiction A4 left in the record: `objective`/`context_manifest`/`non_goals`/`stop_conditions` are described as body sections (§1/§2/§9/§10), not front-matter keys; `re_entry` is **retained as a front-matter key** (owner ruling) so the §3 "parked ⇒ re-entry" gate stays greppable per Principle 1, with §11 of the template as its human-readable expansion. The command files (`build.md`, `graduate.md`, `scribe.md`), which still instructed reading these as front-matter keys and would have misdirected a literal `/build` on a new-template plan, are corrected to the body sections by the same build plan that lands A5's code fix.
+- **A8** — warrant: finding-0025 (surfaced by the bp-005 denylist collision; live evidence:
+  the owner temp-lift `d6e518f→f5d435d`, and orchestrator note-drafting forced through
+  docs/inbox/ delivery, 2026-07-11). The foundation denylist guarded design notes by
+  LOCATION (`docs/design-notes/**`), collapsing two distinct properties: agents must be
+  able to author _draft_ notes (the brainstorm → note → graduate flow is the
+  orchestrator's purpose), and the _ratified_ record must be tamper-proof to agents. A8
+  redraws the guard on STATUS, the axis the rest of the system already runs on: a
+  **draft** note (or a new note created at `status: draft`) is agent-writable under the
+  normal write-scope rules; a **ratified or superseded** note is agent-immutable — content
+  and status, Edit/Write and Bash alike. Enforcement is two-layer and laundering-proof:
+  pre-hoc, `scope-guard` denies any write to a note whose ON-DISK status is
+  ratified/superseded (the write has not happened yet, so on-disk is the committed
+  truth); post-hoc, the Stop-gate audits every design-note change against the note's
+  **HEAD** status (a Bash write has already mutated the working tree, so a
+  ratified→draft laundering flip is caught by comparing against the committed status,
+  the same HEAD-keyed mechanism §6(c) uses for blessing detection). `CONSTITUTION.md`,
+  `eval/golden/**`, and `eval/golden.py` remain on the unconditional denylist;
+  `gate-guard`'s transition denials (`→ratified`, `→ready`) are unchanged and compose
+  with the new content rule. Net: the blessed record stays sacred; the working material
+  becomes workable — task capability still never exceeds what §5 grants.
