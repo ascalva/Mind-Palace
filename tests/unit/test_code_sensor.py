@@ -35,7 +35,7 @@ class FakeAttestor:
 def repo(tmp_path) -> Path:
     r = tmp_path / "repo"
     r.mkdir()
-    _git(r, "init", "-q")
+    _git(r, "init", "-q", "-b", "main")
     _git(r, "config", "user.email", "t@t")
     _git(r, "config", "user.name", "t")
     _commit(r, "a.py", "def a():\n    pass\n")
@@ -64,6 +64,44 @@ def test_sync_is_idempotent_and_heals_missed_commits(repo, tmp_path):
     _commit(repo, "c.py", "def c():\n    pass\n")   # a commit the hook "missed"
     report = agent.sync()
     assert report.ingested == 1 and report.ledger_total == 3
+
+
+def test_main_is_the_ingestion_branch(repo, tmp_path):
+    agent = CodeSensor(repo=repo, db=open_snapshot_db(tmp_path / "s.sqlite"), attestor=None)
+    assert agent.sync().ingested == 2
+
+    _git(repo, "checkout", "-qb", "feature")
+    _commit(repo, "wip.py", "def wip():\n    pass\n")
+    report = agent.sync()                       # run FROM the feature branch
+    assert report.ingested == 0                 # pinned by ref: branch work invisible
+    assert report.ledger_total == 2
+
+    _git(repo, "checkout", "-q", "main")
+    _git(repo, "merge", "-q", "--no-edit", "feature")
+    report = agent.sync()
+    assert report.ingested >= 1                 # lands on main -> enters the ledger
+    assert "wip" in {q for (q,) in agent.db.execute("SELECT qualname FROM symbols")}
+
+
+def test_commit_headers_parsed_and_healed(repo, tmp_path):
+    db = open_snapshot_db(tmp_path / "s.sqlite")
+    agent = CodeSensor(repo=repo, db=db, attestor=None)
+    _commit(repo, "c.py", "def c():\n    pass\n")  # message: "c.py" (non-conforming)
+    (repo / "d.py").write_text("def d():\n    pass\n")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "feat(core): add d")
+    agent.sync()
+
+    rows = dict(db.execute("SELECT subject, ctype || '|' || scope FROM snapshots"))
+    assert rows["feat(core): add d"] == "feat|core"
+    assert rows["c.py"] == "|"                  # non-conforming: lookup degrades, honestly
+
+    # healing: blank a subject (a pre-header row) and re-sync
+    with db:
+        db.execute("UPDATE snapshots SET subject='', ctype='', scope=''")
+    agent.sync()
+    healed = {s for (s,) in db.execute("SELECT subject FROM snapshots")}
+    assert "feat(core): add d" in healed and "" not in healed
 
 
 def test_agent_without_attestor_still_ingests(repo, tmp_path):

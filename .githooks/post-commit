@@ -2,6 +2,10 @@
 # Code-sensor agent sync on every commit (ops/code_sensor.py). NEVER blocks a commit:
 # a failed sync prints a warning and exits 0 — sync is idempotent catch-up, so the next
 # invocation (any commit, or scripts/snapshot_code.py by hand) heals the gap.
+#
+# main is the ingestion branch (CONVENTIONS §Commits): exit silently on any other branch
+# or detached HEAD — branch work enters the ledger when it lands on main.
+[ "$(git symbolic-ref --short -q HEAD)" = "main" ] || exit 0
 cd "$(git rev-parse --show-toplevel)" || exit 0
 ./.venv/bin/python scripts/snapshot_code.py 2>&1 || echo "code-sensor sync failed (non-blocking; next sync heals)"
 exit 0

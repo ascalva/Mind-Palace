@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import re
 import sqlite3
 import subprocess
 from dataclasses import dataclass, field, replace
@@ -36,7 +37,12 @@ CREATE TABLE IF NOT EXISTS snapshots (
     loc           INTEGER NOT NULL,
     functions     INTEGER NOT NULL,
     classes       INTEGER NOT NULL,
-    parse_errors  INTEGER NOT NULL DEFAULT 0
+    parse_errors  INTEGER NOT NULL DEFAULT 0,
+    -- commit-header lookup keys (CONVENTIONS §Commits): type(scope): subject, parsed.
+    -- Non-conforming headers keep subject with ctype/scope '' — lookup degrades, honestly.
+    subject       TEXT NOT NULL DEFAULT '',
+    ctype         TEXT NOT NULL DEFAULT '',
+    scope         TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS files (
     commit_sha  TEXT NOT NULL,
@@ -68,6 +74,16 @@ CREATE TABLE IF NOT EXISTS imports (
 
 def _utcnow() -> str:
     return datetime.now(UTC).replace(tzinfo=None).isoformat(timespec="seconds")
+
+
+# CONVENTIONS §Commits: `type(scope): subject` (optional scope, optional breaking `!`).
+_HEADER = re.compile(r"^(\w+)(?:\(([^)]*)\))?!?:\s*(.+)$")
+
+
+def parse_header(subject: str) -> tuple[str, str]:
+    """(ctype, scope) from a conventional-commit subject; ('', '') when non-conforming."""
+    m = _HEADER.match(subject)
+    return (m.group(1), m.group(2) or "") if m else ("", "")
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -173,7 +189,8 @@ def snapshot_commit(db: sqlite3.Connection, repo: Path, rev: str = "HEAD", *,
     sha = _git(repo, "rev-parse", rev).strip()
     if db.execute("SELECT 1 FROM snapshots WHERE commit_sha=?", (sha,)).fetchone():
         return None
-    committed_at = _git(repo, "show", "-s", "--format=%aI", sha).strip()
+    committed_at, subject = _git(repo, "show", "-s", "--format=%aI%x09%s", sha).strip().split("\t", 1)
+    ctype, scope = parse_header(subject)
     blobs = _py_blobs(repo, sha)
     fresh = _read_blobs(repo, sorted({b for _, b in blobs if b not in cache}))
     for blob, source in fresh.items():
@@ -181,10 +198,10 @@ def snapshot_commit(db: sqlite3.Connection, repo: Path, rev: str = "HEAD", *,
     shapes = [replace(cache[blob], path=path) for path, blob in blobs]
     with db:
         db.execute(
-            "INSERT INTO snapshots VALUES (?,?,?,?,?,?,?,?)",
+            "INSERT INTO snapshots VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             (sha, committed_at, _utcnow(), len(shapes), sum(s.loc for s in shapes),
              sum(s.functions for s in shapes), sum(s.classes for s in shapes),
-             sum(1 for s in shapes if s.parse_error)))
+             sum(1 for s in shapes if s.parse_error), subject, ctype, scope))
         for s in shapes:
             db.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)",
                        (sha, s.path, s.blob_sha, s.loc, s.functions, s.classes, int(s.parse_error)))
@@ -205,8 +222,27 @@ def backfill(db: sqlite3.Connection, repo: Path) -> int:
     return done
 
 
+def annotate_headers(db: sqlite3.Connection, repo: Path) -> int:
+    """Fill subject/ctype/scope on rows snapshotted before the header columns existed —
+    ONE `git log` for all of history, self-healing on every sync (rescan discipline)."""
+    blank = [s for (s,) in db.execute("SELECT commit_sha FROM snapshots WHERE subject=''")]
+    if not blank:
+        return 0
+    subjects = dict(line.split("\t", 1) for line in
+                    _git(repo, "log", "--format=%H%x09%s").splitlines())
+    rows = [(subjects[s], *parse_header(subjects[s]), s) for s in blank if s in subjects]
+    with db:
+        db.executemany("UPDATE snapshots SET subject=?, ctype=?, scope=? WHERE commit_sha=?", rows)
+    return len(rows)
+
+
 def open_snapshot_db(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(str(path))
     db.executescript(_DDL)
+    # pre-header ledgers: additive migration (same pattern as core/stores/derived.py)
+    cols = {r[1] for r in db.execute("PRAGMA table_info(snapshots)")}
+    for col in ("subject", "ctype", "scope"):
+        if col not in cols:
+            db.execute(f"ALTER TABLE snapshots ADD COLUMN {col} TEXT NOT NULL DEFAULT ''")
     return db

@@ -56,3 +56,10 @@ Any code an agent runs is **powerless** (Invariant 4):
 - Build **phase by phase** (BUILD-SPEC §18); verify against the gate; **checkpoint with the human** before advancing.
 - **Ask, don't guess** on BUILD-SPEC §20 decisions; otherwise choose a sensible default and state it inline.
 - Keep changes small and reversible. When unsure whether something belongs in `core/` or `edge/`, it belongs in `edge/` if it can ever touch the network.
+
+## Commits (house style, 2026-07-11)
+- **Conventional Commits, machine-first:** `type(scope): subject`. Types: `feat fix docs test refactor perf ops chore`. Scope names the tree area or artifact the change lives in (`core`, `edge`, `ops`, `hooks`, `eval`, `bp-005`, `triage`) — optional, but a scoped header is a better lookup key.
+- **Subject:** imperative, ≤ 72 chars, no trailing period, and it states the *change*, not the activity ("add X", never "worked on X"). **One logical change per commit** — if the subject needs "and" twice, split the commit. Small accurate summaries are what make the ledger a lookup tool.
+- **Body:** the *why*, plus whatever the diff can't say (constraint honored, alternative rejected, invariant touched).
+- **The machine consumers are real, not aspirational:** semantic-release versions from `type`; the code-sensor ledger (`data/code_snapshots.sqlite`) parses `type(scope): subject` into queryable columns beside each commit's structural snapshot. A malformed header degrades lookup, not just style. Merge commits are exempt (git authors them).
+- **`main` is the ingestion branch.** The code sensor ingests `main` history only; the post-commit hook exits silently on any other branch or detached HEAD. Branch work enters the record at merge — write the merge/squash message to this rule.

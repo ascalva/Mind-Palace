@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from core.attestation import Attestor
-from ops.code_snapshot import FileShape, _git, open_snapshot_db, snapshot_commit
+from ops.code_snapshot import FileShape, _git, annotate_headers, open_snapshot_db, snapshot_commit
 
 
 @dataclass
@@ -44,10 +44,13 @@ class CodeSensor:
     # ingest attestation ("the code sensor ingested commit C under Constitution F") — the
     # sensed-stream analogue of the watcher's authored leaf. None = records-only ledger.
     attestor: Attestor | None = None
+    # CONVENTIONS §Commits: main is the ingestion branch. Pinned by REF, not checkout —
+    # a manual sync run from a feature branch still ingests main history only.
+    branch: str = "main"
 
     def sync(self) -> CodeSyncReport:
-        """Reconcile the ledger against the branch history; snapshot + attest what's missing."""
-        history = _git(self.repo, "rev-list", "--reverse", "HEAD").splitlines()
+        """Reconcile the ledger against the ingestion branch; snapshot + attest what's missing."""
+        history = _git(self.repo, "rev-list", "--reverse", self.branch).splitlines()
         known = {s for (s,) in self.db.execute("SELECT commit_sha FROM snapshots")}
         report = CodeSyncReport()
         cache: dict[str, FileShape] = {}          # blob-shape cache shared across the pass
@@ -62,6 +65,7 @@ class CodeSensor:
                                    input_hashes=[sha], output_hashes=[sha])
             report.ingested += 1
             report.shas.append(sha)
+        annotate_headers(self.db, self.repo)   # heal pre-header rows (CONVENTIONS §Commits)
         report.ledger_total = self.db.execute("SELECT count(*) FROM snapshots").fetchone()[0]
         return report
 
