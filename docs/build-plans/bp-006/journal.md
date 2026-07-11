@@ -6,6 +6,52 @@ write-scope files must continue without re-asking anything already answered.
 
 ---
 
+## 2026-07-11 — Item 2 complete: boundary shims landed (183 → 177)
+
+**Status:** Items 1–2 done (commits `d970a58`, `54ebbcb`). Core mypy count
+183 → 177. Next: Item 3 (T1 remediation — triaged T1 = 0, see below), then
+Item 4 sweep.
+
+**Completed:**
+- `core/typedshims/{__init__,lancedb,psutil,sknetwork}.py` — Protocol-typed
+  facades; the raw import in each carries
+  `# type: ignore[import-untyped]  # warrant: no py.typed upstream (V2)`.
+  Shim design: lancedb values are pinned to minimal Protocols
+  (`VectorDB/VectorTable/VectorQuery/ArrowTable`, rows as `dict[str, object]`
+  — `object`, not `Any`, so consumers must narrow); psutil is wrapped in typed
+  functions returning a frozen `VirtualMemory` dataclass / scalars; sknetwork
+  keeps its lazy in-function import (heavy, off the live path) behind
+  `louvain_labels(csr_matrix[float64]) -> NDArray[int64]`.
+- Rewired the only three raw import sites (re-confirmed by grep):
+  `core/stores/vectorstore.py` (`_table()` now `-> VectorTable`, killing the
+  9-error no-untyped-call cascade), `core/vitals.py`, `core/complex/spectral.py`.
+- `pyproject.toml`: `ignore_missing_imports` override narrowed to `watchdog.*`
+  only (comment updated to name the shims per plan §4 reconciliation);
+  `scipy-stubs>=1.14` added to the dev extra.
+- **Measurement note:** scipy-stubs removed 22 `import-untyped` errors but
+  surfaced ~35 REAL interface errors in `core/complex` (scipy-stubs types
+  `sp.spmatrix` as the legacy minimal base: no `.tocsr()/.sum()/.astype()`,
+  not indexable — our annotations say `spmatrix` where the code needs
+  `csr_matrix`). These are new Item-4 rows (mostly T2 annotate-honestly /
+  T3 friction); net core count still strictly dropped 183 → 177.
+
+**Acceptance evidence:** grep for raw imports outside typedshims → empty;
+`uv run mypy --disallow-any-explicit core/typedshims/` → "Success: no issues
+found in 4 source files" (falsifier: no Any re-export); pytest 743 passed /
+4 skipped; ruff clean.
+
+**Next action:** Item 3. Triage found **T1 = 0** (per-site evidence in the
+Item-1 entry) — no findings to file, no behavioral fixes warranted; record
+the zero honestly and proceed to Item 4: (1) fix the `config: object | None`
+family via `TYPE_CHECKING` import of `Config` (biggest T2 family, ~45
+errors); (2) `Message` TypedDict in `core/constitution.py` +
+`core/models/ollama_client.py`; (3) duckdb count(*) narrowings; (4) the new
+scipy-stubs complex errors (annotate `csr_matrix` where the code means it);
+(5) bare-dict signatures; (6) warranted casts at the ollama JSON boundary;
+then the zero-bare-ignore grep + T3 ratio + razor finding.
+
+---
+
 ## 2026-07-11 — Item 1 complete: triage of the current core inventory
 
 **Status:** Item 1 done. 183 core errors (re-measured, mypy 2.2.0 — NOT the
