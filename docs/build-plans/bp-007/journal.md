@@ -767,4 +767,121 @@ plan's Item 7, and the point to write the final acceptance-table entry and hand 
 
 ---
 
+## Entry — 2026-07-11 — FINAL: Item 7 swept to the finding-0029 floor (245 → 69); bp-007 hand-back
+
+**The last sweep (89 → 69).** `union-attr`/`index`/`var-annotated`/`func-returns-value`/
+`import-untyped`/`dict-item`/`attr-defined` families closed across 14 files — all the same
+established shapes from earlier entries (narrow a real postcondition; type an open JSON
+snapshot `dict[str, Any]`; a warranted per-line ignore for `hvac`'s missing stubs, same pattern
+as `core/typedshims`'s V2 boundary shims). One that earned its own paragraph:
+`test_factory_credential_grant.py`'s `_factory()` helper was UNTYPED (bare `fv`/`attestor`
+params), so mypy inferred its return as `Any` — silently laundering `AgentFactory.mint`'s real
+`MintedAgent | GateRequest` union past every call site except the one that bypassed `_factory`
+entirely. Typing `_factory()` properly (root fix, not a per-site patch) surfaced the union
+everywhere at once; a `_mint()` helper narrows it with `isinstance(agent, MintedAgent)`, and
+the comment states WHY it's always true here (every `_ROLES` entry has empty `scope`, so
+`mint()` never routes to the gate for this file's own roles) — the same "read the actual
+runtime guarantee before asserting past it" discipline applied to a case where the guarantee
+was previously invisible because of an untyped helper.
+
+**Confirmed: every remaining error is finding-0029-shaped.** Repo-wide `uv run mypy` → **69
+errors, 20 files, 100% `arg-type` (66) + `return-value` (3), zero of any other kind.**
+Enumerated and read every single one (not sampled) — every site is a test double failing to
+nominally satisfy a core (or core-consuming) concrete `@dataclass`: `Embedder`, `ModelServer`,
+`VectorStore`, `RawStore`, `WasmRunner`, `PodmanRunner`, `SandboxPolicy`, `Dreamer`, `Curator`,
+`VaultSync`, `DriftReport`. finding-0029 updated with this final, exhaustive list and count
+(previously "~37+ suspected"; now "69 confirmed, by inspection, zero exceptions"). Per the
+finding's own logic, NONE of these 69 got a `cast`/`# type: ignore` — that would be the exact
+anti-pattern the finding names (scattering the same judgment call across 20 files instead of
+fixing it once, at each class's declaration, with a Protocol — the `ChatServer` precedent).
+They are left measured, red, and parked.
+
+**Verification (this entry):** `ruff check .` clean; pytest 743 passed / 4 skipped; `uv run
+mypy` → 69, all in `tests/`. Commit `353b0f0`.
+
+---
+
+## SEAL-READY SUMMARY — bp-007 Items 5–7, final state
+
+**Item 5 (floor decision) — DONE.** Measured delta of `disallow_any_generics` on the post-
+bp-006 baseline: +68 errors, all `type-arg`, zero T1, T2-only (real untyped shape: bare
+`dict`/`list`/`CompletedProcess`/`Sequence`/`set`/`Counter`). Falsifier ("adds only T3
+friction") did NOT trip → **floor ADOPTED: `check_untyped_defs` + `disallow_any_generics`**,
+recorded in `pyproject.toml`'s `[tool.mypy]` block with the date and full reasoning inline
+(replacing "interim" language). Corroborating cross-plan evidence noted (not needed to make
+the decision, which was already made from this session's own measurement): bp-009's
+independent finding-0028 found untyped-fixture Any-laundering past provenance type tags —
+consistent with, not the basis for, this floor decision.
+
+Also decided/recorded in Item 5: a `pyproject.toml` `follow_imports = "silent"` override for
+`edge.*`/`config.*` — Tier-3 modules (V1a: zero core imports) that were leaking into the
+Tier-2 error count via transitive import-following from `ops`/`agents`/`scheduler`/`scripts`,
+which would have made the floor accidentally stricter than the design note licenses.
+
+**Item 6 (ops/scheduler/agents/scripts/eval Tier-2 green) — DONE, fully.** Acceptance test met
+literally: `uv run mypy` → **0 errors outside `tests/`**. Per-package trajectory (post-bp-006
+baseline → final): eval 1→0, scheduler 10→0, agents 16→0, ops 74→0, scripts 0→0 (already
+clean). Zero T1 findings — every error was T2 (representability: bare containers, duck-typed
+`object` params, `config: object | None`) or a stale/mismatched T3 ignore (two ledger
+`lastrowid` sites in `ops/effect_ledger.py`/`ops/ledger.py` where the ignore's error CODE no
+longer matched what mypy reports — replaced with explicit `assert`s, the T3 resolution
+preference bp-006 established: narrowing over ignoring). Five reusable Protocols introduced
+along the way, each narrowed to the caller's ACTUAL usage rather than the full concrete
+interface (a lesson learned and then reapplied deliberately): `agents/ambassador/agent.py:
+ChatServer`, `ops/lifecycle/children.py: Proc`, `ops/lifecycle/launcher.py:
+SupervisorLike`/`WatcherLike`/`QueueLike`/`ChildLike`.
+
+**Item 7 (tests/** green) — Item 7's OWN acceptance test ("0 errors total") was NOT reached —
+**parked, not silently abandoned.** Trajectory: 245 (post-bp-006, pre-`disallow_any_generics`)
+→ 213 → 179 → 165 → 149 → 123 → 104 → 100 → 89 → **69 final**. The remaining 69 are
+exhaustively confirmed (§ above, finding-0029) to be a single systemic shape — core's
+injectable dependencies typed as concrete classes rather than Protocols — that requires a
+`core/**` signature change bp-007's write_scope explicitly forbids (plan §10: "A Tier-2 error
+whose fix requires changing a core signature — file a finding, park"). This is that stop-and-
+raise condition, exercised at scale rather than fabricated case-by-case: every one of the 69
+was individually confirmed to be this shape, not assumed. **Zero T1 findings from Item 7's own
+sweep** — every `union-attr`/`operator`/`index` narrowing gap closed was traced, per-site, to a
+genuine already-true postcondition (a row just written, a state-machine invariant, a field set
+explicitly one line above), never a test silently passing over a reachable `None`/wrong-type
+case it should have caught. The plan's own explicit warning ("tests' errors may hide real T1s")
+was honored by actually reading each site rather than reflexively asserting past every one.
+
+**Findings filed this session:** **finding-0029** (`docs/findings/finding-0029.md`) — the
+core-injectable-as-concrete-class pattern, `discovery`, routed to orchestrator, parked with a
+re-entry condition (a future `core/**`-scoped plan takes each of the 11 confirmed classes
+through the `ChatServer`-style Protocol treatment). **finding-0030**
+(`docs/findings/finding-0030.md`) — a pre-existing, unrelated numerical-precision flake in
+`tests/property/test_structural_interpreters.py`'s bottleneck-stability property test
+(discovered incidentally, verified NOT caused by any bp-007 change via `git stash` + byte-
+identical diff against `bfa19e1`), `discovery`, routed to orchestrator, parked. Neither finding
+blocked this session — both were routed and the affected criterion (Item 7's full-green bar;
+that one property test's cache state) parked with an explicit re-entry condition, per the
+constitution's "never block on the owner" rule.
+
+**Acceptance outputs, verbatim, final state:**
+```
+$ uv run pytest -q -m 'not live and not podman and not needs_vault and not needs_restic'
+743 passed, 4 skipped, 20 deselected
+
+$ uv run ruff check .
+All checks passed!
+
+$ uv run mypy
+Found 69 errors in 20 files (checked 322 source files)
+  (all 69: tests/**, all arg-type/return-value, all finding-0029-shaped)
+```
+
+**Cross-plan note, still live:** main moved during this session — bp-009 merged
+(`core/provenance.py` + new `tests/unit/test_provenance_tags.py`, disjoint from bp-007's
+write_scope). This worktree was never rebased onto that merge (per contract: own worktree,
+never merge main in either direction) — the orchestrator owns that rebase. finding-0028 is
+bp-009's; this session's findings start at finding-0029 as instructed.
+
+**Hand-back:** plan NOT flipped to `complete` (orchestrator's call, per contract). Items 5–6
+fully done; Item 7 parked at its honest floor with finding-0029 as the re-entry path. All work
+is committed in small, individually-green commits on `worktree-agent-a7311e30e485c40ab`; no
+squashing needed to reconstruct the session.
+
+---
+
 ## Markers
