@@ -62,6 +62,8 @@ ratchet:
           - "pyproject.toml"
           - "uv.lock"
           - ".gitlab-ci.yml"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends git  # slim image has no git; code-sensor tests + git_state shell out to it
   script:
     - uv sync --frozen --extra dev
     - uv run ruff check .

@@ -14,6 +14,7 @@ dependencies = [
     "cryptography>=42",  # Ed25519 signing of attestations (runtime proof layer); not a net lib
     "scipy>=1.11",    # reasoning complex: sparse Laplacians + partial eigensolves (Zone A, compute-only)
     "scikit-network>=0.31",  # reasoning complex: Louvain cross-check / spectral embed (offline, no net)
+    "ripser>=0.6",
 ]
 
 [project.optional-dependencies]
