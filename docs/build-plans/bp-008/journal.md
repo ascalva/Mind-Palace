@@ -246,3 +246,110 @@ gate).
 
 **Not yet done:** the three LIVE falsifier demonstrations (plan Item 9's acceptance
 test) on the throwaway `bp-008-falsifier-demo` branch — next.
+
+---
+
+## Entry 4 — live falsifier demonstrations (Item 9 acceptance) — all three RULED OUT
+
+Reconstructed by the orchestrator at merge time: the builder session (sonnet) drove
+the demos on the throwaway `bp-008-falsifier-demo` branch (widened `type-gate`'s
+`rules:` on THAT BRANCH ONLY, commit `2c84259`; main's `if: $CI_COMMIT_BRANCH ==
+"main"` rule untouched) and confirmed two of three via red CI pipelines before the
+session ended mid-poll on the third. The orchestrator confirmed the pipeline+job
+STATUS via the project's public read API and then **reproduced all three falsifiers
+locally** (exact failing output below) to nail the failure REASON — the CI job
+traces are auth-gated and the third pipeline never got a runner.
+
+**Green baseline first (a currently-green tree must not block itself):** pipeline
+`2669812161` (clean tree, commit `aef6e86`) → `type-gate` job **success** (job
+`15299840961`). Recorded so the falsifiers below are read against a known-green
+control, not a perpetually-red job.
+
+**Falsifier (i) — injected type error under `ops/` — RULED OUT.**
+- Planted `ops/_falsifier_scratch_type_error.py` (`x: int = "..."`, a genuine mypy
+  `[assignment]` error). Commit `48c58b1`.
+- **CI: pipeline `2669813352`, `type-gate` job `15299846659` → `failed`.** Caught at
+  CI script line 2 (`uv run mypy core agents eval ops scheduler scripts`, the hard
+  Tier-2-minus-tests 0-error floor) — before the baseline block or the scans ran.
+- Local reproduction (orchestrator, this session): same file → `uv run mypy core
+  agents eval ops scheduler scripts` → `ops/_falsifier_scratch_type_error.py:13:
+  error: Incompatible types in assignment ... [assignment] — Found 1 error`.
+
+**Falsifier (ii) — scratch package imports `core`, absent from `[tool.mypy].files` —
+RULED OUT.**
+- Planted top-level `scratch_falsifier_pkg/` (`import core`), NOT added to
+  `[tool.mypy].files`. Commit `b3d014e`.
+- **CI: pipeline `2669813994`, `type-gate` job `15299850183` → `failed`.** mypy
+  itself stayed silent (the package isn't in `files`, full run held at exactly 69) —
+  the failure came from CI script line 4 (`uv run python -m ops.type_gate`), the
+  `membership()` scan. The cleanest possible proof `membership()` does real,
+  otherwise-unmet work: mypy alone never sees this violation.
+- Local reproduction: same package → `uv run python -m ops.type_gate` →
+  `Tier-2 membership VIOLATIONS: scratch_falsifier_pkg: imports core ... but is
+  absent from [tool.mypy].files` → exit 1.
+
+**Falsifier (iii) — bare `# type: ignore` under `ops/` — RULED OUT (local; CI
+runner-starved).**
+- Planted `ops/_falsifier_scratch_bare_ignore.py` (`x: int = "oops"  # type:
+  ignore`, no bracketed code). Commit `13491f0`. Verified first that mypy ITSELF is
+  silenced by the bare ignore (`uv run mypy` on that file → "Success: no issues" —
+  so `bare_ignores()` catches exactly what mypy's own exit code cannot).
+- **CI: pipeline `2669814797` never got a shared runner (stuck `created`, free-tier
+  queue starvation — pipeline detail JSON showed `started_at: null`); the builder
+  session ended polling it.** This is infrastructure, not a gate/config defect. The
+  code path is CI script line 4 (`uv run python -m ops.type_gate`) — the SAME
+  invocation that falsifier (ii)'s red pipeline (`2669813994`) demonstrably blocks
+  on — so the CI WIRING for this path is transitively proven by (ii); (iii)'s
+  specific violation is proven by unit test + the local reproduction below.
+- Local reproduction: `uv run python -m ops.type_gate` → `Bare # type: ignore
+  VIOLATIONS: ops/_falsifier_scratch_bare_ignore.py:9: bare # type: ignore (no
+  error code)` → exit 1.
+
+**All three §6/§3.3 falsifiers hold. Plan §10 stop-condition ("the three falsifiers
+cannot all be demonstrated → gate is theater") does NOT fire.** The deliberate
+violations and the demo-branch rule-widening live ONLY on `bp-008-falsifier-demo`
+(torn down at seal); the `worktree-agent-…` real branch never carried them — only
+the two clean commits (`7ccf401` Item 8, `01ed31f` Item 9) merged to main.
+
+**Deferred (not built here): `needs: []` on `type-gate`.** On the demo branch the
+`.pre`-stage `next-version` job failed (external semantic-release template, non-main
+quirk) and GitLab stage-sequencing then skipped `type-gate`; the builder added
+`needs: []` (commit `aef6e86`, demo-history only) to decouple it and argued it's a
+permanent improvement for main too (run the type gate even when release tooling is
+red). That is a CI-robustness/design call that also implicates the sibling `ratchet`
+job — routed as `finding-0032` (direction), NOT merged, so main's `type-gate`
+mirrors `ratchet` exactly (no `needs:`) as authored.
+
+---
+
+## Entry 5 — SEAL (orchestrator, 2026-07-11)
+
+**Status flipped:** `in-progress → complete`. Merged to main as `--no-ff`
+(*"Merge bp-008: type-gate CI job + membership/bare-ignore scans (B-2)"*).
+
+**Acceptance, verbatim, re-run on merged main (not the worktree):**
+```
+$ uv run ruff check .                                          → All checks passed!
+$ uv run --extra dev mypy core agents eval ops scheduler scripts → Success (166 files, 0 errors)
+$ uv run --extra dev mypy                                       → Found 69 errors in 20 files  (tests/ baseline held)
+$ uv run python -m ops.type_gate                               → both scans OK
+$ uv run pytest -q -m 'not live and not podman and not needs_vault and not needs_restic'
+                                                               → 761 passed, 4 skipped, 20 deselected
+```
+
+**Scope audit:** diff touched `.gitlab-ci.yml`, `ops/type_gate.py`,
+`tests/unit/test_type_gate.py`, `docs/build-plans/bp-008/{plan,journal}.md` — all
+inside `write_scope`. No denylist file. No blessing-gate transition (ready→in-progress
+is not a gate). Demo commits + `needs:[]` excluded by construction (merged the clean
+real branch, not the demo branch).
+
+**Findings filed:** `finding-0032` (direction) — `needs:[]` CI-robustness question.
+
+**Teardown:** remote + local `bp-008-falsifier-demo` deleted; worktree
+`agent-a229c02c9e55c92c7` retired; local `worktree-agent-a229c02c9e55c92c7` deleted.
+
+**Cost ledger (usage):** builder = **claude-sonnet-5** (observed in the task
+transcript). Tokens / tool-calls / duration = **unmeasured** — the builder session
+died mid-poll before a completion notification was emitted, so measured usage was not
+captured (honest gap, per context-economy ledger discipline; this plan predates the
+front-matter cost block, so no estimate-vs-actual pair exists to reconcile).
