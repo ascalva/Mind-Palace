@@ -83,4 +83,64 @@ errors) + `uv run --extra dev pytest -q` + `uv run ruff check .` before commit.
 
 ---
 
+## 2026-07-11 — Item 10 COMPLETE (commit `0be851e`-ish, see git log): tags + stub landed, acceptance green
+
+**Status:** Item 10 done. Item 11 (churn overlay) next.
+
+**Landed:** `core/provenance.py` — `Authored[T]` / `Derived[T]` (`@final` frozen generic
+dataclasses; `@final` closes subclass-laundering), nominal `@final class OwnerVerdict`
+placeholder, `def promote(x: Derived[T], cap: OwnerVerdict) -> Authored[T]` (signature
+verbatim per plan §6) raising `NotImplementedError` citing I1 verdict-gating.
+`tests/unit/test_provenance_tags.py` (NEW file) — subprocess-mypy fixtures with inline
+`# E: <code>` markers asserted line-exactly, run with `--config-file <os.devnull>` +
+cwd=tmp (repo/user configs ignored) + MYPYPATH=repo root.
+
+**Acceptance outputs (verbatim):**
+- `uv run --extra dev pytest tests/unit/test_provenance_tags.py -q` → `7 passed in 1.76s`
+- fixture `promote(d)` (no capability) → mypy `[call-arg]` error (FAILS mypy) ✓
+- fixture `promote(d, cap)` with `cap: OwnerVerdict` → mypy exit 0, zero error lines ✓
+- `uv run --extra dev mypy | grep -c '^core/'` → `0` (core strict-green preserved)
+- `uv run --extra dev mypy | grep -E "test_provenance_tags|core/provenance"` → empty
+  (repo-wide count 296-in-83-files is pre-existing Tier-2 report-only debt, none mine)
+- `uv run ruff check .` → `All checks passed!`
+- Full suite: `765 passed, 8 skipped`, 1 failed = `tests/e2e/test_scheduler_live.py::
+  test_supervisor_dispatches_a_real_job` — TIMING FLAKE, passes in isolation (`1 passed in
+  82.35s`), untouched by this change (provenance additions are inert at runtime).
+
+**Item-10 falsifier check:** NOT tripped — no `cast` anywhere at the definition site (the
+stub body raises, so the return value is never manufactured). One warranted ignore exists in
+the runtime TESTS only (`# type: ignore[misc]  # warrant: the frozen-ness IS the assertion`
+— assigning to a frozen field is the thing under test), zero in `core/provenance.py`.
+
+**mypy behavior note (fixture calibration):** for `a2: Authored[str] = promote(d, cap)` with
+`d: Derived[int]`, mypy infers T=str from the return context and reports the ARGUMENT
+mismatch `[arg-type]` (Derived[int] vs Derived[str]), not `[assignment]`. Same proof
+(payload type threads through T), different code than first guessed.
+
+**Item 11 groundwork (consumer map, measured by grep + reading — the honest blast radius of
+Encoding A, `MirrorView.rows() -> list[Authored[Row]]`):** direct `.rows()`-output consumers
+in core: `mirror.py` (mint), `dreaming/cluster.py` (note_snippets/note_centroids sigs +
+internal field access), `dreaming/dreamer.py` (clusters() passes rows through UNCHANGED —
+both consumers retyped; dream_v2:189-191 touches fields → unwrap), `dreaming/graph.py:36`
+(pass-through, no change), `dreaming/interpreters.py:249` (pass-through, no change),
+`dreaming/adjudicator.py:144-147` (field access → unwrap), `complex/build.py:123-137`
+(field access + `_created_epoch` sig), `curator/curator.py:93,132-134` (pass-through only,
+no change), `effect_proposal.py:130-131` (field access → unwrap). Plus Tier-2 test churn
+(tests feeding bare dict rows), counted separately.
+
+**Method decided for the overlay:** local `git clone` of this worktree into the scratchpad;
+Encoding A applied IN PLACE there (real import graph — no module renames polluting the
+diff); checked with `uv run --project <this worktree> --extra dev mypy` from the clone cwd
+(same pyproject config, real venv); churn read off `git diff` in the clone. The overlay is
+DISCARDED after measurement — nothing lands outside write scope. Runtime tests of the
+overlay: attempted via the clone's own uv env if cheap; else recorded as not-run (the spike
+is type-level; behavior-preservation of `.value` unwraps is visually verified, and the
+overlay does not ship).
+
+**Next action:** build the overlay, drive it to core-green mypy, produce the churn table +
+the demonstrated catch, file finding-0028 (next free id, checked `ls docs/findings/`) with
+the keep-or-park verdict.
+
+---
+
 ## Markers
