@@ -6,6 +6,20 @@ write-scope files must continue without re-asking anything already answered.
 
 ---
 
+## Seal — 2026-07-11 — /triage — bp-007 `complete`, journal sealed
+
+**Seal.** Merged (87 files, +1712/−259); post-merge triple verified on main (750 ratchet /
+ruff clean / mypy 69, all finding-0029-shaped in tests). Items 5+6 complete; Item 7 parked
+HONESTLY with re-entry (finding-0029: the core-injectable-as-concrete-class shape, 11
+classes, needs a core-scoped plan — §10 stop-and-raise exercised at scale, 245→69).
+Floor ADOPTED: check_untyped_defs + disallow_any_generics (measured; bp-009 evidence cited).
+finding-0030 (pre-existing float32 flake) filed. The builder also surfaced the worktree
+pointer-bleed → finding-0031. Longest delegated run to date: 33 commits, ~1.7h, zero scope
+violations. No narrative entries after this line.
+
+---
+
+
 ## Entry — 2026-07-11 — start: plan flipped `ready → in-progress`; Item 5 measurement + floor decision
 
 **Status.** Plan flipped to `in-progress` (legal builder transition). Building in worktree
