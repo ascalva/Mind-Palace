@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-008
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/type-system-as-core-audit.md
 contract: builder
@@ -55,7 +55,7 @@ pipeline — enforced by a `type-gate` CI job plus a mechanical membership scan.
   `e6d6…` series). mypy adds one cached step (~20–40s measured locally at 312 files).
 - **Q2 — how is Tier-2 membership decidable?** By AST import scan (the note: "decidable
   from the AST import graph"); `ops/import_lint.py` already walks imports for core — the
-  scan generalizes: *top-level package imports `core` ⇒ package ∈ `[tool.mypy].files`*.
+  scan generalizes: _top-level package imports `core` ⇒ package ∈ `[tool.mypy].files`_.
 - **Q3 — where does `mp-finish` stand?** No `mp-finish` exists in the repo (checked:
   no such script/verb) — PD-1's recorded default was aspirational; CI is the concrete
   option that exists. The code settles this in CI's favor.
@@ -80,9 +80,9 @@ anywhere (bp-006/007's), design notes, hooks.
 ## 6. Interfaces pinned inline
 
 B-2 falsifiers (note §3.3, verbatim — all three must hold):
-*"(i) an injected type error in a scratch commit blocks; (ii) a scratch module importing
+_"(i) an injected type error in a scratch commit blocks; (ii) a scratch module importing
 `core` but absent from Tier-2 config blocks; (iii) a bare `# type: ignore` with no error
-code blocks."*
+code blocks."_
 
 Ratchet job shape to mirror (`.gitlab-ci.yml`): `image: ghcr.io/astral-sh/uv:python3.12-
 bookworm-slim`, uv cache keyed on `uv.lock`, `rules:changes` on code paths,
@@ -99,7 +99,7 @@ bookworm-slim`, uv cache keyed on `uv.lock`, `rules:changes` on code paths,
 - **Acceptance test:** unit tests prove both scans on planted fixtures; ratchet green.
 - **Falsifier:** falsifiers (ii)/(iii) — a planted violation the scan misses.
 - **Invariant(s):** scan is read-only; no network.
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** bp-006, bp-007
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** bp-006, bp-007
 
 ### Item 9 — the `type-gate` CI job
 
@@ -112,7 +112,7 @@ bookworm-slim`, uv cache keyed on `uv.lock`, `rules:changes` on code paths,
   falsifier runs with pipeline ids.
 - **Falsifier:** all three of §6, live.
 - **Invariant(s):** free-tier budget — job shares the uv cache; docs-only pushes skip.
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** Item 8
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** Item 8
 
 ## 8. Math carried explicitly
 
@@ -131,9 +131,9 @@ owner question, park).
 
 ## 11. Parked decisions
 
-| Decision | Default recorded | Rejected alternatives (why) | Re-entry condition |
-|---|---|---|---|
-| gate also in Stop-hook | CI only | per-session cost, duplicate signal (note PD-1 rejected-with-record) | a type break lands between pushes and bites a builder session |
+| Decision               | Default recorded | Rejected alternatives (why)                                         | Re-entry condition                                            |
+| ---------------------- | ---------------- | ------------------------------------------------------------------- | ------------------------------------------------------------- |
+| gate also in Stop-hook | CI only          | per-session cost, duplicate signal (note PD-1 rejected-with-record) | a type break lands between pushes and bites a builder session |
 
 ## 12. Dependency & ordering summary
 

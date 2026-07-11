@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-006
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/type-system-as-core-audit.md
 contract: builder
@@ -32,7 +32,7 @@ warrant: null
 Graduated from the ratified `type-system-as-core-audit.md` (owner blessing 2026-07-11,
 commit `10c9a66`) — this is the note's **B-1 back half**: the config and baseline
 measurement already landed (`e84f6a7`; 463 errors inventoried, 193 in core). This plan
-is the *audit proper* — triage and remediation. Authority-to-act is the owner's
+is the _audit proper_ — triage and remediation. Authority-to-act is the owner's
 ratification; the readiness blessing (`proposed → ready`) is the owner's hand, item-by-item.
 
 ## 1. Objective
@@ -81,7 +81,7 @@ bp-007's job, and this plan must not chase errors outside `core/`.
 - `pyproject.toml` `[tool.mypy]` overrides comment ("V2 … interim ignores; §2.5 boundary
   wrappers quarantine these when B-1's build lands") → **cross-ref: extension** — this plan
   IS that landing; the comment is updated to name the shims, not deleted.
-- Any T1 whose fix would change committed *behavior* (not just annotations) → **called out
+- Any T1 whose fix would change committed _behavior_ (not just annotations) → **called out
   as a correction and carried by Item 3**, never slipped into an annotation pass.
 
 ## 5. Write scope
@@ -95,15 +95,16 @@ behavioral changes not carried by a T1 finding.
 ## 6. Interfaces pinned inline
 
 Triage taxonomy (§2.3, verbatim discipline):
+
 - **T1 — latent defect** → its own finding, each.
 - **T2 — representability finding** — `dict[str, Any]` across a boundary where a
   dataclass/TypedDict belongs; not style.
 - **T3 — checker friction** → `# type: ignore[<code>]  # warrant: <reason>` — a bare
   ignore is a grep-detectable violation.
 
-Invariant (§2.1): *for every module M in the checked region: every call site, return,
+Invariant (§2.1): _for every module M in the checked region: every call site, return,
 and assignment in M is consistent with the declared types of its callees, modulo
-warranted exemptions recorded per T3.*
+warranted exemptions recorded per T3._
 
 Tier-1 strict components currently pinned in `pyproject.toml`:
 `disallow_untyped_defs, disallow_incomplete_defs, disallow_untyped_calls,
@@ -119,7 +120,7 @@ disallow_any_generics, disallow_untyped_decorators, warn_return_any`.
 - **Falsifier:** §2.2 clause 3 — T1+T2 = 0 ⇒ the audit claim fails; record no-signal in a
   finding and stop for owner review before remediating anything.
 - **Invariant(s):** none touched (read-only).
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** none
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** none
 
 ### Item 2 — Boundary wrappers
 
@@ -128,13 +129,13 @@ disallow_any_generics, disallow_untyped_decorators, warn_return_any`.
   the shim files only.
 - **Files:** `core/typedshims/*`, importing core modules, `pyproject.toml`.
 - **Acceptance test:** `grep -rn "import lancedb\|import sknetwork\|import psutil" core/
-  --include='*.py' | grep -v typedshims` → empty; ratchet green; mypy error count strictly
+--include='*.py' | grep -v typedshims` → empty; ratchet green; mypy error count strictly
   drops.
 - **Falsifier:** a shim that re-exports `Any` (checker still silent past the boundary) —
   detected by `disallow_any_explicit` spot-check on the shim files.
 - **Invariant(s):** Invariant 2 (no network imports — shims wrap compute libs only);
   import-firewall stays green.
-- **Touches stored data?** no  **Parallelizable?** with Item 1  **Depends on:** none
+- **Touches stored data?** no **Parallelizable?** with Item 1 **Depends on:** none
 
 ### Item 3 — T1 remediation
 
@@ -146,8 +147,8 @@ disallow_any_generics, disallow_untyped_decorators, warn_return_any`.
 - **Falsifier:** a "T1 fix" that changes no behavior under test — reclassify T2/T3 and
   annotate the finding honestly.
 - **Invariant(s):** all — behavioral changes only via this item, each warranted.
-- **Touches stored data?** no (store *code* may change; migrations stop-and-raise)
-  **Parallelizable?** no  **Depends on:** Item 1
+- **Touches stored data?** no (store _code_ may change; migrations stop-and-raise)
+  **Parallelizable?** no **Depends on:** Item 1
 
 ### Item 4 — T2/T3 sweep to strict green
 
@@ -161,7 +162,7 @@ disallow_any_generics, disallow_untyped_decorators, warn_return_any`.
   value) — record the T3/total ratio in the journal; if > 1/3, file a finding against the
   note's clause-3 razor rather than celebrating the green.
 - **Invariant(s):** §2.1 invariant now holds for Tier 1.
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** Items 2, 3
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** Items 2, 3
 
 ## 8. Math carried explicitly
 
@@ -182,10 +183,10 @@ an error whose correct fix contradicts the ratified note (spec-defect finding); 
 
 ## 11. Parked decisions
 
-| Decision | Default recorded | Rejected alternatives (why) | Re-entry condition |
-|---|---|---|---|
-| T2 shape convention | builder picks TypedDict *or* dataclass in Item 4, uniformly | mixing both (audit loses one shape vocabulary) | note's open question — owner may override at approval |
-| shim package location | `core/typedshims/` | vendoring stubs (heavier, drifts) ; inline casts (smears Any) | owner renames at approval if preferred |
+| Decision              | Default recorded                                            | Rejected alternatives (why)                                   | Re-entry condition                                    |
+| --------------------- | ----------------------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------- |
+| T2 shape convention   | builder picks TypedDict _or_ dataclass in Item 4, uniformly | mixing both (audit loses one shape vocabulary)                | note's open question — owner may override at approval |
+| shim package location | `core/typedshims/`                                          | vendoring stubs (heavier, drifts) ; inline casts (smears Any) | owner renames at approval if preferred                |
 
 ## 12. Dependency & ordering summary
 

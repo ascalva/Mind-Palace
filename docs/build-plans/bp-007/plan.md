@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-007
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/type-system-as-core-audit.md
 contract: builder
@@ -34,7 +34,7 @@ warrant: null
 ## 0. Mode & provenance
 
 Graduated from ratified `type-system-as-core-audit.md`. Tier-2's load-bearing requirement
-(§2.5): *arguments flowing into core calls are not `Any`*. Runs after bp-006 (core
+(§2.5): _arguments flowing into core calls are not `Any`_. Runs after bp-006 (core
 annotations settle the target signatures). Readiness blessing is the owner's, by hand.
 
 ## 1. Objective
@@ -58,8 +58,8 @@ in `pyproject.toml`.
   modules import core, scripts 14, scheduler 6, ops 5, agents 2, eval 1; **edge 0,
   cloud 0** (Tier-3 by measurement, not judgment).
 - **Q2 — current floor.** Global `check_untyped_defs = true` in `pyproject.toml`
-  `[tool.mypy]`; the note's candidate floor adds `disallow_any_generics` — *decide from
-  B-1 evidence, not a priori* (note, Open questions). The builder measures the delta of
+  `[tool.mypy]`; the note's candidate floor adds `disallow_any_generics` — _decide from
+  B-1 evidence, not a priori_ (note, Open questions). The builder measures the delta of
   adding it and records the decision.
 - **Q3 — will bp-006 shift these counts?** Yes — core signature changes re-type call
   sites. The baseline numbers are indicative, not contractual; re-measure at session start.
@@ -82,8 +82,8 @@ Prose mirror: the six Tier-2 packages + pyproject + findings + own dir.
 
 ## 6. Interfaces pinned inline
 
-Tier-2 requirement (§2.5 verbatim): *"the load-bearing requirement is that arguments
-flowing into core calls are not `Any`."* Ratchet marker expression (the gate this must
+Tier-2 requirement (§2.5 verbatim): _"the load-bearing requirement is that arguments
+flowing into core calls are not `Any`."_ Ratchet marker expression (the gate this must
 keep green): `-m 'not live and not podman and not needs_vault and not needs_restic'`.
 T3 ignore discipline as in bp-006 §6.
 
@@ -98,7 +98,7 @@ T3 ignore discipline as in bp-006 §6.
 - **Falsifier:** the stricter floor adds only T3 friction (zero T1/T2 in the delta) —
   record and stay at the base floor.
 - **Invariant(s):** none (measurement).
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** bp-006
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** bp-006
 
 ### Item 6 — Non-test Tier-2 green (ops, scheduler, agents, scripts, eval)
 
@@ -109,7 +109,7 @@ T3 ignore discipline as in bp-006 §6.
   anti-pattern; caught by re-running with `disallow_any_explicit` on the touched file.
 - **Invariant(s):** scheduler/ops behavior unchanged (annotation-only unless a T1 finding
   warrants more).
-- **Touches stored data?** no  **Parallelizable?** with Item 7  **Depends on:** Item 5
+- **Touches stored data?** no **Parallelizable?** with Item 7 **Depends on:** Item 5
 
 ### Item 7 — Tests green
 
@@ -119,7 +119,7 @@ T3 ignore discipline as in bp-006 §6.
 - **Falsifier:** blanket per-file ignores in tests (the checked region silently shrinks) —
   zero new `ignore_errors` overrides allowed.
 - **Invariant(s):** test semantics unchanged — assertions may gain types, never lose checks.
-- **Touches stored data?** no  **Parallelizable?** with Item 6  **Depends on:** Item 5
+- **Touches stored data?** no **Parallelizable?** with Item 6 **Depends on:** Item 5
 
 ## 8. Math carried explicitly
 
@@ -138,9 +138,9 @@ the criterion, continue the other package).
 
 ## 11. Parked decisions
 
-| Decision | Default recorded | Rejected alternatives (why) | Re-entry condition |
-|---|---|---|---|
-| Tier-2 ceiling (full strict) | floor only | full strict now (223-error test surface makes cost dominate before value measured) | after one month of gate history, or a laundering incident the floor missed |
+| Decision                     | Default recorded | Rejected alternatives (why)                                                        | Re-entry condition                                                         |
+| ---------------------------- | ---------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Tier-2 ceiling (full strict) | floor only       | full strict now (223-error test surface makes cost dominate before value measured) | after one month of gate history, or a laundering incident the floor missed |
 
 ## 12. Dependency & ordering summary
 

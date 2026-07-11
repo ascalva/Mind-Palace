@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-009
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/type-system-as-core-audit.md
 contract: builder
@@ -54,7 +54,7 @@ itself.
   `StrEnum` VALUE on rows (`core/provenance.py:42-59`); enforcement is structural at view
   construction (`MirrorView.__post_init__`, `core/mirror.py:62-70`) and at the mint site
   (`DerivedStore.add`, no provenance param, `core/stores/derived.py:177-216` per the
-  2026-07-10 survey). The shadow adds a *compile-time* lane the runtime checks keep owning.
+  2026-07-10 survey). The shadow adds a _compile-time_ lane the runtime checks keep owning.
 - **Q2 — is there a promotion call site to constrain?** Not yet — promotion is
   verdict-gated (I1) and unbuilt (recursive-strata parked). The spike therefore tags
   **reads** (what a consumer may accept) rather than promotion; the `promote()` signature
@@ -70,7 +70,7 @@ tags.
 
 ## 4. Reconciliation
 
-- `core/provenance.py` promotion comment ("Promotion *up* to an authored class is a
+- `core/provenance.py` promotion comment ("Promotion _up_ to an authored class is a
   human act") → **cross-ref: extension** — the typed `promote()` stub cites it; no
   behavioral change.
 
@@ -89,9 +89,9 @@ semantics; any promotion implementation.
 def promote(x: Derived[T], cap: OwnerVerdict) -> Authored[T]: ...
 ```
 
-B-3 falsifier (verbatim): *"if tagging requires warranted ignores at more than a handful
+B-3 falsifier (verbatim): _"if tagging requires warranted ignores at more than a handful
 of sites, the static-shadow claim is weakened; park the spike with that evidence attached
-rather than forcing the encoding."*
+rather than forcing the encoding."_
 
 Current enum (pinned): `AUTHORED_SOLO, AUTHORED_DIALOGUE, CURATED, INTERPRETED,
 DERIVED_STRATUM (reserved), OBSERVED` with `MIRROR_READABLE = frozenset({AUTHORED_SOLO,
@@ -110,7 +110,7 @@ AUTHORED_DIALOGUE})` — `core/provenance.py:42-78`.
 - **Falsifier:** the tags cannot express the constraint without `cast` at the definition
   site itself — park immediately.
 - **Invariant(s):** MIRROR_READABLE untouched; no runtime semantics change.
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** bp-006
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** bp-006
 
 ### Item 11 — churn measurement on a real sample
 
@@ -122,15 +122,15 @@ AUTHORED_DIALOGUE})` — `core/provenance.py:42-78`.
 - **Falsifier:** the note's own — "more than a handful" of warranted ignores ⇒ park with
   evidence; the spike SUCCEEDS by reporting honestly either way.
 - **Invariant(s):** sampled seam behavior unchanged.
-- **Touches stored data?** no  **Parallelizable?** no  **Depends on:** Item 10
+- **Touches stored data?** no **Parallelizable?** no **Depends on:** Item 10
 
 ## 8. Math carried explicitly
 
-- **Provenance tags as a two-point meet-semilattice** — *measures:* whether the
+- **Provenance tags as a two-point meet-semilattice** — _measures:_ whether the
   authored/derived distinction survives the type grammar (meet = Derived; promotion is
-  the only up-move and demands the capability object). *valid when:* tags carry no
+  the only up-move and demands the capability object). _valid when:_ tags carry no
   order beyond the two points (the four-class axis order is deliberately NOT encoded —
-  checker grammar is unordered). *fails its keep if:* Item 11's churn measurement trips
+  checker grammar is unordered). _fails its keep if:_ Item 11's churn measurement trips
   the falsifier — then the shadow is wrong-grained and the evidence parks it.
 
 ## 9. Non-goals
@@ -146,10 +146,10 @@ load-bearing (owner question, park Item 11's remainder).
 
 ## 11. Parked decisions
 
-| Decision | Default recorded | Rejected alternatives (why) | Re-entry condition |
-|---|---|---|---|
-| tagging grain | binary Authored/Derived | four-class (order inexpressible in grammar) | axis-note ratification revisits; or a consumer needs a₂ distinct from a₃ at type level |
-| tagging depth | values only | containers (variance cost before value shown) | Item 11 evidence shows container flows dominate |
+| Decision      | Default recorded        | Rejected alternatives (why)                   | Re-entry condition                                                                     |
+| ------------- | ----------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------- |
+| tagging grain | binary Authored/Derived | four-class (order inexpressible in grammar)   | axis-note ratification revisits; or a consumer needs a₂ distinct from a₃ at type level |
+| tagging depth | values only             | containers (variance cost before value shown) | Item 11 evidence shows container flows dominate                                        |
 
 ## 12. Dependency & ordering summary
 
