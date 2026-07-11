@@ -8,6 +8,13 @@ contract: builder         # builder | scribe
 write_scope:              # exact globs — the capability; enforced by scope-guard
   - <path/glob>
 session_budget: 1         # if the work will not fit ONE session, SPLIT at graduation, never mid-build
+cost:                     # the economics ledger (context-economy skill; owner rule 2026-07-11)
+  estimate:               # set at GRADUATION — story points, order-of-magnitude honest
+    model: <sonnet|opus|fable>
+    tokens: <e.g. 150k | 400k | 700k>
+  actual: null            # filled at SEAL from the completion notification:
+                          # {model, tokens, tool_calls, duration_min} — estimate-vs-actual
+                          # calibration is the forecasting dataset
 depends_on: []            # plan/item ids that must complete before this may start
 parallelizable_with: []   # plan ids that may run concurrently (requires disjoint write_scope)
 created: <date>

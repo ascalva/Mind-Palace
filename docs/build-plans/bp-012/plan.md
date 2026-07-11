@@ -13,6 +13,9 @@ write_scope:
   - "docs/findings/**"
   - "docs/build-plans/bp-012/**"
 session_budget: 1
+cost:
+  estimate: { model: fable, tokens: 300k }    # core store discipline; bp-009-calibrated, heavier
+  actual: null
 depends_on: []
 parallelizable_with: []
 created: 2026-07-11

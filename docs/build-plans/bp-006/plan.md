@@ -11,6 +11,9 @@ write_scope:
   - "docs/findings/**"
   - "docs/build-plans/bp-006/**"
 session_budget: 1
+cost:
+  estimate: null                              # pre-dates the ledger rule
+  actual: { model: fable, tokens: unmeasured, note: "builder died at spend cap; orchestrator resumed in-session — usage not separable" }
 depends_on: []
 parallelizable_with: []
 created: 2026-07-11

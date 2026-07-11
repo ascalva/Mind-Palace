@@ -12,6 +12,9 @@ write_scope:
   - "docs/findings/**"
   - "docs/build-plans/bp-011/**"
 session_budget: 1
+cost:
+  estimate: { model: sonnet, tokens: 350k }   # grind + read-only inventory; bp-007-calibrated
+  actual: null
 depends_on: []
 parallelizable_with: []
 created: 2026-07-11

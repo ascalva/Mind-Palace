@@ -12,6 +12,9 @@ write_scope:
   - "docs/findings/**"
   - "docs/build-plans/bp-013/**"
 session_budget: 1
+cost:
+  estimate: { model: fable, tokens: 250k }    # first fiber writer + isolation proof
+  actual: null
 depends_on: [bp-011, bp-012]
 parallelizable_with: []
 created: 2026-07-11

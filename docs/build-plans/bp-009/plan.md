@@ -12,6 +12,9 @@ write_scope:
   - "docs/findings/**"
   - "docs/build-plans/bp-009/**"
 session_budget: 1
+cost:
+  estimate: null                              # pre-dates the ledger rule
+  actual: { model: fable, tokens: 153k, tool_calls: 72, duration_min: 33 }
 depends_on: [bp-006]
 parallelizable_with: [bp-007]
 created: 2026-07-11

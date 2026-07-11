@@ -88,8 +88,14 @@ here. (Details: build-plan skill.)
    interfaces pinned inline (§6). **Every template section is present**; an
    inapplicable one is `N/A — <reason>`, never omitted. Create the plan's
    `journal.md` (alive).
-6. Cross-link every plan to the note (`design_ref`, `links`).
-7. Emit `proposed` only. The proposed→ready blessing is the owner's, by hand.
+6. **Estimate the cost** (front-matter `cost.estimate`): pick the builder tier by the
+   delegate skill's verification-complexity table, and an order-of-magnitude token count
+   calibrated against the seal ledger's actuals (2026-07-11 baselines: sonnet grind
+   ≈650k/1.7h; fable spike ≈150k/35min; survey ≈85k). Estimates are honest guesses —
+   the estimate-vs-actual gap in seals is the forecasting dataset, so never tune an
+   estimate after work starts.
+7. Cross-link every plan to the note (`design_ref`, `links`).
+8. Emit `proposed` only. The proposed→ready blessing is the owner's, by hand.
 
 ## Supersession, not editing
 

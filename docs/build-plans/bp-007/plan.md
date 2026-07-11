@@ -16,6 +16,9 @@ write_scope:
   - "docs/findings/**"
   - "docs/build-plans/bp-007/**"
 session_budget: 1
+cost:
+  estimate: null                              # pre-dates the ledger rule
+  actual: { model: sonnet, tokens: 657k, tool_calls: 969, duration_min: 101 }
 depends_on: [bp-006]
 parallelizable_with: [bp-009]
 created: 2026-07-11
