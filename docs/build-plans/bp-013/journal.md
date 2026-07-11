@@ -232,5 +232,42 @@ one-line type annotation on an in-scope test file, resolved and annotated (codeb
 - `uv run mypy` (whole `[tool.mypy].files`, incl `tests/`): `Found 69 errors in 20 files (checked 333 source files)` — matches finding-0029 baseline exactly.
 - `uv run python scripts/check_imports.py`: `Import firewall (I2): OK` (Invariant-2 green).
 
+## SEAL — 2026-07-11 (evening) — bp-013 COMPLETE, merged to main (orchestrator)
+
+**Status: `in-progress → complete`.** Merged `--no-ff` (merge commit on main) after diff
+scrutiny per the delegate skill:
+- **Scope:** every changed file inside bp-013 write_scope. `core/complex/**` and
+  `core/stores/edges.py` **untouched** (empty three-dot diff) — the isolation held not just at
+  runtime but at the source: nothing on the balance side moved. Item 6's falsifier
+  (`test_no_import_path_from_core_complex_to_this_store`) confirms no `core/complex/**` import.
+- **Item 8 isolation proof PASSES, genuinely.** Verified by eye: the test plants 4 real edges
+  whose corpus endpoints ARE node digests of the complex (both directions, validated ref_types),
+  asserts the store truly holds them (`count()==4`, endpoints ⊆ node set), then proves every
+  instrument (frustration λ+triangles, Forman curvature, clustering) bit-identical. The
+  with/without difference is real; the B-c stop-and-raise did not fire.
+- **Triple-green re-verified on main post-merge:** ruff clean · mypy strict 0 / whole-tree 69
+  (finding-0029 baseline) · import firewall OK · **804 passed**, 4 skipped.
+- **Item 7 spec-fidelity (both directions) ACCEPTED** (finding-0036): minting corpus→code as well
+  as code→corpus is the right reading — §1's objective pins the whole bp-011 validated set, which
+  includes corpus→code/path-mention at rank 2 (100% precision, the finding-0021 corroboration
+  direction); a literal single-direction reading would drop ~58% of the inventory. Clean reversal
+  seam recorded if ever wanted.
+- **Finding collision resolved:** the builder's Item-7 finding was renumbered 0035 → **0036**
+  (main already had a different finding-0035, the self-resume practice). No add/add conflict.
+
+**Parked Q4 reset target — REGISTERED by the orchestrator** (commit `11ffc01`, the builder
+couldn't: launcher.py was outside its write_scope). `data/reference_edges.sqlite` joins
+`reset_targets()` alongside `code_observations.sqlite` (bp-012 shape); the corpus-wipe test seed
+extended additively; `test_lifecycle.py` 20/20 green.
+
+**Cost (usage ledger, context-economy skill):** two builders across two sessions. Items 6-7
+(store + extraction): prior session, usage NOT captured (no completion notification recorded — a
+ledger gap to avoid next time). Item 8 + finding renumber: resume builder, **opus, 54,048 tokens,
+44 tool calls, ~350s**. Under the fable/250k estimate on the captured half.
+
+**The B-c family closes here.** Lane 1 (deterministic reference edges) is built and proven
+isolated; Lane 2 (semantic proposals) and B-d (the detangling consumer) remain gated on Track D.
+Journal sealed.
+
 Plan left `in-progress` — the completion flip is the orchestrator's /triage seal, not a builder
 step. NOT pushed (runner-budget rule); Item 8 commit is local for the orchestrator to merge.

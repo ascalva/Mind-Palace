@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-013
-status: in-progress
+status: complete
 design_ref:
   - docs/design-notes/code-observation-projection.md
 contract: builder
@@ -14,7 +14,11 @@ write_scope:
 session_budget: 1
 cost:
   estimate: { model: fable, tokens: 250k }    # first fiber writer + isolation proof
-  actual: null
+  # Two builders across two sessions. Items 6-7 (store + extraction): prior session,
+  # token usage NOT captured (delegated builder, no completion-notification recorded).
+  # Item 8 (isolation proof) + finding renumber: resume builder, opus, 54k tokens,
+  # 44 tool calls, ~350s. Whole-plan actual under estimate on the captured half.
+  actual: { model: opus, tokens_item8: 54k, tool_calls_item8: 44, note: "items 6-7 uncaptured" }
 depends_on: [bp-011, bp-012]
 parallelizable_with: []
 created: 2026-07-11
