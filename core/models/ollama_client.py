@@ -13,11 +13,19 @@ import json
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypedDict
 
 from config.loader import OllamaConfig
 
-Message = dict  # {"role": "system"|"user"|"assistant", "content": str}
+
+class Message(TypedDict):
+    """One chat turn, Ollama chat-API shaped. Deliberately duplicated from
+    `core.constitution.Message` (structurally identical, so mypy treats them as
+    interchangeable) to keep this client standalone; runtime-identical to the
+    plain dict it replaced."""
+
+    role: str  # "system" | "user" | "assistant"
+    content: str
 
 
 class OllamaError(RuntimeError):
