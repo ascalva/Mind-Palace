@@ -20,11 +20,11 @@ from tests.fixtures.attestation import (
 )
 
 
-def _signed(role: str = "supervisor", **kw) -> Attestation:
-    base = dict(timestamp="2026-06-27T00:00:00", agent_role="dreamer", action="dream_pass",
-                constitution_fingerprint="F", input_hashes=["a"], output_hashes=["o"])
-    base.update(kw)
-    att = Attestation.create(**base)
+def _signed(role: str = "supervisor", *, action: str = "dream_pass") -> Attestation:
+    att = Attestation.create(
+        timestamp="2026-06-27T00:00:00", agent_role="dreamer", action=action,
+        constitution_fingerprint="F", input_hashes=["a"], output_hashes=["o"],
+    )
     signer = dev_signer(role)
     return replace(att, signature=signer.sign(att.signing_payload()), signer=role)
 
@@ -49,9 +49,13 @@ def test_signing_does_not_change_the_content_address(tmp_path):
 
     _, signed = attestor_with_store(tmp_path / "s", signer=dev_signer("supervisor"), clock=clock)
     _, unsigned = attestor_with_store(tmp_path / "u", clock=clock)
-    kw = dict(agent_role="dreamer", action="dream_pass", input_hashes=["d1"], output_hashes=["x"])
-    a = signed.emit(**kw)
-    b = unsigned.emit(**kw)
+
+    def _emit(attestor):
+        return attestor.emit(agent_role="dreamer", action="dream_pass",
+                             input_hashes=["d1"], output_hashes=["x"])
+
+    a = _emit(signed)
+    b = _emit(unsigned)
     assert a.id == b.id and a.signature and not b.signature
 
 

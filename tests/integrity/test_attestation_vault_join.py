@@ -67,8 +67,13 @@ def test_accessor_is_in_the_content_address():
     # Two actions identical except for the authorization they ran under are DISTINCT attestations
     # (the accessor is in the id surface) — an action authorized as one role can't be conflated
     # with the same action under another authorization.
-    base = dict(timestamp="2026-06-27T00:00:00", agent_role="dreamer", action="dream_pass",
-                constitution_fingerprint="F", input_hashes=["d1"])
-    a = Attestation.create(**base, vault_token_accessor="accessor-a")
-    b = Attestation.create(**base, vault_token_accessor="accessor-b")
+    def _base(vault_token_accessor: str) -> Attestation:
+        return Attestation.create(
+            timestamp="2026-06-27T00:00:00", agent_role="dreamer", action="dream_pass",
+            constitution_fingerprint="F", input_hashes=["d1"],
+            vault_token_accessor=vault_token_accessor,
+        )
+
+    a = _base("accessor-a")
+    b = _base("accessor-b")
     assert a.id != b.id
