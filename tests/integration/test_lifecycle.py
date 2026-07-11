@@ -249,3 +249,81 @@ def test_stop_dead_pid_is_marked_unclean(tmp_path):
     launcher = Launcher(cfg=_cfg(tmp_path), runs=runs, repo_root=Path(".").resolve())
     assert launcher.stop() == 1
     assert (not runs.last().active) and not runs.last().clean_shutdown   # recorded as a crash
+
+
+# --- deploy (the promotion gate) ------------------------------------------------------------------
+import os as _os  # noqa: E402
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture
+def live_run(tmp_path):
+    """A ledger with one live run (this process's pid, so _pid_alive is truthfully True)."""
+    runs = RunLedger(tmp_path / "runs.sqlite")
+    run = runs.open_run(commit_sha="oldsha", dirty=False, pid=_os.getpid())
+    return runs, run
+
+
+def _deploy_launcher(tmp_path, runs, monkeypatch, *, head="newsha", branch="main",
+                     dirty=False, managed=True, gate=("true",)):
+    monkeypatch.setattr("ops.lifecycle.launcher.git_state", lambda _r: (head, dirty))
+    monkeypatch.setattr("ops.lifecycle.launcher._git_branch", lambda _r: branch)
+    monkeypatch.setattr("ops.lifecycle.launcher._launchd_managed", lambda _l: managed)
+    return Launcher(cfg=_cfg(tmp_path), runs=runs, repo_root=tmp_path,  # tmp: no plist → no drift
+                    gate_cmd=gate, deploy_wait_s=2.0, deploy_poll_s=0.05)
+
+
+def test_deploy_refuses_without_live_run(tmp_path, monkeypatch):
+    runs = RunLedger(tmp_path / "runs.sqlite")
+    assert _deploy_launcher(tmp_path, runs, monkeypatch).deploy() == 1
+
+
+def test_deploy_refuses_dirty_tree(tmp_path, live_run, monkeypatch):
+    runs, _ = live_run
+    assert _deploy_launcher(tmp_path, runs, monkeypatch, dirty=True).deploy() == 1
+
+
+def test_deploy_refuses_off_main(tmp_path, live_run, monkeypatch):
+    runs, _ = live_run
+    assert _deploy_launcher(tmp_path, runs, monkeypatch, branch="feature").deploy() == 1
+
+
+def test_deploy_noop_when_already_live(tmp_path, live_run, monkeypatch):
+    runs, _ = live_run
+    assert _deploy_launcher(tmp_path, runs, monkeypatch, head="oldsha").deploy() == 0
+    assert runs.last().active                        # untouched — no cycle for a no-op
+
+
+def test_deploy_refuses_red_gate(tmp_path, live_run, monkeypatch):
+    runs, _ = live_run
+    assert _deploy_launcher(tmp_path, runs, monkeypatch, gate=("false",)).deploy() == 1
+    assert runs.last().active                        # gate refused BEFORE any drain
+
+
+def test_deploy_cycles_and_verifies_successor(tmp_path, live_run, monkeypatch):
+    runs, old = live_run
+    launcher = _deploy_launcher(tmp_path, runs, monkeypatch)
+
+    def fake_stop():  # the graceful drain + launchd relaunch, compressed
+        runs.mark_stopped(old.id, clean=True)
+        runs.open_run(commit_sha="newsha", dirty=False, pid=_os.getpid())
+        return 0
+
+    launcher.stop = fake_stop
+    assert launcher.deploy() == 0
+    new = runs.last()
+    assert new.id > old.id and new.commit_sha == "newsha" and new.active
+
+
+def test_deploy_fails_when_successor_is_recovery(tmp_path, live_run, monkeypatch):
+    runs, old = live_run
+    launcher = _deploy_launcher(tmp_path, runs, monkeypatch)
+
+    def fake_stop():
+        runs.mark_stopped(old.id, clean=False)       # unclean → successor recovers
+        runs.open_run(commit_sha="newsha", dirty=False, pid=_os.getpid(), recovery=True)
+        return 0
+
+    launcher.stop = fake_stop
+    assert launcher.deploy() == 1                    # loud failure, not a silent recovery

@@ -53,7 +53,7 @@ if [ "$#" -gt 0 ]; then shift; fi
 
 case "$verb" in
   ""|help|-h|--help) usage ;;
-  start|stop|status|reset)  py "$SCRIPTS/palace.py" "$verb" "$@" ;;
+  start|stop|status|reset|deploy)  py "$SCRIPTS/palace.py" "$verb" "$@" ;;
   talk)                     py "$SCRIPTS/talk.py" "$@" ;;
   monitor)                  py "$SCRIPTS/monitor.py" "$@" ;;
   sandbox)                  py "$SCRIPTS/sandbox.py" "$@" ;;

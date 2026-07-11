@@ -57,6 +57,7 @@ Any code an agent runs is **powerless** (Invariant 4):
 - Build **phase by phase** (BUILD-SPEC §18); verify against the gate; **checkpoint with the human** before advancing.
 - **Ask, don't guess** on BUILD-SPEC §20 decisions; otherwise choose a sensible default and state it inline.
 - Keep changes small and reversible. When unsure whether something belongs in `core/` or `edge/`, it belongs in `edge/` if it can ever touch the network.
+- **Code reaches the always-on system only through `mind-palace deploy`** (the promotion gate, 2026-07-11): clean tree, on main, ratchet green, graceful cycle, successor-SHA verified. Never kill/restart the live run by hand.
 
 ## Commits (house style, 2026-07-11)
 - **Conventional Commits, machine-first:** `type(scope): subject`. Types: `feat fix docs test refactor perf ops chore`. Scope names the tree area or artifact the change lives in (`core`, `edge`, `ops`, `hooks`, `eval`, `bp-005`, `triage`) — optional, but a scoped header is a better lookup key.

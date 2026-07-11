@@ -19,7 +19,8 @@ list (it's the same list as this section). Adding a new script later = one new `
 # --- DAY-TO-DAY (from anywhere) ----------------------------------------------------------------
 mind-palace start              # run the whole system (preflight + supervise)
 mind-palace status             # health checklist + recent runs (commit-pinned)
-mind-palace stop                # graceful drain (from another shell)
+mind-palace stop                # graceful drain (under launchd KeepAlive this = RESTART)
+mind-palace deploy              # promotion gate: cycle the ALWAYS-ON run onto HEAD (see below)
 mind-palace talk                 # talk to it locally (LIVE; --offline = no-Ollama demo)
 #   Remote dashboard + chat from your phone: set [monitor] enabled=true + host=<tailscale-ip>, then
 #   `mind-palace start` spawns it → http://<tailscale-ip>:8787  (see "Remote dashboard + chat" below)
@@ -758,6 +759,19 @@ below — it runs the full supervisor (which includes the `ambassador_task` dele
 so delegations from `talk.py` are completed by the running daemon.
 
 ---
+
+## Deploy — the promotion gate (owner rule 2026-07-11)
+
+Code/infra reaches the always-on system only through `mind-palace deploy` — never a hand kill.
+The gate refuses: no live run, dirty tree, off-main, HEAD already live, or a red ratchet
+(`--skip-tests` is the emergency hatch). Then it drains gracefully and, under launchd
+KeepAlive, the exit IS the restart: the successor run comes up on the new code and deploy
+verifies its pinned SHA (loud failure if it lands in recovery). If the repo plist drifted
+from `~/Library/LaunchAgents/`, deploy does the full bootout → cp → bootstrap instead, so
+plist changes ship the same way code does. **Corollary: under KeepAlive, `palace stop`
+means restart** — a true stop is `launchctl bootout gui/$(id -u)/com.mind-palace.palace`.
+Rollback = `git revert` + `deploy` again; the run ledger keeps every stretch pinned to its
+commit, so "what was live when" is always answerable.
 
 ## One-command lifecycle — `palace start | stop | status | reset` (owner-operated)
 

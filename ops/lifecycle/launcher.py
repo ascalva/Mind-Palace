@@ -17,7 +17,9 @@ the stores/files, so a clean restart just resumes; recovery is the cautious resp
 from __future__ import annotations
 
 import os
+import shutil
 import signal
+import subprocess
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -45,6 +47,28 @@ def _pid_alive(pid: int) -> bool:
     except PermissionError:
         return True            # exists but owned by another user
     return True
+
+
+def _git_branch(repo_root: Path) -> str:
+    """Current branch name, '' on detached HEAD or non-git (deploy refuses either)."""
+    r = subprocess.run(["git", "-C", str(repo_root), "symbolic-ref", "--short", "-q", "HEAD"],
+                       capture_output=True, text=True)
+    return r.stdout.strip()
+
+
+def _launchd_managed(label: str) -> bool:
+    """Is the palace agent bootstrapped in the user's gui domain?"""
+    r = subprocess.run(["launchctl", "print", f"gui/{os.getuid()}/{label}"],
+                       capture_output=True)
+    return r.returncode == 0
+
+
+def _launchd_cycle(label: str, repo_plist: Path, installed: Path) -> None:
+    """The infra half of deploy: bootout → install the repo plist → bootstrap."""
+    domain = f"gui/{os.getuid()}"
+    subprocess.run(["launchctl", "bootout", f"{domain}/{label}"], check=False)
+    shutil.copy2(repo_plist, installed)
+    subprocess.run(["launchctl", "bootstrap", domain, str(installed)], check=True)
 
 
 @dataclass
@@ -182,6 +206,13 @@ class Launcher:
     health_interval_s: float = 60.0                            # OS-health sense cadence
     snapshot_interval_s: float = 5.0                           # edge-monitor snapshot cadence
     on_shutdown: Callable[[bool], None] | None = None   # ASG-style lifecycle hook (e.g. snapshot)
+    # deploy (the promotion gate): the ratchet command, the successor-wait budget, and the
+    # launchd label — all injectable for tests.
+    gate_cmd: tuple[str, ...] = ("uv", "run", "pytest", "-q", "-m",
+                                 "not live and not podman and not needs_vault and not needs_restic")
+    deploy_wait_s: float = 60.0
+    deploy_poll_s: float = 0.5
+    launchd_label: str = "com.mind-palace.palace"
     _stopping: bool = field(default=False, init=False)
     _run_id: int | None = field(default=None, init=False)
     _run: object | None = field(default=None, init=False)     # the active RunRecord (for snapshots)
@@ -303,6 +334,74 @@ class Launcher:
                 signal.signal(sig, handler)
             except ValueError:
                 pass            # not on the main thread (tests) — fine; max_ticks bounds the loop
+
+    # --- deploy (the promotion gate) ----------------------------------------------------------
+    def deploy(self, *, skip_tests: bool = False) -> int:
+        """Apply committed code/infra to the always-on system by a GRACEFUL cycle (owner rule
+        2026-07-11) — never a kill. Gate, then drain, then verify.
+
+        The gate: an active run exists; the working tree is clean; the branch is main; HEAD
+        differs from the live run's commit; the fast ratchet is green (`--skip-tests` is the
+        emergency hatch). Under launchd (KeepAlive) the graceful stop IS the restart — drain →
+        exit → relaunch on the new code — so deploy just waits for the successor run and
+        verifies its pinned SHA. Infra half: if the repo plist drifted from the installed
+        copy, the cycle is bootout → cp → bootstrap instead, so plist changes deploy the same
+        way code does. (Corollary the owner should know: under KeepAlive, `palace stop` means
+        RESTART; a true stop is `launchctl bootout gui/$UID/com.mind-palace.palace`.)
+        """
+        run = self.runs.last()
+        if run is None or not run.active or not _pid_alive(run.pid):
+            print("deploy: no live run — nothing to cycle. Use `start` (or launchctl bootstrap).")
+            return 1
+        commit, dirty = git_state(self.repo_root)
+        if dirty:
+            print("deploy: REFUSED — working tree is dirty. Commit (or stash) first; "
+                  "the run ledger pins runs to commits, and a dirty deploy pins a lie.")
+            return 1
+        if _git_branch(self.repo_root) != "main":
+            print("deploy: REFUSED — not on main. main is the ingestion/deployment branch "
+                  "(CONVENTIONS §Commits); merge first.")
+            return 1
+        if commit == run.commit_sha:
+            print(f"deploy: already live on {commit[:12]} (run #{run.id}) — nothing to do.")
+            return 0
+        if not skip_tests:
+            print(f"deploy gate: {' '.join(self.gate_cmd)}")
+            if subprocess.run(list(self.gate_cmd), cwd=self.repo_root).returncode != 0:
+                print("deploy: REFUSED — the ratchet is red. Fix or (emergencies only) "
+                      "--skip-tests.")
+                return 1
+        managed = _launchd_managed(self.launchd_label)
+        repo_plist = self.repo_root / "ops/lifecycle/com.mind-palace.palace.plist"
+        installed = Path.home() / "Library/LaunchAgents/com.mind-palace.palace.plist"
+        drift = (managed and repo_plist.exists() and installed.exists()
+                 and installed.read_bytes() != repo_plist.read_bytes())
+        if drift:
+            print("deploy: plist drift detected — full reinstall cycle (bootout → cp → bootstrap).")
+            _launchd_cycle(self.launchd_label, repo_plist, installed)
+        else:
+            self.stop()                                    # SIGTERM → drain at the boundary
+        if not managed:
+            print("deploy: drained, but the run is NOT launchd-managed — no supervisor will "
+                  "relaunch it. Start it yourself (`palace start`), or install the agent "
+                  "(runbook → One-command lifecycle).")
+            return 0
+        deadline = time.monotonic() + self.deploy_wait_s
+        while time.monotonic() < deadline:
+            new = self.runs.last()
+            if new is not None and new.id > run.id and new.active and _pid_alive(new.pid):
+                if new.recovery:
+                    print(f"deploy: FAILED — run #{new.id} came up in RECOVERY (previous run "
+                          "did not close clean). Inspect, then `start --force` semantics apply.")
+                    return 1
+                if new.commit_sha == commit:
+                    print(f"deploy: OK — {run.commit_sha[:12]} → {commit[:12]} "
+                          f"(run #{run.id} → #{new.id}, pid {new.pid}).")
+                    return 0
+            time.sleep(self.deploy_poll_s)
+        print(f"deploy: TIMED OUT after {self.deploy_wait_s:.0f}s waiting for the successor "
+              "run — check `palace status` and data/logs/palace.err.log.")
+        return 1
 
     # --- stop / status ----------------------------------------------------------------------
     def stop(self) -> int:
