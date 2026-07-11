@@ -208,4 +208,59 @@ return types).
 
 ---
 
+## Entry — 2026-07-11 — Item 6 continued: selfmod/effect_exec/lifecycle-cluster green (ops 74 → 45)
+
+**ops/selfmod.py (3).** `build_golden_validator`'s `frozen_baseline`/`rolling_baseline` typed
+`dict[str, float]` — read `eval/golden.py` first: `load_baseline`/`as_metrics`/`regressions`
+already declare `dict[str, float]` (bp-006-era, already strict), so this is a KNOWN shape from
+`eval`, not an arbitrary payload — matching it exactly, not defaulting to `dict[str, Any]`,
+is the more honest fix. `ValidationResult.metrics` stayed `dict[str, Any]` (genuinely open:
+nests lever name/value/regressions/per-axis drift — no fixed key set).
+
+**ops/effect_exec.py (4).** `EffectTransport.perform`/`IrreversibleExecutor.execute`'s
+`params: dict` → `dict[str, str]` (matches `ops/effect_ledger.py`'s convention for the
+identical effect-params shape — same actuator-kwargs concept, same fix). `config: object |
+None` → `Config | None`, `Config` added to the existing `TYPE_CHECKING` block (config stays
+injectable, no new runtime import).
+
+**ops/lifecycle/snapshot.py (2).** `build_status`/`write_status`'s snapshot dict → `dict[str,
+Any]` (a deeply-nested JSON core→edge handoff, Invariant 2 boundary — genuinely open, no
+single fixed shape worth a TypedDict).
+
+**ops/lifecycle/runs.py (2).** Same `lastrowid` narrowing fix as `scheduler/queue.py` (assert
+not-None instead of `int(...)`); `open_run_ledger`'s `config: object | None` → `Config | None`.
+
+**ops/lifecycle/children.py (4) — the interesting one.** `Proc = object` was a bare type alias
+with a comment describing the real shape ("Popen-like: .pid, .poll(), .terminate(), .wait(),
+.kill()"). Confirmed via `tests/unit/test_children.py`'s `_FakeProc` that callers inject a
+structural fake, NOT a `subprocess.Popen` subclass — so a `Protocol` is the right tool (same
+judgment as `agents/ambassador/agent.py`'s `ChatServer` earlier this session), not the concrete
+class. `stop()` needed one additional explicit `assert proc is not None` (the `alive()` guard
+established it but mypy can't carry that narrowing across the property read).
+
+**Verification (this entry's four files):** `uv run mypy ops/selfmod.py ops/effect_exec.py
+ops/lifecycle/{snapshot,runs,children}.py` → clean; `ruff check .` clean; pytest 743 passed /
+4 skipped. Commits `c5f0a94`, `0d628e2`.
+
+**Correction to the prior commit's arithmetic:** `0d628e2`'s message estimated ops 44 → 34;
+the actual re-measure is ops 74 → **45** (not 34) — `ops/lifecycle/launcher.py` picked up 1 net
+new error (21 → 22) as a side effect of the `children.py` Protocol tightening (a `Child`-typed
+attribute chain in launcher.py now resolves further and mypy sees one more layer). Recorded
+here as the correction; the commit stays as committed (no amend) per the lossless-discipline
+rule (small, frequent, forward-only commits) — this journal entry is the authoritative count.
+
+**Per-item running state:** eval 1→0 ✓ · scheduler 10→0 ✓ · agents 16→0 ✓ ·
+ops 74→45 (apply/code_sensor/effect_ledger/ledger/selfmod/effect_exec/lifecycle-{snapshot,runs,
+children} all done; remaining: `ops/lifecycle/launcher.py` 22, `ops/ci_witness.py` 13,
+`ops/backup/plan.py` 10) · scripts 0 (clean) · tests 243 (Item 7, not started).
+
+**Next action:** `ops/backup/plan.py` (10 — `CompletedProcess` type-arg family, mechanical),
+then `ops/ci_witness.py` (13), then `ops/lifecycle/launcher.py` (22, the largest single file —
+read fully before touching; has the genuinely different `Callable[[], Job]` vs `Callable[[],
+None]` mismatch, `psutil` import-untyped — reuse the existing `core/typedshims/psutil.py` shim
+rather than re-solving — and several `object`-typed attribute chains needing the same
+Protocol-vs-concrete-type judgment call as `ChatServer`/`Proc`).
+
+---
+
 ## Markers
