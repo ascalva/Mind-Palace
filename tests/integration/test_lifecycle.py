@@ -207,6 +207,11 @@ def test_reset_wipes_corpus_but_never_the_vault_raft(tmp_path):
     (cfg.paths.raw_store).mkdir(parents=True)
     (cfg.paths.raw_store / "blob").write_text("x")
     cfg.paths.vault_catalog.write_text("catalog")
+    # the four sibling provenance stores (opened via derived_store.parent, no cfg path)
+    sidecars = ["versions.sqlite", "authored_supersessions.sqlite",
+                "verdicts.sqlite", "verdict_dispositions.sqlite"]
+    for name in sidecars:
+        (cfg.paths.data_dir / name).write_text("rows")
     (cfg.paths.data_dir / "vault").mkdir()
     (cfg.paths.data_dir / "vault" / "raft.db").write_text("VAULT RAFT — DO NOT DELETE")
     runs = RunLedger(tmp_path / "runs.sqlite")
@@ -214,10 +219,12 @@ def test_reset_wipes_corpus_but_never_the_vault_raft(tmp_path):
 
     assert launcher.reset(confirm=False) == 0            # dry-run removes nothing
     assert cfg.paths.raw_store.exists()
+    assert all((cfg.paths.data_dir / n).exists() for n in sidecars)
 
     assert launcher.reset(confirm=True) == 0
     assert not cfg.paths.raw_store.exists()              # corpus wiped
     assert not cfg.paths.vault_catalog.exists()
+    assert not any((cfg.paths.data_dir / n).exists() for n in sidecars)  # provenance sidecars wiped
     assert (cfg.paths.data_dir / "vault" / "raft.db").exists()   # Vault Raft UNTOUCHED
 
 

@@ -343,6 +343,13 @@ class Launcher:
         candidates = [
             p.raw_store, p.vector_store, p.vault_catalog, p.derived_store, p.attestation_store,
             p.data_dir / "queue.sqlite",
+            # Sibling stores opened via `derived_store.parent / <name>` (no dedicated cfg path).
+            # All four are corpus/derived-chain provenance: left behind, their rows reference
+            # wiped artifacts — orphaned history that would pollute a fresh graph's record.
+            p.data_dir / "versions.sqlite",                 # note-version supersession history
+            p.data_dir / "authored_supersessions.sqlite",   # owner-declared K₀↔K₀ (founding)
+            p.data_dir / "verdicts.sqlite",                 # verdict ledger over derived artifacts
+            p.data_dir / "verdict_dispositions.sqlite",     # dispositions derived from verdicts
         ]
         out: list[Path] = []
         for c in candidates:
