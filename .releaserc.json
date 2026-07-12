@@ -54,7 +54,7 @@
       }
     ],
     [
-      "@semantic-release/gitlab",
+      "@semantic-release/github",
       {
         "successComment": false,
         "failComment": false,

@@ -1,0 +1,39 @@
+name: release
+
+# semantic-release, relocated from the GitLab manual pipeline job to a workflow_dispatch
+# workflow (dn-ci-platform-and-runner-strategy D3/D4 end-state; bp-016 Item 10). Never
+# push-triggered: the witness (ops/ci_witness.py release <sha>) dispatches it after
+# confirming an attested green `ci` run for the sha — exact parity with the old
+# manual-play gate — or the owner dispatches it by hand from the Actions UI. Commit-back
+# (@semantic-release/git: CHANGELOG.md, package.json, terraform versions.tf) lands on
+# main, which is only coherent because GitHub IS origin (P5 — this file landed only
+# after the owner's origin re-point, 2026-07-12). The GITHUB_TOKEN-authenticated
+# commit-back does not re-trigger `ci` (GitHub's actor loop guard, plan Q9) — release
+# shas carry no ci verdict, same as GitLab's chore(release) skip; deploy-at-a-release-sha
+# stays refused-by-absent.
+
+on: workflow_dispatch
+
+permissions:
+  contents: write # @semantic-release/git commit-back + tag push
+
+concurrency: release # never two releases interleaved
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # semantic-release reads full tag history to compute the next version
+          persist-credentials: true # commit-back pushes with GITHUB_TOKEN
+      - uses: pnpm/action-setup@v6 # reads the packageManager field (pnpm 9.15.0)
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20 # package.json engines floor
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: semantic-release
+        run: pnpm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
