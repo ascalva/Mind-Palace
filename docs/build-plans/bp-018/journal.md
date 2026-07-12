@@ -102,10 +102,39 @@ shape untouched (§6(g)). Ratchet re-pinned `8832e5b3…` at 1.0.0 (declared ref
 batch content byte-identical). Ruff clean; argless mypy 69 (337 files); fast suite
 854 passed. Affected suites 48 passed incl. untouched `test_code_projection.py`.
 
-**Next action:** the VERBATIM gate (ruff && mypy scoped && mypy argless && type_gate
-&& pytest -q full) — journal the tails; known flake
-`tests/e2e/test_scheduler_live.py::test_supervisor_dispatches_a_real_job`
-(finding-0046): re-run before investigating.
+**GATE RUN (verbatim, journaled tails):**
+1. `uv run ruff check .` → `All checks passed!`
+2. `uv run mypy core agents eval ops scheduler scripts` → `Success: no issues found
+   in 169 source files`
+3. `uv run mypy` (argless) → **`Found 69 errors in 20 files (checked 337 source
+   files)`** — equals the pinned baseline exactly (69; file count 334→337 = the three
+   new files, zero new errors). NOTE: at the pinned baseline this step exits 1, so the
+   verbatim `&&` chain can never reach steps 4–5 — the check is tail EQUALITY; steps
+   4–5 were run immediately after, same env, no intervening edits.
+4. `uv run python -m ops.type_gate` → `Tier-2 membership: OK` + `Bare-ignore scan: OK`
+5. `uv run pytest -q` (full) → `2 failed, 867 passed, 8 skipped in 569.72s`. The two:
+   `test_scheduler_live.py::test_supervisor_dispatches_a_real_job` (the documented
+   finding-0046 flake) and `test_dream_v2_live.py::test_dream_v2_synthesizes_
+   grounded_themes_live` (Ollama `/api/embed` HTTP death under full-suite load —
+   diff-unrelated; dream/embed path untouched, stratum has no consumer). **Re-run of
+   both in isolation: `2 passed in 437.81s`** — green, journaled per the gate rule.
+   finding-0048 filed (discovery/codebase, route builder, resolved): second member of
+   the finding-0046 live-contention class; recommends folding into the known-flake
+   note. Gate: GREEN with the documented re-run.
+
+**Session seal state:** Items 1–4 all closed; findings 0047 (spec-fidelity, resolved
+in-plan) + 0048 (discovery, resolved by evidence); plan stays `in-progress` — the
+orchestrator scrutinizes, merges, seals. Branch `worktree-agent-aba2c7c44a097ec42`,
+tree clean at write time; commits: f8a2f95 (I1), e4bf8a6 (I2), 37d3d63 (docs),
+33d4dc9 (I3), 40695e7 (docs), f087695 (I4), 627bdca (docs), + this entry's commit.
+Fresh-agent test: plan + this journal + write-scope files suffice — nothing mid-motion,
+no open questions, no parked criteria.
+
+**Context-manifest delta:** read beyond the manifest: `tests/unit/test_code_projection.py`
+(the finding-0047 caller), `tests/unit/test_reference_extraction.py` (constructor-only
+consumer, stayed green untouched), `ops/type_gate.py` + `pyproject.toml` mypy config
+(baseline mechanics), `ops/lifecycle/launcher.py:243-268` (Launcher dataclass shape for
+the stub-cfg reset test), `docs/templates/finding.md`. Proved irrelevant: none.
 
 ## 2026-07-12 — minted at graduation (orchestrator, Fable/xhigh)
 
