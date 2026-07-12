@@ -1,5 +1,100 @@
 # bp-022 journal
 
+## 2026-07-12 — Item 5 closed (the THREAD lens) — all three items done, gate next
+
+**Status line:** All three items (4, 6, 5) committed on
+`worktree-agent-ac750d8bf5c2a3bd1`. Only the full plan gate (ruff + mypy ×2 +
+type_gate + pytest, verbatim) remains before handing back to the orchestrator.
+
+**Completed:**
+- Item 5 — `thread_interpreter` + registration (commit `d0fedc0`).
+  `core/dreaming/interpreters.py`: `THREAD = "thread"` constant; `thread_interpreter`
+  follows §6(b) exactly — `harmonic_basis(kx.A)` for the basis/β₁, honest-seam
+  short-circuit on `beta1 == 0` BEFORE any hole pairing (verified as the FIRST
+  statement in the function body, matching the plan's pinned step order), then
+  `long_lived_holes(ctx.distances, min_persistence=cfg.thread_min_persistence)`
+  persistence-ranked (the function's own sort order, reused, not re-sorted), capped
+  at `min(len(holes), beta1)`. Witness digests via `kx.nodes[v] for v in
+  hole.vertices` (the corrected attribute name — see the earlier journal entry's
+  note that the graduation note said `.witness`; the real field is `.vertices`).
+  Flow: cycle edges = pairs of witness vertices present in `edge_index(kx.A)` (a
+  non-edge pair inside a witness carries no harmonic-basis row and is excluded, not
+  zero-padded); flow = max over harmonic columns of mean `|basis[edge_row, col]|`
+  over those edges. Registered in `STRUCTURAL_INTERPRETERS[THREAD]`. Module
+  docstring extended (§4's cross-ref).
+  - **Acceptance test** (`tests/unit/test_thread_lens.py`, new file, 6 tests):
+    planted 6-note ring at σ=0.3 (β₁=1, verified independently against
+    `harmonic_basis` before writing assertions — exactly the 6 perimeter edges, no
+    chords) yields exactly ONE THREAD claim, `support == the six witness digests`,
+    `data["persistence"] == 1.0` (the hole's own lifetime), `data["witness"] ==
+    list(support)`. A dense near-identical clique (β₁=0, asserted via
+    `harmonic_basis(...).shape[1] == 0` before the interpreter call, so the
+    falsifier fixture is verified, not assumed) yields ZERO claims —
+    `test_thread_lens_yields_zero_claims_on_beta1_zero_even_with_holes_below_scale`.
+    Support-subset-of-witness invariant checked directly. Determinism: two
+    independently-built `StructuralContext`s over the same view yield identical
+    claims. Routing-class check: no claim's statement contains "contradiction".
+  - **Panel integration** (`tests/integration/test_structural_panel.py`, 3 new tests
+    added to the existing 3, all 6 green): THREAD fires alongside `hole`/`theme`/
+    `bridge` at σ=0.3 (ring edges intact, β₁=1) —
+    `test_thread_lens_fires_alongside_existing_lenses_when_ring_edges_are_intact`.
+    At the corpus DEFAULT σ=0.62 (where the ring has ZERO σ-edges, since 0.62 >
+    every ring-pair's cosine similarity — checked by hand earlier), THREAD is
+    silent while `hole` still fires (hole reads the unthresholded distance matrix,
+    not the σ-skeleton) — `test_thread_lens_absent_at_default_sigma_where_ring_has_no_edges`
+    — which ALSO is exactly why the three ORIGINAL panel tests (which run at
+    default σ, unmodified) stay green: THREAD contributes nothing there, so nothing
+    about their assertions changes. Whole-panel determinism re-checked with THREAD
+    registered.
+  - `uv run ruff check` on all three touched/new files → clean (one auto-fixed
+    import-order nit in the new test file via `ruff check --fix`, no logic
+    changed by the fix).
+  - `uv run mypy core agents eval ops scheduler scripts` → Success, 169 files.
+  - `uv run mypy` (argless) → **Found 69 errors in 20 files** (checked 337 source
+    files — one more than the Item 6 checkpoint's 336, from the new
+    `test_thread_lens.py`; the ERROR COUNT is unchanged from the pinned baseline).
+  - `uv run pytest -q tests/unit/test_thread_lens.py
+    tests/integration/test_structural_panel.py` → 12 passed (6 + 6).
+
+**In-flight:** None — all three plan items are implemented, tested, and committed.
+Next is the full verbatim gate from the builder brief (ruff + mypy×2 + type_gate +
+pytest across the whole repo), which has NOT yet been run in full (only targeted
+subsets so far, all green). The sibling builder bp-018 may be running a
+live/podman-marked full-suite pass concurrently in its own worktree — per the
+brief's flake note, `tests/e2e/test_scheduler_live.py::test_supervisor_dispatches_a_real_job`
+may need a re-run if it comes back DONE+empty-text under contention.
+
+**Next action:** Run the full gate verbatim:
+```
+uv run ruff check . \
+  && uv run mypy core agents eval ops scheduler scripts \
+  && uv run mypy \
+  && uv run python -m ops.type_gate \
+  && uv run pytest -q
+```
+Journal the tails (especially the argless-mypy "Found N errors" line — must stay
+69) and the pytest summary counts. If the known e2e flake fires, re-run just that
+one test before treating it as a real failure. Then write the FINISH report back
+to the orchestrator per the builder brief's required shape; leave `status:
+in-progress` (orchestrator's job to merge/seal).
+
+**Open questions:** none new; nothing parked. No findings filed this session — no
+codebase/spec-fidelity ambiguity was hit that needed resolving-and-annotating, and
+no design/math/direction question arose that needed routing. (The one naming
+correction — `Hole.witness` vs the real `.vertices` — was caught and self-corrected
+against the actual code per Q3's own citation, not a spec defect: the design note
+and plan both cite `topology.py:29-43` / the plan's own §6(b) pseudocode uses
+"witness digests" only as a descriptive local-variable name, never asserting an
+attribute called `.witness` exists. Only the PRIOR journal entry's prose overstated
+it; corrected in-place there.)
+
+**Context-manifest delta:** No files read beyond what the Item 6 entry already
+listed, plus this item's own target files (already in write_scope). Confirmed via
+scratch script (not written to the repo) that `edge_index` on the ring's adjacency
+at σ=0.3 gives exactly the 6 perimeter pairs, and that summing `|basis[e, 0]|` over
+those 6 rows gives a uniform 0.408 flow (as expected for a symmetric hexagon's
+single harmonic mode) — sanity-checked before trusting the `flow` field's shape.
+
 ## 2026-07-12 — Item 6 closed (degree-1 temporal invariants)
 
 **Status line:** Items 4 and 6 committed on this worktree branch
