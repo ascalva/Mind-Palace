@@ -444,4 +444,8 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
 - default_if_unanswered: the blessed record stays as-is — three spans render broken but read
   unambiguously; nothing downstream consumes the rendering. Re-entry: any future owner hand-edit
   of the note (fold the repair in), or the note's first supersession.
-- answer:
+- answer: **REPAIRED BY HAND** (owner, 2026-07-12, same day). All three spans restored (§3.3
+  B-a/B-b falsifiers, the Cross-references paragraph incl. its original `+` continuation —
+  safe again with the formatter permanently removed), and the formatter's benign underscore
+  restyling reverted to the original asterisk italics throughout. Committed verbatim by the
+  orchestrator. Swept when /triage runs.

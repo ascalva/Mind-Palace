@@ -168,3 +168,14 @@ each has a moving-major alias, unlike `setup-uv`). Nothing in the manifest prove
 irrelevant — all four listed items were used.
 
 ## Markers
+
+## 2026-07-12 — orchestrator, at seal verification (live proof)
+
+First live `pages` run (dcfb524/e149592) FAILED at the build step: `uvx` is not
+preinstalled on ubuntu-latest runners, and the workflow had no setup-uv step — the plan's
+own §6(b) comment listed "checkout → setup uv → build"; the builder omitted it, actionlint
+cannot catch a missing tool, and the local acceptance run used the machine's uv. Scrutiny
+miss shared by builder and orchestrator; caught exactly where the plan said it would be
+(live proof at seal, bp-015 precedent: "actionlint can't prove resolution"). Fix applied
+by the orchestrator (one step in `.github/workflows/pages.yml`: `astral-sh/setup-uv@v8.3.2`
+with the ci.yml options verbatim). Re-proof: next main push.
