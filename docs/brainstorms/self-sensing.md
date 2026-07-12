@@ -194,3 +194,40 @@ references:
   - docs/design-notes/code-observation-projection.md
   - core/stores/code_observations.py
 ```
+
+---
+
+## 2026-07-12T18:32:53Z (captured) — owner musing: the Heisenberg parallel and the phase-space vector
+
+```capsule
+topic: self-sensing
+date: 2026-07-12
+
+decisions: []   # none — owner musing, explicitly low-stakes; captured as vocabulary
+                # for the Track-D charter seed (17:54Z capsule), not as rulings
+
+open_questions:
+  - (owner) loose Heisenberg parallel: you can't have position and momentum at once,
+    yet here state AND direction are both crucial — "an odd parallel, this is a
+    classical system which allows us to be precise on both." Session mapping: the
+    precision is BOUGHT by the firewall — the passive stratum makes self-measurement
+    ZERO BACK-ACTION by construction (reading the system does not steer it), which is
+    exactly why both coordinates stay sharp. Each future gated consumer introduces
+    measurement back-action DELIBERATELY: the uncertainty-like tradeoff arrives by
+    choice, one gate at a time, not as a law of nature.
+  - (owner) "like a vector with a starting coordinate — position and direction are
+    part of the equation"; direction is what lets the system continuously update its
+    knowledge graph over time. The phase-space framing: the graph's full state is the
+    pair (snapshot, motion). The supersession chains / edge-strength series are the
+    MOMENTUM coordinates — a lone snapshot has no derivative; velocity is only
+    measurable as differences across the record. The erasure test restated: erasure
+    keeps q and zeroes measured p — dead reckoning. A wise consumer integrates the
+    flow from the pair (and maybe curvature: an edge's strengthening accelerating).
+
+next_steps:
+  - none now — enriches Track D's charter vocabulary when that design pass opens.
+
+references:
+  - docs/design-notes/self-sensing.md
+  - docs/brainstorms/self-sensing.md (the 2026-07-12T17:54Z weaving capsule)
+```
