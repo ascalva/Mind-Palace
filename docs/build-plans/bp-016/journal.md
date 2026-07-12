@@ -13,11 +13,12 @@ write-scope files must continue without re-asking anything already answered.
 | Step | Status | Re-entry |
 |---|---|---|
 | (a) fine-grained PAT → Keychain `github-api` | DONE (2026-07-12) | authenticated polling + dispatch |
-| (b) origin re-point → GitHub authoritative (+ tag-parity check) | RULED, tags PASS; local re-point PENDING owner-console step first | gates Item 10 |
-| (c) mirror **reversal** → GitHub → GitLab (GitLab = downstream mirror) | RULED (owner 2026-07-12) | — |
-| (d) secret-scanning + push-protection toggles (GitHub) | OWED | — (any time) |
-| (e) retire GitLab **pipeline** | tombstoned+dead; deletion parked (mirror-harmless) | note parked #3 / D4 |
-| (f) retire GitLab **Pages** | RULED — owner-console + bp-017 builds GitHub Pages | bp-017 |
+| (a) fine-grained PAT → Keychain `github-api` | DONE (2026-07-12) | — |
+| (b) origin re-point → GitHub authoritative (+ tag-parity) | **DONE (2026-07-12)** | — |
+| (c) mirror **reversal** → GitHub → GitLab (GitLab = downstream mirror) | DONE — owner removed GitLab→GitHub push-mirror (2026-07-12); GitLab now a manual/secondary `gitlab` remote | — |
+| (d) secret-scanning + push-protection toggles (GitHub) | **DONE — already on** (owner 2026-07-12) | — |
+| (e) retire GitLab **pipeline** | DONE — owner disabled GitLab CI; `.gitlab-ci.yml` tombstoned (deletion parked, mirror-harmless) | note parked #3 |
+| (f) retire GitLab **Pages** | DONE — owner removed GitLab Pages; GitHub Pages is up (owner 2026-07-12) | bp-017 builds `pages.yml` |
 
 Step (a) verified DONE (2026-07-12): PAT stored in Keychain (`security find-generic-password
 -a mind-palace -s github-api`); an authed `GET /repos/ascalva/Mind-Palace/actions/workflows`
@@ -40,6 +41,17 @@ as a manual secondary); (2) orchestrator `git remote` re-point (`origin`→GitHu
 `gitlab` remote) — reversible, tags already parity; (3) bp-016 Item 10 swaps
 `@semantic-release/gitlab → @semantic-release/github` (must be atomic-ish with the re-point — no
 release cut in between; deploy is owner-gated so none is imminent).
+
+**MIGRATION EXECUTED (2026-07-12).** Owner did the console steps: removed the GitLab→GitHub
+push-mirror, disabled GitLab CI, removed GitLab Pages (GitHub Pages now up), and confirmed
+GitHub secret-scanning + push-protection already on. Orchestrator then re-pointed local remotes:
+`origin` → `git@github.com:ascalva/Mind-Palace.git` (SSH auth OK), GitLab kept as the `gitlab`
+remote; `main` tracks `origin/main`; fast-forward push `6f2a9a7..595a1be` succeeded; tags in
+parity (`v1.0.0..v1.3.0` both sides). **Pushes now hit GitHub directly — no mirror lag before CI.**
+GitLab is a manual secondary (`git push gitlab main` when we want to refresh the copy; no
+auto-sync). **STILL OWED for bp-016's build:** Item 10 swaps `@semantic-release/gitlab →
+@semantic-release/github` (`.releaserc.json` still targets gitlab) — must land with the witness
+re-point; until then no release should be cut (deploy owner-gated, so safe).
 
 SSH key setup is DONE (verified 2026-07-11): `~/.ssh/id_ed25519.pub` registered on GitHub
 as both Authentication key (`ssh -T git@github.com` authenticates) and Signing key
