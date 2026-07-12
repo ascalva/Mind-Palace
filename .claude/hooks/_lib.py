@@ -203,8 +203,19 @@ def parse_front_matter(text: str) -> dict:
 
 def _scalar(v: str):
     v = v.strip()
-    if len(v) >= 2 and v[0] in "\"'" and v[-1] == v[0]:
-        v = v[1:-1]
+    if len(v) >= 2 and v[0] in "\"'":
+        # Quoted scalar: honor the closing quote and DISCARD any trailing inline
+        # comment after it (`"path"  # note`). This is the write_scope list-entry
+        # shape the oq-0013 amendment introduced (bp-012's builder worked around a
+        # mis-parse where the comment stayed glued to the value). Only the quoted
+        # form is trimmed here; an UNQUOTED scalar keeps its '#' intact so a
+        # legitimate hash in a plain value (or a status like `ready#x`, guarded by
+        # _normalize_status) is never silently truncated — _scalar stays general.
+        q = v[0]
+        end = v.find(q, 1)
+        if end != -1:
+            return v[1:end]
+        return v[1:]  # unterminated quote — best-effort strip of the leading quote
     return v
 
 
