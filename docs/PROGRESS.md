@@ -2085,3 +2085,48 @@ item numbering 1–13 across the trio. bp-014 (ready) remains parallel-safe with
 **Next:** owner blesses any of bp-015/016/017 → delegate per plan tier. Meanwhile
 supervision-tier: bp-014 build, then /triage (findings 0027–0036 sweep, oq-0013/0014
 answer-sweep, promotions, seals).
+
+### Checkpoint 2026-07-12 — bp-015 built (delegated opus builder); CI live 4/5 green, semgrep parked on owner (opus/default supervision)
+
+**bp-015 flipped `ready → in-progress`; delegated one opus builder in a worktree** (delegate
+skill). Builder closed Items 1–4 cleanly: `.github/workflows/ci.yml` rebuilt as five independent
+jobs (commands byte-match `.gitlab-ci.yml`), `.gitlab-ci.yml` tombstoned, runbook repointed,
+gitleaks full-history clean (226 commits, 0 → Gate-0 residual discharged), all five gates
+red-proven locally, no code bent to the gate, no findings. Diff scrutinized in-scope, ratchet
+green, merged to main (`e14be25`). Builder usage: **63,994 tokens · 55 tool calls · ~513 s · opus**
+(ledger, context-economy skill).
+
+**Item 5 (orchestrator-executed) — the live wiring exposed two things the local red-proofs
+structurally couldn't:**
+1. **Green-run attempt 1 FAILED** (run 29179344841): 4/5 jobs died at "Set up job" —
+   `astral-sh/setup-uv@v8` doesn't resolve (the v8 series ships exact tags `v8.0.0`…`v8.3.2`,
+   **no moving `v8` major alias**; `v6`/`v7` have one). Wiring defect in bp-015's own file →
+   orchestrator pinned all four refs to `@v8.3.2` (`8d534a0`), actionlint 0.
+2. **Green-run attempt 2 = 4/5 GREEN** (run 29179448272, sha `8d534a0`): `ratchet`, `type-gate`
+   (exact-69 mypy baseline holds on GitHub), `vault-axis` (service container works under host
+   networking — §10 risk cleared), `gitleaks` all pass. **`semgrep` red on 22 pre-existing
+   blocking findings** (`p/default --error`, 432 rules/508 files) — an audit backlog (loopback
+   urllib, internal-constant SQL f-strings, terraform.aws hardening, a `mutable-action-tag` rule
+   flagging our own refs), none exploitable core vulns.
+
+**Decision routed, not made (§9/§10):** GitLab's SAST was report-only; the plan's deliberate
+`--error` made this gate stricter-than-parity and never verified green-on-clean. Filed
+**finding-0037** (design) + **oq-0015** (blocking: true — keep-blocking-and-triage vs
+report-only-parity vs narrow-ruleset). `semgrep` job **PARKED** (independent job; its red doesn't
+stop the other four). **Item 4 falsifier PASS** — no GitLab pipeline created for the tombstoned
+shas. **Canary DEFERRED** (exit-code propagation already proven by the mixed red/green run;
+bundle with the semgrep re-verify at seal).
+
+**Also this session:** bp-016 owner-step ledger **(a) PAT → DONE** — PAT stored + authed against
+the workflows API (HTTP 200). SSH already done. Steps (b)/(c)/(d) still OWED.
+
+**State:** bp-015 **stays `in-progress`** — sealing waits on the owner's oq-0015 ruling (+ the
+bundled canary re-verify). 4/5 CI jobs live and green; tombstone effective; GitLab lane dead by
+construction. bp-016/bp-017 correctly wait on bp-015's seal (don't build the witness until
+"attestable green" is defined — oq-0015 defines it).
+
+**Next (owner-gated):** owner answers **oq-0015** (semgrep block-vs-report). Then a DESIGN-tier
+session (Fable/xhigh) sweeps the ruling, does the semgrep re-verify + ratchet canary, seals
+bp-015, and the bp-016 ∥ bp-017 lane opens. Independent of oq-0015: **bp-014** (opus/default,
+finding-0031 + finding-0035) may run any time no other builder is active. Also owed: /triage
+(findings 0027–0037, oq-0013/0014 answer-sweep).
