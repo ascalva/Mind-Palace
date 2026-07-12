@@ -1,7 +1,7 @@
 ---
 type: finding
 id: finding-0045
-status: open
+status: resolved
 created: 2026-07-12
 updated: 2026-07-12
 links:
@@ -9,7 +9,7 @@ links:
 ftype: spec-defect
 origin_plan: bp-017
 route: orchestrator
-resolution: null
+resolution: "2026-07-12, orchestrator — `public/` added to .gitignore (one line + comment), same session as the bp-017 merge"
 ---
 
 # `.gitignore` does not cover the `public/` mkdocs build output directory
