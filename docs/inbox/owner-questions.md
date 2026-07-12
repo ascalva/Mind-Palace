@@ -357,3 +357,34 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   owner-console steps carried in Plan B as owner-steps with park conditions. Answer transcribed
   by the orchestrator (a ruling record, not a blessing gate — the gate was the owner's hand
   edit). Swept when /triage runs.
+
+---
+
+## oq-0015 — The ported `semgrep --error` gate is blocking and red on the existing tree (22 findings); keep blocking, or match GitLab's report-only parity?
+- status: open
+- origin: docs/findings/finding-0037.md
+- blocking: true   # gates bp-015's seal, and the bp-016 witness's definition of "attestable green"
+- question: bp-015's first clean live CI run (sha `8d534a0`, run 29179448272) is **4/5 green** —
+  `ratchet`, `type-gate` (the exact-69 mypy baseline holds on GitHub), `vault-axis` (the Vault
+  service container works under host networking), and `gitleaks` all pass. **`semgrep` fails**: the
+  scan completes fine (432 rules, 508 files) and reports **22 blocking findings**, and §6(f)'s
+  `uvx semgrep scan --config p/default --error` makes findings fatal. The 22 are a pre-existing
+  **audit backlog**, not a new regression — loopback `urllib` calls (one already `# noqa: S310`-annotated),
+  internal-constant migration SQL f-strings (false-positive-in-context), two Terraform AWS hardening
+  items, a Flask format-string, and — pointedly — a `mutable-action-tag` rule flagging our own
+  `@v7`/`@v8.3.2` refs for not being SHA-pinned. None are exploitable sealed-core vulns. **The crux:**
+  GitLab's SAST template is **report-only** (job exits 0; findings go to the MR widget), so the plan's
+  deliberate `--error` choice made the GitHub gate **stricter than the original it ports**, and it was
+  never verified green-on-clean before merge. I cannot resolve this in bp-015: fixing 22 code sites is
+  out of scope (§9) and needs your judgment on acceptability; dropping `--error` is a gate-content change
+  (§10). Three paths (detail in finding-0037): **(1) keep blocking + triage/suppress the 22** (nosemgrep
+  the reviewed-intentional ones, SHA-pin actions, open follow-ups for the real hardening; code edits land
+  in a separate scoped plan); **(2) match GitLab parity → report-only** (drop `--error`; restores true
+  parity, loses the blocking guarantee); **(3) narrow/path-scope the ruleset** (may extend above p/default,
+  never drop below it). Rule the direction (and, if (1), a suppression-policy sketch).
+- default_if_unanswered: the `semgrep` job stays **parked** and red (it is one of five independent jobs —
+  its red does not stop the other four greening; main's `ci` badge reads failing until ruled). bp-015 stays
+  `in-progress` with semgrep parked; bp-016/bp-017 wait on bp-015's seal; deploy stays hard-blocked (no
+  clean attestable green). Parks on finding-0037; re-entry — owner rules here, or a reader/witness is
+  blocked by the persistently-red `semgrep` job.
+- answer:

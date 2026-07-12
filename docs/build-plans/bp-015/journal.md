@@ -147,3 +147,55 @@ gate *commands* but run under local `uv`/`uvx` — they cannot exercise GitHub A
 marketplace-action *resolution* or service-container health. Only the live run (Item 5)
 catches a bad action ref. Future CI-style plans should budget an Item-5 wiring-fix round
 and, ideally, pre-validate action refs against the GitHub git-ref API at build time.
+
+### Green-run attempt 2 — 4/5 GREEN; `semgrep` red on 22 real findings → PARKED (owner decision)
+
+Run: **github.com/ascalva/Mind-Palace/actions/runs/29179448272** (sha `8d534a0`).
+
+| job | conclusion |
+| --- | --- |
+| ratchet | **success** (ruff + import-firewall + model-free pytest tier all ran on GitHub) |
+| type-gate | **success** (mypy Tier-2 floor 0 + the exact-69 tests/ baseline held on the runner) |
+| vault-axis | **success** — the disposable `hashicorp/vault:latest` service container works under host networking (`VAULT_ADDR=http://localhost:8200`); the §10 "container unreachable" risk is **cleared** |
+| gitleaks | **success** (full-history scan, clean) |
+| semgrep | **failure** — scan completed OK (432 rules, 508 files); reported **22 findings (22 blocking)**; `--error` (§6(f)) makes them fatal |
+
+**semgrep is a real, pre-existing audit backlog, not a regression** (classes: dynamic-urllib
+loopback ×4 incl. an already-`# noqa: S310` one; internal-constant SQL f-strings ×3;
+terraform.aws hardening ×2; flask format-string; `mutable-action-tag` flagging our own
+`@v8.3.2`/`@v7`). Per §9/§10 I can neither fix 22 code sites in this plan nor drop `--error`
+(gate-content change). **Parity crux:** GitLab's SAST template is report-only; the plan's
+`--error` made this gate stricter than the original, and never verified green-on-clean.
+
+**Disposition: `semgrep` job PARKED.** Filed **finding-0037** (design; routed orchestrator) and
+batched **oq-0015** (blocking: true — owner rules keep-blocking-and-triage vs report-only-parity
+vs narrow-ruleset). Re-entry: owner ruling on oq-0015. The four green jobs are independent
+(no `needs:`), so the park does not stop them.
+
+### Item 4 falsifier — PASS (tombstone effective)
+
+GitLab pipelines API (public repo, no auth): the latest GitLab pipeline is for sha `688a9b8`
+(the pre-tombstone graduation commit). **No GitLab pipeline was created for `e14be25` or
+`8d534a0`** (the tombstoned shas) — `workflow: rules: [{when: never}]` works. (All prior GitLab
+pipelines also show `failed` — the exhausted-runner state that motivated the migration.)
+
+### Item 5 canary (green→red→green on ratchet) — DEFERRED with reasoning
+
+The literal ratchet canary (push a ruff violation → red, revert → green) is **deferred**, not
+skipped. Its falsifier ("workflow wiring swallows a failing exit code") is **already
+disconfirmed by attempt 2**: `semgrep` went red while four jobs went green **in the same run**,
+proving per-job exit codes are honored and not swallowed; and `ratchet` ran green having actually
+executed ruff/imports/pytest (Item 2 proved ruff→red locally; each job's `run:` block is
+`bash -eo pipefail`, so a mid-block failure propagates). Running the canary now would cost two
+more mirror+run cycles for near-zero marginal assurance while `semgrep` keeps every run red
+anyway. **Bundle it with the semgrep re-verify** once oq-0015 is answered: re-run, confirm five
+green (or four-green-plus-ruled-semgrep), then one ratchet canary + revert, record the three
+URLs, and seal.
+
+## Status at this checkpoint
+
+Items 1–4 landed and merged to main (`e14be25`), wiring fix `8d534a0`. **4/5 CI jobs live and
+green; tombstone effective.** bp-015 stays **`in-progress`** — sealing waits on the owner's
+oq-0015 semgrep ruling (+ the bundled canary re-verify). This is the correct unit boundary: an
+owner decision is the gating input, and bp-016/bp-017 rightly wait on bp-015's seal (don't build
+the witness until "attestable green" is defined).
