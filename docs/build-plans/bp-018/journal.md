@@ -87,15 +87,25 @@ affected-suite tests green incl. untouched out-of-scope `test_code_projection.py
 (finding-0047 resolution holding). Ruff clean; argless mypy 69 (337 files); fast
 suite 852 passed.
 
-**Next action:** Item 4 — sensor: `history` handle field + wire in
-`build_code_sensor` via `open_observation_history_store(cfg)`; `_project` checks
-`is_projected(sha, INTERPRETER_VERSION)` and passes `history=self.history`;
-`backfill_observations` same; `_RESET_GUARD` gains `"observation_history.sqlite"` +
-split-naming comment (§6(f), ONE entry only); tests in `test_code_sensor.py`:
-monkeypatch-bump → `backfill_observations()` re-projects, old rows archived,
-`projected` counts it; `reset_targets()` lists `code_observations.sqlite`, refuses
-the sidecar (stub-cfg `Launcher`, `runs`/`repo_root` unused by `reset_targets`).
-Ratchet re-pin again in the Item 4 commit (declared refactor, same argument).
+**Item 4 CLOSED** (commit `f087695`): sensor holds the history handle (7th, wired in
+`build_code_sensor`); `_project` and `backfill_observations` are version-keyed
+end-to-end; `_RESET_GUARD` gained exactly `"observation_history.sqlite"` + its
+split-naming comment — launcher diff audited: the one granted line, nothing else
+(no stop condition). Acceptance test (falsifier inverted): monkeypatch-bump 2.0.0 →
+`sync().projected == 0` (Q5 invariant: newly-ingested only) then
+`backfill_observations() == 2` (NOT zero — the version key is live), `obs.count()`
+unchanged (latest-per-identity), all rows 2.0.0, `hist.count("code") == 6` (every
+generation archived), both worldviews' marks readable, `chain_for` = [1.0.0, 2.0.0],
+re-run idempotent; `reset_targets()` lists `code_observations.sqlite` and excludes
+the sidecar which sits in `_RESET_GUARD` (first test pin of the guard). Attestation
+shape untouched (§6(g)). Ratchet re-pinned `8832e5b3…` at 1.0.0 (declared refactor —
+batch content byte-identical). Ruff clean; argless mypy 69 (337 files); fast suite
+854 passed. Affected suites 48 passed incl. untouched `test_code_projection.py`.
+
+**Next action:** the VERBATIM gate (ruff && mypy scoped && mypy argless && type_gate
+&& pytest -q full) — journal the tails; known flake
+`tests/e2e/test_scheduler_live.py::test_supervisor_dispatches_a_real_job`
+(finding-0046): re-run before investigating.
 
 ## 2026-07-12 — minted at graduation (orchestrator, Fable/xhigh)
 
