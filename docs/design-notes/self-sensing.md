@@ -266,8 +266,20 @@ mirror change, no report generator (parked elsewhere).
   its own HEAD).
 - **V2** — the supersession gap: confirm the changed-interpreter re-projection is today a
   silent no-op (`projections` table skip); pin B-a's design — version column vs
-  superseded_by chain, and the latest-per-identity read — with the rejected alternative
-  recorded.
+  superseded_by chain, the latest-per-identity read, and **what identifies an interpreter
+  version**. Recommended default: a declared semantic version PLUS a test asserting the
+  sensor module's content hash matches the pinned hash for that version (the
+  argless-mypy==69 ratchet pattern — an unbumped change is a red test, not a silent
+  skip). Rejected: bare declared constant (a forgotten bump reproduces the exact silent
+  no-op being fixed); pure content-hash (every refactor re-projects, filling the chain
+  with non-worldview noise). The `projections` skip-table key gains the version too.
+  **One named escalation candidate** — the only place this audit could reach past the
+  store into corpus policy: §2.5 makes worldview chains reset-wiped with the corpus, and
+  unlike the readings they do NOT rebuild on re-projection (the old interpreter no
+  longer exists at HEAD). If the owner judges the epistemology record reset-precious
+  (ledger-class, like build history) rather than corpus-class, that is a small amendment
+  question at the gate; otherwise V2 re-confirms corpus-side deliberately and B-a stays
+  a plan-level pin.
 - **V3** — the source inventory (the feasibility probe; read-only, can run before
   ratification): parse every `docs/build-plans/*/plan.md` cost block; report how many
   complete estimate/actual pairs exist, their task-shape spread, and whether frontmatter
