@@ -2312,3 +2312,33 @@ Fable/xhigh combined design+supervision session, executing the §7 queue in orde
 seal; bp-017 owes the live pages proof); owner acts pending: ratify `dn-edge-dynamics`,
 bless bp-018..020 `proposed → ready`, hand-repair oq-0016. Then P4 (/graduate Lane A after
 ratification) and the deferred riders (second /triage, /scribe offer at six ratified notes).
+
+## 2026-07-12 — session tail: owner gates flew, bp-017 sealed, Lane A graduated, bp-016 builder lost to the spend limit
+
+- **Owner acts, all same-day:** ratified `dn-edge-dynamics` (`13e26bc`); flipped bp-018
+  `ready`; hand-repaired the oq-0016 mangled spans (`3a873c2`) and permanently removed the
+  markdown formatter. Both blessing gates exercised twice today, both by hand, both clean.
+- **bp-017 SEALED (`d05e860`).** First live pages run failed — `uvx` absent on hosted
+  runners; the setup-uv step was in the plan's own §6(b) comment and both builder and
+  orchestrator diff-review missed it; the live-proof-at-seal discipline caught it
+  (orchestrator fix `1528ffd`). Then: green run, site + `/api/core/` serve (783 rendered
+  content matches), the two live-axis test timeouts re-ran green uncontended,
+  finding-0045 (public/ gitignore) resolved. Usage sonnet 97,449 tok / 90 calls / 22 min
+  — **0.97×, the ledger's first near-1× pair** (V3's set grows to five).
+- **bp-016 builder DIED on the monthly Claude spend limit** ~91 tool calls in, before its
+  gate run or report. Work preserved: orchestrator safety commit `60bd857` on
+  `worktree-agent-a9ab532a788bd1549` (witness re-point, release relocation shape,
+  release.yml, runbook §CI witness, finding-0039 — UNREVIEWED). Recovery is
+  resume-in-worktree per the delegate skill; deploy stays blocked until the witness
+  attests. **The spend-limit raise is the owner's console act and gates all builder work.**
+- **P4 (`89058b6`): /graduate `dn-edge-dynamics` Lane A → bp-021** (`core/complex/hodge.py`
+  — oriented flag complex, ∂₁/∂₂ with the ∂₁∂₂=0 sign catcher, L₁, Hodge decomposition,
+  deterministic harmonic basis, ripser cross-check harness) **+ bp-022** (THREAD lens via
+  the interpreter-panel contract, honest-seam order pinned; `dim ker L₁` + harmonic
+  persistence into the temporal snapshot series with additive DuckDB heal). Both
+  `proposed`; 022 depends 021.
+
+**Next:** owner raises the spend limit → recover/scrutinize/merge/seal bp-016 → bless
+bp-019..022 → spawn bp-018 (B-a, `ready`, the substrate the worldview chains ride).
+Session shape: one Fable/xhigh orchestrator (design+supervision combined) + one sonnet
+builder sealed 0.97× + one fable builder lost mid-flight to the limit.
