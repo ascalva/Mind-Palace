@@ -139,3 +139,54 @@ Cross-refs: `docs/brainstorms/self-sensing.md` (the five source capsules, 2026-0
 boundary); `docs/REASONING-COMPLEX-BUILD.md` + companion III (the degree-0 floor's
 derivations); `docs/NOTATION.md`; code: `core/complex/{laplacian,spectral,topology,
 balance,temporal}.py`, `core/stores/reference_edges.py`.
+
+---
+
+## 2026-07-12 addendum — Ricci (owner instinct, verified built) and the gated queue
+
+### Ricci: the third direct hit
+
+The owner: *"understanding change over time also sounds like ricci to me."* Verified:
+`core/complex/curvature.py` implements **Forman–Ricci curvature** (companion III §3.2,
+H4) — negatively-curved edges are bridges spanning structural holes, and the Dreamer
+already ranks edges ascending by curvature. Ollivier–Ricci is named there as the
+deferred principled form. The dynamics extension the owner's phrasing points at is
+**Ricci flow on graphs**: curvature-driven edge-weight evolution (Ollivier–Ricci flow,
+Ni et al. style) — a physics-native *candidate* for the learned-dynamics rung (§3's
+ladder top): edges evolve by their curvature, communities crystallize, bridges thin.
+Slot it beside the gradient-flow/Hamiltonian candidates, same §4 discipline: a proposed
+dynamics is an interpretation, validated against the exact discrete invariants, entered
+only at sufficient sample depth.
+
+### §7 — The gated queue to build (owner directive: prioritize toward this work)
+
+The path respects every gate; nothing here skips a blessing. Priorities:
+
+- **P0 (owner, minutes — THE critical-path act): ratify `dn-self-sensing`** by hand.
+  V3 ran 2026-07-12 (read-only): frontmatter parses deterministically; **4 complete
+  estimate/actual pairs** (bp-011 0.47×, bp-012 0.52×, bp-014 0.29×, bp-015 0.26× —
+  systematic overestimation, no retune at n=4), 3 estimate-only (bp-013's actual was
+  never backfilled — ledger-discipline gap, small annotation task), 11 pre-rule plans
+  without cost blocks (expected; backfill per PD-d covers what exists).
+- **P1 (design tier, Fable/xhigh while available): draft `dn-edge-dynamics`** — the
+  charter this brainstorm seeds. Its central design decision is the **two-lane split**:
+  **Lane A (mirror-side, data exists TODAY)** — lift the complex machinery one degree
+  (Hodge 1-Laplacian, harmonic-thread extraction, strength-filtration persistence,
+  curvature dynamics) as new *dreamer lenses* on the authored reasoning complex, the
+  same diagnostic contract as holes/frustration/curvature; **Lane B (observed-side,
+  data accumulates)** — the weaving consumer over observed strata, correlator-class,
+  gated on the self-sensing substrate + sample depth. Lands at draft; owner ratifies.
+- **P2 (supervision, parallel — does not block the design lane): bp-016 ∥ bp-017**,
+  the owed CI-witness/Pages lane, delegated builders in worktrees.
+- **P3 (after P0): /graduate `dn-self-sensing`** → B-a version-supersession mechanics
+  (every future worldview chain rides this), B-b store+seam+φ_self cost stream,
+  B-c backfill (the 4 pairs + 7 estimates land as first observations).
+- **P4 (after P1's ratification): /graduate Lane A** — the 1-form lift build; first
+  harmonic threads + edge-flow spectra on the mirror complex; dreamer prompt wiring
+  per the existing lens contract.
+- **P5 (data-gated, calendar time): the continuum rungs** — splines/GP per-edge
+  trajectories → Lomb–Scargle spectra → DMD → learned action / Ricci-flow candidates;
+  each rung enters per §4's sample-count discipline. Lane B's weaving consumer joins
+  when observed streams have depth.
+- **Standing riders:** second /triage; the book (soon six ratified notes, scribe plan
+  pending); bp-013 cost-actual annotation.

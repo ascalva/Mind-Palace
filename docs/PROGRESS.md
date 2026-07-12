@@ -2252,3 +2252,29 @@ One-unit Fable/xhigh design session, per the front-loaded tier order.
 
 **Next:** Fable-first step 3 — the bp-016 (fable builder) ∥ bp-017 (sonnet builder) lane under
 opus/default supervision; delegation prompts carry the delegate skill's five-part gate verbatim.
+
+## 2026-07-12 — owner design dialogue: edge dynamics & the continuum; queue re-prioritized
+
+Same-day extension of the self-sensing session — a five-exchange owner dialogue, all captured.
+
+- **Owner rulings landed in `dn-self-sensing` (draft):** edge/chain history is
+  **ledger-class, reset-guarded** (V2's escalation candidate resolved — reset semantics split
+  by re-derivability); the erasure test written into §2.4 (erasure-invariance = the operational
+  smart-vs-wise line); PD-f parks utility-graded durability.
+- **New consolidated brainstorm `docs/brainstorms/edge-dynamics-and-continuum.md`** (owner:
+  "capture it all, in spirit and rigor") — the physics dictionary verified against
+  `core/complex/` (three owner instincts hit built machinery: Fourier → spectral.py's graph
+  Fourier basis; threads → topology.py persistent H₁; **Ricci → curvature.py Forman–Ricci**),
+  the two-discretenesses terminology, the continuum ladder (splines/GP → Lomb–Scargle →
+  Hodge-Fourier → DMD → learned action / Ricci-flow candidates), and the inversion rule (the
+  discrete record is exact reality; every continuous fit is a versioned interpretation).
+- **V3 probe RAN (read-only):** cost frontmatter parses deterministically; 4 complete pairs
+  (bp-011 0.47×, bp-012 0.52×, bp-014 0.29×, bp-015 0.26× — systematic overestimate, no retune
+  at n=4); bp-013's actual never backfilled (small annotation task); bp-000..010 pre-rule.
+- **Queue re-prioritized (owner directive, §7 of the new brainstorm):** P0 owner ratifies
+  dn-self-sensing (critical path) · P1 draft `dn-edge-dynamics` (two-lane: mirror-side 1-form
+  lift = data today; observed-side weaving = data accumulates) · P2 bp-016∥bp-017 in parallel ·
+  P3 graduate self-sensing substrate · P4 graduate Lane A · P5 data-gated continuum rungs.
+
+**Next session (Fable/xhigh while it lives):** spawn bp-016(fable)+bp-017(sonnet) builders
+first (background), draft `dn-edge-dynamics` while they run, scrutinize + merge at tail.
