@@ -2146,3 +2146,45 @@ semgrep findings persist as a finding-0037 triage backlog. **bp-016 ∥ bp-017 u
 **Next:** DESIGN (Fable/xhigh) — delegate **bp-016** (fable witness) ∥ **bp-017** (sonnet Pages),
 disjoint scopes, both gated on this now-complete seal. Or **bp-014** (opus/default) if run alone
 (no other builder concurrent, §12). Then /triage (findings 0027–0037 + oq-0013/0014/0015 sweeps).
+
+---
+
+## 2026-07-12 — bp-014 COMPLETE (worktree-aware ROOT + resume-brief auto-surface). finding-0031 + finding-0035(rec3) landed.
+
+**The unit:** bp-014, delegated to one opus builder in an isolated worktree (solo — §12 forbids
+any concurrent builder while `.claude/hooks/**` changes under enforcement). Fixes **finding-0031**
+(the worktree pointer-bleed that mis-scoped every delegated builder) and folds **finding-0035**
+rec-3 (auto-surface the resume-brief). Suite now **824 passed / 8 skipped**.
+
+**What landed (5 cherry-picked commits `65825e7..d2137ef` onto main):**
+- **Item 1 — worktree-aware ROOT** (`_lib.py:repo_root()` + all six wrappers, lock-step): prefer
+  the CWD git-worktree toplevel over `CLAUDE_PROJECT_DIR` when they differ AND the CWD-toplevel
+  carries its own `.claude/state/`; else byte-identical to before. Both sides realpath-normalized
+  (`pwd -P` / `os.path.realpath`) so `/tmp`→`/private/tmp` symlink drift can't spoof the compare.
+  Fail-closed: a broad main pointer never loosens a narrow worktree builder.
+- **Item 2 — two-worktree regression harness** (`tests/integration/test_worktree_enforcement.py`,
+  4 cases a–d). **Red→green proven**: pre-fix `3 failed, 1 passed` (the unsafe direction (c) goes
+  red — the loosening slips through); post-fix `4 passed`. Case (c) is non-vacuous (flips main to
+  the BROAD plan, asserts the NARROW worktree stays fail-closed).
+- **Item 3 — resume-brief auto-surface** (`session-brief.sh`): emits `.claude/state/resume-brief.md`
+  at the TOP of the SESSION BRIEF, under the worktree-aware ROOT, fail-open, absent-case identical.
+  Verified live on main. finding-0035 annotated **partially-addressed** (recs 1+2 — the template +
+  context-economy rule — route at /triage; status stays `routed`).
+- **§5 fold** — `_lib.py:_scalar()` now discards a trailing inline comment on a *quoted* write_scope
+  entry (`"path"  # note`→`path`); unquoted `#` untouched. Fixes the oq-0013 mis-parse.
+
+**Merge discipline:** diff scrutinized (scope clean, 11 files all in write_scope); independently
+re-ran full gate (824 passed, ruff clean, `bash -n` clean ×6); live-on-main smoke test confirmed
+enforcement healthy (denylist DENY, common-case ALLOW, ROOT=main, Item 3 surfacing). One misread
+corrected: the branch forked off `origin/main` (f8b3a40) before the Item-3 plan commit, so the
+apparent "plan.md reversion" was pure divergence — builder exonerated. cost.actual: opus 101k tok
+/ 85 calls / 764s (est. was fable/350k).
+
+**finding-0031 significance:** the pointer-bleed that de-risks the delegate mode is now fixed — a
+delegated builder is enforced against ITS OWN plan, and a bare orchestrator is never falsely
+guarded by a builder's bled pointer. The bp-016 ∥ bp-017 parallel lane no longer rides on the
+by-eye/diff-scrutiny backstop alone.
+
+**Next:** push → watch the CI witness (5-job attestable green). Then the **bp-016 (fable witness)
+∥ bp-017 (sonnet Pages)** parallel lane opens (disjoint scopes, both gated on bp-015's seal — now
+long done). Then DESIGN-tier **/triage** (findings 0027–0037; oq-0013/0014/0015 answer-sweeps).

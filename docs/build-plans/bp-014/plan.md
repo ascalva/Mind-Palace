@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-014
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/agent-workflow.md # the write-discipline design being RESTORED (not changed)
 contract: builder
@@ -14,7 +14,7 @@ write_scope:
 session_budget: 1
 cost:
   estimate: { model: fable, tokens: 350k } # enforcement layer + fail-closed harness; blast-radius HIGH
-  actual: null
+  actual: { model: opus, tokens: 101k, tool_calls: 85, duration_s: 764 } # delegated builder; well under estimate
 depends_on: [bp-012, bp-013] # SEQUENCING/SAFETY: do not modify enforcement hooks while builders run against them
 parallelizable_with: []
 created: 2026-07-11

@@ -75,4 +75,24 @@ diff review + merge. Commits on this branch (see below). Do NOT push — orchest
 
 ---
 
+## 2026-07-12 — ORCHESTRATOR MERGE + SEAL
+
+Diff scrutinized (delegate skill): scope clean (all 11 files within write_scope); the
+fail-closed harness case (c) verified **non-vacuous** — it flips main's pointer to the BROAD
+plan and asserts the NARROW worktree isn't loosened (the exact loosening that goes red pre-fix).
+Independently re-ran the full gate on the branch: **824 passed, 8 skipped**, ruff clean, all six
+wrappers `bash -n` clean. Builder's red→green falsifier-demo confirmed in its own report.
+
+**One misread, corrected:** the branch was created off `origin/main` (`f8b3a40`), *before* the
+orchestrator's Item-3 plan commit (`8432370`) — so `git diff main..branch` showed Item 3 as
+"removed" purely from divergence, NOT a builder reversion. The builder never touched plan.md;
+exonerated. Merged via **cherry-pick** of the 5 commits onto main (linear history) — plan.md's
+Item 3 preserved automatically (disjoint from the branch).
+
+**Live-on-main smoke test (the enforcement layer is now the patched code):** `scope-guard
+--standalone` → `core/x.py` ALLOW, `CONSTITUTION.md` + `eval/golden/**` DENY (denylist);
+`ROOT`=main (common case byte-identical); **Item 3 live** — `session-brief.sh` now surfaces
+`.claude/state/resume-brief.md` at the top of the brief. Status flipped `ready → complete`;
+cost.actual ledgered (opus 101k/85/764s). CI witness next.
+
 ## Markers
