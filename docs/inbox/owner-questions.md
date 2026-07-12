@@ -395,3 +395,49 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   owner-authorized, not a unilateral one): `.github/workflows/ci.yml` semgrep step → report-only;
   finding-0037 → resolved; bp-015 re-verified 5/5 green + ratchet canary, then sealed. Swept to
   origin (finding-0037) same session.
+
+---
+
+## oq-0016 — Hand-repair three formatter-mangled spans in the now-ratified `dn-self-sensing`?
+- status: open
+- origin: docs/design-notes/self-sensing.md (the ratification save, 2026-07-12; committed verbatim as 8deab2a)
+- blocking: false   # renders broken in three spots; semantics still legible — P3 graduation proceeds regardless
+- question: Your ratification save ran the editor's markdown auto-formatter. Most of the pass is
+  benign (emphasis restyle, table realignment — kept), but three spans corrupted where `_italics_`
+  collided with the underscores in `φ_code`/`φ_self`, and one paragraph list-ified because a
+  continuation line began with `+`. A8 correctly denied agent repair the moment the status flipped
+  (working-tree-keyed, laundering-proof — the guard did its job), so the blessed record is frozen
+  as your hand left it and the repair is yours. The three spans, as they should read (backticking
+  `φ_code`/`φ_self` and replacing the line-leading `+` with "plus" makes them formatter-stable, so
+  a future save won't re-mangle):
+
+  **§3.3 B-a** (now `φ*code … \_Falsifier: … *`):
+
+  ```
+  - **B-a** — interpreter-version supersession mechanics in the observation-store family
+    (additive migration; `φ_code` inherits). _Falsifier: a re-projection under a bumped
+    interpreter version either mutates rows in place or is silently ignored._
+  ```
+
+  **§3.3 B-b** (now `φ*self … \_Falsifier: … *`):
+
+  ```
+  - **B-b** — `AgentSensingHandoff` + `AgentObservationStore` + `φ_self` over the cost
+    stream; attested, idempotent per commit. _Falsifier: a second projection of the same
+    commit changes row count; or any API surface accepts a provenance parameter._
+  ```
+
+  **Cross-references, first sentence** (now a broken bullet — rejoin to one paragraph):
+
+  ```
+  Verified in-session 2026-07-12: `core/sensing.py` (`SensingHandoff`; `CodeSensingHandoff`
+  plus the Q1 sibling-precedent comment; `ObservedView` constructor-enforced observed-only);
+  `core/stores/code_observations.py` (structural OBSERVED mint; `PRIMARY KEY (commit_sha,
+  path, qualname)` + `INSERT OR IGNORE`; `projections` bookkeeping; SQLite Q2 note;
+  ```
+
+  (rest of that paragraph unchanged, de-indented back to column 0).
+- default_if_unanswered: the blessed record stays as-is — three spans render broken but read
+  unambiguously; nothing downstream consumes the rendering. Re-entry: any future owner hand-edit
+  of the note (fold the repair in), or the note's first supersession.
+- answer:
