@@ -786,6 +786,59 @@ means restart** — a true stop is `launchctl bootout gui/$(id -u)/com.mind-pala
 Rollback = `git revert` + `deploy` again; the run ledger keeps every stretch pinned to its
 commit, so "what was live when" is always answerable.
 
+## CI witness — attested remote verdicts for the deploy gate (owner-operated)
+
+`ops/ci_witness.py` (CLI: `uv run scripts/ci_witness.py check|release <sha>` · `rotate`)
+turns "CI is green" from a memory of a web page into an **attested fact**: it polls the
+GitHub `ci` workflow (`.github/workflows/ci.yml`, queried by file path) for the commit's
+newest run and emits `ci_witness / pipeline_green|pipeline_red` with the sha as input and
+`run:<id>` as output — chained to the code-sensor's ingest of the same sha. Verdicts are
+`green | red | pending | absent`; **only `conclusion: success` is green** — the witness
+never guesses. It runs UNSEALED at the ops tier (it talks to api.github.com); that is why
+`palace deploy` invokes it as a subprocess, never an import.
+
+**Deploy-gate interaction** (`ops/lifecycle/launcher.py:423-428`): after the local
+ratchet, `deploy` runs `uv run scripts/ci_witness.py check <HEAD>` and **refuses unless
+rc 0** — i.e. unless GitHub reports an attested green run for exactly the sha you are
+promoting. `--skip-tests` is the emergency hatch that skips both gates.
+
+**Absent-grace:** GitHub creates runs asynchronously after a push, so a just-pushed sha
+can be legitimately runless for a moment. `check` treats an *absent* verdict younger than
+`GRACE_S = 300 s` as pending and keeps polling (within its 600 s budget); still absent
+past grace concludes absent → rc 1 (likely cause: the sha never reached origin, or
+propagation lag right after a push).
+
+**The `github-api` token — mint play (one-time):**
+
+```sh
+# 1. github.com → Settings → Developer settings → Fine-grained personal access tokens →
+#    Generate new token. Repository access: ONLY ascalva/Mind-Palace.
+#    Repository permissions: Actions = Read and write (write is what permits
+#    workflow_dispatch). NOTHING else. Set an expiration.
+# 2. Store it in Keychain (never in config, argv of the witness, or the repo):
+security add-generic-password -U -a mind-palace -s github-api -w <PAT>
+# 3. Verify presence without printing the secret:
+security find-generic-password -a mind-palace -s github-api
+```
+
+Without the token the witness still works **degraded**: reads are unauthenticated
+(rate-limited 60/h/IP — fine for a single check, tight for repeated polling) and
+`release` prints the dispatch URL for a by-hand play instead of dispatching.
+
+**Rotation is manual on GitHub** — there is no self-rotation API for user fine-grained
+PATs (unlike GitLab's `/personal_access_tokens/self/rotate`; verified 2026-07-12,
+bp-016). `uv run scripts/ci_witness.py rotate` prints the re-mint play above and exits 1:
+printing instructions is not rotating. Re-mint in the web UI, re-store with the same
+`add-generic-password -U` command.
+
+**Release path:** `release <sha>` confirms the sha is green, then POSTs
+`workflow_dispatch` for `.github/workflows/release.yml` (`ref: main`) — semantic-release
+runs there and commits back to main. Degradation chain: not green → rc 1; no token →
+prints the dispatch URL, rc 0; workflow missing (404) → prints the local play
+(`pnpm run release`), rc 0 — degraded is never failed, so deploy proceeds. **No release
+is ever cut agent-side**: dispatch happens inside owner-initiated `deploy`, or by the
+owner's hand.
+
 ## One-command lifecycle — `palace start | stop | status | reset` (owner-operated)
 
 `scripts/palace.py` runs the **whole mind-palace as one supervised process** — the supersession of

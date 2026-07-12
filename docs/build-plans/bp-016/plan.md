@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-016
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/ci-platform-and-runner-strategy.md # D3 (witness re-point), D4 RULED end-state (GitHub becomes origin), P3/P5
 contract: builder
@@ -23,7 +23,7 @@ cost:
 depends_on: [bp-015] # the witness needs a live green `ci` workflow to point at (D1: parity before attestation)
 parallelizable_with: [bp-017] # disjoint write_scope
 created: 2026-07-11
-updated: 2026-07-11
+updated: 2026-07-12
 links:
   - docs/design-notes/attestation-layer.md # the witness this plan re-points (status: draft)
   - docs/findings/finding-0034.md # warrant-in-fact of the design note
