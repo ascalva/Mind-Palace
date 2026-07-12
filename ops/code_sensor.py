@@ -54,6 +54,10 @@ from ops.code_snapshot import (
     snapshot_commit,
 )
 
+INTERPRETER_VERSION = "1.0.0"   # φ_code's worldview coordinate (dn-self-sensing §2.4).
+# Bump ⇒ re-projection supersedes (run backfill_observations()); an unbumped source
+# change is a RED ratchet test (tests/unit/test_interpreter_versions.py), never silent.
+
 # ── Lane-1 reference extraction (B-c, bp-013 Item 7) — bp-011's VALIDATED patterns ONLY ──
 # The V4 inventory (docs/build-plans/bp-011/inventory.json, `ranked_patterns_for_bp013`)
 # measured per-(pattern, direction) precision on a stratified hand-check. Lane 1 is
