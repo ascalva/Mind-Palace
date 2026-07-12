@@ -87,10 +87,35 @@ Each ported command was falsified once with a planted defect, the nonzero exit o
 
 **Post-proof state:** `git status` clean (only tracked file expected to differ is this journal); HEAD `e9a3ee8`; no `*_redproof*` files anywhere.
 
-## Worktree ratchet (builder self-check)
+### Item 4 — tombstone `.gitlab-ci.yml` + runbook correction — CLOSED (green)
+
+**Tombstone** (`.gitlab-ci.yml:1-5` → §6(g)): the `workflow` block became the tombstone banner (naming the design note, D1/D5) + `workflow.rules: [{when: never}]`. The rest of the file (all jobs incl. `pages`, the includes, the reference body) is untouched — retained until the D4 origin migration (parked #2).
+
+**Acceptance:**
+```
+$ uv run --with pyyaml python -c "import yaml; d=yaml.safe_load(open('.gitlab-ci.yml')); ..."
+workflow.rules = [{'when': 'never'}]
+PARSES + rules == [{when: never}]: OK
+body retained? pages: True | ratchet: True | type-gate: True | vault-axis: True
+```
+
+**Runbook** (`docs/runbook.md`, the §Verifying CI paragraph): rewritten for the GitHub gate — names GitHub Actions, the tombstone + design note, all five jobs (ratchet · type-gate · vault-axis · semgrep · gitleaks), the no-docs-skip rule ("every sha yields a verdict"), unmetered minutes, and batching demoted from budget-necessity to verdict-hygiene habit. Verified: "GitHub Actions" present; all five backticked job names present; "no docs-skip" phrasing present.
+
+**Item 4 invariant (§7):** the tombstone lands in the SAME builder session as Item 1 (both on this worktree branch, Item 1 committed first at `e9a3ee8`) — never a window with both gates dead by our own hand. The final merge-order to main is the orchestrator's at seal; the tombstone commit is ordered after the workflow commit here.
+
+**Falsifier (§7 Item 4):** "after the next mirrored push, GitLab creates a new pipeline for the pushed sha" — this is checked ONCE on the GitLab pipelines page and is part of Item 5 (orchestrator-executed, post-merge). Not verifiable by a builder (never pushes). Left for the orchestrator.
+
+## Worktree ratchet (builder self-check — CLOSING)
 
 ```
-$ uv run ruff check .                    -> (see closing check below)
-$ uv run python scripts/check_imports.py -> (see closing check below)
+$ uv run ruff check .
+All checks passed!                       # EXIT 0
+$ uv run python scripts/check_imports.py
+Import firewall (I2): OK — core imports no zone ...   # EXIT 0
 ```
-(Run at close — recorded below.)
+
+**Ratchet GREEN.** Nothing in this worktree's write_scope touched `ops/`/`scripts/`/`tests/` — no code was bent to the gate; no `spec-fidelity` finding was needed (all five gates reached green as ported: clean gitleaks, exactly-69 mypy baseline, ruff/semgrep detect their planted defects).
+
+## Handoff to orchestrator (Item 5, not this session)
+
+Items 1–4 complete and committed on branch `worktree-agent-a0565fedc5daaa66e`. **Item 5 (live wiring proof) is ORCHESTRATOR-EXECUTED at seal** — builders never push. At seal, merge Items 1–4 to main, let the mirrored push produce a `ci` run (expect all five green), then one canary push (a trivial ruff violation → red `ratchet`) and its revert (→ green). Three run URLs (green → red → green) go in this journal. Secret/semgrep reds are NOT pushed (public-repo hygiene; Item 2 covered them locally). Also do the Item-4 falsifier check: confirm GitLab creates NO new pipeline for the pushed sha (tombstone effective).
