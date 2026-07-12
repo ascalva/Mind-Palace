@@ -68,6 +68,12 @@ at the cost ledger (already structured data) through the same seam.
 
 ## Status & cross-refs
 
+**Promoted 2026-07-12 → `docs/design-notes/self-sensing.md` (`dn-self-sensing`, `status:
+draft` — ratification is the owner's hand).** The note answers open-question #1 from
+bp-012's recorded Q1 precedent (sibling seam, own store), licenses the cost ledger as the
+only initial stream, and names the interpreter-version supersession gap (B-a) the
+worldview record requires.
+
 Design-tier, graduate-ready → a design note ("self-sensing / proprioceptive projection").
 Cross-ref: `code-observation-projection.md` (the seam + §2.2 interpreter contract),
 `cost-forecasting.md` (origin + the cost-ledger half + the parked report generator), the

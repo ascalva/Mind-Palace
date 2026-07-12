@@ -2227,3 +2227,28 @@ long done). Then DESIGN-tier **/triage** (findings 0027–0037; oq-0013/0014/001
 draft (fable/xhigh, its own session; ratification stays owner-by-hand). Then the bp-016 (fable
 builder) ∥ bp-017 (sonnet builder) lane under opus/default supervision, delegation prompts
 carrying the full-gate command set per the sharpened delegate skill.
+
+## 2026-07-12 — self-sensing promoted to design-note draft (Fable-first step 2 of 3)
+
+One-unit Fable/xhigh design session, per the front-loaded tier order.
+
+- **`docs/design-notes/self-sensing.md` created (`dn-self-sensing`, `status: draft`)** —
+  the proprioceptive projection: φ_self as a second deterministic interpreter over the repo,
+  reading the workflow-artifact layer (plan cost blocks, seals) into an OBSERVED-only
+  `agent_observations` store through a `CodeSensingHandoff`-style sibling seam. Ratification
+  is the owner's hand; `/graduate` refuses it until then.
+- **Grounding was verified at source, not asserted:** bp-012's Q1 sibling precedent
+  (`core/sensing.py`) answers the brainstorm's own-store-vs-payload question; the built store's
+  `INSERT OR IGNORE` + `projections` skip-table implements only same-interpreter idempotence —
+  the §2.2 versioned-supersession mechanics the worldview record needs are NOT built yet. The
+  note names that gap as B-a (observation-store family; φ_code inherits) rather than assuming it.
+- **Shape:** S1 = cost stream only (bp-011's 0.47× pair is the first datum; estimate/actual as a
+  JOIN across two commits, not a row); safety = passive stratum + domain-excludes-codomain (φ_self
+  cannot observe its own output — the regress has no fixed point) + inherited firewall verbatim;
+  calibration shared with core as PATTERN never machinery (non-negotiables #2/#3). Five parked
+  decisions, three open questions (a₂ cross-map deferred to the axis gate); V3 (cost-block
+  inventory) can run read-only before ratification.
+- Brainstorm annotated with the promotion pointer; no owner question opened.
+
+**Next:** Fable-first step 3 — the bp-016 (fable builder) ∥ bp-017 (sonnet builder) lane under
+opus/default supervision; delegation prompts carry the delegate skill's five-part gate verbatim.
