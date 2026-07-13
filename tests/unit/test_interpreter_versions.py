@@ -49,6 +49,11 @@ INTERPRETERS: dict[str, Interp] = {
                        sources=("ops/code_sensor.py", "ops/code_snapshot.py"),
                        version="1.0.0",
                        sha256="8832e5b369763049dad5a0ea384eaaff04672265eb3170e1ee1a6cbccd365d5c"),
+    # bp-019 Item 7: phi_self over the cost stream (dn-self-sensing.md §2.2/§2.4).
+    "phi_self": Interp(version_attr=("ops.self_sensor", "INTERPRETER_VERSION"),
+                       sources=("ops/self_sensor.py",),
+                       version="1.0.0",
+                       sha256="b7d1d1c770bc0caf981d81b911ee2c602df2161db2e2777fc9eee01b2278c7e5"),
 }
 
 

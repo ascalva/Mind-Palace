@@ -1,5 +1,53 @@
 # bp-019 journal
 
+## 2026-07-12 — Item 7 complete: φ_self v1.0.0 (`ops/self_sensor.py`)
+
+Wrote `ops/self_sensor.py` per §6(d,e,f): `INTERPRETER_VERSION = "1.0.0"`, `SelfSensor`
+(repo/store/handoff/attestor/history/branch handles, mirroring `CodeSensor`'s shape),
+`SelfSyncReport`, the stdlib-only `cost:` block parser (`parse_plan_cost_block`,
+`parse_cost_value`, `normalize_tokens`, `_strip_trailing_comment`,
+`_split_top_level_commas`), and `build_self_sensor()`.
+
+**finding-0058 filed and RESOLVED in-session (spec-fidelity):** the plan's §6(e) pinned
+command text (`rev-list --reverse <branch> -- .../plan.md`, `diff-tree --first-parent -m
+sha`) contradicts its own §3 risk-analysis prose and root-commit requirement. Verified
+empirically against throwaway fixture repos: (1) a BARE `rev-list` (no `--first-parent`)
+includes branch-side merge-source commits as candidates — exactly the double-candidacy
+the design's §3 prose rules out — so `sync()` now runs `rev-list --first-parent --reverse`;
+(2) `diff-tree --first-parent -m sha` (no `--root`) emits NOTHING for a root commit, so
+`_changed_plan_files()` now adds `--root` (a verified no-op for every non-root commit).
+Both are documented inline at the call sites with the empirical verification noted.
+
+Real-fixture-repo test suite (`tests/unit/test_self_sensor.py`, 17 tests): root commit (all
+facts new), estimate/actual landing at their own commits, in-place edit as a new-commit
+observation, a REAL merge commit (first-parent semantics, `--no-ff`), re-sync adds zero
+rows, a zero-fact (no cost-block) commit marked-not-rescanned, token normalization table
+(`350k`→350000, `1.2m`→1200000, bare int, unparseable→None), trailing-comment stripping
+against the REAL `docs/build-plans/bp-011/plan.md` text (not a synthetic copy), attestation
+(`project_agent_observations`, pinned input/output hashes), the named falsifier (second
+projection of the same commit changes nothing — row count AND attestation count), and the
+statelessness falsifier (AST-walk: the only `subprocess.run` calls have literal `"git"` as
+argv[0]; no `open`/network-module import anywhere in the file).
+
+Sanity-checked the parser against ALL 23 real `docs/build-plans/*/plan.md` files (not just
+bp-011) — no crashes, sane output on every shape seen in the corpus: `null` fields,
+multi-line comment blocks between `estimate:`/`actual:` (bp-013), extra unnamed keys
+(`builder_tokens`, `tokens_item8`, `note: "..."` with embedded punctuation), non-numeric
+`tokens` values (`unmeasured`, `unknown`).
+
+Added the `phi_self` (version, source-hash) ratchet pair to
+`tests/unit/test_interpreter_versions.py` (bp-018's pattern): sha256 over
+`ops/self_sensor.py` alone (single source file, unlike φ_code's two-file pin).
+
+Gate: `uv run pytest -q tests/unit/test_self_sensor.py tests/unit/test_agent_observations.py
+tests/unit/test_sensing_transport.py tests/unit/test_interpreter_versions.py
+tests/unit/test_code_projection.py tests/unit/test_code_sensor.py` → **55 passed**.
+`uv run mypy ops/self_sensor.py core/stores/agent_observations.py core/sensing.py` →
+clean. `ruff check` clean on all touched files.
+
+Next: Item 8 — `scripts/sense_self.py`, the `.githooks/post-commit` line, the
+`reset_targets()` entry, reconciliation banners.
+
 ## 2026-07-12 — Item 6 complete: `AgentSensingHandoff` seam sibling
 
 Appended `AgentSensingHandoff`/`AGENT_OBSERVATIONS` to `core/sensing.py` per §6(c),
