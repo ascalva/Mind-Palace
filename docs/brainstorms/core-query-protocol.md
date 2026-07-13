@@ -130,3 +130,63 @@ references:
   - docs/design-notes/edge-dynamics.md # the 1-form lift, Helmholtz split, THREAD lens, Lane A/B seam
   - docs/design-notes/the-sacred-boundary.md # the plane-crossing ruling this needs
 ```
+
+## 2026-07-13T05:12:18Z (captured — self-grading eval loop + pseudo-RAG crystallization)
+
+```capsule
+topic: core-query-protocol
+date: 2026-07-13
+
+thread_C_self_grading_eval_loop:
+  - Idea (owner): the reference agent is self-testable from day one — ask for a reference,
+    get a result, immediately CHECK if it was correct, keep a performance record. Because
+    reference lookup is DETERMINISTIC, the judge has FREE, CORRECT ground truth — STRONGER
+    than LLM-as-judge (a differential test against an oracle, not a subjective call). Every
+    query becomes a labeled example → the eval set bootstraps itself, no hand-labeling.
+  - Discipline (the one sharpening): the oracle MUST be an INDEPENDENT repo-grep at HEAD, NOT
+    the store — else it is circular (testing the store against itself). Grep-vs-store tests
+    whether the stored graph matches REALITY.
+  - The sleeper win: the loop does not only grade the query agent — it continuously measures
+    SENSOR FIDELITY (store vs repo), turning finding-0059/0061's staleness anxiety into a
+    monitored number. A stale/missing edge = a measurable recall miss.
+  - The spectrum: deterministic reference lookup → grep oracle (free, exact). Semantic
+    retrieval → a genuine LLM-judge (subjective, needs the selfcheck discipline). "Starting
+    off" = the deterministic end = the perfect bootstrap.
+  - Golden-set FIREWALL: the auto-accumulated query→oracle pairs are a CANDIDATE eval set,
+    never the frozen sacred golden set (CONSTITUTION §9 — human-only, deliberate, logged).
+  - Dogfood: the performance record could itself become an OBSERVATION STREAM (a φ_ref, like
+    φ_self for cost) — Ouroboros measuring its own reference accuracy over time.
+  - Connects to docs/design-notes/capability-evaluation-harness.md.
+  - LIVE DEMO (2026-07-13, run by hand over the existing 61k-edge store — the METHOD needs no
+    agent to exist): target self-sensing.md. CODE-side recall ~5/7 — the store MISSED
+    core/stores/observation_history.py + ops/lifecycle/launcher.py (a real store-vs-repo
+    fidelity miss, caught by the loop). DOC→DOC recall 0/16 (the code-anchored blindness,
+    finding-0059, now a number). The loop worked and caught real gaps on the FIRST query.
+
+thread_A_refinement_pseudo_RAG:
+  - Crystallization (owner): the core can now perform in PSEUDO-RAG mode — a query to a
+    well-connected SET of nodes, NO TIME component. Retrieval by graph CONNECTIVITY (fibers /
+    citations), not by embedding SIMILARITY (the librarian's semantic RAG), and not by
+    TEMPORAL traversal (dispositional/supersession edges). It is the "R" without the "AG":
+    deterministic structural retrieval that CAN augment generation (feed the librarian) but
+    stands alone for the bookkeeping use — the shared retrieval primitive.
+  - A THREE-MODE retrieval taxonomy over the core — three sentences in the same query algebra
+    (Thread A), differing by edge class + whether time is included:
+      1. STRUCTURAL pseudo-RAG — fiber connectivity, one stratum, NO time. Deterministic, no
+         model. (the reference agent; the d-1 state slice)
+      2. SEMANTIC RAG — embedding similarity over the mirror. Model-mediated. (the librarian)
+      3. TEMPORAL / provenance — traverse dispositional edges ACROSS time. The d-dimension.
+         (supersession / history queries)
+  - "No time" is exactly Thread B's d-1 state slice: retrieving over the static connectivity
+    (the gradient/state layer), not the temporal flow. Adding time promotes mode 1 → mode 3.
+
+parked:
+  - decision: the eval-loop + pseudo-RAG threads graduate to design ONLY in an owner-opened
+    fable session (the fable-guard is unchanged from the first capsule)
+    default: HOLD; this brainstorm + finding-0062 carry the threads
+    re_entry: the owner opens the fable design session over this brainstorm
+
+references:
+  - docs/design-notes/capability-evaluation-harness.md # the eval-harness home for thread C
+  - docs/design-notes/the-sacred-boundary.md
+```
