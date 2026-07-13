@@ -1,7 +1,7 @@
 ---
 type: finding
 id: finding-0057
-status: open
+status: resolved # 2026-07-12 — owner granted the one-liner in-session (oq-0013 precedent); orchestrator applied IDENTITY_KEYS["agent"]
 created: 2026-07-12
 updated: 2026-07-12
 links:
@@ -10,7 +10,14 @@ links:
 ftype: spec-defect
 origin_plan: bp-019
 route: builder
-resolution: null
+resolution: >
+  RESOLVED 2026-07-12: the owner granted the one-line registration in-session
+  (the oq-0013 capability-grant precedent — a grant, not a blessing gate); the
+  orchestrator applied IDENTITY_KEYS["agent"] = (commit_sha, stream, subject_id,
+  key) to core/stores/observation_history.py with the grant cited in the code
+  comment and commit. The latent KeyError on a future phi_self version bump is
+  closed. bp-019's in-test monkeypatch coverage remains valid (it patches the
+  same value); a tidy-up to drop the monkeypatch may ride bp-020.
 ---
 
 # bp-019's write_scope omits `core/stores/observation_history.py`, but the design requires an `IDENTITY_KEYS["agent"]` registration there

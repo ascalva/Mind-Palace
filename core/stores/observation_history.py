@@ -59,9 +59,12 @@ CREATE TABLE IF NOT EXISTS observation_history (
 # not identity dicts, so the sidecar derives each row's identity from its member's
 # registered key columns — a deliberately LIGHT coupling (key columns only, never the
 # member's full schema; the §11 rejection of diff-grain storage was about the latter).
-# bp-019 registers 'agent': (commit_sha, stream, subject_id, key).
+# 'agent' registered per finding-0057: bp-019's write_scope omitted this file, so the
+# entry landed as an orchestrator one-liner under the oq-0013 grant precedent (owner
+# grant in-session, 2026-07-12) — closing the latent KeyError a bumped φ_self would hit.
 IDENTITY_KEYS: dict[str, tuple[str, ...]] = {
     "code": ("commit_sha", "path", "qualname"),
+    "agent": ("commit_sha", "stream", "subject_id", "key"),
 }
 
 
