@@ -2738,3 +2738,40 @@ portable backstop):
 - **Queue now:** bp-028 (the live driver — opus-class, invariant-adjacent Inv 2/7) and bp-029 (EMBED
   tail, depends_on bp-028) remain `ready`. Do NOT run concurrently (finding-0069 live-tier RAM). bp-028
   is a scrutinized `/build` session, not a cheap delegation.
+
+### 2026-07-13 (cont.) — bp-028 SEALED: the live research driver — the dormant airlock now RUNS
+
+- **bp-028 COMPLETE** (`97d98ca` code; sealed this commit): the airlock chain
+  `research_criteria → emit → collect → rank → surface` is wired and running, transient (no mirror
+  pollution — persistence is bp-029). Items 23 (driver `scheduler/research.py`), 24 (trough handler
+  + `enqueue_research` in `scheduler/cron.py`), 25 (foreground TASK→airlock in `scheduler/interface.py`
+  + `is_research_request` in `agents/ambassador/policy.py`), 26 (BUILD-SPEC §16 banner). **Production
+  activation** in `ops/lifecycle/launcher.py`: `RESEARCH_KIND` registered in the supervisor handler
+  map + the delegate wired with the `research_criteria` de-identify seam — the daemon runs it.
+- **Invariant-adjacent, held**: Inv 2 (core never touches the network — only the airlock `requests/`
+  file), Inv 11 (only de-identified criteria cross; PII-query test proves "March/2019" never reach the
+  outbound blob), never-pollute-the-mirror (an `ExplodingStore` test guarantees zero store writes).
+  Robustness: an undeidentifiable research query FAILS CLOSED (nothing emitted) → falls back to the
+  general path, never crashes (§11 warrant).
+- **Ran SELF-DRIVEN** (opus/high, no subagent fan-out) — the invariant-adjacent tier the resume brief
+  mandated, and the budget-lean path. **Effort started at LOW by mistake**; owner caught it mid-session,
+  switched to high + demanded a re-review (no correctness defects found; the re-review surfaced the
+  real gate shape — `ruff format` is NOT a leg — and the async emit/collect round-trip point).
+- **Plan defect caught + resolved (finding-0071)**: bp-028's `write_scope` omitted ALL §7 test paths
+  (graduation oversight — every sibling code plan lists them) → the acceptance tests couldn't be
+  authored. Surfaced to owner (did NOT self-widen an invariant-adjacent plan's capability). Owner
+  hand-added the three test paths + `launcher.py`; reconciled the mangled YAML (quoted paths so the
+  oq-0013 parser strips the inline comments). finding-0071 → **resolved** (both halves in-plan).
+- **Gate — all five legs green**: ruff `All checks passed`; import-firewall (Inv 2) `OK`; model-free
+  pytest **991 passed, 4 skipped**; mypy Tier-2 hard floor **0** (174 files); argless mypy pinned **69**
+  (new-test fakes `cast`, baseline intact); semgrep **0** (report-only). Vault-axis 3-skipped (no local
+  vault; untouched). **Live tier NOT run** — every bp-028 test is deterministic with injected fakes; the
+  live model path isn't newly exercised (finding-0069/oq-0018 default (c) stands).
+- **Seal / economics:** opus, **161k non-cache tokens** (21.3k in + 139.7k out; 24.8M cache-read),
+  **$19.74**, **0.54× the 300k estimate — UNDER**. New calibration datum: a self-driven CODE build lands
+  UNDER the ~1.6× delegated code-pad (the pad is calibrated on builders that reload context). Session
+  22%→33% (+11pp); **week 71%→72% (+1pp — cache-dominated, cheap on the weekly quota)**. Fable 100% capped.
+- **main == origin == (this seal)**; all pushed; CI attesting. Clean unit boundary.
+- **Queue now:** bp-029 (EMBED tail, `ready`, **depends_on bp-028** — now satisfiable) is the next build,
+  but do NOT run concurrently with anything live-tier (finding-0069). Lighter independent picks: /triage
+  (flip finding-0062 promoted; route the backlog + 0071), finding-0066 → `palace down/up`, /scribe.

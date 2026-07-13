@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-028
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/external-grounding.md
 contract: builder
@@ -9,16 +9,26 @@ write_scope:
   - scheduler/**
   - agents/ambassador/**
   - docs/BUILD-SPEC.md
+  - "tests/integration/test_research_driver.py"      # Item 23
+  - "tests/integration/test_research_cron.py"         # Item 24
+  - "tests/integration/test_research_foreground.py"   # Item 25 (delegate routing + Ambassador)
+  - "ops/lifecycle/launcher.py"                        # production activation (finding-0071)
 session_budget: 1
 cost:
   estimate:
     model: opus
     tokens: 300k
-  actual: null
+  actual:
+    model: opus
+    tokens: 161k          # 21.3k in + 139.7k out (non-cache); 24.8M cache-read, 373.6k cache-write
+    ratio: 0.54x          # UNDER — self-driven (no subagent fan-out) beats the ~1.6x delegated code-pad
+    dollars: 19.74
+    session_delta: +11pp  # 22% -> 33%
+    week_delta: +1pp      # 71% -> 72% (cache-dominated; cheap on the weekly quota)
 depends_on: []
 parallelizable_with: [bp-027]
 created: 2026-07-13
-updated: 2026-07-13
+updated: 2026-07-13  # complete (self-driven opus/high build)
 links:
   - docs/design-notes/external-grounding.md
   - docs/design-notes/edge-core-handoff-protocol.md
