@@ -2688,3 +2688,27 @@ portable backstop):
   resume brief's THEN-QUEUE item 1.
 - main == origin == **`49bf5f9`** at this checkpoint; all pushed; CI attesting. Session was a whale
   (build wave + this whole arc) — CLEAR recommended.
+
+### 2026-07-13 (cont.) — external-grounding: DRAFTED → RATIFIED → GRADUATED; index-query PARKED
+
+- **`dn-external-grounding` DRAFTED (opus, no fable) → owner-RATIFIED (hand-edit) → committed
+  blessing** (`docs/design-notes/external-grounding.md`; commits `a568f34` draft, `a2c5625` ratify).
+  Decides all 8: curated stratum as 2nd objective K₀; two-plane store + asserted→verified→DISTILLED→
+  EMBEDDED; ratification-as-promotion-gate; the §16 airlock transient→EMBEDDED flip; the live driver;
+  the EMBED tail + copyright gate; Inv 1/2/4/7/11; math-verification (Thread 1) as a plan-§8 companion.
+  Taxonomy/kind/`w(d,a,c)` DEFERRED to the Jul-17 dn-core-query-protocol fable-vet (Item 0). Answers
+  finding-0062.
+- **Index-query slice SCOPED + PARKED → finding-0070.** The read-only surface the owner wants ALREADY
+  EXISTS as read methods (`core/stores/reference_edges.py::{all,for_commit,count}`, zero-model); the
+  store is payload-free by schema; the only gap is an agent-facing façade (currently code-anchored +
+  agent-unreachable). Full dn-core-query-protocol NOT required for the conservative read; the SOLE
+  blocker is the §2.4 boundary ruling (build-time plane → core store — the first such precedent).
+  Owner ruled: **park to the Jul-17 fable-vet** (rigorous over a fast graduate under external-grounding
+  §3.1). finding-0070 also clarifies (owner Q): the façade IS the algebra's Mode-1 client, not parallel
+  work — fable delivers design, not running code, so a build follows either way.
+- **`/graduate dn-external-grounding` → bp-027/028/029 (proposed)** (`d6196cf`): bp-027 seed fill (9
+  verified refs, docs-only, §3/§4/§8 N/A, ∥ bp-028); bp-028 the live driver (grounded §3/§4; opus/300k;
+  transient; §16 banner); bp-029 the EMBED tail (grounded §3/§4; opus/450k; open-access full text →
+  curated store; licence gate default-DENY parked; depends_on bp-028). Index-query EXCLUDED (→ vet);
+  math gate deferred. Items 22–30. `proposed→ready` stays owner-by-hand.
+- main == origin == **`d6196cf`**; all pushed; CI attesting. Clean CLEAR boundary.
