@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/ascalva/Mind-Palace/compare/v1.6.0...v1.7.0) (2026-07-13)
+
+
+### Bug Fixes
+
+* **ops:** ci_witness — guard check()/release() against non-full sha ([7c13b28](https://github.com/ascalva/Mind-Palace/commit/7c13b2868f3c67a00e17f55501696735f8f98827))
+
+
+### Features
+
+* **hooks:** stop-audit (d) — flag cross-checkout state bleed (finding-0051 fix 2) ([ce692f0](https://github.com/ascalva/Mind-Palace/commit/ce692f0bd3bd059e5e1a0db409a2f7b633e6a308))
+* **research:** wire the live research driver (bp-028 Items 23–26) ([97d98ca](https://github.com/ascalva/Mind-Palace/commit/97d98ca8d77dce5f899f43986f98d2bd14b8b516))
+
 # [1.6.0](https://github.com/ascalva/Mind-Palace/compare/v1.5.0...v1.6.0) (2026-07-13)
 
 
