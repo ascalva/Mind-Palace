@@ -608,6 +608,86 @@ near_term_delta:
     a network boundary and a copyright/licence gate. (a) is trivial; (b) is the substantive plan.
 ```
 
+## 2026-07-13T20:49:06Z (captured — build-item-b ALREADY EXISTS: the research airlock, reframed)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: the acquisition pipeline is already built (Phase 8 §16 research airlock) — reframe, don't rebuild
+
+owner_recall + investigation (Explore sweep, verified 2026-07-13):
+  - The owner recalled writing code to "search and find medical research papers loosely useful."
+    A read-only investigation confirmed a COMPLETE, TESTED, but DORMANT external-research subsystem
+    (BUILD-SPEC §16, Phase 8). Verified on disk:
+      * `core/research/` — the de-identification AIRLOCK: `criteria.py` (scrub PII from a query
+        before egress), `airlock.py` (one-way filesystem diode: core writes criteria, reads results,
+        NEVER touches the network), `rank.py` (rank fetched papers by relevance-to-notes + evidence
+        tier). rank.py:7 — papers ranked **transiently**.
+      * `cloud/fetcher/` — the FETCHER (Zone C): `sources.py` queries OpenAlex (api.openalex.org),
+        Europe PMC (ebi.ac.uk), arXiv (export.arxiv.org); `aggregate.py` dedups by DOI, biases to
+        systematic-review > meta-analysis > … > preprint, drops unresolvable citations.
+      * `core/librarian/librarian.py::research_criteria()` — owner query → de-identified criteria.
+      * BUILD-SPEC §16 — the spec: "dumb outside / smart inside", evidence-quality-as-honesty,
+        health-advice-defers (Inv 7). Sources incl. Europe PMC noted as "open-access FULL TEXT".
+    MISSING: the LIVE DRIVER (no coroutine calls research_criteria→emit→collect→rank→surface;
+    the Ambassador's `_delegate` seam + `narrate_effort` are aspirational stubs).
+
+the_reframe (the owner's "fresh perspective" — ONE inverted decision):
+  - The existing subsystem IS build-item-b (the edge/ acquisition pipeline). The `edge/` network
+    boundary our design ASSUMED is ALREADY BUILT as the airlock (Zone A/B/C) — Inv 2 satisfied by
+    construction. Sources already span BOTH corpora: arXiv+OpenAlex (math/CS, our design-grounding)
+    AND Europe PMC/PubMed (medical, the owner's original intent).
+  - The ONE decision to flip: **TRANSIENT → EMBEDDED**. The old design ranks papers in-memory and
+    DISCARDS them (never ingested) — because there was NO CURATED HOME and the fear was polluting the
+    authored mirror. Our curated-layer design gives it a home: a SEPARATE curated store (data/, NOT
+    the mirror). So "embed the full source locally" is FULLY COMPATIBLE with the old design's
+    "never pollutes the mirror" invariant — it lands in a distinct store, never the mirror. The
+    transient decision was a consequence of a missing store, not a principle to preserve.
+  - `reference_material/` (manifest + distillation, just built) is the CURATION LAYER the transient
+    pipeline never had — the durable node a transient fetch matures into (asserted→verified→
+    DISTILLED→EMBEDDED). The airlock+fetcher produce the candidates; reference_material curates the
+    keepers; the local embedding store holds the full text for pattern-finding.
+
+what_maps (existing ✅ / to-build ❌):
+  - edge/ fetch boundary (Inv 2)                → ✅ the airlock (core/research + cloud/fetcher)
+  - fetch by identifier (arXiv/OpenAlex/PMC)    → ✅ cloud/fetcher/sources.py
+  - evidence ranking, dedup, preprint flags     → ✅ rank.py + aggregate.py
+  - EMBED full text into a local curated store  → ❌ inverted to "transient" — FLIP IT
+  - manifest + distillation curation layer      → ✅ reference_material/ (this session)
+  - the LIVE DRIVER (foreground + scheduler)    → ❌ the common missing piece (both use cases need it)
+
+two_use_cases_one_machinery:
+  - MEDICAL (owner's original): query MAY be personal ("my migraines since…") → the de-id airlock is
+    ESSENTIAL (the query could leak health data). Transient-or-curated is the owner's call per topic.
+  - DESIGN-GROUNDING (this arc): query is NOT private ("Moore–Aronszajn RKHS") → the airlock is
+    less critical but harmless/reusable; these SHOULD be curated (EMBEDDED) — they ground ratified
+    notes. Same fetcher, same ranker; the curation/embedding tail is what we add.
+
+invariant_note (health):
+  - The medical use case keeps Inv 7 (consequential health advice DEFERS to a clinician) + the
+    evidence-tier honesty already coded. The design-grounding use case doesn't trigger Inv 7. Both
+    ride the same de-id airlock; neither ingests into the mirror.
+
+next_steps (revised — much less to build than thought):
+  - The near-term plan is now: (1) the LIVE DRIVER wiring research_criteria→airlock.emit→collect→
+    rank (the common missing piece; foreground via Ambassador TASK intent + background via a
+    scheduler trough job §13); (2) the EMBED tail — flip transient→persist: fetch open-access full
+    text (Europe PMC / arXiv PDFs) → chunk → embed into a local curated/reference store, and mint a
+    reference_material/ manifest per keeper; (3) reframe BUILD-SPEC §16 from medical-only to general
+    literature grounding (math/CS via arXiv/OpenAlex). Only the reference-KIND graph tagging is
+    fable-gated. The EMBED tail deserves a deliberate design note (copyright/licence gate lives here).
+  - Reconcile with dn-core-query-protocol: the Librarian is already named there as the semantic-RAG
+    client; research/airlock is its OUTBOUND seam. The curated store is a new stratum the query
+    algebra (§2.1 scope grammar) must scope — feed this into the fable-vet's Item 0.
+
+connections:
+  - BUILD-SPEC §16 (the airlock spec); core/research/{criteria,airlock,rank}.py; cloud/fetcher/
+    {sources,aggregate,handler}.py; core/librarian/librarian.py::research_criteria.
+  - docs/design-notes/edge-core-handoff-protocol.md + hands-and-the-effector-layer.md (research as a
+    β=0 sensing hand) — the airlock's design home.
+  - the transient→EMBEDDED flip is the whole reframe; reference_material/ is the home that makes it safe.
+```
+
 ## 2026-07-13T18:38:04Z (captured — FIRST DOGFOOD of the verify-before-trust principle)
 
 ```capsule
