@@ -226,3 +226,61 @@ actually lands the fact on `main`).
 by this builder. This satisfies plan §3's risk note (builders never touch the main
 checkout's live stores, finding-0031 class) and §11's parked "who runs the live
 write" decision (orchestrator at seal, main checkout).
+
+## 2026-07-12 — the five-leg gate
+
+Ran verbatim, each leg separately (not &&-chained):
+
+1. `uv run ruff check .` → **All checks passed!**
+2. `uv run mypy core agents eval ops scheduler scripts` → **Success: no issues
+   found in 173 source files**
+3. `uv run mypy` (argless, whole-tree ratchet) → **Found 69 errors in 20 files
+   (checked 345 source files)** — matches the pinned baseline exactly
+   (finding-0029). This plan touches no code, so an unchanged count is expected
+   and confirmed.
+4. `uv run python -m ops.type_gate` → **Tier-2 membership: OK** (every
+   core-importing top-level package is in `[tool.mypy].files`); **Bare-ignore
+   scan: OK** (every `# type: ignore` in the checked region carries an error
+   code).
+5. `uv run pytest -q` → **1 failed, 970 passed, 8 skipped** on first run:
+   `tests/e2e/test_scheduler_live.py::test_supervisor_dispatches_a_real_job`
+   (module-level `pytestmark = pytest.mark.live`, a real Ollama model call)
+   failed with an empty response. Per the plan's flake rule (live-marked tests
+   flaking under contention → re-run isolated/uncontended before treating as
+   real), re-ran in isolation: `uv run pytest
+   tests/e2e/test_scheduler_live.py::test_supervisor_dispatches_a_real_job -v`
+   → **PASSED** (90.01s, real model call succeeded). Confirmed flake — cross-suite
+   live-axis contention (a model still warming/swapping from a preceding live
+   test in the same full-suite run), not a regression. Full-suite total once the
+   flake is discounted: **970 passed** (971 total live-suite tests, 1 confirmed
+   flake resolved by isolation), 8 skipped — unchanged from baseline, as the plan
+   predicted for a docs/frontmatter-only plan.
+
+`(venv/dev deps needed a one-time `uv sync --extra dev` in this fresh worktree to
+install ruff/mypy — not a code change, environment setup only.)`
+
+**Gate: GREEN** — all five legs pass; argless-mypy tail == 69 (finding-0029
+baseline, unchanged).
+
+## 2026-07-12 — side-effect audit + session close
+
+`git status --short` → clean (nothing uncommitted). `git diff --stat` (working
+tree vs HEAD) → empty (all work committed across two commits: `6d6bc24` Item 9,
+`93d9c07` Items 10+11-prep+finding-0059). Both commits touch only: `docs/build-plans/bp-013/plan.md`
+(the licensed cost.actual annotation), `docs/build-plans/bp-020/{plan.md,journal.md}`,
+`docs/findings/finding-0059.md` — exactly the plan's `write_scope`. No code touched,
+no `data/` touched (confirmed: this worktree has no `data/` directory at all; the
+main checkout's live `agent_observations.sqlite` mtime predates this session and was
+never opened by any harness constructed here — every store used `Path(":memory:")`).
+
+**Session summary for the orchestrator:** Item 9 DONE (bp-013 cost.actual corrected
+to the schema shape, verified parse); Item 10 DONE (dry-run inventory: 11 complete
+pairs ≥5, zero-block baseline corrected via finding-0059, zero warnings,
+determinism confirmed across two independent runs); Item 11 prepped but
+deliberately NOT run (orchestrator's job at seal, main checkout, post-merge —
+exact command + verification queries recorded above). One finding filed and
+resolved (finding-0059, spec-fidelity: V3's stale "11 pre-rule/zero-block" count).
+Gate green, baseline unchanged. Plan left `in-progress` — the completion flip
+(and Item 11's live run) are the orchestrator's, per §11's parked ruling and the
+briefing's explicit instruction. NOT pushed (worktree branch only, local commits
+for the orchestrator to review and merge).
