@@ -155,3 +155,262 @@ references:
   - Polanyi M., "Personal Knowledge: Towards a Post-Critical Philosophy" (Chicago, 1958) — tacit /
     personal knowledge ~ the author (mirror) strata.
 ```
+
+## 2026-07-13T17:40:12Z (captured)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: citation-as-free-edge — the curated strata's INGRESS mechanism
+
+owner_insight:
+  - OWNER (2026-07-13): "the first way of curated text is determined by our own
+    documentation: you just cited real articles when I asked you to apply references — in
+    other words, we are relying on the fact that those references are accurate. So if you
+    reference a construction, operation, theorem, a research article, etc., that seems like
+    a good candidate for external curated data — a clear reference that forms an edge FOR
+    FREE."
+  - Self-referential proof-point: the capsule ABOVE already contains real citations (SymPy /
+    Meurer 2017, Popper, Polanyi, mathlib). Those citations, sitting in a brainstorm, are
+    THEMSELVES candidate edges into the curated strata. The system's own documentation is its
+    first curation pipeline — dogfooding.
+
+the_mechanism:
+  - The curated strata does NOT have to be hand-built. Every citation already embedded in the
+    corpus (design notes, findings, brainstorms) IS a corpus->literature edge waiting to be
+    EXTRACTED. Same pattern as the dialogue layer: we don't author edges, we extract them from
+    what's already written.
+  - CONCRETE SUBSTRATE — this is already half-built: bp-026's doc->doc extractor (phi_doc)
+    already parses front-matter design_ref/links, inline note-citations, and wikilinks into
+    reference_edges. EXTENDING it to EXTERNAL citations (DOIs, arXiv ids, "Thm X.Y in [Author,
+    Title]", article references) makes the curated strata grow from our own writing at ZERO
+    marginal curation cost. The reference is the edge; the edge is free.
+
+trust_is_the_catch (owner named the vulnerability):
+  - "We are relying on the fact that those references are accurate." LLM-authored citations are
+    notoriously hallucination-prone (fabricated papers, wrong theorem numbers, misattribution).
+    So a free edge carries a TRUST DEBT: it is only as good as its verification.
+  - This is an ARGUMENT FOR the verification layer (Thread 1), not against the idea — and it is
+    where the two threads MEET. An external citation is a CHECKABLE claim about the objective
+    world (does the DOI resolve? does the source exist? does the theorem say what we claim?) —
+    unlike a subjective belief, which is not falsifiable this way. Objective knowledge is
+    vettable BY DEFINITION; that is what makes the curated strata curatable at all.
+  - So the edge has a MATURITY GRADIENT: asserted (an agent wrote the citation) -> verified
+    (source confirmed to exist / say what we claim) -> ingested (the actual content curated +
+    embeddable). "A good CANDIDATE for external curated data" (owner's exact word) — a
+    candidate, promoted to curated by verification. Free edge = coverage; verification = trust;
+    you need BOTH, or the strata fills with plausible-but-wrong citations (the exact opposite of
+    "well-vetted").
+
+node_lifecycle:
+  - A cited-but-not-yet-ingested reference is a PLACEHOLDER node — exactly like a wikilink to a
+    not-yet-written note (the memory system already does this: "a [[name]] that doesn't match an
+    existing memory yet is fine; it marks something worth writing later"). The external ref node
+    starts "referenced" and matures to "curated" when the real source is ingested.
+  - The corpus's own citations therefore become a WORKLIST for curation: extract all external
+    references -> that IS the queue of what to vet + ingest next. Curation becomes demand-driven
+    (we curate what we actually cite) rather than a boil-the-ocean library build.
+
+symmetry:
+  - This mirrors the mirror<->literature contradiction detector (prior capsule): both are "does
+    our internal representation match the objective record?" checks. There, the owner's belief vs
+    the vetted source. Here, the agent's citation vs the actual source. Same objective-grounding
+    move, two applications.
+
+transitive_citation_expansion (owner, 2026-07-13):
+  - The recursion: an external document WE reference has its OWN references to further external
+    articles/documents — so THOSE are candidates for more curated documents. The strata grows not
+    only from our corpus's citations but from the BIBLIOGRAPHIES of the sources we curate. Each
+    ingested source's reference list IS the worklist of next candidates.
+  - This is academic CITATION-GRAPH crawling / snowball sampling (backward-citation chasing): the
+    frontier expands one hop per ingestion, and it makes the curated strata a genuine GRAPH with
+    literature->literature edges, not a flat set. The graph structure itself becomes signal —
+    co-citation, bibliographic coupling, high in-degree = foundational/authoritative. (Prior art:
+    Semantic Scholar, Connected Papers, citation-network analysis; snowball sampling in systematic
+    reviews.)
+  - BOUNDING IS THE DISCIPLINE. Uncontrolled, the transitive frontier IS all of science
+    (everything cites everything). The finding-0068 gamma^d discount REUSES here beautifully:
+    citation-distance is a derivation-depth-like axis, so a source d hops from our corpus carries
+    weight gamma^d — relevance decays with citation hops, damping the crawl naturally. Promotion
+    stays DEMAND-DRIVEN (verify+ingest a 2nd-level ref only when our reasoning needs it, or the
+    owner curates it): the frontier is vast, the ingested core stays small.
+  - TRUST INVERSION worth noting: a 2nd-level citation made by a CURATED SOURCE (a peer-reviewed
+    textbook's bibliography) is a HIGHER-trust candidate than our own agent-authored citation — the
+    citing source was itself vetted. So WHO made the citation weights its candidacy: agent-asserted
+    -> verify hard; curated-source-asserted -> stronger prior. Verification still gates; the prior
+    differs.
+
+decisions:
+  - The curated strata's PRIMARY ingress is citation-extraction from our own corpus, not manual
+    library import. A clear external reference (theorem / construction / operation / article) in
+    any note is a candidate corpus->literature edge, extracted for free by an extended phi_doc.
+  - Every such edge is born UNVERIFIED (state: asserted); it is a candidate, not a curated fact,
+    until a verification step confirms the source. Warrant on the edge = source authority x
+    verification state.
+
+open_questions:
+  - Citation-extraction grammar: what external-reference forms does phi_doc recognize (DOI, arXiv,
+    ISBN, "Author, Title (Year)", "Thm N in X")? Start narrow (DOI / arXiv / explicit Title+Year)?
+  - The verification step: fully manual (owner confirms), or a bounded automated check (DOI
+    resolves, arXiv id exists) that still never fetches content into the sealed core (Invariant 1 —
+    resolution is an edge/, outside-core act, like literature acquisition)?
+  - Does an unverified citation edge participate in retrieval at all, or only after promotion? (Lean
+    conservative: unverified edges are visible-but-flagged, never load-bearing.)
+
+next_steps:
+  - Fold into the dn-core-query-protocol fable-vet: the `reference`/`literature` kind needs a
+    verification-state on its edges (asserted / verified / ingested), and phi_doc's citation
+    grammar is the ingress. Bank against the Jul-17 fable pass.
+  - A future plan (post-vet) extends bp-026's phi_doc extractor to external citations, emitting
+    `reference`-kind edges in the `asserted` state — the free-edge harvest. Verification + ingest
+    is a separate, owner-paced stage.
+
+references:
+  - bp-026 / phi_doc doc->doc extractor (docs/build-plans/bp-026/) — the concrete substrate this
+    extends; already parses internal citations + wikilinks into reference_edges.
+  - The memory-system placeholder-link convention (unresolved [[name]] is valid) — the model for a
+    cited-but-not-ingested placeholder node.
+```
+
+## 2026-07-13T17:50:34Z (captured)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: ratification is the promotion gate — WHEN a citation becomes curated
+
+owner_insight:
+  - OWNER (2026-07-13): "When we discuss math and technical reasoning, we reach for references —
+    we ground our logic to prove its SOUNDNESS upon external reference. The second we reference
+    that doc in our documentation, we've MOVED FORWARD with that external idea's utility. Once the
+    DESIGN DOC IS RATIFIED, its utility is being REALIZED — which is a good time to INGEST the
+    external curated document."
+
+the_gate:
+  - ANSWERS the prior capsule's open question ("what is the demand signal for promotion?"). The
+    demand signal is RATIFICATION. The vast candidate frontier is filtered to the EARNED CORE by
+    the artifact chain's existing owner-only blessing gate (draft -> ratified).
+  - Promotion gradient mapped onto the artifact chain:
+      cited in brainstorm / DRAFT note  -> `asserted` candidate (free edge, tentative, weak)
+      cited in a RATIFIED design note    -> PROMOTE: verify + ingest -> `curated` (load-bearing)
+    Ratification is the moment the owner BLESSES an argument that DEPENDS ON the reference; the
+    reference's utility is now realized in a ratified artifact, so its curation is EARNED.
+  - Demand-driven promotion with a crisp, PRE-EXISTING gate — no new human ceremony. Ratification
+    is already the deliberate, logged, owner-by-hand act (CLAUDE.md: draft->ratified is never done
+    in-session — the blessing fence). The reference ingestion RIDES that same act: a note's
+    ratification and its load-bearing references' curation become ONE coordinated blessing.
+
+convergence_of_both_threads:
+  - A math/technical argument in a design note is grounded TWO ways: (a) its cited theorems /
+    constructions — Thread 2, curated at ratification; (b) its computational machinery — Thread 1,
+    SymPy-attested. RATIFICATION is where BOTH lock in: the references verified+ingested, the
+    machinery checked. The gate seals a DOUBLY-WARRANTED technical argument — reference-grounded
+    AND machine-checked (the frame's doubly-warranted claim, finally realized at a concrete gate).
+  - So ratification stops being merely "the owner agrees" and becomes "the argument's full warrant
+    is SEALED": premises grounded in vetted literature, machinery verified sound.
+
+refinement (load-bearing vs contextual):
+  - Not every citation in a ratified note is equally load-bearing. The SOUNDNESS-BEARING refs (the
+    argument's validity depends on them — "ground our logic to prove its soundness") are the
+    priority ingests; "see also" / related-work mentions can stay `asserted` candidates. Demand =
+    LOAD-BEARING, not merely mentioned — else a 40-item related-work list forces 40 ingestions.
+
+seed_set:
+  - A FORWARD rule (new ratifications trigger curation), but the CURRENT corpus's already-ratified
+    notes' citations are the initial curation WORKLIST — dn-self-sensing and the other ratified
+    notes; their load-bearing references seed the curated strata's first fill.
+
+decisions:
+  - The promotion gate from `asserted` candidate -> `curated`/ingested is RATIFICATION of the
+    design note that cites the reference load-bearingly. Curation rides the existing owner-only
+    draft->ratified blessing; it is part of what the owner blesses.
+  - At ratification, a note's load-bearing external references are VERIFIED then INGESTED, and its
+    computational machinery is ATTESTED (Thread 1). Ratification seals a doubly-warranted argument.
+
+open_questions:
+  - Marking load-bearing vs contextual citations (an explicit split, e.g. `grounds:` vs `see-also:`
+    in note front-matter, so the gate knows which refs to ingest)?
+  - Does ratification-triggered ingestion stay fully owner-manual, or does the gate PRESENT the
+    load-bearing refs for one-click owner confirmation (human-in-the-loop on curation, per the
+    golden-set-like trust posture)?
+
+references:
+  - CLAUDE.md artifact chain (brainstorm -> design note draft->ratified -> build plan -> ...) — the
+    ratified gate this rides; draft->ratified is owner-by-hand, never in-session (the blessing
+    fence), which is exactly why it is the right curation trigger.
+```
+
+## 2026-07-13T17:53:57Z (captured)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: THE LARGEST LOOP — curated strata as cross-strata connective tissue; the complete warrant circuit
+
+owner_realization:
+  - OWNER (2026-07-13): "This closes an even larger loop. Even as we brainstorm, design, and build,
+    we are ALSO actively ingesting externally-validated, more OBJECTIVE data — and it connects to
+    the rest: to DIALOGUE (brainstorms and design), to the OBSERVED (the code that implements the
+    idea), and to my AUTHORED strata (the origin, via intuition)."
+
+the_insight:
+  - The curated (objective) strata is NOT a silo — it is CONNECTIVE TISSUE threading through the
+    entire existing graph. It links to every other kind:
+      curated <-> authored/mirror : the owner's subjective intuition is the ORIGIN; the literature
+                                    GROUNDS/validates (or contradicts) it. Subjective spark meets
+                                    objective confirmation. (The mirror<->literature relation from
+                                    the earlier capsule lives on this edge.)
+      curated <-> dialogue        : the citation lives in the brainstorm/design note that reaches
+                                    for it to prove soundness — the ingress edge.
+      curated <-> observed (code) : the external idea is REALIZED in code; a theorem/construction
+                                    cited in a design note is implemented in a module. The literature
+                                    node connects forward to the code that instantiates it, and the
+                                    code back to the external truth it implements.
+  - THE BUILD PROCESS IS A CURATION PROCESS. Ingesting objective knowledge is not a separate
+    activity — it is a BYPRODUCT of doing the work: brainstorm reaches for a reference, design
+    grounds on it, ratification ingests it, code realizes it. The corpus grows in OBJECTIVE
+    knowledge automatically as a function of building. A FLYWHEEL: the more the system works, the
+    more externally-grounded it becomes.
+
+the_design_note_is_the_join:
+  - The curated<->code edge is TRANSITIVE THROUGH the dialogue/workflow layers: the design note
+    cites the external ref AND is the design_ref of the build plan that produces the code. So the
+    NOTE is the hub where authored-intuition, objective-literature, and code-realization all meet.
+    (bp-026's phi_doc already extracts doc->doc + doc->code; extending it to external refs makes the
+    note the convergence point of ALL strata.)
+  - This is WHY ratification is the promotion gate (prior capsule): the note is the JOIN across all
+    strata, so blessing it seals the whole cross-strata circuit at once.
+
+the_complete_warrant_circuit:
+  - An idea's life becomes fully traceable across the subjective/objective divide:
+      authored intuition (subjective ORIGIN, K0)
+        -> dialogue (brainstorm/design: reasoned, grounded in literature)
+        -> curated (objective external validation, K0', ingested at ratification)
+        -> observed (code: the realization)
+        -> workflow (the plans/journals of building it)
+    Every stratum connects; the curated layer is what makes the circuit CLOSE WITH OBJECTIVE
+    WARRANT. Without it the chain is intuition->discussion->code — all internal, self-referential.
+    WITH it, the chain is ANCHORED to externally-validated truth at the design stage: conclusions
+    trace from a subjective spark, through objective literature, to concrete running code.
+
+what_the_system_IS (reframing):
+  - The mind-palace is not only a MIRROR of one mind (subjective) nor only a SENSOR of its own code
+    (observed) — with the curated strata it becomes a BRIDGE from the owner's subjective intuition
+    to the world's objective validated knowledge, realized in code. The five kinds + their
+    cross-connections ARE the system; curated was the missing piece that lets subjective and
+    objective knowledge RELATE, and it turns out to connect to everything.
+
+connections:
+  - finding-0068 gamma^d gradient: now governs signal flow across the WHOLE cross-strata graph;
+    curated is a high-authority K0 anchor any layer can reach (weight = depth x authority x
+    relevance x citation-distance).
+  - dn-core-query-protocol fable-vet: this is the UNIFYING FRAME the kind-vocabulary serves — the 5
+    kinds are not a flat set but a connected graph with the design note as the join.
+  - bp-026 phi_doc (doc->doc + doc->code extractor): the substrate for the curated<->code edge via
+    the note.
+
+next_steps:
+  - Carry this whole arc into the dn-core-query-protocol fable-vet as THE FRAME: curated strata =
+    objective connective tissue; the design note = cross-strata join; ratification = the circuit
+    seal. The kind vocabulary + weighting must express CROSS-STRATA edges, not just intra-kind ones.
+```
