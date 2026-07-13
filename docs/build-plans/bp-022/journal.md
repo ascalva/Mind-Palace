@@ -250,3 +250,36 @@ carries the carrying cycle (Q3 — no new cycle extraction); DuckDB additive col
 NOT change (§3 risk — pinned by test in Item 6). Honest-seam order pinned: β₁ = 0
 short-circuits before hole pairing. No code written. Awaiting the owner's
 `proposed → ready` hand edit; depends on bp-021.
+
+---
+
+## 2026-07-12 — ORCHESTRATOR RECOVERY + SCRUTINY: builder died at the usage limit mid-gate; work complete, verdict PASS
+
+**Status:** the builder completed all items (config `d513d76`, temporal `833172c`, THREAD
+lens `d0fedc0`, journal checkpoints through "all items done, gate next") and died on the
+org usage limit during its final gate re-run, before journaling tails or reporting.
+Recovery per the bp-016 precedent: the orchestrator completes the tail in this worktree.
+
+- **`git merge main` clean (`1405711`)** — main had moved 18a13cd→95d1d51 (finding-0051,
+  release.yml node fix, **v1.4.0 release commit-back**, bp-018 merge+seal, bp-019 spawn
+  amendments); zero overlap with this plan's diff.
+- **Scrutiny (full diff 18a13cd..a67bf1a): PASS.** §6(a) config exactly additive (one
+  TOML line, one dataclass field, one loader line); §6(b) lens: honest seam FIRST
+  (β₁==0 returns [] before any hole pairing — the pinned order), support ⊆ witness by
+  construction, gap-family routing (no contradiction vocabulary — pinned by test),
+  claims capped at min(len(holes), β₁), flow over σ-skeleton edges among witness
+  vertices (the implementable reading of the pin — Hole.vertices is an unordered set,
+  consecutive-pair cycle edges are not recoverable; noted, not a deviation); §6(c)
+  snapshot fields additive degrade-to-None, `structural_axes()` return byte-identical
+  (the consumed drift contract — pinned by test_structural_axes_byte_identical_to_
+  before_bp022); §6(d) DuckDB ADD COLUMN IF NOT EXISTS heal, idempotent, trajectory
+  allow-list extended. Scope: 9 files, all in write_scope; plan.md diff = status flip
+  only. Falsifier coverage verified by test-name sweep (L-b both clauses, L-c, honest
+  degradation, panel determinism). No findings.
+- **Gate re-run (orchestrator, post-merge):** IN FLIGHT (background b5agraijk; the
+  builder's own first full run had one live-flake re-run in progress when it died —
+  the class is catalogued, 0046/0048).
+
+**Next action:** on gate green — merge to main (sequenced after bp-019's warnings-fix
+addendum lands or independently, one merge at a time), push, witness `check`, seal
+(cost.actual: sonnet ~210,223 tok / 155 calls / ~36 min = 0.84× of 250k).
