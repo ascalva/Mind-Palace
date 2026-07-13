@@ -12,6 +12,11 @@ verification:
   date: 2026-07-13
   verdict: CONFIRMED
   by: web-check 2026-07-13 (dn-core-query-protocol §1.3 item 6 literature pass)
+source_ingestion:
+  state: not_fetched          # VERIFIED + DISTILLED, not yet EMBEDDED — full paper not fetched into data/ yet
+  venue: null                 # Trans. AMS 68(3); available via ams.org / JSTOR (doi 10.2307/1990404)
+  store_ref: null
+  retrieved: null
 authority: high
 load_bearing_for:
   - "docs/design-notes/core-query-protocol.md#2.2: every PSD kernel is some embedding's Gram (an inner product in a Hilbert space) — the 'Moore–Aronszajn inversion' that makes mode 2 the generic point of the PSD-kernel cone."

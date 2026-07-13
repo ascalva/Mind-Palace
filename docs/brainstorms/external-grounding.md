@@ -551,6 +551,63 @@ connections:
   - the verified-citations seed set (the 2026-07-13 literature pass, 7 CONFIRMED/2 PARTIAL).
 ```
 
+## 2026-07-13T20:34:03Z (captured — the correction: NOT-git-tracked ≠ NOT-ingested)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: ingest the FULL SOURCE (locally), not just our distillation — that is where patterns emerge
+
+owner_correction (2026-07-13):
+  - Agree the raw source should NOT be git-tracked (bloat, copyright). DISAGREE with the source not
+    being INGESTED. If the article/book is searchable/findable (Google Scholar, arXiv, Nature, …),
+    the SOURCE ITSELF should be ingested — "that's where we'll find more patterns."
+  - The error in the first draft: it conflated "not git-tracked" with "not ingested." They are TWO
+    separate decisions. Corrected below (and in the README).
+
+the_two_planes (same firewall pattern the vault already uses):
+  - GIT (`docs/reference_material/<ref>/`): the manifest + OUR DISTILLATION. Lightweight, portable,
+    shareable, human-curated — what we KNOW we use (the load-bearing claim).
+  - LOCAL EMBEDDING STORE (`data/`, gitignored): the FULL SOURCE TEXT — fetched from the searchable
+    venue, chunked + embedded into the reference corpus. NOT git-tracked. This is the pattern-finding
+    substrate.
+  - The manifest is the JOIN: records the identifier (how to fetch), points at the git distillation,
+    AND references the locally-ingested full text (by store id / content hash).
+
+why_ingest_the_full_source (the owner's point, the real value):
+  - Manual distillation can only surface a pattern we ALREADY saw. Embedding the WHOLE text lets the
+    system find connections we did NOT anticipate — proximity in embedding space over the full
+    source, not just our summary. Distillation = known utility; full-text ingestion = latent utility.
+  - This is what makes the curated strata a genuine part of the LIVE INDEX (the origin motivation):
+    an agent can semantically retrieve against the full literature, not just our note about it.
+
+invariant_fit (clean — it mirrors the mirror):
+  - The full text enters the LOCAL corpus (data/, gitignored), exactly as the vault content does —
+    never git, never egress. The sealed core reasons over it OFFLINE (Inv 11 holds: the corpus never
+    transits a third party at query time).
+  - Fetching the source is a NETWORK act → an `edge/` operation (Inv 2: only edge/ touches the
+    network), or an owner action at curation time. The acquisition pipeline is build/curation-time,
+    owner-initiated; the sealed core never fetches.
+  - Copyright is WHY the split is correct: local private ingestion for the owner's own pattern-finding
+    is a different act from redistribution — git-tracking would be redistribution (public-ish repo),
+    local embedding is not. Distillation is portable BECAUSE it is ours; the source stays local
+    BECAUSE it is not.
+
+schema_delta (v0 manifest gains an ingestion field):
+  - `source_ingestion: { state: not_fetched | fetched | embedded, store_ref: <hash/id or null>,
+    venue: arxiv|scholar|nature|…, retrieved: <date or null> }` — distinct from `verification`
+    (which is about the CLAIM) and from the git `distillation`. Three separable states of a reference:
+    VERIFIED (claim checked) · DISTILLED (our summary in git) · EMBEDDED (full source in local store).
+  - Full-text acquisition + embedding is the fable-gated/near-term pipeline's job; the manifest field
+    is v0 and the fable-vet's `ingested` verification-state formalizes it.
+
+near_term_delta:
+  - The reference_material seeding plan now has TWO halves: (a) git — write manifests + distillations
+    for the 9 verified refs (pure authoring, now); (b) local — an acquisition+embedding pipeline
+    (edge/ fetch by identifier → chunk → embed into the reference corpus), which is a real build with
+    a network boundary and a copyright/licence gate. (a) is trivial; (b) is the substantive plan.
+```
+
 ## 2026-07-13T18:38:04Z (captured — FIRST DOGFOOD of the verify-before-trust principle)
 
 ```capsule
