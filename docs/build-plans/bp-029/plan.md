@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-029
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/external-grounding.md
 contract: builder
