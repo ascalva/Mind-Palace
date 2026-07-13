@@ -188,3 +188,10 @@ supervision underway in this worktree.
 (watch the post-commit hook's sensor sync exercise the LIVE store migration), push,
 witness `check` on the merge sha, seal (cost.actual: fable ~194,279 tok / 104 calls /
 ~44 min = 0.78× of 250k), then spawn bp-019.
+
+**Gate pytest leg CLOSED (orchestrator, 2026-07-12):** post-merge full suite 908 passed /
+8 skipped / 3 failed — all three live-e2e (scheduler = finding-0046, research_live +
+semantic_search_live same load class; the run overlapped bp-022's gate suite 18 min).
+Re-runs: semantic_search green in the first partial re-run; scheduler + research_live
+**2 passed in 126 s truly uncontended** (verified zero pytest processes machine-wide
+first). Five-part gate GREEN in full. Merging to main.
