@@ -330,3 +330,174 @@ parked:
     default: HOLD; brainstorm carries the pushed sketch
     re_entry: owner opens the fable design session
 ```
+
+## 2026-07-13T06:06:41Z (captured — FABLE agent deliverable: the rigorous math, tier-verified)
+
+> Produced by a delegated **fable** agent (`claude-fable-5`, verified: 5 tool-uses = the 5
+> files read, one uninterrupted pass, stopped on completion not budget). Orchestrator-captured
+> (single-writer). Claims carry the agent's labels [ESTABLISHED]/[DERIVED]/[CONJECTURE]/
+> [ANALOGY]; literature cited from memory (flag for a 5-min check before a design note cites).
+> The fable-guard on graduation stands — this is theorem-grade brainstorm material, not a note.
+
+```capsule
+topic: core-query-protocol (Thread B — fable rigorous pass)
+date: 2026-07-13
+
+system_grounding_caveat:
+  - [DERIVED] TWO candidate "structural graphs" exist: (i) the similarity backbone A =
+    cosine_adjacency(emb) that hodge.py consumes — DEFINITIONALLY derived from the semantic
+    kernel (thresholded Gram); (ii) the citation fiber graph from reference_edges.sqlite —
+    embedding-independent but code-anchored (no doc→doc; finding-0059). Every Q2 claim is
+    graph-relative. On (i) the semantic kernel is near-on-family by construction; the
+    interesting instance of the fork is (ii) — the one not yet computable on the live corpus.
+
+Q2_the_deformation_VERDICT_derived:
+  - The family is naturally TWO-dial, not one: inverse-temp β (soft↔hard on edge COSTS
+    c_e = −log w_e) and fugacity z (walk-LENGTH damping). Walk/Green family:
+    K(z,β) = (I − z A^{∘β})^{-1} = Σ_walks z^{|γ|} e^{−β ℓ(γ)}; converges iff z·ρ(A^{∘β})<1
+    — the SAME contraction as Invariant-10's γ-ceiling (spectral radius <1 ⇒ closure exists).
+  - [ESTABLISHED] The interpolating one-parameter families ARE standard: randomized
+    shortest paths / free-energy distances (Saerens/Kivimäki/Françoisse), Chebotarev walk &
+    logarithmic-forest distances, and p-resistances (Alamgir–von Luxburg). All interpolate
+    shortest-path (β→∞) ↔ commute-time/resistance (β→0) = mode 1a ↔ mode 1b EXACTLY.
+  - [DERIVED] Prop 1 (tropical limit with RATE): for β ≥ (log 2Δ)/c_min,
+    d_c − β^{-1}[log4 + (k*+1)logΔ] ≤ d_β ≤ d_c, k*=⌈d_c/c_min⌉ — O(1/β) convergence,
+    explicit combinatorial constant, any finite graph. Framing = Maslov dequantization: the
+    S_β semirings are all ISOMORPHIC to (+,×) for finite β, degenerate to tropical (min,+)
+    only at β=∞. Mode 1a is the SAME Kleene closure A* as 1b, at the degenerate boundary.
+  - [DERIVED] Heat kernel = finite-β path partition function: e^{−tL} = e^{−Λt}Σ (Λt)^k/k! P^k
+    (uniformization P = I − L/Λ ≥ 0). Heat kernel, Green's function, resolvent = different
+    completely-monotone filters f(L) on one generator; all PSD; all stochastic-compatible.
+    Caveat [DERIVED]: β-dequantization of WEIGHTS recovers weighted shortest path; the t→0
+    heat clock tropicalizes to the UNWEIGHTED hop metric (weights subleading). Directedness:
+    walk/tropical fine for directed A_F; PSD story needs a symmetrization CHOICE (pin it).
+
+Q2_the_mode2_fork_SETTLED_derived:  # the main new result
+  - Nested loci: CONE {K⪰0} ⊃ 𝔉(L)={f(L):f≥0 on spec L} ⊃ CURVE {K(β)}.
+  - Prop 2–3: K_sem = f(L) IFF the embedding is (up to ambient rotation) the SPECTRAL
+    embedding of L with filter √f, i.e. emb(v) ≅ (√f(λ_k)·u_k(v))_k. Diffusion maps = the
+    case f=e^{−tλ} [Coifman–Lafon]; Laplacian eigenmaps = low-pass f [Belkin–Niyogi]. On the
+    CURVE is strictly stronger: the empirical filter must be the deformation filter at one β.
+  - Prop 4 (genericity): learned embeddings have no mechanism forcing [K_sem,L]=0; commutant
+    ∩ cone has codim N(N−1)/2 ⇒ off-manifold GENERICALLY. HONEST ANSWER: cone yes, curve no —
+    unless the embedding is by construction spectral.
+  - THE INVERSION [ESTABLISHED, Mercer]: every PSD kernel is SOME embedding's Gram ⇒ mode 2
+    is the GENERIC POINT of the cone, NOT a special subclass. Correct taxonomy: the cone = all
+    possible semantic modes; mode 1b = its thin graph-spectral locus 𝔉(L); mode 1a = the
+    tropical boundary of the curve inside 𝔉(L). Vacuity trap named: "K_sem = e^{−H} always"
+    is empty; the content is LOCALITY of H = −log K_sem (Metzler/Laplacian-like, support ⊆ F).
+  - [DERIVED] Canonical projection of an off-curve K_sem: (1) pinch onto the commutant
+    K̄ = Σ_λ P_λ K_sem P_λ (Frobenius projection, PSD-preserving); (2) blockwise trace-average
+    f̂(λ)=tr(P_λ K_sem P_λ)/m_λ ⇒ f̂(L) is the Frobenius-nearest spectral fn. Yields an
+    ALIGNMENT INSTRUMENT: energy fraction ‖f̂(L)‖²/‖K_sem‖² (how graph-explainable) + shape of
+    f̂(λ) (heat-like? fit β̂). Deterministic ⇒ a Thread-C measurable. The residual IS the
+    instrument, not a failure.
+  - [DERIVED/ESTABLISHED, Schoenberg 1938] PHASE TRANSITION: finite β ⇒ honest PSD kernel;
+    β=∞ ⇒ a METRIC that generically is NOT of negative type ⇒ e^{−s·d} not PSD ⇒ does NOT
+    re-enter the cone. Trees (ℓ₁, negative type) are the exception. [CONJECTURE] on sparse
+    citation graphs kernel-representability fails at finite β* < ∞ — settled by sweeping β and
+    watching λ_min(e^{−d_β}). Cone ops (+, convex mix, Schur ⊙) preserve PSD [Schur thm];
+    K_struct ⊙ K_sem = "cited AND near" stays a kernel; nothing survives at β=∞.
+
+invariants_as_the_allowed_algebra_derived:
+  - [DERIVED, form-level] Invariant 10 is already tropical: γ^d = e^{−d·log(1/γ)} is a
+    Boltzmann factor in depth (per-stratum cost log(1/γ)); cross-stratum fiber = cost log(1/γ),
+    grounding = 0, DISPOSITIONAL = +∞ (D-exclusion IS an infinite-cost assignment — makes
+    "grounding walk never traverses supersession" a property of the METRIC). Caveat: d is a
+    mint-time stamp (I4), g a support fraction — identification of FORM, licensing a design
+    OPTION (a soft grounding ratio g_β with the current bookkeeping as its β→∞ limit), not a
+    theorem. Orientation gauge acts trivially on C⁰ ⇒ static family gauge-invariant free; the
+    e^{−tL₁} lift is gauge-COVARIANT (invariants = quadratic forms / entry magnitudes).
+
+bicomplex_functoriality_sharpened_derived:
+  - [ESTABLISHED w/ hypotheses] δ_D²=0: op-seq strict order ⇒ acyclic ⇒ poset ⇒ nerve (order
+    complex) ⇒ coboundary²=0. Hidden assumptions NAMED: (1) transitive closure is a definition
+    being made; (2) strictness from op-seq not wall-clock; (3) RENAME-STABLE identity is a data
+    PREREQUISITE (supersession-lifecycle §7: doc_id=source_path forks lineage on rename ⇒
+    spurious components); (4) with COEFFICIENTS in citation complexes, δ_D²=0 needs the
+    COMPOSITION axiom F2 (σ_{P→P″} = σ_{P′→P″}∘σ_{P→P′}) — definitional for version lineage,
+    a failable data-integrity invariant for claim-level supersede ops.
+  - [DERIVED] Bicomplex ⟺ F1 ∧ F2. F1 = each transport σ is SIMPLICIAL (citations incident to
+    a revised note have counterparts at the successor; untouched persist) — "the one killer is
+    a SEVERED citation"; merges/additions are fine. F2 = composition coherence. Simplicial maps
+    induce chain maps [ESTABLISHED] ⇒ F1 ⟺ d δ_D = ±δ_D d (the ± is Koszul bookkeeping).
+  - [DERIVED] LOCALIZED COMMUTATOR: ([d,τ]φ)(u,v) = (φ(σv)−φ(σu))·𝟙[{σu,σv}∉X_{n+1}] —
+    supported EXACTLY on severed citations, weighted by the potential drop. So ‖[d,τ]‖ IS the
+    citation-carry-forward failure count (not a proxy). Measurable; NEEDS doc→doc edges.
+  - CURVATURE [ESTABLISHED frame; DERIVED identification]: the rigorous home is a diagram of
+    chain complexes over the time poset (functor T→Ch if strict; homotopy-coherent/twisted
+    complex if not; total = Bousfield–Kan homotopy colimit). 𝔸=d+τ on the total module has
+    𝔸² = curvature of a QUILLEN SUPERCONNECTION (Block dg-modules; Bondal–Kapranov twisted
+    complexes). Flat ⟺ bicomplex. NON-FLATNESS IS THE FIRST OBSTRUCTION, NOT A DEAD END: if
+    [d,τ] is exact in the Hom-complex it is REPAIRABLE by a homotopy h (corrected diff d+τ+h);
+    the true invariant is the class [[d,τ]] ∈ H¹(Hom(C(X_n),C(X_{n+1}))). Two distinct curvature
+    layers: (i) superconnection [d,τ] (exists on a linear time chain); (ii) DIAMOND HOLONOMY on
+    fork/merge diamonds (only when D has diamonds). HONEST DEMOTION [ANALOGY]: the edge-dynamics
+    Forman–Ricci/bridge curvature is of the STATIC fiber geometry; [d,τ] is of the TEMPORAL
+    connection — same word, different tensors; a design note must not merge the sections.
+  - [DERIVED] TWO-TIER: even perfect F1∧F2 buys TOPOLOGICAL coherence (chain maps ⇒ homology/
+    threads/β₁ transport coherently — the THREAD lens's objects have a well-defined temporal
+    life) but NOT METRIC coherence: σ*d=dσ* does NOT give σ*δ=δσ* (adjoints flip variance;
+    need σ weight-compatible/isometric). Kernel-flatness ⊋ bicomplex-flatness. This is exactly
+    where parked PD-b (weighted vs combinatorial inner products) starts to matter.
+
+transport_true_category_derived:
+  - NOT unitary, three measurable reasons: creation (σ never surjective), destruction (partial
+    σ kills vectors), merges (‖σ_*‖=√max-fiber>1; repair by conditional-expectation contraction
+    or the pullback σ*). σ_* is a PARTIAL ISOMETRY iff supersession is MERGE-FREE ("isometric
+    yet irreversible": surviving structure survives undistorted, but revision genuinely
+    creates/destroys).
+  - γ-TIE [DERIVED, contingent on supersession-lifecycle §4.5]: depth rises monotonically along
+    a revision thread ⇒ on confidence-weighted cochains the transport is a STRICT CONTRACTION
+    rate ≤ γ; the same γ bounds strata tower AND temporal dynamics. If §4.5 = depth re-anchor on
+    promotion ⇒ "transfer operator strictly contractive EXCEPT at owner verdicts; the OWNER is
+    the only energy source in the dynamics" (constitution-aligned). If §4.5 the other way ⇒
+    unconditionally contractive, deep insight permanently damped. The math makes the tension
+    quantitative.
+  - LEDGER = DILATION [DERIVED on op-orthonormality convention]: append-only op-seq store with
+    distinct-ops-orthonormal ⇒ H_n↪H_{n+1} is an ISOMETRY; active view = subspace; active
+    transport = compression of an isometry = contraction; Sz.-Nagy [ESTABLISHED: every
+    contraction is the compression of a unitary] ⇒ the lossy dynamics ALWAYS dilates — and here
+    the dilation is CONCRETE: the append-only ledger. "Revision destroys structure in the active
+    view; the ledger is the isometric dilation in which nothing was ever destroyed." Two mode-3
+    operators must NOT be conflated: ledger-compression (kills superseded) vs correspondence σ_*
+    (follows D to successors) — different categories; the protocol must type which a query uses.
+
+unifying_picture_four_layers_derived:
+  - Per-snapshot: retrieval cone 𝒦_t with cone ops + the structural curve {K_t(β)} (β=∞
+    adjoined as a non-kernel metric boundary) + K_sem as a distinguished (generically off-curve)
+    point with its projection+alignment. Across snapshots: supersession = a CONNECTION on the
+    bundle of cones, acting by congruence K ↦ σ_* K σ_*ᵀ (PSD-preserving). "Curvature =
+    non-functoriality" HOLDS but stratifies into FOUR layers: (a) F2 composition incoherence
+    (data defect); (b) superconnection [d,τ] (F1/severed citations); (c) diamond holonomy;
+    (d) metric defect (σ not weight-compatible — kernels transport only approximately even when
+    a–c vanish). Frame does not break; it is four layers not one.
+
+untestable_today_register:  # per the honesty mandate
+  - BLOCKED on doc→doc citation edges (finding-0059/0062; reference_edges.sqlite is code-anchored):
+    the flatness/coherence ‖[d,τ]‖, the F2 violation count, diamond holonomy, the citation-graph
+    alignment of K_sem, the negative-type β* sweep on the CITATION metric. The math DOUBLES the
+    warrant for the doc→doc extractor.
+  - COMPUTABLE TODAY: the entire §1 β-family on the SIMILARITY backbone (where hodge.py lives);
+    the ledger/contraction statements on the version store.
+
+shortlist_for_the_fable_design_session:
+  - 1. Pin the normalization triple (cost dictionary c=−log w vs 1−sim; directedness treatment;
+    the (β,z) coupling — recommend RSP as the canonical curve). Nothing is theorem-grade before.
+  - 2. Adopt F1/F2 as named store invariants with two deterministic violation counters; make the
+    doc→doc extractor their explicit prerequisite.
+  - 3. Rule on the two mode-3 operators (ledger-compression vs correspondence) in the protocol
+    type system — a temporal query must declare which.
+  - 4. Decide supersession-lifecycle §4.5 (promotion re-anchoring) with the dynamical dichotomy
+    in hand (contractive-except-at-owner-verdicts vs unconditionally contractive).
+  - 5. License the alignment instrument (pinch + f̂(λ) + energy fraction) as a Thread-C measurable.
+  - 6. Post-extractor empirical sweeps: negative-type β* on the citation metric; ‖[d,τ]‖ mass on
+    real supersession events; whether the obstruction class is exact (homotopy-repairable).
+  - 7. Weighted inner products (PD-b) now have a second customer: the metric tier of §2.4.
+
+parked:
+  - decision: graduation still fable-guarded (unchanged); this pass is the SEED the fable design
+    session formalizes — likely TWO notes (architecture: core-query protocol; math: this + Lane B).
+    default: HOLD
+    re_entry: owner opens the fable design session over this brainstorm
+```
