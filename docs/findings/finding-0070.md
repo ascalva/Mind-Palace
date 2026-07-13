@@ -49,6 +49,20 @@ the code (Explore sweep 2026-07-13):
 plane opening a core-owned store at all. It is `dn-core-query-protocol §1.3 item 1`'s
 opus-provisional, fable-MUST-finalize call.
 
+**This façade is NOT work parallel to the fable query-algebra — it IS that algebra's Mode-1
+client, the simplest sentence of it.** The algebra (§2.2) is the *design/math* fable delivers;
+the query *surface* (§2.3) is running code fable builds NONE of (the note is `design-only`).
+The façade is `read(one stratum, F, no time)` = Mode 1 restricted to exact reachability at
+fixed time, which is exactly §2.3's reference agent — named there as "the first thing to build
+and the proof the frame is right." So completing the fable work does not make this redundant
+and does not replace it: it makes it *well-founded*, and a build still follows either way
+(fable produces theory, not a running index). The near-term "who-cites-X / what-implements-X"
+win the whole arc traces back to is pure Mode-1 structural reachability — it needs none of the
+semantic kernel, temporal transport, or `w(d,a,c)` the richer algebra adds (those are
+enrichment, not prerequisite). The one genuinely wasteful outcome — a throwaway *bespoke* read
+API built before §2.4 reshapes its boundary contract — is exactly what the park-to-fable
+decision avoids.
+
 ## Why it matters
 
 The near-term context-cost win (context-economy: search-by-context-burn is O(context × turns
