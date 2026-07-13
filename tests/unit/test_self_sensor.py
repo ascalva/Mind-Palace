@@ -220,6 +220,57 @@ def test_unparseable_non_null_block_yields_no_observation() -> None:
     assert parse_cost_value("") is None
 
 
+# --- §6(f): unparseable non-null ⇒ no observation + a WARNING in the report ------------------
+# (scrutiny catch, post-gate: the pin existed in the plan but nothing populated
+#  SelfSyncReport.warnings — parse_cost_value collapses null and unparseable-non-null to the
+#  same None, so parse_plan_cost_block now records the affected keys under `_unparseable`
+#  and _observations_for warns per skip, deterministically.)
+def test_unparseable_non_null_value_warns_and_skips(repo: Path, tmp_path: Path) -> None:
+    """(a) A bare-prose non-null value AND a mapping with nothing usable both yield NO
+    observation and EXACTLY one deterministic warning each — sha[:12] + path + key in the
+    message, stable order (paths sorted, estimate before actual). Determinism pinned by a
+    fresh sensor over the same repo reproducing the identical warnings list."""
+    _write_plan(repo, "bp-108", "cost:\n  estimate: measured later\n"
+                                "  actual: { note: \"tbd\" }")
+    sha = _commit(repo, "docs(bp-108): both cost values non-null but unparseable")
+    sensor, _ = _sensor(repo, tmp_path)
+    report = sensor.sync()
+    assert sensor.store.count() == 0                       # no observation landed
+    assert sensor.store.is_projected(sha, "1.0.0")         # still marked (no rescan-forever)
+    path = "docs/build-plans/bp-108/plan.md"
+    assert report.warnings == [
+        f"unparseable non-null cost estimate at {sha[:12]} {path} — skipped, no observation",
+        f"unparseable non-null cost actual at {sha[:12]} {path} — skipped, no observation",
+    ]
+    # determinism: a FRESH sensor (fresh store — same repo state) reproduces the same
+    # warnings, byte-identical and in the same order:
+    sensor2, _ = _sensor(repo, tmp_path, name="s2")
+    report2 = sensor2.sync()
+    assert report2.warnings == report.warnings
+    # and a RE-sync on the already-projected store re-warns nothing (the sha is skipped
+    # before parsing — warnings belong to the projection act, which does not repeat):
+    assert sensor.sync().warnings == []
+
+
+def test_null_or_absent_cost_yields_no_observation_and_no_warning(
+    repo: Path, tmp_path: Path
+) -> None:
+    """(b) `null` and absent are 'a fact not yet in the world' — no observation, and NO
+    warning either (the §6(f) distinction: only NON-null unparseable values warn)."""
+    _write_plan(repo, "bp-109", "cost:\n  estimate: null\n  actual: null")
+    _commit(repo, "docs(bp-109): both null")
+    d = repo / "docs" / "build-plans" / "bp-110"
+    d.mkdir(parents=True)
+    (d / "plan.md").write_text("---\ntype: build-plan\nid: bp-110\nstatus: complete\n"
+                               "cost:\n  estimate: null\ndepends_on: []\n---\n\n# bp-110\n")
+    _commit(repo, "docs(bp-110): estimate null, actual absent")
+    sensor, _ = _sensor(repo, tmp_path)
+    report = sensor.sync()
+    assert report.projected == 2
+    assert sensor.store.count() == 0
+    assert report.warnings == []                           # null/absent is silent, by design
+
+
 # --- attestation ---------------------------------------------------------------------------
 def test_attestation_emitted_per_batch_with_pinned_action_name(repo: Path, tmp_path: Path) -> None:
     _write_plan(repo, "bp-106", "cost:\n  estimate: { model: sonnet, tokens: 100k }\n"

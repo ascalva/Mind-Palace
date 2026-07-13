@@ -173,13 +173,18 @@ def parse_cost_value(raw: str) -> dict[str, Any] | None:
     return payload
 
 
-def parse_plan_cost_block(text: str) -> dict[str, dict[str, Any] | None]:
+def parse_plan_cost_block(text: str) -> dict[str, Any]:
     """Extract `{'estimate': {...}|None, 'actual': {...}|None}` from one plan file's FULL
     text (frontmatter + body — the scan only looks inside `cost:`, so body content never
     interferes). Returns {} if there is no `cost:` field at all (pre-rule plans, V4's 11
-    no-cost-block cases). `id:` is returned too (the `subject_id`, plan §6(e))."""
+    no-cost-block cases). `id:` is returned too (the `subject_id`, plan §6(e), under
+    `_subject_id`), and `_unparseable` carries the tuple of keys whose value was NON-NULL
+    but yielded nothing usable — the §6(f) distinction `parse_cost_value`'s None return
+    collapses (null and unparseable both map to None there; only HERE, with the raw text
+    still in hand, can the two be told apart). The caller warns per `_unparseable` key."""
     lines = text.splitlines()
-    out: dict[str, dict[str, Any] | None] = {}
+    out: dict[str, Any] = {}
+    unparseable: list[str] = []
     plan_id = ""
     in_cost = False
     for ln in lines:
@@ -194,13 +199,19 @@ def parse_plan_cost_block(text: str) -> dict[str, dict[str, Any] | None]:
             break
         fm = _FIELD_LINE.match(_strip_trailing_comment(ln))
         if fm:
-            out[fm.group(1)] = parse_cost_value(fm.group(2))
+            key, raw_value = fm.group(1), fm.group(2).strip()
+            parsed = parse_cost_value(raw_value)
+            out[key] = parsed
+            if parsed is None and raw_value not in ("", "null"):
+                unparseable.append(key)   # §6(f): non-null but nothing usable — warn upstream
+    if unparseable:
+        out["_unparseable"] = tuple(unparseable)
     if plan_id:
-        out["_subject_id"] = plan_id   # type: ignore[assignment]  # sentinel, popped by the caller
+        out["_subject_id"] = plan_id
     return out
 
 
-def _read_plan_at(repo: Path, sha: str, path: str) -> dict[str, dict[str, Any] | None] | None:
+def _read_plan_at(repo: Path, sha: str, path: str) -> dict[str, Any] | None:
     """`git show sha:path` (never the working tree) → parsed cost block, or None if the
     path does not exist at `sha` (a root commit's parent read, or a plan added later)."""
     text = _git_or_none(repo, "show", f"{sha}:{path}")
@@ -290,7 +301,11 @@ class SelfSensor:
         """φ_self v1.0.0 (plan §6(e)): for each plan file changed at `sha` (first-parent
         diff), parse the `cost:` block at `sha` AND at `sha^` (absent parent/file ⇒ no
         prior facts — root commits treat all present facts as new); emit one
-        `AgentObservation` per fact present at `sha` and absent-or-different at the parent."""
+        `AgentObservation` per fact present at `sha` and absent-or-different at the parent.
+        An unparseable NON-NULL value (§6(f)) yields no observation + a deterministic
+        WARNING in the report — one line per (path, key), sha-prefixed; stable order (paths
+        sorted by `_changed_plan_files`, keys in ('estimate', 'actual') order), so the same
+        repo state always produces the same warnings."""
         out: list[AgentObservation] = []
         parents = _git(self.repo, "rev-list", "--parents", "-n", "1", sha).split()
         parent = parents[1] if len(parents) > 1 else None   # None ⇒ root commit (no parent)
@@ -301,6 +316,11 @@ class SelfSensor:
             prior = _read_plan_at(self.repo, parent, path) if parent else None
             subject_id = str(current.get("_subject_id") or Path(path).parent.name)
             for key in ("estimate", "actual"):
+                if key in current.get("_unparseable", ()):
+                    report.warnings.append(                  # §6(f): deterministic skip, warned
+                        f"unparseable non-null cost {key} at {sha[:12]} {path} — "
+                        f"skipped, no observation")
+                    continue
                 fact = current.get(key)
                 if fact is None:
                     continue                                 # null/absent ⇒ no observation

@@ -1,5 +1,51 @@
 # bp-019 journal
 
+## 2026-07-12 — scrutiny addendum: the §6(f) warning path (orchestrator catch)
+
+**Honest record: this was an orchestrator-scrutiny catch, not something this session found
+itself.** Plan §6(f) pins "An unparseable non-null block ⇒ no observation + a WARNING in
+the report — deterministic skip." I built `SelfSyncReport.warnings` but nothing ever
+appended to it: `parse_cost_value` collapses null and unparseable-non-null to the same
+`None`, so `_observations_for` could not tell them apart, and no test covered the path.
+The pre-addendum suite was green while a pinned behavior was silently missing — the gap
+only mattered at the report level (no stored row was ever wrong), which is exactly why the
+tests didn't catch it.
+
+Fix (minimal, inside existing write_scope):
+- `parse_plan_cost_block` now records the affected keys under `_unparseable` — the
+  distinction is only computable THERE, where the raw text is still in hand (`parsed is
+  None and raw_value not in ("", "null")`). Return type simplified to `dict[str, Any]`
+  (drops the `_subject_id` type-ignore hack too).
+- `_observations_for` warns per skipped (path, key), format:
+  `"unparseable non-null cost {key} at {sha[:12]} {path} — skipped, no observation"`.
+  Deterministic and stably ordered: paths sorted (already, via `_changed_plan_files`),
+  keys in `('estimate', 'actual')` order. Warnings belong to the projection ACT — a
+  re-sync of an already-projected sha re-warns nothing (the sha is skipped before parsing).
+
+Tests added (`tests/unit/test_self_sensor.py`, 24 total now):
+- `test_unparseable_non_null_value_warns_and_skips` — bare prose (`estimate: measured
+  later`) AND a nothing-usable mapping (`actual: { note: "tbd" }`) in one commit: zero
+  observations, sha still marked projected, EXACTLY the two expected warning strings in
+  order; a fresh sensor over the same repo reproduces the identical list (determinism);
+  a re-sync warns nothing.
+- `test_null_or_absent_cost_yields_no_observation_and_no_warning` — `null` and absent are
+  silent by design (the §6(f) distinction).
+
+Interpreter ratchet: fired red as designed on the source change; **re-pinned at 1.0.0**
+(`6a5a7534…`) — a DECLARED REFACTOR, not a worldview bump: the projection map is
+byte-identical (unparseable non-null yielded no observation before and after; only
+report-side diagnostics were added; batch content hashes untouched). Decision recorded in
+the `INTERPRETERS` comment.
+
+Gate legs (per the orchestrator's instruction — full suite deliberately NOT re-run; the
+prior 954/8/0 run stands, sibling gate in progress):
+- `pytest -q tests/unit/test_self_sensor.py tests/unit/test_agent_observations.py
+  tests/unit/test_interpreter_versions.py` → **41 passed**.
+- `ruff check .` → All checks passed.
+- `mypy core agents eval ops scheduler scripts` → clean, 173 files.
+- `mypy` (argless) → tail `Found 69 errors in 20 files (checked 344 source files)` —
+  baseline held.
+
 ## 2026-07-12 — GATE GREEN, session end (builder → orchestrator handoff)
 
 Full gate swept, all five legs green:
