@@ -269,3 +269,64 @@ references:
   - docs/brainstorms/edge-dynamics-and-continuum.md # the existing edge-math brainstorm home
   - docs/design-notes/recursive-strata-amendment.md # γ^d, edge_budget, fibers vs dispositional
 ```
+
+## 2026-07-13T05:29:30Z (captured — pushing Thread B: the bicomplex cracks, modes 1&2 unify, they meet)
+
+> Still opus first-sketch, PROVISIONAL; fable-guard on graduation stands. But two real steps.
+
+```capsule
+topic: core-query-protocol (Thread B, pushed)
+date: 2026-07-13
+
+bicomplex_test_result_it_reduces_to_functoriality:
+  - δ_D² = 0 is FREE. Supersession is time-directional ⇒ acyclic ⇒ a strict PARTIAL ORDER;
+    its NERVE (order complex) is a bona fide simplicial complex, so its coboundary squares to
+    zero by construction. (Forks/merges = a DAG poset, still fine; only a cycle would break
+    it, and time forbids cycles.) So half the bicomplex condition holds automatically.
+  - The REAL condition d·δ_D = ±δ_D·d ⟺ δ_D is a CHAIN MAP on the citation complex ⟺
+    SUPERSESSION IS FUNCTORIAL OVER CITATIONS: "when a note is revised, do its citations carry
+    forward coherently to the successor?" Reformulation: "is it a bicomplex?" = "is
+    supersession a morphism of the citation geometry, not just a relation on vertices?"
+  - The OBSTRUCTION [d, δ_D] = d δ_D − δ_D d is a 2-form-valued quantity measuring
+    supersession's failure to preserve citations — CURVATURE-LIKE (the commutator of two
+    differentials/connections is the standard curvature object; hedged, but it ties to the
+    curvature instruments edge-dynamics.md already carries as diagnostic). Flat ⟺ bicomplex.
+  - It is MEASURABLE, and the test NEEDS the doc→doc edges: for each supersession edge P→P',
+    compare P's out-citations to P''s out-citations under the note-correspondence → a
+    citation-coherence score; the mean is supersession's "flatness." Cannot even be computed
+    until corpus→corpus (citation) edges exist — so finding-0059's reference-graph gap ALSO
+    blocks the math test. Closure: the reference extractor is a prerequisite for Thread B.
+
+unifying_modes_1_and_2_the_kernel_cone:
+  - Mode 1 bifurcates: (1a) HARD reachability = Boolean/tropical PATH algebra over A_F (not a
+    kernel); (1b) SOFT diffusion = the graph HEAT KERNEL e^{-t L₀^F} or Green's function
+    (L₀^F)^+ — a PSD kernel on nodes.
+  - Mode 2 = the embedding GRAM matrix K_sem — also a PSD kernel on nodes.
+  - So (1b) and (2) are TWO POINTS IN THE SAME CONE: the cone of PSD kernels on V, an algebra
+    closed under + , convex mixing, and Hadamard ⊙ (Schur product theorem). Retrieval =
+    "choose a kernel K, query K(s,·)." Hybrid = K_struct ⊕ K_sem (union) or K_struct ⊙ K_sem
+    (= "cited AND semantically near"). This is exactly how graph-RAG hybrids already work.
+  - So modes 1(soft) & 2 UNIFY in the kernel cone; mode-1(hard) stays the discrete semiring
+    twin. Mode 3 does NOT fit the static-kernel picture — it is the TEMPORAL TRANSPORT that
+    acts BETWEEN kernels at different times.
+
+the_synthesis_2_plus_1:
+  - Static layer: two retrieval kernels in one cone (structural-diffusion + semantic), mixed
+    by ⊕ / ⊙. Temporal layer: one transport operator (mode 3) moving kernels across snapshots.
+  - The bicomplex/functoriality question IS "does the temporal transport move the STRUCTURAL
+    kernel coherently?" — i.e. curvature couples the two layers. One picture: a kernel cone
+    (space) + a connection (time) whose curvature = supersession's non-functoriality.
+
+open_questions_sharpened:
+  - Measure supersession flatness on the real corpus (needs doc→doc edges) — is [d,δ_D] ≈ 0?
+  - Does mode-1(hard) reachability have a soft limit that IS the diffusion kernel (semiring →
+    kernel as a deformation / zeta-function link)? If so modes 1a,1b,2 are one family.
+  - Is the temporal transport UNITARY / measure-preserving, or lossy (revision destroys
+    structure)? Determines whether mode 3 is reversible.
+
+parked:
+  - decision: rigorous version (proving δ_D chain-map conditions, choosing inner products,
+    the curvature formalism) graduates ONLY in an owner-opened fable session (guard unchanged).
+    default: HOLD; brainstorm carries the pushed sketch
+    re_entry: owner opens the fable design session
+```
