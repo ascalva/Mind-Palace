@@ -488,6 +488,69 @@ references:
   - dn-core-query-protocol (drafted) — the query algebra over the index; agents as scoped clients.
 ```
 
+## 2026-07-13T20:29:36Z (captured — the curated layer's FILESYSTEM form: reference_material/)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: docs/reference_material/ — a subdir per reference (one-or-many docs + a manifest); the ingest path
+
+owner_design (2026-07-13):
+  - Give the curated (objective) layer a filesystem home so a verified citation has an EASY PATH to
+    ingestion. Shape (owner-refined): `docs/reference_material/<ref-slug>/` — ONE SUBDIR PER
+    REFERENCE, holding ONE OR MANY docs (a reference is a bundle: paper + appendix + our excerpt +
+    our distillation; or a textbook + notes on the specific chapters we use), PLUS a MANIFEST file
+    encoding the metadata. Mirrors `docs/build-plans/bp-XXX/` (dir-per-unit + typed manifest).
+
+what_lives_there (the refinement that matters):
+  - The manifest + our VETTED DISTILLATIONS + citation metadata — NOT raw copyrighted PDFs (legal +
+    repo-bloat). The subdir holds what is legal (open-access PDFs, fair-use excerpts) and always our
+    own extraction of the load-bearing result. The raw source stays external (linked by identifier);
+    the LOCAL artifact is the distillation the sealed core reasons over offline. Invariant 11 holds:
+    acquisition (reading the source) is an outside-core human act; the committed card is objective,
+    offline, and NEVER contains mirror/private content (objective-about-the-world, not about-owner).
+
+the_manifest (v0 schema — PROVISIONAL, the fable-vet finalizes the kind fields):
+  - front-matter: id/slug; full citation; identifiers (doi/arxiv/isbn); verification {state:
+    asserted|verified|ingested, date, verdict}; authority (maps to w(d,a,c)'s `a`); load_bearing_for
+    (which corpus claim, path:section); cited_by (back-links); docs (the material files); provenance
+    (owner-curated | agent-proposed).
+  - The manifest IS the reference NODE's typed handle; φ_doc extracts its cited_by/back-links into
+    dialogue↔reference edges FOR FREE (bp-026 already parses docs/ front-matter). The card is the
+    node; the extractor makes the edges — the "easy path" made literal.
+
+why_it_is_the_ingest_path:
+  - Existing NOW: the moment a subdir+manifest exists in docs/, it is semantically searchable (it's
+    corpus) and φ_doc can extract its citation edges. So it's queryable IMMEDIATELY, even before any
+    formal kind-tagging.
+  - The `verified` → `ingested` maturity step (prior capsule) becomes concrete: `asserted` = a
+    citation in a note with no subdir; `verified` = web-checked (the literature pass); `ingested` = a
+    reference_material/ subdir exists with the distillation embedded. Creating the subdir IS ingestion.
+
+timing_split (discipline — do not pre-commit the taxonomy):
+  - SHELF NOW: creating docs/reference_material/ + manifests is just AUTHORING; harmless, useful
+    immediately, no taxonomy commitment. Seed = the 9 web-verified citations (demand-proven worklist,
+    already `verified`). First resident: moore-aronszajn-1950 (the citation the literature pass just
+    corrected — loop closed).
+  - POST-VET: the formal `reference`-KIND graph migration (tagging these distinct from `dialogue`/
+    `corpus`) + wiring φ_doc to treat the manifest as a `reference`-kind node — waits for the Jul-17
+    fable-vet, which owns the kind vocabulary + the verification-state + authority (w's `a`). Until
+    then the cards ingest as ordinary corpus (queryable, just not kind-distinguished). The manifest's
+    authority/verification fields ALIGN with what the vet formalizes — schema is v0 until then.
+
+near_term_buildable:
+  - Like the index-query surface, this is a NO-FABLE near-term win: a small plan seeds
+    reference_material/ with the 9 verified refs + writes the manifest template + (optionally) wires
+    φ_doc manifest-extraction. The kind-migration is the only fable-gated piece, and it's additive
+    (edge_id-stable, INSERT-OR-IGNORE — per the resume brief's finding-0065/0068 migration note).
+
+connections:
+  - bp-026 φ_doc (front-matter + wikilink + path:line extractor) — extends to manifest cited_by.
+  - dn-core-query-protocol §2.1/2.4 kind vocabulary (fable-vet) — owns the `reference` kind the
+    manifest instantiates; §1.3 Item 0 (external-grounding fold-in) decides the tagging.
+  - the verified-citations seed set (the 2026-07-13 literature pass, 7 CONFIRMED/2 PARTIAL).
+```
+
 ## 2026-07-13T18:38:04Z (captured — FIRST DOGFOOD of the verify-before-trust principle)
 
 ```capsule
