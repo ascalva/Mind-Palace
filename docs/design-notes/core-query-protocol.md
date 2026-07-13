@@ -107,9 +107,22 @@ one algebra"; §2.5's design consequences) are sound.
 4. **The Parked normalization triple** (cost dictionary, directedness, `(β,z)` coupling) —
    the fable pass was explicit: *nothing in §2.2 is theorem-grade until these are pinned.*
 5. **The Parked `§4.5` dichotomy** (promotion re-anchoring) and **one-note-vs-two**.
-6. **Literature verification** — the fable pass flagged its citations (RSP, Chebotarev,
-   p-resistances, Schoenberg, Sz.-Nagy, Maslov) as *from memory*; a 5-minute check is owed
-   before this note or a book chapter cites them as settled.
+6. **Literature verification — ✅ RESOLVED (web check, 2026-07-13; NOT a fable task).** The
+   fable pass flagged its citations as *from memory*; a sonnet+web pass verified all nine
+   against primary sources: **7 CONFIRMED · 2 PARTIAL · 0 REFUTED**. Confirmed as cited:
+   RSP/free-energy distances (Saerens–Yen–Fouss–Achbany 2009; two-limit **free-energy**
+   distance Kivimäki–Shimbo–Saerens 2013), Chebotarev forest metrics (2011, on the 1997
+   matrix-forest theorem), Schur product (Schur 1911), Schoenberg negative-type (1938 — year
+   correct), Sz.-Nagy dilation (1953), Maslov dequantization (Litvinov survey 2005), Quillen
+   superconnection (1985). **Two corrections applied/owed:** (a) **Mercer → Moore–Aronszajn
+   1950** — the general "every PSD kernel is an inner product" fact is the RKHS/Moore–Aronszajn
+   construction, *not* Mercer's theorem (compact-domain eigenfunction expansion); the §2.2 "Mercer
+   inversion" should read "Moore–Aronszajn inversion" (substantive — fixed inline at §2.2). (b)
+   **p-resistances** (Alamgir **&** von Luxburg — two authors, NIPS 2011): the span is
+   shortest-path (p=1) → resistance (p=2) → **cut/connectivity** (p→∞), not "resistance" at the
+   high end (minor — for the successor note / book chapter). This is the first dogfood of the
+   `external-grounding` "verify a citation before trusting it" principle — a real
+   confident-but-wrong attribution caught cheaply. The fable session no longer owns this item.
 7. **The balance-isolation reconciliation.** `core/stores/reference_edges.py` is
    **deliberately balance-isolated** — `core/complex/**` never imports it, `build_complex` has
    no parameter for it, and `tests/integration/test_reference_edge_isolation.py` proves
@@ -182,7 +195,9 @@ uses them):**
   mixing, and Hadamard `⊙` (Schur). Hybrid retrieval is *an operation in the cone*:
   `K_struct ⊙ K_sem` = "cited **and** semantically near." `[ESTABLISHED: Schur product.]`
 - **The correct taxonomy (the fable inversion):** since *every* PSD kernel is some
-  embedding's Gram (Mercer), **mode 2 is the generic point of the cone**; **mode 1b is its
+  embedding's Gram (**Moore–Aronszajn 1950** — the RKHS/feature-map fact; *not* Mercer,
+  whose theorem is the narrower compact-domain eigenfunction expansion — corrected per
+  §1.3 item 6), **mode 2 is the generic point of the cone**; **mode 1b is its
   thin graph-spectral locus** `𝔉(L) = {f(L)}`; **mode 1a is the tropical boundary** of a
   curve inside that locus. A learned embedding is **on the cone always, on the structural
   curve generically never** — unless it is (an ambient rotation of) a *spectral* embedding

@@ -488,6 +488,45 @@ references:
   - dn-core-query-protocol (drafted) — the query algebra over the index; agents as scoped clients.
 ```
 
+## 2026-07-13T18:38:04Z (captured — FIRST DOGFOOD of the verify-before-trust principle)
+
+```capsule
+topic: external-grounding
+date: 2026-07-13
+thread: the principle paid off on its first real test — a confident-but-wrong citation, caught cheaply
+
+what_happened:
+  - The dn-core-query-protocol note (opus-drafted) cited "every PSD kernel is some embedding's Gram
+    (Mercer)". A cheap sonnet+web verification pass (§1.3 item 6; 9 citations, 30k tokens) found
+    this is a SUBSTANTIVE MISATTRIBUTION: the general RKHS/feature-map fact is Moore–Aronszajn
+    (1950), NOT Mercer (whose theorem is the narrower compact-domain eigenfunction expansion).
+    Corrected inline. Also a minor fix (p-resistances: two authors; p→∞ limit is cut/connectivity,
+    not resistance). Net: 7 CONFIRMED / 2 PARTIAL / 0 REFUTED across the note's load-bearing refs.
+  - This is EXACTLY the failure mode the arc predicted: LLM-authored citations are confident and
+    plausible and sometimes wrong; "we are relying on the fact that those references are accurate"
+    (owner). The `asserted` → `verified` maturity step is not bureaucratic — it caught a real error
+    on the very first note it was applied to.
+
+what_it_validates:
+  - Citation-as-warrant NEEDS the verification gate — an unverified citation edge is a candidate,
+    not a fact. Confirmed empirically, not just argued.
+  - Verification is CHEAP and non-fable: a bounded web pass (sonnet, ~30k tok) verified 9 named
+    results against primary sources. Objective knowledge is vettable BY DEFINITION (does the source
+    exist / say what we claim), which is what makes the curated strata curatable — and it does NOT
+    need the top tier. Only the reasoning (w(d,a,c), the boundary ruling) needs fable; the FACT-
+    CHECK is grunt work a cheap agent + search does well.
+  - Trust-inversion corollary confirmed: the LEAST reliable citations are the ones WE (the agent)
+    authored — precisely the ones the gate must verify hardest.
+
+process_note (tier discipline, same day):
+  - This verification ran BECAUSE fable was unavailable (weekly throttle, resets Jul 17; extra-usage
+    credits do NOT lift the fable tier for subagent model selection — every `model: fable` spawn
+    silently downgraded to opus, caught via the UI indicator, the agent's self-declaration being
+    unreliable). Rather than run the fable-grade §1.3 vet at opus (same tier that drafted the note),
+    we did the non-fable-dependent item (literature) now and parked the depth-items for the reset.
+    Lesson banked in the delegate skill.
+```
+
 ## 2026-07-13T18:16:15Z (captured — FABLE reasoning, tier-verified)
 
 ```capsule
