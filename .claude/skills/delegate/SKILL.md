@@ -38,6 +38,36 @@ Match the agent to the *complexity of verification*, not the line count:
 
 When unsure, size up — a wrong-sized cheap agent costs a rerun plus review time.
 
+## Delegating UP to fable — precision + tier-verification (field-tested 2026-07-13)
+
+The mirror of sizing down: some work genuinely needs the top tier — open math/formalism, a
+taxonomy or cross-plane design ruling, a falsifier only judgment can evaluate. Fable is **scarce**
+(a hard token budget), so spend it only where reasoning *depth* changes the answer, and squeeze
+every token:
+
+- **Scope surgically.** One precise question (or an ordered priority set), with EXACTLY the
+  context it needs pinned inline — name the files, the prior state, the exact deliverable. Do the
+  cheap scouting yourself (grep, read, frame the options) so fable spends only on the reasoning,
+  never on rediscovery. A wandering fable agent burns the scarcest tokens.
+- **Verify the tier was actually delivered** — a silent downgrade wastes the budget on non-fable
+  work wearing the fable label. Two signals:
+  1. **Honesty mandate in the prompt:** the agent declares its model in line 1 and MUST flag any
+     interruption / resume / degradation WITH where in the work it fell — never continue at a
+     lower tier under the fable label; stop cleanly if budget runs low and say where.
+  2. **Cross-check the completion notification** (the objective signal): the actual model + usage.
+     Implausibly low tokens for the depth, or a mismatched model, is the tell. Report the verdict
+     plainly (e.g. 2026-07-13: two fable workers, both verified `claude-fable-5`, no downgrade).
+- **Make the agent self-bound + trust-calibrated:** it returns the deliverable and STOPS on
+  completion (not burn budget), and labels every claim (`[GROUNDED]` cite path:line / `[DERIVED]`
+  / `[INFERENCE]` / `[ANALOGY]`) so you can trust-weight without re-deriving.
+- **Preserve the output.** Fable output is the most expensive artifact in the system; the
+  orchestrator (single-writer) captures it faithfully into the durable artifact (brainstorm /
+  finding / design note), not just the transcript. A fable pass that lives only in chat is
+  paid-for reasoning thrown away.
+
+Complements context-economy's tier rubric (which decides *which* tier); this is how to reach the
+scarce top tier without waste.
+
 ## Worktree mechanics
 
 - One builder per plan, each in its **own worktree** (`Agent` tool `isolation:
