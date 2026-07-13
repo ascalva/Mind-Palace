@@ -50,13 +50,27 @@ every token:
   cheap scouting yourself (grep, read, frame the options) so fable spends only on the reasoning,
   never on rediscovery. A wandering fable agent burns the scarcest tokens.
 - **Verify the tier was actually delivered** — a silent downgrade wastes the budget on non-fable
-  work wearing the fable label. Two signals:
-  1. **Honesty mandate in the prompt:** the agent declares its model in line 1 and MUST flag any
-     interruption / resume / degradation WITH where in the work it fell — never continue at a
-     lower tier under the fable label; stop cleanly if budget runs low and say where.
-  2. **Cross-check the completion notification** (the objective signal): the actual model + usage.
-     Implausibly low tokens for the depth, or a mismatched model, is the tell. Report the verdict
-     plainly (e.g. 2026-07-13: two fable workers, both verified `claude-fable-5`, no downgrade).
+  work wearing the fable label. **The agent's own self-declaration is NOT a valid check**
+  (field-proven 2026-07-13: two spawns both printed "claude-fable-5 — fable tier, confirmed" on
+  line 1 while the Claude Code UI showed **opus** — the agent echoes the model named in its
+  injected system prompt, it does not introspect the model actually executing it). Trust only the
+  two OBJECTIVE signals:
+  1. **The live UI model indicator** (the harness's actual routing) — check it in the first
+     moments of the run, before the worker gets deep. If it shows a lower tier than requested,
+     STOP the worker immediately (`TaskStop`); a downgraded worker burns budget on non-fable work.
+     The owner sees this indicator; ask them to read it for a background spawn.
+  2. **The completion notification's `<usage>`** (the harness's own accounting): the actual model
+     + token count. Implausibly low tokens for the depth, or a mismatched model, is the tell.
+  Keep the honesty mandate in the prompt anyway (flag interruption/resume/degradation, stop clean
+  if low) — it is a useful *secondary* signal, but it is defeated by a silent downgrade, so it
+  NEVER substitutes for the UI/usage check.
+  - **Fable availability is a WEEKLY time-throttle, not a spendable balance** (learned 2026-07-13):
+    once the weekly Fable cap is hit it resets on a fixed date (does not lift by buying extra-usage
+    credits — those fund opus/sonnet instead), and until then every `model: fable` spawn silently
+    falls back to the session model. When fable is capped, do the non-fable-dependent work now
+    (e.g. web literature checks, grounding) and PARK the reasoning-depth items for the reset — do
+    NOT run a fable-grade design/invariant vet at opus, which is usually the same tier that drafted
+    the artifact (no added depth).
 - **Make the agent self-bound + trust-calibrated:** it returns the deliverable and STOPS on
   completion (not burn budget), and labels every claim (`[GROUNDED]` cite path:line / `[DERIVED]`
   / `[INFERENCE]` / `[ANALOGY]`) so you can trust-weight without re-deriving.
