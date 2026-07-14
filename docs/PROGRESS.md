@@ -2992,3 +2992,34 @@ portable backstop):
   vocab (taste — extends `dn-edge-dynamics` §5) and **#3** covering-only `supersedes` as a checked
   A6-invariant (rec adopt, near-zero cost). Route onward (not lost in the frozen note).
 - No code touched; docs/blessing-flip commit only.
+
+## 2026-07-14 (cont.) — oq-0019 RULED (B: mint `id::`) + authored bp-034 (the id-mint migration, extreme rigor)
+
+- **Owner sided with (B)** on oq-0019 — mint a durable `id::` as the rename-stable identity (exact in
+  ALL cases incl. rename+edit, where A/C fork; idiomatic to Logseq; the "front-matter uuid"
+  `supersession-lifecycle.md:290` named first). Answer DRAFTED into oq-0019 at owner direction (status
+  left `open` for the owner's confirm-flip). **bp-031 is unchanged** — it's the superset-compatible
+  foundation; the mint is a separate follow-on.
+- **The owner's sharp question resolved:** "won't ingest see the re-minted note as an update, preserving
+  lineage?" — **half right.** The in-place mint IS detected as an amendment (`sync.py:89-113`), but
+  `versions` is append-only and keyed by `doc_id`, so the amendment `record()`s under the NEW resolved id
+  → `current(new_id)`=None → **seq 1 → fork** (`versions.py:88-94`). The digest change alone does NOT
+  carry lineage across the identity switch → an **explicit version/catalog re-key** (`doc_id: source_path
+  → minted id`) is the mandatory, load-bearing step.
+- **Authored `bp-034` — the id-mint migration** (`proposed`, `depends_on: bp-031`, warrant = oq-0019),
+  extreme rigor per owner request. Grounded findings that made it precise: the re-key surface is TINY —
+  ONLY `versions.doc_id` + catalog `doc_id` (the vector store self-heals, keyed by `(source_path,
+  chunk_hash)`; raw + `authored_supersession` are digest-keyed → no re-key). Shape mirrors
+  `purge.py`/`scripts/purge_raw.py`: **build the tool, don't run it** — owner-gated (`confirm=True`),
+  offline (daemon DOWN, deploy-coupled finding-0066), dry-runnable, idempotent (skip notes with existing
+  `id::`/YAML `id:` — so repo design-notes/findings are untouched), reversible (vault + store backups),
+  byte-preserving `id::` insertion. **Highest-blast plan to date** (first corpus write + first
+  append-only relabel) → opus/high. Items 13–16.
+- **Invariant touchpoint surfaced (owner rules at blessing):** `versions` is structurally append-only
+  ("no update/delete"); the re-key is a **relabel** (preserves `(seq, digest, at)`), precedented by
+  `catalog.relabel_provenance`, gated by the `authored_supersession` `OwnerDeclaration` capability — but
+  invariant-adjacent, so bp-034 §11/§10 park it for the owner's ruling at `proposed → ready`.
+- **Renumbering:** bp-034 = the mint migration; the diagnostic subcommand shifts to **bp-035**.
+- No code touched (docs-only). Next: build bp-031 (foundation) → then, when the owner is ready, bless +
+  run bp-034 (the deliberate, offline mint). bp-032/033 (temporal module) proceed in parallel to the
+  identity work once bp-031 lands.

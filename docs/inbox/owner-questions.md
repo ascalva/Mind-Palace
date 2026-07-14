@@ -540,7 +540,21 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   bp-031 §11; re-entry — owner rules here at `proposed → ready`, or a measured rename+edit frequency
   warrants escalating to (B) mint-into-vault (which makes it exact but requires an explicit vault-write
   grant).
-- answer:
+- answer: **(B) — mint a stable `id::` into each note as the durable identity (owner ruling,
+  2026-07-14).** _[ORCHESTRATOR DRAFT at owner direction; owner confirms by flipping `status: open →
+  answered`.]_ Rationale: B is the only mechanism exact in **all** cases, including rename+edit (A/C fork
+  there); it is idiomatic to Logseq (`id::` is native); and it is the "front-matter uuid"
+  `supersession-lifecycle.md:290` named first. The cost — a deliberate, one-time write into the authored
+  corpus — is accepted as an owner-gated operation. **Sequencing (nothing blessed changes):** bp-031 stays
+  the foundation, unchanged — Item 1 decouples `doc_id`; Item 2 resolves `doc_id` from an existing `id::`
+  when present (content-match belt-and-suspenders for not-yet-minted notes) — a superset-compatible base
+  for B. The mint is a **separate owner-gated migration plan (bp-034, `depends_on: bp-031`)** whose
+  load-bearing step is the **version/catalog re-key** (`UPDATE … SET doc_id = <minted id> WHERE doc_id =
+  source_path`): the digest change alone does NOT preserve lineage across the identity switch — the version
+  store is append-only and keyed by `doc_id`, so resolving from the new id without a re-key forks at the
+  transition. The migration is dry-runnable on a copy, idempotent, reversible, and triggers a one-time
+  corpus-wide "id added" amendment (one new version per note); it is RUN deliberately by the owner (the
+  purge/deploy pattern), never in a build session.
 
 ---
 
@@ -557,7 +571,7 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
 - default_if_unanswered: adopt — near-zero cost, keeps the skeleton clean, and the check is a small
   additive validator. Parks as `dn-magnetic-laplacian` decision 3; re-entry — owner rules here, or a
   transitive-shortcut supersession is observed in the corpus and forces the question.
-- answer:
+- answer: adopt
 
 ---
 
