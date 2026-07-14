@@ -4,9 +4,16 @@
 # INVARIANT: append-only; version identity = (doc_id, monotonic version_seq), NOT content digest
 #            (C1: a revert stays linear, no cycle); the balance math cannot read this store (C2:
 #            version history never enters the signed-edge projection — there is no code handle).
-# ENFORCED:  structural — append + reads only (no update/delete); a store distinct from EdgeStore,
-#            so no consumer of the signed graph (build_complex takes an EdgeStore, not this) can
-#            reach a version row. Ordering is by version_seq, never by walking edges (§4A).
+# ENFORCED:  structural — append + reads only (no update/delete) on every machine/runtime path; a
+#            store distinct from EdgeStore, so no consumer of the signed graph (build_complex takes
+#            an EdgeStore, not this) can reach a version row. Ordering is by version_seq, never by
+#            walking edges (§4A). ONE owner-gated exception (bp-034; oq-0019 B; §11 ruling
+#            2026-07-14): migrate_rekey_doc_id RELABELS doc_id — an identity migration
+#            (source_path → minted id::), never a history rewrite: every row's
+#            (version_seq, digest, at) is preserved byte-for-byte, chain merges are refused,
+#            old==new / no-rows are no-ops, and the write requires a verified OwnerDeclaration
+#            (authored_supersession's capability) — a machine caller is refused at this boundary.
+#            The label moves; the sequence, contents, and order never do.
 """Append-only note-version history (ingest-identity-and-amendment.md §4A; build plan Item 6).
 
 A note edited over time is a sequence of VERSIONS, and "v2 supersedes v1" is a PRIMARY provenance
@@ -26,6 +33,14 @@ HERE, not in the `EdgeStore`, for two reasons the shipped implementation got wro
 Append-only: each version is one row, `version_seq` monotonic per `doc_id`. The current version is
 `max(version_seq)`; supersession is the consecutive-seq relation — both DERIVED from the ordered
 sequence, never from edge topology (§4A Ordering authority). Zone A, no network.
+
+One owner-gated identity migration is admitted (bp-034; §11 ruling 2026-07-14):
+`migrate_rekey_doc_id` relabels which `doc_id` a chain is filed under — needed exactly once per
+identity switch (the id:: mint) so the switch does not FORK lineage, which is the outcome
+append-only exists to prevent. `doc_id` is the RESOLVED identity label (provisional
+`== source_path` until diverged — see the DDL note), not historical content: the relabel preserves
+every row's (version_seq, digest, at) exactly, refuses to merge two chains, and is fail-closed on
+owner authority. Runtime paths remain append + reads only.
 """
 
 from __future__ import annotations
@@ -36,6 +51,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from config.loader import Config
+from core.stores.authored_supersession import OwnerDeclaration, verify_owner_declaration
+
+
+class RekeyRefusedError(RuntimeError):
+    """An owner-gated `doc_id` re-key was refused by a safety gate — a bad/empty key, or a request
+    that would MERGE two live lineages onto one id (`old` and `new` both hold rows). The
+    `PurgeRefusedError` pattern: fail-closed, named, never a silent merge or partial write. Owner
+    authority is refused separately, via `MachineAuthorityRefused` at the same boundary."""
 
 
 def _utcnow() -> str:
@@ -105,6 +128,39 @@ class VersionStore:
         ordered sequence (never from edge topology, §4A Ordering authority)."""
         seqs = [v.version_seq for v in self.history(doc_id)]
         return list(zip(seqs, seqs[1:], strict=False))
+
+    def migrate_rekey_doc_id(self, old: str, new: str, *, declaration: OwnerDeclaration) -> int:
+        """Owner-gated identity migration: relabel a chain's `doc_id` from `old` to `new`, keeping
+        every row's `(version_seq, digest, at)` byte-for-byte (bp-034; §11 ruling 2026-07-14). A
+        RELABEL, never a history rewrite — the label moves, the sequence/contents/order never do;
+        the ONE admitted write to this append-only store, needed once per id:: mint so an identity
+        switch does not fork lineage. Returns rows relabeled.
+
+        Fail-closed on owner authority (`verify_owner_declaration` — a machine caller refused here).
+        CHECK ORDER matters — the no-op cases are decided BEFORE the merge refusal, so a partial run
+        (the note re-keyed but interrupted before the next store) converges on re-run instead of
+        raising:
+          (i)   old == new                 → no-op (0): nothing to relabel.
+          (ii)  old holds NO rows          → no-op (0): nothing to move — this is what makes a
+                                             re-run of an already-migrated chain converge.
+          (iii) old AND new both hold rows → REFUSE (RekeyRefusedError): never merge two lineages.
+          (iv)  else                       → relabel (one UPDATE, one statement, one txn)."""
+        verify_owner_declaration(declaration)                 # (1) owner authority, fail-closed
+        if not old or not new:                                # (4) input sanity
+            raise RekeyRefusedError("re-key refused: empty doc_id (old/new must be non-empty)")
+        if old == new:                                        # (i) no-op
+            return 0
+        if self.current(old) is None:                         # (ii) old empty → no-op (converge)
+            return 0
+        if self.current(new) is not None:                     # (iii) both populated → REFUSE
+            raise RekeyRefusedError(
+                f"re-key refused: doc_id {new!r} already holds a version chain — relabeling "
+                f"{old!r} onto it would MERGE two lineages. Append-only history is never merged."
+            )
+        cur = self._conn.execute(                             # (iv) relabel — the ONLY UPDATE
+            "UPDATE versions SET doc_id = ? WHERE doc_id = ?", [new, old])
+        self._conn.commit()
+        return cur.rowcount
 
     def count(self) -> int:
         row = self._conn.execute("SELECT count(*) FROM versions").fetchone()

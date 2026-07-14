@@ -77,6 +77,26 @@ def owner_declaration() -> OwnerDeclaration:
     return OwnerDeclaration(_OWNER_TOKEN)
 
 
+def verify_owner_declaration(declaration: object) -> None:
+    """Raise `MachineAuthorityRefused` unless `declaration` is a valid owner-authority token.
+
+    The ONE owner-capability check, factored out of `record()` so a second boundary — the
+    owner-gated `doc_id` re-key primitives (`versions.migrate_rekey_doc_id`,
+    `catalog.migrate_rekey_doc_id`; bp-034, §11 ruling 2026-07-14) — reuses this exact structural
+    verification instead of minting a second owner token. There is ONE owner-capability system-wide
+    and it lives here. Verifies not just the type (`isinstance`) but the guarded token identity —
+    `getattr(..., "_token", None)` defends against a bypass-constructed
+    `object.__new__(OwnerDeclaration)` — so a machine/model/scheduler/dreamer caller is refused at
+    the store boundary regardless of how the value was produced (fail-closed)."""
+    if not (isinstance(declaration, OwnerDeclaration)
+            and getattr(declaration, "_token", None) is _OWNER_TOKEN):
+        raise MachineAuthorityRefused(
+            "owner authority refused: no valid OwnerDeclaration. This is an owner-gated boundary — "
+            "mint via owner_declaration() from an owner-operated entry point; a "
+            "machine/model/scheduler/dreamer caller (or a forged object) is rejected here."
+        )
+
+
 def _utcnow() -> str:
     return datetime.now(UTC).replace(tzinfo=None).isoformat(timespec="seconds")
 
@@ -125,15 +145,17 @@ class AuthoredSupersessionStore:
         gate as a dreamer-proposed candidate, never here."""
         # Verify authority at THIS boundary — not just the type (isinstance) but the guarded token
         # itself (getattr defends against a bypass-constructed `object.__new__(OwnerDeclaration)`),
-        # so the store refuses machine authority regardless of how the value was produced.
-        if not (isinstance(declaration, OwnerDeclaration)
-                and getattr(declaration, "_token", None) is _OWNER_TOKEN):
+        # so the store refuses machine authority regardless of how the value was produced. The same
+        # check the re-key primitives reuse (bp-034), factored into `verify_owner_declaration`.
+        try:
+            verify_owner_declaration(declaration)
+        except MachineAuthorityRefused as e:
             raise MachineAuthorityRefused(
                 "supersession refused: no valid OwnerDeclaration. This store is "
                 "owner-declared ONLY — a machine/scheduler/dreamer caller is rejected at "
                 "this boundary. Route a machine candidate through the blessing gate as a "
                 "dreamer-proposed candidate (supersession-lifecycle.md §3), not here."
-            )
+            ) from e
         rec = AuthoredSupersession(superseded=superseded, superseding=superseding,
                                    at=_utcnow(), note=note)
         self._conn.execute("INSERT OR REPLACE INTO authored_supersessions VALUES (?, ?, ?, ?)",

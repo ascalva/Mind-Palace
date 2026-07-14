@@ -27,6 +27,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from core.provenance import Provenance
+from core.stores.authored_supersession import OwnerDeclaration, verify_owner_declaration
+from core.stores.versions import RekeyRefusedError
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS vault_files (
@@ -175,6 +177,39 @@ class VaultCatalog:
         )
         self._conn.commit()
         return cur.rowcount
+
+    def migrate_rekey_doc_id(self, source_path: str, new_doc_id: str, *,
+                             declaration: OwnerDeclaration) -> None:
+        """Owner-gated identity migration (the catalog twin of `versions.migrate_rekey_doc_id`;
+        bp-034, §11 ruling 2026-07-14): rebind a note's resolved `doc_id` to `new_doc_id`, keyed by
+        the UNCHANGED PK `source_path` (the in-place id:: mint never moves the path). Same owner-
+        authority gate — this marks the write as a deliberate migration, not the runtime `record`
+        path, even though the catalog is not append-only.
+
+        Fail-closed. `doc_id` carries NO unique index, so this method is the ONLY guard against a
+        resolution-level lineage merge: it REFUSES if any OTHER row already resolves to `new_doc_id`
+        (guardrail 5). Idempotent — a row already at `new_doc_id` (a re-run) is a no-op; an unknown
+        `source_path` matches 0 rows and is a silent no-op."""
+        verify_owner_declaration(declaration)                        # owner authority, fail-closed
+        if not source_path or not new_doc_id:                        # input sanity
+            raise RekeyRefusedError(
+                "catalog re-key refused: empty source_path/new_doc_id (both must be non-empty)")
+        if self.doc_id_for(source_path) == new_doc_id:               # already migrated → no-op
+            return
+        clash = self._conn.execute(                                  # guardrail 5: no id merge
+            "SELECT count(*) FROM vault_files WHERE doc_id = ? AND source_path != ?",
+            [new_doc_id, source_path],
+        ).fetchone()
+        if clash and int(clash[0]) > 0:
+            raise RekeyRefusedError(
+                f"catalog re-key refused: doc_id {new_doc_id!r} is already resolved by another "
+                "note — rebinding this path onto it would MERGE two identities at resolution."
+            )
+        self._conn.execute(
+            "UPDATE vault_files SET doc_id = ?, updated_at = ? WHERE source_path = ?",
+            [new_doc_id, _utcnow(), source_path],
+        )
+        self._conn.commit()
 
     def remove(self, source_path: str) -> None:
         """Delete the catalog row entirely (used by the gated purge after raw removal)."""
