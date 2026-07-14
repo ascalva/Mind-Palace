@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-030
-status: in-progress
+status: complete
 design_ref:
   - docs/brainstorms/lifecycle-cli-overhaul.md
 contract: builder
@@ -15,6 +15,7 @@ write_scope:
   - tests/integration/test_lifecycle.py
   - tests/integration/test_lifecycle_control.py
   - tests/integration/test_status_report.py
+  - tests/unit/test_monitor_server.py
 session_budget: 1
 cost:
   estimate:
@@ -25,6 +26,7 @@ depends_on: []
 parallelizable_with: []
 created: 2026-07-13
 updated: 2026-07-14
+completed: 2026-07-14
 links:
   - docs/brainstorms/lifecycle-cli-overhaul.md
   - docs/findings/finding-0066.md
@@ -89,8 +91,10 @@ Read whole, in order:
 
 Front-matter: `scripts/palace.py` (subcommand mounts), `ops/lifecycle/launcher.py` (down/up/restart
 methods + status enrichment + drop the monitor spawn), `config/{loader,defaults}` (remove
-`MonitorConfig`/`[monitor]`), `edge/monitor/**` + `scripts/monitor.py` (delete), and the three test
-files. **Deliberately OUT of scope:** `ops/lifecycle/snapshot.py` (KEPT unchanged — reused) and
+`MonitorConfig`/`[monitor]`), `edge/monitor/**` + `scripts/monitor.py` (delete), and the four test
+files (`test_lifecycle{,_control}.py`, `test_status_report.py`, and `test_monitor_server.py` — the
+last added by owner grant 2026-07-14 per finding-0075, deleted with the monitor it covered).
+**Deliberately OUT of scope:** `ops/lifecycle/snapshot.py` (KEPT unchanged — reused) and
 `ops/lifecycle/children.py` + `test_children.py` (KEPT dormant); the plist itself (the install/bootout
 commands are read, not rewritten); the diagnostic (bp-031); every store, design note, and the
 denylist.

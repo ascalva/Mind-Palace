@@ -123,21 +123,6 @@ class AmbassadorConfig:
 
 
 @dataclass(frozen=True)
-class MonitorConfig:
-    """The edge monitor — a small dashboard + chat surface over Tailscale (Zone B). A SEPARATE
-    process palace supervises; it reads the core-emitted status snapshot and relays chat over the
-    interface handoff, never importing core (Invariant 2). OFF by default; bind `host` to the
-    Tailscale IP (not 0.0.0.0) so the tailnet is the auth boundary, same as the note-sync setup.
-    `status_path` is where the launcher writes the metadata snapshot the dashboard renders."""
-
-    enabled: bool = False
-    host: str = "127.0.0.1"
-    port: int = 8787
-    status_path: Path = Path("data/monitor/status.json")
-    request_timeout_s: float = 30.0
-
-
-@dataclass(frozen=True)
 class EffectorsConfig:
     """Track G effector surface (docs/design-notes/hands-and-the-effector-layer.md). Fail-closed
     twice over: `enabled` off refuses to build either side of the handoff, and an empty
@@ -282,7 +267,6 @@ class Config:
     models: tuple[ModelConfig, ...]
     # Default keeps direct Config(...) construction (e.g. in tests) working without this section.
     ambassador: AmbassadorConfig = field(default_factory=AmbassadorConfig)
-    monitor: MonitorConfig = field(default_factory=MonitorConfig)
     attestation: AttestationConfig = field(default_factory=AttestationConfig)
     secrets: SecretsConfig = field(default_factory=SecretsConfig)
     backup: BackupConfig = field(default_factory=BackupConfig)
@@ -334,7 +318,6 @@ def load_config(path: Path | None = None) -> Config:
     itf, dr, rnd = raw["interface"], raw["dreaming"], raw["dream_rnd"]
     al, at = raw["airlock"], raw.get("attestation", {})
     amb = raw.get("ambassador", {})
-    mon = raw.get("monitor", {})
     sec = raw.get("secrets", {})
     bak = raw.get("backup", {})
     sm = raw.get("selfmod", {})
@@ -423,13 +406,6 @@ def load_config(path: Path | None = None) -> Config:
             retrieval_k=int(amb.get("retrieval_k", 5)),
             history_max_turns=int(amb.get("history_max_turns", 6)),
             interruption_sensitivity=str(amb.get("interruption_sensitivity", "earned_only")),
-        ),
-        monitor=MonitorConfig(
-            enabled=bool(mon.get("enabled", False)),
-            host=str(mon.get("host", "127.0.0.1")),
-            port=int(mon.get("port", 8787)),
-            status_path=_resolve(mon.get("status_path", "data/monitor/status.json")),
-            request_timeout_s=float(mon.get("request_timeout_s", 30.0)),
         ),
         attestation=AttestationConfig(
             enabled=bool(at.get("enabled", False)),

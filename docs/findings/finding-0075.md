@@ -1,7 +1,7 @@
 ---
 type: finding
 id: finding-0075
-status: open
+status: resolved
 created: 2026-07-14
 updated: 2026-07-14
 links:
@@ -52,9 +52,15 @@ are in scope; but deleting `edge/monitor/**` without also deleting `test_monitor
 the suite, so Item 2 cannot be *completed green* until the path is added. Items 1 and 3 are
 unaffected and proceed independently.
 
-## Resolution (pending)
+## Resolution (RESOLVED 2026-07-14)
 
-Owner hand-adds `tests/unit/test_monitor_server.py` to bp-030's `write_scope` (the finding-0071/0072
-pattern). Then Item 2 completes green. **Standing-fix amendment:** the /graduate test-path check
-(owed since 0071) must cover not just the §7 acceptance tests a plan ADDS, but also EXISTING tests
-that cover code a plan DELETES — a removal orphans its coverage exactly as an addition needs its own.
+Owner granted the write_scope correction in-session — `tests/unit/test_monitor_server.py` added to
+bp-030's `write_scope` (recorded in plan front-matter with the grant note). Item 2 then deleted the
+monitor + that orphaned test together and completed green (5-leg gate). Followed the finding-0071/0072
+pattern exactly: the orchestrator did NOT silently expand its own capability — it parked Item 2, filed
+this finding, and proceeded only on the explicit owner grant.
+
+**Standing-fix amendment (still owed, carry to /triage):** the /graduate test-path check (owed since
+0071) must cover not just the §7 acceptance tests a plan ADDS, but also EXISTING tests that cover code
+a plan DELETES — a removal orphans its coverage exactly as an addition needs its own. This is the THIRD
+recurrence (0071/0072/0075); the check should land as a graduate-skill amendment.

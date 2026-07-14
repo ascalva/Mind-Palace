@@ -260,6 +260,19 @@ def test_reset_refused_while_a_run_is_live(tmp_path):
     assert launcher.reset(confirm=True) == 1                       # refused — stop first
 
 
+def test_dead_edge_monitor_is_removed(tmp_path):
+    """bp-030 Item 2 — the dormant edge monitor is gone end-to-end: no `MonitorConfig`, no
+    `Config.monitor`, and `load_config()` still succeeds with no `[monitor]` section. Its data
+    source `build_status` is RETAINED (Item 3 uses it); `children.py` stays importable (dormant)."""
+    import config.loader as loader
+    assert not hasattr(loader, "MonitorConfig")
+    cfg = _cfg(tmp_path)
+    assert not hasattr(cfg, "monitor")
+    from ops.lifecycle.children import Child  # KEPT dormant — must still import
+    from ops.lifecycle.snapshot import build_status  # RETAINED — must still import
+    assert build_status is not None and Child is not None
+
+
 def test_stop_with_no_active_run(tmp_path):
     launcher = Launcher(cfg=_cfg(tmp_path), runs=RunLedger(tmp_path / "runs.sqlite"),
                         repo_root=Path(".").resolve())

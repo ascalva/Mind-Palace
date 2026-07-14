@@ -117,19 +117,6 @@ retrieval_k = 5
 history_max_turns = 6
 interruption_sensitivity = "earned_only"
 
-[monitor]
-# The edge monitor — a small dashboard + chat surface palace supervises as a SEPARATE process
-# (network-facing → cannot share the sealed core, Invariant 2). It renders a core-emitted status
-# snapshot and relays chat over the interface handoff; it never imports core or reads a store.
-# OFF by default. To reach it from your phone, bind `host` to this machine's TAILSCALE IP (100.x)
-# — NOT 0.0.0.0 — so only tailnet devices can connect (the tailnet is the auth boundary, exactly
-# like the note-sync setup). 127.0.0.1 = local-only.
-enabled = false
-host = "127.0.0.1"
-port = 8787
-status_path = "data/monitor/status.json"   # where the launcher writes the metadata snapshot
-request_timeout_s = 30.0                    # how long a chat POST waits for the core's reply
-
 [effectors]
 # Track G — the hands / effector layer (docs/design-notes/hands-and-the-effector-layer.md).
 # SENSING-ONLY

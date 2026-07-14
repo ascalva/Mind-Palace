@@ -113,3 +113,45 @@ write_scope is owner-gated — standing rule). Re-entry condition: that grant la
 monitor-path `write_status` call (launcher.py `build_components` :236-253 + the `snapshot=` wiring).
 Do Item 2's deletion LAST so the suite never reds mid-build. `build_status`/`children.py`/`test_children.py`
 SURVIVE (KEEP). Plan stays `in-progress` until Item 2 lands — this session commits Items 1 & 3 only.
+
+## 2026-07-14 — Item 2 BUILT (owner granted finding-0075) — bp-030 COMPLETE
+
+**Owner granted the finding-0075 write_scope correction in-session** (AskUserQuestion). Added
+`tests/unit/test_monitor_server.py` to `write_scope` (plan front-matter, with the grant note);
+finding-0075 → **resolved**. Then built Item 2.
+
+**§10 stop-and-raise check:** a full grep (`edge.monitor` / `MonitorConfig` / `cfg.monitor` /
+`scripts/monitor`) over core/agents/eval/ops/scheduler/scripts/config/edge/tests found ONLY
+monitor-internal references — **no non-monitor importer**, so the deletion is safe (as the prior
+blast-radius analysis predicted).
+
+**Removed (Item 2):**
+- Files (`git rm`): `edge/monitor/{__init__,page,server}.py` (+ empty dir removed), `scripts/monitor.py`,
+  `tests/unit/test_monitor_server.py`.
+- `config/loader.py`: the `MonitorConfig` dataclass, the `Config.monitor` field, the `mon =
+  raw.get("monitor")` binding, and the `monitor=MonitorConfig(...)` construction in `load_config`.
+- `config/defaults.toml`: the `[monitor]` section.
+- `ops/lifecycle/launcher.py` `build_components`: the whole edge-monitor block — the `write_snapshot`
+  closure (+ its `write_status`/`build_status`/`OpsView`/`DreamsView`/`open_*` local imports and the
+  `ops_view`/`dreams_view` it built) and the `if cfg.monitor.enabled:` child spawn; the return no
+  longer passes `children=`/`snapshot=`.
+
+**KEPT (as pinned):** `ops/lifecycle/snapshot.py` UNCHANGED (out of write_scope; `build_status`
+retained, now feeds `status` via Item 3; `write_status` stays for the future dashboard redo).
+`ops/lifecycle/children.py` + `tests/unit/test_children.py` dormant. The `Components.children` /
+`.snapshot` fields KEPT (defaults: empty list / no-op) — the dormant seam a future dashboard re-wires;
+their comments updated to say so. `tests/integration/test_monitor_snapshot.py` untouched (imports
+`edge.interface` + the retained snapshot, never `edge.monitor` — survives; only its NAME is cosmetically
+stale, noted in finding-0075 for a later cleanup).
+
+**Falsifier held:** no dangling `edge.monitor`/`cfg.monitor` import (grep = NONE; mypy typed = 0);
+`build_status`/`children.py` both still import (asserted in the new test). New test
+`test_dead_edge_monitor_is_removed` in `test_lifecycle.py`: no `MonitorConfig`, no `.monitor` on cfg,
+`build_status`+`Child` still importable. Verified live: `load_config()` succeeds, `build_components`
+imports clean.
+
+**Gate (5-leg) after Item 2: GREEN.** ruff clean · `mypy core agents eval ops scheduler scripts` = 0
+(184 files — `scripts/monitor.py` gone) · argless `mypy` = **69** · `ops.type_gate` OK · `pytest` =
+**1106 passed, 8 skipped, 0 failed** (10m07s — the 2 live e2e tests that flaked on the loaded box in
+the Items-1&3 run both PASS now; no monitor tests remain to red the suite). bp-030 is **COMPLETE** —
+all three items landed; status flipped `in-progress → complete` (orchestrator non-blessing flip).

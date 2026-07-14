@@ -136,9 +136,10 @@ class Components:
     enqueue_catchup: Callable[[], None] = lambda: None     # reconcile corpus on start
     enqueue_housekeeping: Callable[[], None] = lambda: None  # dream + curate pass
     health_check: Callable[[], list[Flag]] = lambda: []    # OS-health sense (returns crossed flags)
-    # The thin-master/child model: separate processes palace spawns + drains (the edge monitor).
+    # The thin-master/child model: separate processes palace spawns + drains. DORMANT since the
+    # edge monitor was removed (bp-030 Item 2) — kept as the seam a future dashboard redo re-wires.
     children: list[ChildLike] = field(default_factory=list)
-    # Write the metadata snapshot the edge monitor renders (no-op when [monitor] is off).
+    # Periodic status-snapshot hook (its only consumer, the edge monitor, is gone — DORMANT no-op).
     snapshot: Callable[[object, list[Flag]], None] = lambda _run, _flags: None
 
 
@@ -220,42 +221,16 @@ def build_components(cfg: Config) -> Components:
     def _catchup() -> None:
         enqueue_vault_sync(queue, router)   # reconcile the corpus; the Job return is discarded
 
-    # The edge-monitor snapshot (Invariant 2): read-only views over the same stores → a metadata
-    # JSON the networked monitor renders. Built whether or not the monitor runs (cheap); the writer
-    # is a no-op target unless [monitor] is enabled.
-    from core.attestation.store import open_attestation_store
-    from core.dreams_view import DreamsView
-    from core.ops_view import OpsView
-    from core.stores.derived import open_derived_store
-    from ops.ledger import open_ledger
-    from ops.lifecycle.snapshot import build_status, write_status
-
-    ops_view = OpsView.over(open_attestation_store(cfg), open_ledger(cfg))
-    dreams_view = DreamsView.over(open_derived_store(cfg))
-
-    def write_snapshot(run: object, flags: list[Flag]) -> None:
-        mem_gb = round(psutil.virtual_memory().available / (1024 ** 3), 2)
-        data = build_status(ops_view=ops_view, dreams_view=dreams_view, queue_depth=queue.depth(),
-                            run=run, mem_available_gb=mem_gb, flags=flags)
-        write_status(cfg.monitor.status_path, data)
-
-    # Network-facing components run as supervised child PROCESSES (Invariant 2): the edge monitor.
-    children: list[ChildLike] = []
-    if cfg.monitor.enabled:
-        import sys
-
-        from config.loader import REPO_ROOT
-        from ops.lifecycle.children import Child
-        children.append(Child("monitor",
-                              [sys.executable, str(REPO_ROOT / "scripts" / "monitor.py")]))
-
+    # The edge monitor (a supervised child PROCESS fed by a status-snapshot JSON, Invariant 2) was
+    # removed with bp-030 Item 2 — it never worked and was `enabled=false`. Its data source
+    # (`snapshot.build_status`) is retained and now feeds `status` directly (Item 3); the child +
+    # snapshot SEAMS on Components stay dormant (their defaults: no children, no-op snapshot) for
+    # the future dashboard redo.
     return Components(
         supervisor=supervisor, watcher=watcher, queue=queue,
         enqueue_catchup=_catchup,
         enqueue_housekeeping=_housekeeping,
         health_check=health_check,
-        children=children,
-        snapshot=write_snapshot if cfg.monitor.enabled else (lambda _run, _flags: None),
     )
 
 
