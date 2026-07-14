@@ -3155,3 +3155,18 @@ portable backstop):
   `derived_from` pre-mint→current digest (verified 1:1), re-synced the hypergraph via the store primitive,
   preserved summaries/subjects/data/created_at. Verified: 0 non-current leaves, 0 derived_from↔ℋ drift,
   5/5 dreams intact. Before-state captured (reversible). Live-data op; not a code change.
+
+## 2026-07-14 (cont.) — MEASURED: the id:: mint changed the mirror graph (finding-0077)
+
+- Owner demanded proof of consistency with pre-migration behavior. Empirical A/B (embed pre-mint backup
+  bytes vs current bytes through the SAME pipeline + real qwen3-embedding:4b, one run): **σ=0.62 mirror
+  edges 5 → 9 (+4, −0)**; per-note centroid drift cos min 0.891 / mean 0.953; max pairwise |Δcos| 0.169.
+  Fresh post-embed reproduced the live store's 9 edges → the pre=5 counterfactual is trustworthy.
+- **Honest verdict: NOT consistent with pre-migration behavior** — the shared `"id:: "` prefix uniformly
+  lifts cosine (pushes 4 borderline pairs over σ) and the uuid adds content-free noise to short-note
+  centroids. The clustering that drives dreams is denser by artifact, not by meaning. NOT a loss, NOT a
+  corruption; a QUALITY regression on the semantic layer. This is why a "100% consistent" claim is false.
+- **finding-0077 filed** (`direction` → orchestrator): this is bp-034 parked-decision-4's re-entry
+  condition, now measured. Fix is additive (no rollback): strip id:: (and consider all `key::` page
+  properties) from the DERIVED/embedded text in ingest, then re-embed from raw (§8, regenerable). Owner
+  rules scope at graduation. Until then the live graph carries the +4-edge artifact; dreams stay valid.
