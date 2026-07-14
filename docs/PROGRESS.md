@@ -3170,3 +3170,35 @@ portable backstop):
   condition, now measured. Fix is additive (no rollback): strip id:: (and consider all `key::` page
   properties) from the DERIVED/embedded text in ingest, then re-embed from raw (§8, regenerable). Owner
   rules scope at graduation. Until then the live graph carries the +4-edge artifact; dreams stay valid.
+
+## 2026-07-14 (cont.) — bp-036 SEALED: body-only embeddings + the dream re-embed EXPERIMENT harness
+
+- **finding-0077 fix, built + green.** The bp-034 id:: mint fed identity metadata into the embedding,
+  moving the σ-graph off note content (measured: 9 edges vs 4 body-only). bp-036 excludes ALL `key::`
+  page-property lines from the embedded text — Path A (Logseq-native; id:: stays in the file, only the
+  DERIVED text changes; no vault re-migration), owner-ruled scope = all props (extensible), deterministic.
+- **Items 13–15** (opus/high, self-driven, offline-only in the build):
+  * **Item 13** — `logseq.strip_properties()`: removes exactly the lines `_PROP` matches (the SAME object
+    `parse_text` uses → parse≡strip by construction); body byte-preserved; column-0 only (§10 verified:
+    0 indented block props in the corpus). 11 unit tests.
+  * **Item 14** — `pipeline.derive_chunks` + `ingest_note` both chunk `strip_properties(...)`, the ONE
+    shared derivation, so `verify.py` re-derives identical body chunks (no false integrity drop — the
+    load-bearing constraint). Digest/`doc_id`/identity untouched (digest = sha256(raw bytes)). 4
+    integration tests + the **real-embedder A/B: 9 → 4 edges, 5 removed, 0 added** (4 not 5 = `date::`
+    also stripped, as predicted).
+  * **Item 15** — `scripts/reembed_bodyonly.py`, the owner-run EXPERIMENT harness (scope expanded by owner
+    mid-build): snapshot the pre-wipe dreams → re-embed body-only (`run_ingest(rebuild=True)`) → WIPE all
+    dreams (reset-all) → trigger the dreamer on the clean graph → report. Gated (seal, daemon-down,
+    confirm), reversible. 4 orchestration tests.
+- **The load-bearing verifications PASS:** parse≡strip exactness; body byte-preservation; `verify.py`
+  consistency (0 false drops); digest + `doc_id` invariance; the A/B reduces the artificial edges (§10
+  stop-and-raise NOT triggered).
+- **5-leg gate green** (ruff / mypy 0 [185] / argless mypy **69** [held] / type_gate / pytest **1097
+  passed, 8 skipped**). Suite 1078 → 1097. Commits `1d731d8` (Items 13/14) + `16c4694` (Item 15).
+- Cost: est 250k → **~300k est, ratio ~1.2** (owner-driven scope growth: snapshot + wipe + dreamer +
+  experiment); precise dollars/deltas pending owner /usage.
+- **⭐ OWNER TOUCHPOINTS (deploy-coupled, finding-0066):** (1) deploy bp-036; (2) run
+  `uv run scripts/reembed_bodyonly.py --confirm` offline, daemon down → snapshots old dreams, re-embeds
+  body-only, wipes + regenerates dreams. Then **I JUDGE old vs new** (better? uncovered? regressed?).
+- Findings this arc: **0078** (scope-guard verbatim-matches write_scope; inline comments block writes —
+  resolved by bare-path write_scope; recommend the hook strip comments).

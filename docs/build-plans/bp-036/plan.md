@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-036
-status: in-progress
+status: complete
 design_ref:
   - docs/findings/finding-0077.md   # the id:: mint measurably changed the mirror graph (5→9); parked-4 re-entry
 contract: builder
@@ -16,12 +16,19 @@ cost:
   estimate:
     model: opus
     tokens: 250k
-  actual: null
+  actual:
+    model: opus            # self-driven, high effort, single-lane (0 subagents)
+    tokens: ~300k          # est (long session: strip + wiring + A/B + experiment harness + heavy
+                           # E501/scope-guard iteration). PRECISE + dollars/deltas pending owner /usage.
+    ratio: ~1.2            # ~300k / 250k — over estimate (the owner-driven scope grew: snapshot +
+                           # wipe-all + dreamer-trigger + experiment framing were added mid-build)
+    session_delta: pending # owner /usage
+    week_delta: pending    # owner /usage
 depends_on:
   - bp-034                            # the mint that introduced the id:: line into the embedded text
 parallelizable_with: []
 created: 2026-07-14
-updated: 2026-07-14   # build started (offline-only; live re-embed is owner-run)
+updated: 2026-07-14   # SEALED — Items 13-15 built + green (1097); live re-embed/experiment owner-run
 links:
   - docs/findings/finding-0077.md
   - core/ingest/verify.py             # the retrieval-integrity constraint the strip must stay consistent with
