@@ -31,3 +31,9 @@ stores are read-only, explicitly out of scope.
 Estimate opus/400k (a new deterministic math module; `δ_D²=0` + `dim ker L₁==β₁` falsifiers need
 judgment). Item numbering continues the family (5–8). Awaiting the owner-only `proposed → ready` blessing;
 **do not build before bp-031 lands.** No code written.
+
+## 2026-07-14 — blessed `proposed → ready` (owner, by hand); orchestrator commits the flip
+
+Owner hand-blessed bp-032 (with bp-031/033) `proposed → ready`. Orchestrator commits the flip (rule 0060).
+**`depends_on: bp-031` binds — DO NOT `/build` bp-032 before bp-031 lands** (the D-arrows need rename-stable
+`doc_id`). No code written yet.

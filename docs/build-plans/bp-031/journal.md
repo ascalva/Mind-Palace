@@ -32,3 +32,12 @@ reddening is a **stop-and-raise** (§10), not a self-widen — Item 1 must be ad
 
 Estimate opus/300k (live-store migration + a behavior-preservation falsifier needing judgment). Awaiting
 the owner-only `proposed → ready` blessing **and** the oq-0019 mechanism ruling. No code written.
+
+## 2026-07-14 — blessed `proposed → ready` (owner, by hand); orchestrator commits the flip
+
+Owner hand-blessed bp-031 (and bp-032/033) `proposed → ready`. Orchestrator commits the flip (rule 0060).
+**oq-0019 is still OPEN** → on `/build`: **Item 1** (the additive, behavior-preserving `doc_id :=
+source_path` foundation) proceeds; **Items 2–3** (mechanism + rename carry-forward) **PARK on default (A)**
+(existing-`id::` + exact-content rename detection, NO mint-into-vault) with re-entry = the owner ruling
+oq-0019. To let bp-031 complete FULLY in one build session, rule oq-0019 first (default A stands otherwise).
+No code written yet.

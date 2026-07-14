@@ -2976,3 +2976,19 @@ portable backstop):
   `supersedes` as a checked A6-invariant, rec adopt) stay OPEN — ruled at draft → ratified (owner-by-hand).
 - No code touched; CI docs-only. Book debt now +4 notes (the 3 temporal + this draft). Next: owner
   ratifies this draft (+ rules #2/#3); the build queue (bp-031 first) is unchanged.
+
+## 2026-07-14 (cont.) — OWNER BLESSINGS: bp-031/032/033 → `ready`; `dn-magnetic-laplacian` → `ratified` (all by hand)
+
+- Owner hand-flipped, in-session: **bp-031, bp-032, bp-033 `proposed → ready`** (the whole temporal chain)
+  AND **`dn-magnetic-laplacian` `draft → ratified`**. Orchestrator commits the flips (rule 0060).
+- **oq-0019 remains OPEN** → building bp-031 gets **Item 1 only** (the additive `doc_id := source_path`
+  foundation); **Items 2–3 park on default (A)** (existing-`id::` + exact-content rename detection, NO
+  mint-into-vault) until the owner rules it. Ruling oq-0019 (default A stands) lets bp-031 complete FULLY
+  in one build session.
+- **Build order is STRICT (dependency-chained):** bp-031 → bp-032 → bp-033 (bp-032's D-arrows need
+  bp-031's rename-stable `doc_id`; bp-033 consumes bp-032's module API). Do NOT build out of order.
+- **The ratified magnetic-Laplacian note carries two STILL-OPEN owner decisions** (the owner ratified the
+  formalization + the #1 defer-ruling; the note is now immutable per A8): **#2** census dream-narration
+  vocab (taste — extends `dn-edge-dynamics` §5) and **#3** covering-only `supersedes` as a checked
+  A6-invariant (rec adopt, near-zero cost). Route onward (not lost in the frozen note).
+- No code touched; docs/blessing-flip commit only.

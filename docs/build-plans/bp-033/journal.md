@@ -23,3 +23,9 @@ metric/kernel coherence (Result 4 / PD-b / TA-a, deferred).
 **write_scope** = `core/temporal/**` + one NEW test path (`test_temporal_operators.py`) — clean
 (finding-0075). Item numbering continues the family (9–12). Estimate opus/400k. Awaiting the owner-only
 `proposed → ready` blessing; **do not build before bp-032 (and bp-031) land.** No code written.
+
+## 2026-07-14 — blessed `proposed → ready` (owner, by hand); orchestrator commits the flip
+
+Owner hand-blessed bp-033 (with bp-031/032) `proposed → ready`. Orchestrator commits the flip (rule 0060).
+**`depends_on: bp-032` binds — DO NOT `/build` bp-033 before bp-032 lands** (it consumes bp-032's module
+API). Build order is strict: bp-031 → bp-032 → bp-033. No code written yet.

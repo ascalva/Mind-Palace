@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-032
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/temporal-retrieval-algebra.md
 contract: builder
