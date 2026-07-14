@@ -2877,3 +2877,38 @@ portable backstop):
   (5) evolution study — **YES**, adopt the phase-space (q,p) + epistemology axes. Consequence: Result 6
   (γ-contraction) is now an UNCONDITIONAL theorem. **The 3 drafts are ratification-ready; draft→ratified
   stays owner-by-hand.** Pushed `8f63758` (notes) + this rulings increment.
+- **Owner RATIFIED all three by hand** (`6108dd8`, draft→ratified; orchestrator committed the blessing per
+  finding-0060). **Graduation unblocked** (opus/xhigh, uuid-identity plan first per the A6 ruling).
+
+## 2026-07-14 (cont.) — MAGNETIC LAPLACIAN: 2nd fable pass; the exciting conjecture REFUTED, a disciplined small result earned
+
+- **Owner elevated the magnetic Laplacian** (`L^{(q)}`, the directed-diffusion upgrade named in ratified
+  `dn-temporal-retrieval-algebra` §2.1 ii / TA-a) from decision-#4 DEFER → develop, as "the natural
+  progression of the 'direction' physics." Framing brainstorm `docs/brainstorms/magnetic-laplacian.md`
+  (`19e4955`) → a 2nd fable pass (tier owner-confirmed: UI Fable-5 switch + `<usage>` 152k tok; fable
+  $10.93 cum). Warrant capsule `docs/brainstorms/magnetic-laplacian-fable-pass.md`.
+- **Cross-checked green** (code citations verified): `curvature.py:30` binarizes support (`B=(A!=0)`) →
+  Forman **flux-blind** (Q5); `laplacian.py:48–56` signed `L̄` balanced-iff-singular **IS** the `q=1/2`
+  ℤ/2 fiber of the magnetic family (the house already built one fiber). Q2 refutation = rigorous
+  double-dissociation.
+- **The disciplined outcome (the pass HELD THE LINE — did not overhype):**
+  - **Q2 REFUTED** — magnetic flux ≠ the `[d,τ]` diamond holonomy; it is exactly its **abelianization**
+    (`Φ_q = χ_q∘w`); the TA-c defect lives in `ker(character)`. **TA-c is NOT closed, provably not by any
+    abelian/spectral object** (support mismatch; balanced diamonds flux≡0/defect≠0; coherent shortcuts
+    defect=0/flux≠0). The exciting conjecture dies cleanly.
+  - **Q1** magnetic Hodge: operator always; Hodge theory only if 2-cell-flat — **parity-obstructed on the
+    citation flag complex**, vacuous on the triangle-free Hasse DAG. Flux is a literal curvature 2-form.
+  - **Q3** flux on the DAG = `2πq × arm-length imbalance`; balanced diamonds → zero flux; content = the
+    **gradedness defect** (revision-effort asymmetry). Reconciled with A5.
+  - **Q4** two charges (forced by A5); **retro-citations** = the measurable influence/time misalignment.
+  - **Q5** flux⟷Ricci **FALSE** (gauge vs metric curvature; the real "directed Ricci" = the deferred
+    Ollivier PD-c).
+  - **Q6/Q7** operator earns **math not build**; a **combinatorial diagnostic census v1** earns its place
+    (SCC/directed-cycle, unbalanced-diamond, retro-citation — exact, gauge-free, **no operator needed**),
+    folding into the already-licensed Thread-C sweep; **DEFER the operator** behind 3 re-entry gates.
+    Falsifiers F1–F5 ready-made (F4 = the magnetic `dim ker L₁ == ripser`).
+- **NOT composed yet** (deferred to a FRESH session — context-economy; this session is
+  9h/$37/78%-week/>150k-context, harness advising /clear): a NEW draft note from the capsule + folding
+  the census into Thread-C. **3 OWNER DECISIONS:** (1) adopt the defer-operator ruling (rec yes); (2)
+  census dream-narration vocabulary (taste, §5); (3) covering-only `supersedes` as a checked A6-invariant
+  (rec adopt, near-zero cost).
