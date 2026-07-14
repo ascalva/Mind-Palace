@@ -2950,3 +2950,29 @@ portable backstop):
   bp-030 lands its enriched `status` seam). No code touched; CI unaffected (docs-only).
 - **Next:** owner blesses `proposed → ready` (item-by-item) + rules oq-0019 → then `/build bp-031`
   (FIRST). Or resume bp-030 (Items 1 & 3 unblocked). All on disk; fresh session.
+
+## 2026-07-14 (cont.) — COMPOSED the magnetic-Laplacian DRAFT note (opus/xhigh; operator deferred, census + formalization finalized)
+
+- **Owner corrected the resume-brief mis-file** (mine): composing the magnetic-Laplacian draft note from
+  its captured capsule is an **opus/xhigh ORCHESTRATOR task, NOT fable-gated** — the fable pass is DONE
+  (the capsule, `1e3591e`); only *developing the operator* would need fable, and that's deferred anyway.
+  Composed in-session (context warm at 20%, not fresh) at the owner's direction.
+- **New draft:** `docs/design-notes/magnetic-laplacian.md` (`dn-magnetic-laplacian`, `status: draft`) —
+  companion to the ratified `dn-temporal-retrieval-algebra`/`dn-edge-dynamics` (cited, never edited).
+  States Q1–Q7: Q1 conditional magnetic Hodge + the parity obstruction on `X_cite` (vacuous on the
+  triangle-free Hasse DAG) + flux as a literal curvature 2-form; **Q2 REFUTED** (flux = the abelianization
+  `χ_q∘w` of the `[d,τ]` diamond holonomy; **TA-c NOT closed, provably not by any abelian/spectral
+  object**); Q3 the gradedness defect (`Φ_q = 2πq·arm-imbalance`; balanced diamonds → 0); Q4 two charges +
+  retro-citations; Q5 flux ≠ Ricci (the 5-row curvature ledger; Forman provably flux-blind); the F1–F5
+  falsifier inventory (F4 = the magnetic `dim ker L₁ == ripser` analog). House grounding: signed `L̄`
+  (`laplacian.py:48–56`) = the `q=1/2` fiber the codebase already trusts.
+- **The DECISION recorded (§3):** the operator BUILD is **deferred behind 3 named gates** (ML-a) with its
+  build constraints pinned now (Hasse-DAG-only, two charges, `q=1/4`, gauge-invariant outputs, F1–F5); the
+  **arrow-aware census folds into the ALREADY-LICENSED Thread-C sweep — no new build license** (adds
+  arm-imbalance / retro-citation count / `X_cite` SCC-cycle count to §3 item 2's "diamond frequency"); the
+  ledger + inventory are prophylactic vocabulary.
+- **Owner decisions:** **#1 RULED in-session** (defer the operator, finalize the census/formalization —
+  the owner's direction). **#2** (dream-narration vocab for the census) and **#3** (covering-only
+  `supersedes` as a checked A6-invariant, rec adopt) stay OPEN — ruled at draft → ratified (owner-by-hand).
+- No code touched; CI docs-only. Book debt now +4 notes (the 3 temporal + this draft). Next: owner
+  ratifies this draft (+ rules #2/#3); the build queue (bp-031 first) is unchanged.
