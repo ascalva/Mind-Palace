@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-036
-status: proposed
+status: ready
 design_ref:
   - docs/findings/finding-0077.md   # the id:: mint measurably changed the mirror graph (5→9); parked-4 re-entry
 contract: builder
