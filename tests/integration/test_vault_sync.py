@@ -8,6 +8,7 @@ file; raw is always kept).
 
 from __future__ import annotations
 
+import sqlite3
 from pathlib import Path
 
 from core.attestation import Attestor
@@ -16,6 +17,7 @@ from core.ingest.sync import SyncOutcome, VaultSync
 from core.stores.catalog import CatalogEntry, VaultCatalog
 from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
+from core.stores.versions import VersionStore
 from tests.fixtures.attestation import attestor_with_store
 from tests.fixtures.embedding import DIM, FakeEmbedder
 
@@ -170,6 +172,67 @@ def test_unchanged_rescan_does_not_emit_a_duplicate_attestation(tmp_path):
     second = sync.rescan()                        # nothing changed -> early-return, no emit
     assert second.unchanged == 1
     assert att_store.count() == 1                 # no spurious re-emission
+
+
+# ── bp-031 Item 1: the stable doc_id foundation (additive, behavior-preserving) ──
+
+def test_doc_id_defaults_to_source_path(tmp_path):
+    # Item 1 foundation: on a fresh store the stable doc_id equals the source_path (identity ==
+    # path, until Item 2 diverges it), and the version chain keys on exactly that resolved id.
+    versions = VersionStore(tmp_path / "versions.sqlite")
+    sync = _sync(tmp_path)
+    sync.version_store = versions
+    p = _write(sync, "note.md", "content v1")
+    assert sync.sync_path(p) is SyncOutcome.INDEXED
+    assert sync.catalog.doc_id_for(str(p)) == str(p)          # identity == path
+    p.write_text("content v2", encoding="utf-8")
+    assert sync.sync_path(p) is SyncOutcome.INDEXED
+    # The version chain is under the resolved doc_id — byte-identical to keying on source_path.
+    assert [v.version_seq for v in versions.history(sync.catalog.doc_id_for(str(p)))] == [1, 2]
+
+
+def test_doc_id_for_unknown_path_resolves_to_itself(tmp_path):
+    # A first-ingest resolve is well-defined even before the catalog row exists: doc_id_for falls
+    # back to the path, so the caller can record-then-resolve without a None hole.
+    cat = VaultCatalog(tmp_path / "cat.sqlite")
+    assert cat.doc_id_for("/never/recorded.md") == "/never/recorded.md"
+
+
+def test_migration_backfills_doc_id_on_legacy_catalog(tmp_path):
+    # The live-store migration risk this plan is scrutinized for: a catalog written BEFORE the
+    # doc_id column must gain it and backfill doc_id := source_path for every legacy row,
+    # idempotently, with no row lost or altered. Simulate the pre-doc_id schema with raw sqlite,
+    # then reopen with the migrating code.
+    db = tmp_path / "legacy.sqlite"
+    legacy = sqlite3.connect(str(db))
+    legacy.executescript(
+        "CREATE TABLE vault_files ("
+        " source_path TEXT PRIMARY KEY, digest TEXT NOT NULL, title TEXT NOT NULL,"
+        " provenance TEXT NOT NULL DEFAULT 'authored-solo', active INTEGER NOT NULL DEFAULT 1,"
+        " updated_at TEXT NOT NULL);"
+    )
+    legacy.execute(
+        "INSERT INTO vault_files (source_path, digest, title, provenance, active, updated_at)"
+        " VALUES ('/vault/a.md', 'digA', 'a', 'authored-solo', 1, '2026-01-01T00:00:00'),"
+        "        ('/vault/b.md', 'digB', 'b', 'authored-solo', 0, '2026-01-01T00:00:00')",
+    )
+    legacy.commit()
+    legacy.close()
+
+    cat = VaultCatalog(db)                                    # __post_init__ runs _migrate()
+    assert cat.doc_id_for("/vault/a.md") == "/vault/a.md"     # active row backfilled
+    assert cat.doc_id_for("/vault/b.md") == "/vault/b.md"     # tombstoned row backfilled too
+    # The legacy rows are otherwise untouched (digest/active preserved — a pure additive relabel).
+    a = cat.get("/vault/a.md")
+    assert a is not None and a.digest == "digA" and a.active is True
+    assert cat.active_paths() == {"/vault/a.md"}
+    cat.close()
+
+    # Idempotent: reopening runs _migrate again and changes nothing.
+    cat2 = VaultCatalog(db)
+    assert cat2.doc_id_for("/vault/a.md") == "/vault/a.md"
+    assert cat2.active_paths() == {"/vault/a.md"}
+    cat2.close()
 
 
 def test_readd_after_tombstone_reactivates(tmp_path):

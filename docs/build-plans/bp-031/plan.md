@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-031
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/temporal-retrieval-algebra.md
 contract: builder
@@ -17,11 +17,17 @@ cost:
   estimate:
     model: opus
     tokens: 300k
-  actual: null
+  actual:
+    model: opus            # orchestrator-driven (owner chose a fresh build over delegation), high effort
+    tokens: 91k            # non-cache: 9.4k in + 81.7k out (+11.2M cache-read, 149k cache-write)
+    dollars: 9.19
+    ratio: 0.30            # 91k / 300k — UNDER (self-driven code; cf. bp-029 0.27×), single-lane, 0 subagents
+    session_delta: "+21pp (14%->35%)"
+    week_delta: "+2pp (78%->80%, cache-dominated — cheap on the weekly quota)"
 depends_on: []
 parallelizable_with: []
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-14  # in-progress → complete (all 3 items; 5-leg gate green; live-copy dry-run OK)
 links:
   - docs/design-notes/temporal-retrieval-algebra.md
   - docs/design-notes/supersession-lifecycle.md

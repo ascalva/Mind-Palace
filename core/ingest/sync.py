@@ -74,12 +74,19 @@ class VaultSync:
     attestor: Attestor | None = None
     # Optional version-history provenance (ingest-identity-and-amendment.md §4A; build plan Item 6):
     # when present, each indexed (re)ingest appends the note's next VERSION — keyed on
-    # (source_path, version_seq), NOT content digest, so a revert stays linear (no cycle) —
-    # to a dedicated store the balance math cannot read (never EdgeStore). None = no version log.
+    # (doc_id, version_seq), NOT content digest, so a revert stays linear (no cycle) — to a store
+    # the balance math cannot read (never EdgeStore). The `doc_id` is resolved by the catalog
+    # (`doc_id_for`), so a rename does not fork the chain (bp-031); it equals `source_path` until a
+    # mechanism diverges it. None = no version log.
     version_store: VersionStore | None = None
 
-    def sync_path(self, path: Path) -> SyncOutcome:
-        """Re-ingest one note as a chunk-level amendment; unchanged content is a no-op."""
+    def sync_path(self, path: Path,
+                  *, rename_by_digest: dict[str, tuple[str, str]] | None = None) -> SyncOutcome:
+        """Re-ingest one note as a chunk-level amendment; unchanged content is a no-op.
+
+        `rename_by_digest` (passed by `rescan`) maps a just-vanished path's content digest to its
+        `(source_path, doc_id)`; a NEW path with an exact-content match adopts that `doc_id` so a
+        rename continues the version chain instead of forking it (bp-031 Item 2)."""
         parsed = parse_note(path, self.vault)
         source_path = parsed.source_path
         record = ingest_note(parsed, self.raw,                       # raw.add: keep + dedup
@@ -90,13 +97,26 @@ class VaultSync:
         if prev is not None and prev.active and prev.digest == digest:
             return SyncOutcome.UNCHANGED                            # content didn't change
 
+        # Resolve the note's stable doc_id at FIRST bind only (prev is None): prefer an existing
+        # `id::` (already parsed into properties, no vault mutation), else a renamed predecessor's
+        # carried doc_id (exact-content match). An already-bound note keeps its identity — switching
+        # a historied note's id is the owner-run re-key (bp-034), never a sync-time act. None ⇒ the
+        # catalog defaults doc_id := source_path (Item 1 behavior, byte-identical).
+        resolved_doc_id: str | None = None
+        if prev is None:
+            resolved_doc_id = parsed.properties.get("id")
+            if resolved_doc_id is None and rename_by_digest is not None:
+                match = rename_by_digest.get(digest)
+                if match is not None:
+                    resolved_doc_id = match[1]
+
         # Chunk-level amendment (ingest-identity-and-amendment.md §4): reuse the vectors of chunks
         # whose content is unchanged (NO re-embed), embed only changed/new chunks, and replace this
         # note's projection under its stable `source_path`. Keyed by (source_path, chunk_hash), so a
         # note's unchanged parts keep their point ids across edits — the §4 gap this closes.
         existing = self.store.rows_for_source(source_path)
         index_amendment(record, existing, self.embedder, self.store)
-        self.catalog.record(source_path, digest, record.title)
+        self.catalog.record(source_path, digest, record.title, doc_id=resolved_doc_id)
         if self.attestor is not None:
             # input == output == the content digest: for AUTHORED content the bytes read and the
             # content-addressed object written share one address. This is the chain's leaf.
@@ -105,11 +125,14 @@ class VaultSync:
 
         # Append the note's next VERSION so an amendment ENHANCES provenance — a queryable version
         # chain, not a silent overwrite (§4A). Keyed on version identity (the store allocates the
-        # next version_seq for this source_path), NOT content digest, so a revert is a new version,
-        # never a cycle; and it lives OUTSIDE the balance-fed edge store (Constraint 2). Every
-        # INDEXED outcome is a new version (v1 on first ingest, v2… on each amendment).
+        # next version_seq for this note's stable `doc_id`), NOT content digest, so a revert is a
+        # new version, never a cycle; and it lives OUTSIDE the balance-fed edge store (Constr. 2).
+        # Every INDEXED outcome is a new version (v1 on first ingest, v2… on each amendment). The
+        # `doc_id` is resolved by the catalog (== source_path until a mechanism diverges it), so a
+        # rename carries the chain forward instead of forking it. Resolved AFTER `catalog.record`
+        # above, so the row (and its doc_id) exists.
         if self.version_store is not None:
-            self.version_store.record(source_path, digest)
+            self.version_store.record(self.catalog.doc_id_for(source_path), digest)
         return SyncOutcome.INDEXED
 
     def handle_deleted(self, source_path: str) -> SyncOutcome:
@@ -125,12 +148,35 @@ class VaultSync:
         idempotent backbone (an unchanged re-scan does no work) and also the catch-up path
         for changes that happened while no watcher was running."""
         report = SyncReport()
-        seen: set[str] = set()
-        for path in iter_vault(self.vault, pattern=self.pattern, exclude_dirs=self.exclude_dirs):
-            seen.add(str(path))
-            report.tally(self.sync_path(path))
-        for gone in self.catalog.active_paths() - seen:
-            report.tally(self.handle_deleted(gone))
+        present: dict[str, Path] = {
+            str(path): path
+            for path in iter_vault(self.vault, pattern=self.pattern, exclude_dirs=self.exclude_dirs)
+        }
+        gone = self.catalog.active_paths() - set(present)
+
+        # Exact-content rename carry-forward (bp-031 Item 2): index each vanished path's held
+        # (digest -> its doc_id); a new path whose content digest matches adopts that doc_id, so the
+        # version chain continues under one identity rather than forking into an orphan seq-1 chain.
+        # A digest shared by >1 vanished path is AMBIGUOUS (dedup, no single predecessor), dropped
+        # — fall back to a fresh identity, no worse than today. id:: resolution wins over content
+        # match (decided in sync_path). Built PRE-sync, so `gone` paths are still recorded.
+        rename_by_digest: dict[str, tuple[str, str]] = {}
+        ambiguous: set[str] = set()
+        for g in gone:
+            entry = self.catalog.get(g)
+            if entry is None or not entry.active:
+                continue
+            if entry.digest in rename_by_digest:
+                ambiguous.add(entry.digest)
+            else:
+                rename_by_digest[entry.digest] = (g, self.catalog.doc_id_for(g))
+        for digest in ambiguous:
+            rename_by_digest.pop(digest, None)
+
+        for path in present.values():
+            report.tally(self.sync_path(path, rename_by_digest=rename_by_digest))
+        for g in gone:
+            report.tally(self.handle_deleted(g))
         return report
 
 

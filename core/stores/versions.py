@@ -52,7 +52,9 @@ class Version:
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS versions (
-    doc_id      TEXT NOT NULL,        -- stable document identity (the catalog source_path)
+    doc_id      TEXT NOT NULL,        -- stable document identity resolved by sync via the catalog
+                                      -- (bp-031: == source_path until a mechanism diverges it — a
+                                      -- rename carries this forward, so the chain does not fork)
     version_seq INTEGER NOT NULL,     -- monotonic per doc_id (1,2,3,…) — the VERSION identity
     digest      TEXT NOT NULL,        -- content digest of THIS version (may repeat on a revert)
     at          TEXT NOT NULL,        -- when this version was recorded

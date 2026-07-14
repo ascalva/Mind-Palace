@@ -35,8 +35,9 @@ CREATE TABLE IF NOT EXISTS vault_files (
     title       TEXT NOT NULL,
     provenance  TEXT NOT NULL DEFAULT 'authored-solo',
     active      INTEGER NOT NULL DEFAULT 1,
-    updated_at  TEXT NOT NULL
-);
+    updated_at  TEXT NOT NULL,
+    doc_id      TEXT                 -- stable identity, decoupled from source_path (bp-031); a
+);                                   -- new row defaults doc_id := source_path (identity == path)
 CREATE INDEX IF NOT EXISTS vault_files_digest ON vault_files (digest, active);
 """
 
@@ -65,6 +66,24 @@ class VaultCatalog:
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.executescript(_DDL)
+        self._migrate()
+        self._conn.commit()
+
+    def _migrate(self) -> None:
+        """Bring a pre-`doc_id` catalog forward, idempotently (bp-031 Item 1). `CREATE TABLE IF NOT
+        EXISTS` is a no-op on a live store that predates the column, so the additive `doc_id` needs
+        an explicit `ALTER … ADD COLUMN` + a one-time backfill `doc_id := source_path` for every
+        legacy row. Behavior-preserving: identity stays equal to the path until a mechanism (Item 2)
+        diverges it. A second run matches no `doc_id IS NULL` rows — same shape as
+        `relabel_provenance`."""
+        cols = {r["name"] for r in self._conn.execute("PRAGMA table_info(vault_files)").fetchall()}
+        if "doc_id" not in cols:
+            self._conn.execute("ALTER TABLE vault_files ADD COLUMN doc_id TEXT")
+        # Created here (not in _DDL) so it runs AFTER the column exists — the index references
+        # doc_id, which a legacy `CREATE TABLE IF NOT EXISTS` would not yet have. IF NOT EXISTS on
+        # both the fresh (column via _DDL) and migrated (column via ALTER) paths.
+        self._conn.execute("CREATE INDEX IF NOT EXISTS vault_files_doc_id ON vault_files (doc_id)")
+        self._conn.execute("UPDATE vault_files SET doc_id = source_path WHERE doc_id IS NULL")
         self._conn.commit()
 
     def get(self, source_path: str) -> CatalogEntry | None:
@@ -74,17 +93,38 @@ class VaultCatalog:
         return _to_entry(r) if r else None
 
     def record(self, source_path: str, digest: str, title: str, *,
-               provenance: Provenance = Provenance.AUTHORED_SOLO) -> None:
-        """Upsert a file as active at `digest` (re-adding a tombstoned file reactivates it)."""
+               provenance: Provenance = Provenance.AUTHORED_SOLO,
+               doc_id: str | None = None) -> None:
+        """Upsert a file as active at `digest` (re-adding a tombstoned file reactivates it).
+
+        `doc_id` binds the note's stable identity (bp-031 Item 2): pass an explicit id (an existing
+        `id::`, or a renamed predecessor's carried id) to bind it; omit it and a NEW row defaults
+        `doc_id := source_path` (identity == path) while a re-record PRESERVES the stored `doc_id`.
+        An explicit `doc_id` DOES overwrite on conflict — but sync only passes one at first bind,
+        never to switch a historied note's identity (the re-key is owner-run bp-034)."""
+        insert_doc_id = doc_id if doc_id is not None else source_path
+        # Preserve the stored doc_id on a re-record; overwrite only when an explicit id is given.
+        set_doc = ", doc_id=excluded.doc_id" if doc_id is not None else ""
         self._conn.execute(
-            "INSERT INTO vault_files (source_path, digest, title, provenance, active, updated_at)"
-            " VALUES (?, ?, ?, ?, 1, ?)"
+            "INSERT INTO vault_files"
+            " (source_path, digest, title, provenance, active, updated_at, doc_id)"
+            " VALUES (?, ?, ?, ?, 1, ?, ?)"
             " ON CONFLICT(source_path) DO UPDATE SET"
             "   digest=excluded.digest, title=excluded.title,"
-            "   provenance=excluded.provenance, active=1, updated_at=excluded.updated_at",
-            [source_path, digest, title, str(provenance), _utcnow()],
+            "   provenance=excluded.provenance, active=1, updated_at=excluded.updated_at" + set_doc,
+            [source_path, digest, title, str(provenance), _utcnow(), insert_doc_id],
         )
         self._conn.commit()
+
+    def doc_id_for(self, source_path: str) -> str:
+        """The stable `doc_id` bound to this `source_path` — the identity the version store keys on.
+        Equals `source_path` (identity == path) until a mechanism (bp-031 Item 2) diverges it. An
+        unknown path resolves to itself, so a first-ingest resolve is well-defined even before the
+        catalog row exists (the caller records the row, then resolves)."""
+        row = self._conn.execute(
+            "SELECT doc_id FROM vault_files WHERE source_path = ?", [source_path]
+        ).fetchone()
+        return row["doc_id"] if row is not None and row["doc_id"] is not None else source_path
 
     def tombstone(self, source_path: str) -> str | None:
         """Mark a file inactive (deleted from the vault). Returns the digest it held, or None
