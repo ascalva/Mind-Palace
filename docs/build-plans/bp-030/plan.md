@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-030
-status: proposed
+status: ready
 design_ref:
   - docs/brainstorms/lifecycle-cli-overhaul.md
 contract: builder
