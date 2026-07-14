@@ -24,20 +24,48 @@ from core.temporal.complex import (
     dim_ker_L1,
     flag_boundary_composition_is_zero,
 )
+from core.temporal.operators import (
+    DiamondError,
+    active_projection,
+    is_chain_map,
+    pullback_0,
+    pushforward_0,
+    pushforward_1,
+    sigma_node_map,
+    t_active,
+)
+from core.temporal.superconnection import (
+    curvature,
+    curvature_norm,
+    is_flat,
+    severed_citations,
+)
 
 __all__ = [
     "CitationComplex",
+    "DiamondError",
     "SupersessionCycleError",
     "SupersessionPoset",
+    "active_projection",
     "build_citation_complex",
     "citation_distance_matrix",
     "coboundary_0",
     "coboundary_1",
+    "curvature",
+    "curvature_norm",
     "delta_D_squared",
     "delta_D_squared_is_zero",
     "dim_ker_L1",
     "flag_boundary_composition_is_zero",
+    "is_chain_map",
+    "is_flat",
     "poset_from_chains",
     "poset_from_pairs",
+    "pullback_0",
+    "pushforward_0",
+    "pushforward_1",
+    "severed_citations",
+    "sigma_node_map",
     "supersession_poset",
+    "t_active",
 ]

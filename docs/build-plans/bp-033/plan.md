@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-033
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/temporal-retrieval-algebra.md
 contract: builder
@@ -13,12 +13,18 @@ cost:
   estimate:
     model: opus
     tokens: 400k
-  actual: null
+  actual:
+    model: opus            # orchestrator-driven, high effort, single-lane (0 subagents)
+    tokens: ~60k           # estimate — 3rd build this session; no separate /usage relay after bp-032
+    ratio: ~0.15           # ~60k / 400k — WELL under (operators over bp-032's module; laws pre-derived)
+    dollars: pending       # owner /usage relay (bp-032 seal read $19.02 session-total, 39%/80%)
+    session_delta: pending # owner /usage
+    week_delta: pending    # owner /usage
 depends_on:
   - bp-032
 parallelizable_with: []
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-14  # in-progress → complete (Items 9–12; 5-leg gate green, clean full suite)
 links:
   - docs/design-notes/temporal-retrieval-algebra.md
   - docs/design-notes/core-query-protocol.md
