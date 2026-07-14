@@ -35,3 +35,11 @@ scrutiny; a vault backup + store backup + dry-run + confirm all gate the real ru
 write_scope names both test paths (finding-0075): `test_mint_ids.py` (end-to-end) + `test_version_rekey.py`
 (the primitive). Items 13–16 continue the family. Estimate opus/450k. Awaiting the owner-only `proposed →
 ready` blessing **and** the Q3 append-only-re-key ruling (§11). No code written.
+
+## 2026-07-14 — blessed `proposed → ready` (owner, by hand); orchestrator commits the flip
+
+Owner hand-blessed bp-034 `proposed → ready` (with the §11 default intact) → the blessing **carries the
+Q3 ruling: the append-only `versions` store ADMITS the `OwnerDeclaration`-gated `migrate_rekey_doc_id`
+relabel** (Item 14 unblocked). Orchestrator commits the flip (rule 0060). **`depends_on: bp-031` binds —
+build bp-031 first; and the actual MINT is an owner-run offline act (daemon down), never in the build
+session** — the build delivers the tested, dry-runnable TOOL only. No code written yet.

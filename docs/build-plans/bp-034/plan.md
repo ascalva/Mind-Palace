@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-034
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/temporal-retrieval-algebra.md   # A6 rename-stable identity; oq-0019 ruled (B)
 contract: builder
