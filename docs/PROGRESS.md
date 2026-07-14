@@ -3062,3 +3062,23 @@ portable backstop):
 - Cost: est 400k → **~100k, ratio ~0.25** (read-only greenfield); dollars/deltas pending owner /usage.
 - **⭐ UNBLOCKS bp-033** (the σ/π transport operators + `‖[d,τ]‖`, consuming this module's API).
   Building bp-033 next (strict order).
+
+## 2026-07-14 (cont.) — bp-033 SEALED: the mode-3 operators + `‖[d,τ]‖` — THE TEMPORAL CHAIN IS CLOSED (`3379e7c`)
+
+- **`dn-temporal-retrieval-algebra` §3 Consequence 1 is FULLY REALIZED** — the topological half (bp-032)
+  + the transport half (bp-033). **bp-031 → bp-032 → bp-033 all sealed in one session** (strict order),
+  the whole graduation of the ratified temporal note.
+- **Items 9–12** (opus/high, orchestrator-driven): `operators.py` — `π_active` (idempotent contraction,
+  NOT a chain map), `σ_*`/`σ^*` (chain map iff F1: `σ_* ∂ = ∂ σ_*` verified true under F1, false on a
+  severed citation; `σ^*` a contraction), `T_active` composite (contraction); `superconnection.py` —
+  `[d,τ]` with the note's Result-2 closed form (derived-verified), and **`‖[d,τ]‖` == the discrete
+  severed-citation count exactly** ("not a proxy"); `[d,τ]=0` ⟺ flat/bicomplex. A merge diamond →
+  `DiamondError` (§10/TA-c, linear chain only). bp-032's public API honored, not redesigned.
+- **5-leg gate green** (ruff / mypy 0 / mypy 69 / type_gate / pytest **1055 passed** — a CLEAN full run;
+  the bp-032-era scheduler e2e flake did not recur). Cost: est 400k → **~60k, ratio ~0.15**; dollars/deltas
+  pending owner /usage (bp-032 seal read $19.02 session-total, 39%/80%).
+- **⭐ DOWNSTREAM UNBLOCKED (design-tier, does NOT auto-graduate):** the empirical **Thread-C sweep +
+  arrow-aware census** (note §3 Consequence 2 — folds in the magnetic census) and the **`K(β)` retrieval
+  curve** (Consequence 3, TA-b) can now each graduate — separate design/graduate steps, not build work.
+- **Session shape:** ONE orchestrator session did all three builds (bp-031 live-store migration + bp-032/033
+  greenfield math), single-lane (0 subagents). A big unit boundary → resume brief rewritten, recommend CLEAR.
