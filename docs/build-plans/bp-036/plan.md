@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-036
-status: ready
+status: in-progress
 design_ref:
   - docs/findings/finding-0077.md   # the id:: mint measurably changed the mirror graph (5→9); parked-4 re-entry
 contract: builder
@@ -21,7 +21,7 @@ depends_on:
   - bp-034                            # the mint that introduced the id:: line into the embedded text
 parallelizable_with: []
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-14   # build started (offline-only; live re-embed is owner-run)
 links:
   - docs/findings/finding-0077.md
   - core/ingest/verify.py             # the retrieval-integrity constraint the strip must stay consistent with
