@@ -15,11 +15,11 @@ cost:
     tokens: 400k
   actual:
     model: opus            # orchestrator-driven, high effort, single-lane (0 subagents)
-    tokens: ~60k           # estimate — 3rd build this session; no separate /usage relay after bp-032
-    ratio: ~0.15           # ~60k / 400k — WELL under (operators over bp-032's module; laws pre-derived)
-    dollars: pending       # owner /usage relay (bp-032 seal read $19.02 session-total, 39%/80%)
-    session_delta: pending # owner /usage
-    week_delta: pending    # owner /usage
+    tokens: 47k            # non-cache: 1.9k in + 44.9k out (delta over bp-032's seal; owner /usage)
+    dollars: 8.27          # $27.29 session-total − $19.02 at bp-032's seal
+    ratio: 0.12            # 47k / 400k — WELL under (operators over a landed module, laws pre-derived)
+    session_delta: "+3pp (39%->42%)"
+    week_delta: "+1pp (80%->81%, cache-dominated — near-free on the weekly quota)"
 depends_on:
   - bp-032
 parallelizable_with: []

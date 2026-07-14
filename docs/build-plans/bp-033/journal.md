@@ -89,9 +89,10 @@ recur).
 (flat) when all citations carry forward; `π_active` idempotent+contraction and demonstrably NOT a chain map;
 `σ^*`/`T_active` contractions; a merge diamond raises `DiamondError` (§10/TA-c).
 
-**Cost:** est opus/400k; actual ≈60k (ratio ≈0.15, operators over a landed module, laws pre-derived).
-dollars/deltas **pending the owner's next /usage relay** (bp-032's seal read $19.02 session-total, 39%/80%).
-Single-lane, 0 subagents.
+**Cost (owner /usage relayed at seal):** est opus/400k; actual **47k non-cache** (1.9k in + 44.9k out,
+delta over bp-032's seal), **$8.27** ($27.29 session-total − $19.02), ratio **0.12** — WELL under
+(operators over a landed module, laws pre-derived). session +3pp (39→42%), week +1pp (80→81%,
+cache-dominated). Single-lane, 0 subagents. **Chain total this session: ~205k non-cache, $27.29, +3pp week.**
 
 **⭐ DOWNSTREAM UNBLOCKED (does NOT auto-graduate — design-tier, gated):** with the `core/temporal/` module
 concrete, the empirical **Thread-C sweep + arrow-aware census** (note §3 Consequence 2) and the **`K(β)`
