@@ -2,10 +2,11 @@
 
 [![CI](https://github.com/ascalva/Mind-Palace/actions/workflows/ci.yml/badge.svg)](https://github.com/ascalva/Mind-Palace/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-1000%2B-brightgreen)](docs/runbook.md)
+[![coverage](https://img.shields.io/badge/coverage-88%25-green)](pyproject.toml)
 [![mypy](https://img.shields.io/badge/mypy-0_errors-brightgreen)](pyproject.toml)
 [![type coverage](https://img.shields.io/badge/type_coverage-gate--enforced-brightgreen)](ops/type_gate.py)
 [![sealed core](https://img.shields.io/badge/sealed_core-zero_egress-6f42c1)](scripts/check_imports.py)
-[![python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
+[![python](https://img.shields.io/badge/python-3.13%2B-blue)](pyproject.toml)
 [![license](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 > A knowledge system built around a single question: what does it mean for a system to know _why_ it believes something?
@@ -63,13 +64,14 @@ Claims above are checkable, not vibes:
 ```sh
 uv sync --extra dev
 uv run pytest -q -m 'not live and not podman'   # the deterministic tier: 1000+ tests
+uv run pytest -m 'not live and not podman and not needs_vault and not needs_restic' --cov  # line+branch coverage: 88%
 uv run mypy                                      # core/ strict: 0 errors, enforced
 uv run python scripts/check_imports.py           # the sealed core names no network module
 bash docs/build-plans/bp-010/acceptance/run.sh   # the write-guard harness, 11 cases
 sqlite3 data/attestations.sqlite 'select agent_role, action, count(*) from attestations group by 1,2'
 ```
 
-Structural invariants carry structural tests — e.g. the balance mathematics is proven bit-identical under injection of dispositional edges, and the blessing gates' harnesses include the laundering, comment-evasion, and deletion paths. The suite is tiered by intent — unit, integration, property, metamorphic, adversarial, integrity, longitudinal, and emergent — so an invariant regression reads differently from a flaky assertion. Live axes (`-m live`, `-m podman`, a dev-Vault CI service) verify against the real substrates, honestly skipped when absent. (Line coverage is deliberately not a headline metric here — the argument is that a structural test deleting an illegal state is worth more than a line touched; the type-gate instead enforces that every core-reaching package is type-checked at all.)
+Structural invariants carry structural tests — e.g. the balance mathematics is proven bit-identical under injection of dispositional edges, and the blessing gates' harnesses include the laundering, comment-evasion, and deletion paths. The suite is tiered by intent — unit, integration, property, metamorphic, adversarial, integrity, longitudinal, and emergent — so an invariant regression reads differently from a flaky assertion. Live axes (`-m live`, `-m podman`, a dev-Vault CI service) verify against the real substrates, honestly skipped when absent. Line+branch coverage over the deterministic tier is **88%** (reported, not gated — code reachable only through the live/podman/vault axes reads as uncovered here, by design); the stance is that a structural test deleting an illegal state matters more than a line touched, so coverage informs rather than commands, and the type-gate separately enforces that every core-reaching package is type-checked at all.
 
 ## Running it
 

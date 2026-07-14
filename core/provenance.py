@@ -38,9 +38,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Generic, TypeVar, final
-
-T = TypeVar("T")
+from typing import final
 
 
 class Provenance(StrEnum):
@@ -105,7 +103,7 @@ MIRROR_READABLE: frozenset[Provenance] = frozenset(
 
 @final
 @dataclass(frozen=True)
-class Authored(Generic[T]):
+class Authored[T]:
     """A value obtained exclusively from mirror-readable (authored) sources.
 
     An information-flow label, not a claim the owner typed this exact value: a note centroid
@@ -118,7 +116,7 @@ class Authored(Generic[T]):
 
 @final
 @dataclass(frozen=True)
-class Derived(Generic[T]):
+class Derived[T]:
     """A value that transited system inference (the INTERPRETED lane) — or mixed with one.
 
     The meet of the two-point lattice: any computation touching a `Derived` input yields
@@ -144,7 +142,7 @@ class OwnerVerdict:
     __slots__ = ()
 
 
-def promote(x: Derived[T], cap: OwnerVerdict) -> Authored[T]:
+def promote[T](x: Derived[T], cap: OwnerVerdict) -> Authored[T]:
     """The ONLY up-move of the two-point lattice — signature per §2.4, verbatim.
 
     Extends the promotion comment above `MIRROR_READABLE` ("Promotion *up* to an authored

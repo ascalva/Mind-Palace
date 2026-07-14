@@ -22,14 +22,15 @@ concurrency:
 jobs:
   ratchet:
     # The deterministic ratchet: ruff + import-firewall (Invariant 2 static proof,
-    # finding-0014) + the model-free pytest tier. 3.12, not local 3.14: scikit-network's
-    # locked version ships linux wheels only for cp311/cp312 (uv.lock); CI validates the floor.
+    # finding-0014) + the model-free pytest tier. 3.13 = the newest Python scikit-network
+    # (the Track-H graph dep) ships linux wheels for (cp310–cp313; no cp314 yet); CI runs the
+    # declared floor (requires-python >=3.13) on real wheels — no source builds.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.3.2 # exact tag: no moving `v8` major alias exists (Item 5 wiring fix)
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           enable-cache: true
           cache-dependency-glob: uv.lock
       - name: Ratchet (ruff · import-firewall · model-free pytest tier)
@@ -37,7 +38,7 @@ jobs:
           uv sync --frozen --extra dev
           uv run ruff check .
           uv run python scripts/check_imports.py   # Invariant 2 static proof in CI (finding-0014)
-          uv run pytest -q -m 'not live and not podman and not needs_vault and not needs_restic'
+          uv run pytest -q -m 'not live and not podman and not needs_vault and not needs_restic' --cov --cov-report=term
 
   type-gate:
     # The type gate (bp-008): a red type check, a Tier-2 membership violation, or a bare
@@ -51,7 +52,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.3.2 # exact tag: no moving `v8` major alias exists (Item 5 wiring fix)
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           enable-cache: true
           cache-dependency-glob: uv.lock
       - name: Type gate (Tier-2 floor + tests/ baseline + membership scans)
@@ -89,7 +90,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.3.2 # exact tag: no moving `v8` major alias exists (Item 5 wiring fix)
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           enable-cache: true
           cache-dependency-glob: uv.lock
       - name: Vault axis (needs_vault against a real dev-server)
@@ -108,7 +109,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.3.2 # exact tag: no moving `v8` major alias exists (Item 5 wiring fix)
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           enable-cache: true
           cache-dependency-glob: uv.lock
       - name: Semgrep (p/default, report-only — GitLab-SAST parity, oq-0015)

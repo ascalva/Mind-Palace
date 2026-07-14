@@ -2,7 +2,7 @@
 name = "mind-palace"
 version = "0.0.0"
 description = "Sealed, offline-first personal AI — a mind palace. Built phase by phase."
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 # Runtime deps are intentionally minimal. The sealed core (Zone A) must not pull in
 # any package that can reach the network (CONVENTIONS: "no import path that can reach
 # the network"); HTTP to the local Ollama server uses the stdlib only.
@@ -20,6 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+    "pytest-cov>=5.0",   # line+branch coverage over the deterministic tier (opt-in via --cov; not in addopts)
     "ruff>=0.5",
     "hypothesis>=6.0",   # property-based tests for the invariant catalog (I6/I9/I10/I13)
     "mypy>=1.13",
@@ -81,9 +82,27 @@ filterwarnings = [
     "ignore:.*table_names.*:DeprecationWarning",
 ]
 
+# Coverage is OPT-IN (not in addopts, to keep the inner loop fast): run it explicitly with
+#   uv run pytest -m 'not live and not podman and not needs_vault and not needs_restic' \
+#       --cov --cov-report=term-missing
+# The measured number reflects what the DETERMINISTIC tier exercises — code reachable only
+# through the live/podman/vault axes reads as uncovered here, by design (those axes run locally).
+[tool.coverage.run]
+branch = true
+source = ["core", "agents", "cloud", "config", "edge", "eval", "ops", "scheduler"]
+omit = ["*/typedshims/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+    "if __name__ == .__main__.:",
+]
+
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
