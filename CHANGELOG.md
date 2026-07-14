@@ -1,3 +1,15 @@
+# [1.8.0](https://github.com/ascalva/Mind-Palace/compare/v1.7.0...v1.8.0) (2026-07-14)
+
+
+### Features
+
+* **bp-034:** owner-gated doc_id re-key primitive + verifier rider (Item 14) ([a440dba](https://github.com/ascalva/Mind-Palace/commit/a440dba444a3e9e5eca6c3b3e8461c0c5ffb1b72))
+* **bp-034:** the id-mint migrator + owner script + e2e verify (Items 13/15/16) ([20b810f](https://github.com/ascalva/Mind-Palace/commit/20b810f7e547dc161c3ce0cc2fc4c870e7eb1633))
+* **ingest:** rename-stable doc_id — decouple identity from source_path (bp-031) ([f002985](https://github.com/ascalva/Mind-Palace/commit/f0029854a67ff5a0d3502368cba9cb8cde837617))
+* **research:** persist the EMBED tail into a curated store (bp-029 Items 27–30) ([ac8824a](https://github.com/ascalva/Mind-Palace/commit/ac8824ab627a81d4a22cc1837d8b719e331aed2d))
+* **temporal:** the mode-3 operators + superconnection curvature ‖[d,τ]‖ (bp-033) ([3379e7c](https://github.com/ascalva/Mind-Palace/commit/3379e7c020b115a84711027950267731e8a16e8c))
+* **temporal:** X_cite citation complex + the dim ker L₁ == β₁ falsifier (bp-032) ([07686fb](https://github.com/ascalva/Mind-Palace/commit/07686fb5661128e102dbb65dcd09699696503fbf))
+
 # [1.7.0](https://github.com/ascalva/Mind-Palace/compare/v1.6.0...v1.7.0) (2026-07-13)
 
 
