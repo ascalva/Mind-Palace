@@ -76,3 +76,40 @@
   W_Σ∈{0,1} guard; tier min-composition + compare=False; `req_admissible`=⊑.
 - Next: **Item 3** (the five View `SCOPE` constants + the ops-side `world_reach` bridge — the ONLY
   items touching existing code; bit-identical reads the falsifier) → **Item 4** (Inv/Rate markers).
+
+## 2026-07-15 — Items 3 + 4 GREEN; gate legs 1–4 pass; leg 5 (pytest) running
+
+- **Item 3 CLOSED — the `req()` retrofit.** One `SCOPE: ClassVar[Scope]` per View, verbatim from the
+  §2.4 table (verified against actual disposition): MirrorView (mirror_authored, {}, projection_event,
+  read/0/NONE, STRUCTURAL); ReferenceView (reference_repo, {F}, commit, …, STATIC_GUARD); TemporalView
+  (reference_repo, {F,D}, commit, …, STATIC_GUARD — the only View carrying D); OpsView (ops, {},
+  last_write, …, STATIC_GUARD); EffectView (world, {}, now, read/0/world_reach(ceiling), STRUCTURAL).
+  The ops-side `world_reach()` bridge added to `ops/effects.py` (ops→core; `ReversibilityClass`
+  unchanged). `tests/unit/test_view_scopes.py` (11 tests) — table-match + disposition guards +
+  `DEPLOYED_WORLD_CEILING is NONE` + SCOPE-is-a-ClassVar-not-a-field.
+- **FALSIFIER FIRED (as designed) → finding-0084 (spec-fidelity, resolved).** The public `SCOPE`
+  ClassVar tripped `test_reference_view.py:82`'s EXACT-public-surface assertion (its sibling
+  `test_ops_view.py:34` uses the robust `public & FORBIDDEN == ∅` pattern and passed untouched). Reads
+  are bit-identical (every read-VALUE assertion passes unchanged); only the surface ENUMERATION saw the
+  new read-only constant. Resolution: widened write_scope by ONE file (`tests/unit/test_reference_view.py`,
+  warrant finding-0084, recorded in the plan diff), added `"SCOPE"` to the expected set (no-mutator
+  guarantee preserved). The layering-correct design REQUIRES the public class attr (EffectView.SCOPE
+  must live ops-side; a core registry can't hold it without inverting ops→core), so the constant is
+  correct — the exact-set assertion + the one-file write_scope miss were the defect.
+- **Item 4 CLOSED — Inv/Rate result markers.** `Inv[T]`/`Rate[T]` (PEP 695, matching `core/provenance.py`
+  house style) + Rule CLOCK (`rate_under` — a Rate on κ needs a scope clocked on κ, else
+  `ClockMismatchError`; a Rate is unconstructable without its clock). Audit: `CoherenceReport` is Inv
+  (count + two anchors, structurally NO float/ratio field). 4 tests in test_scope.py.
+- **BIT-IDENTICAL READS PROVEN:** all pre-existing View suites green (test_mirror, test_ops_view,
+  test_reference_view [w/ the one finding-0084 line], test_temporal_view, test_effects,
+  test_temporal_view_live). New: test_scope.py (28) + test_view_scopes.py (11) = 39.
+- **GATE (5-leg, run separately):** LEG 1 ruff — PASS (StrEnum + PEP695 generics to match house style;
+  full E501 reflow pass). LEG 2 `mypy core agents eval ops scheduler scripts` — **0 issues, 187 files**
+  (186→187, the new core/scope.py). LEG 3 argless mypy — **69, HELD** (new test files added zero type
+  errors — the tooth held, no re-baseline). LEG 4 ops.type_gate — OK (core/scope.py imports no ops;
+  tier-2 membership + bare-ignore scan clean). LEG 5 pytest -q — RUNNING (background).
+- **Doc-debt (optional, NOT owed):** `site/api/core.md` could gain `::: core.scope` for API-doc
+  completeness — but reference_view/temporal_view are themselves absent there (precedent), an
+  unreferenced module doesn't break the `pages` build (stays green), and the file is out of write_scope.
+  Left for a future docs sweep.
+- Next: await leg 5 green → orchestrator flips `in-progress→complete`, seals with cost.actual.

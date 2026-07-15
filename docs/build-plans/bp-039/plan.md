@@ -15,6 +15,9 @@ write_scope:
   - core/temporal_view.py
   - core/ops_view.py
   - ops/effects.py
+  # widened at build time (warrant finding-0084): Item 3's public SCOPE constant trips this file's
+  # exact-public-surface assertion; the no-mutator guarantee is preserved (see §5).
+  - tests/unit/test_reference_view.py
 session_budget: 1
 cost:
   estimate:

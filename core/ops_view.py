@@ -23,7 +23,20 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol
+
+from core.scope import (
+    ANCHOR,
+    Authority,
+    Clock,
+    EdgeScope,
+    Scope,
+    Stratum,
+    StratumScope,
+    Tier,
+    TimeScope,
+    Window,
+)
 
 if TYPE_CHECKING:  # annotations only — NO runtime import, so core/ gains no edge to ops/ or eval/
     from core.attestation.record import Attestation
@@ -63,6 +76,19 @@ class OpsView:
 
     Construct with `OpsView.over(...)`; the fields are bound READ callables only — there is no
     mutator on this type's surface (B3's read-only guarantee)."""
+
+    # The declared capability-scope (dn-capability-scope §2.4 table; bp-039 Item 3). A pure
+    # DECLARATION — a ClassVar, not a dataclass field, so it touches neither construction nor any
+    # read. Σ = ops (the audit layer); no fibers; a last-write point window; read-only, no world
+    # reach; static+guard (typed read Protocols + the no-mutator integrity test — honestly weaker
+    # than MirrorView's structural guarantee, and labelled as such).
+    SCOPE: ClassVar[Scope] = Scope(
+        StratumScope.of(Stratum.OPS),
+        EdgeScope.bottom(),
+        TimeScope(Clock.LAST_WRITE, Window.point(ANCHOR)),
+        Authority.read_only(),
+        tier=Tier.STATIC_GUARD,
+    )
 
     _all_attestations: Callable[[], list[Attestation]]
     _attestations_by_role: Callable[[str], list[Attestation]]

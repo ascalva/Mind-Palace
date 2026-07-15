@@ -35,8 +35,20 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
+from core.scope import (
+    ANCHOR,
+    Authority,
+    Clock,
+    EdgeScope,
+    Scope,
+    Stratum,
+    StratumScope,
+    Tier,
+    TimeScope,
+    Window,
+)
 from core.stores.reference_edges import ReferenceEdge, open_reference_edge_store
 
 if TYPE_CHECKING:  # annotations only — the factory imports the config/ledger lazily at runtime
@@ -51,6 +63,19 @@ class ReferenceView:
     Construct with `ReferenceView.over(store, commit=…)`; the fields are bound READ closures
     only — the store's `add_batch`/`_conn` are unreachable through this type's surface (§2.1
     scope: the type names reads, never a mutator). Read-only + in-core (Inv 4/Inv 2)."""
+
+    # The declared capability-scope (dn-capability-scope §2.4 table; bp-039 Item 3). A pure
+    # DECLARATION — a ClassVar, not a dataclass field, so it touches neither construction nor any
+    # read. Σ = reference_repo (the C1 refinement); fiber F only (this store holds no supersession);
+    # a commit point window (the commit SHA is the consistent cut); read-only; static+guard (the
+    # frozen dataclass names reads only, backed by the no-mutator integrity test).
+    SCOPE: ClassVar[Scope] = Scope(
+        StratumScope.of(Stratum.REFERENCE_REPO),
+        EdgeScope.of("F"),
+        TimeScope(Clock.COMMIT, Window.point(ANCHOR)),
+        Authority.read_only(),
+        tier=Tier.STATIC_GUARD,
+    )
 
     # bound at .over(): the store's read closures, already filtered to the anchor commit.
     _edges_to: Callable[[str], list[ReferenceEdge]]    # references TO a ref (who cites it)

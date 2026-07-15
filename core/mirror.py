@@ -32,9 +32,21 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any, ClassVar, Protocol
 
 from core.provenance import MIRROR_READABLE, Provenance
+from core.scope import (
+    ANCHOR,
+    Authority,
+    Clock,
+    EdgeScope,
+    Scope,
+    Stratum,
+    StratumScope,
+    Tier,
+    TimeScope,
+    Window,
+)
 
 _ALLOWED = frozenset(p.value for p in MIRROR_READABLE)
 
@@ -56,6 +68,18 @@ class MirrorView:
     """An authored-only projection of the thought-graph. Every contained row is guaranteed
     `provenance ∈ MIRROR_READABLE` — the *type itself* is the proof. Obtain one via
     `MirrorView.project(store)`; direct construction with non-authored rows raises."""
+
+    # The declared capability-scope (dn-capability-scope §2.4 table; bp-039 Item 3). A pure
+    # DECLARATION — a ClassVar, not a dataclass field, so it touches neither construction nor any
+    # read. Σ = mirror_authored (the π_MR refinement); no fibers; a projection-event point window;
+    # read-only, no world reach; STRUCTURAL (a non-mirror row is unconstructable — the top tier).
+    SCOPE: ClassVar[Scope] = Scope(
+        StratumScope.of(Stratum.MIRROR_AUTHORED),
+        EdgeScope.bottom(),
+        TimeScope(Clock.PROJECTION_EVENT, Window.point(ANCHOR)),
+        Authority.read_only(),
+        tier=Tier.STRUCTURAL,
+    )
 
     _rows: tuple[dict[str, Any], ...] = ()
 

@@ -42,6 +42,22 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import ClassVar
+
+from core.scope import (
+    ANCHOR,
+    Authority,
+    Clock,
+    EdgeScope,
+    Privilege,
+    Scope,
+    Stratum,
+    StratumScope,
+    Tier,
+    TimeScope,
+    Window,
+    WorldReach,
+)
 
 
 class ReversibilityClass(IntEnum):
@@ -49,11 +65,29 @@ class ReversibilityClass(IntEnum):
 
     Deliberately an IntEnum: unlike provenance — where G8 retired the trust *order* because no
     code used it — the order here is load-bearing. It is the §4 filtration index: β is monotone
-    in it, w(β) is monotone in it, and `EffectView`'s ceiling comparison is `>` on it."""
+    in it, w(β) is monotone in it, and `EffectView`'s ceiling comparison is `>` on it.
+
+    NOTE (dn-capability-scope §2.1 / bp-039 §4): this chain is SENSING-floored — it has no member
+    below SENSING. The capability-scope layer's `W_world` chain (`core.scope.WorldReach`) adds a
+    `NONE` floor ("no world reach at all"), reachable only by holding no `EffectView`. `world_reach`
+    below is the (SENSING↦SENSING, …) bridge; it never manufactures the NONE floor."""
 
     SENSING = 0        # read-only; reversible by definition (β = 0)
     REVERSIBLE = 1     # draft / hold / stage — the owner can undo (β small)
     IRREVERSIBLE = 2   # send / pay / post / actuate — no undo (β = ∞)
+
+
+def world_reach(rc: ReversibilityClass) -> WorldReach:
+    """Lift an effector reversibility class into the scope-side `W_world` chain
+    (`core.scope.WorldReach`), whose `NONE` has no `ReversibilityClass` member: SENSING↦SENSING,
+    REVERSIBLE↦REVERSIBLE, IRREVERSIBLE↦IRREVERSIBLE. `WorldReach.NONE` is reachable
+    only by holding no `EffectView`, so this bridge never returns it. The ops→core direction keeps
+    `core/scope.py` free of any ops import (bp-039 §3 Q6 / §4)."""
+    return {
+        ReversibilityClass.SENSING: WorldReach.SENSING,
+        ReversibilityClass.REVERSIBLE: WorldReach.REVERSIBLE,
+        ReversibilityClass.IRREVERSIBLE: WorldReach.IRREVERSIBLE,
+    }[rc]
 
 
 class ApprovalStrength(IntEnum):
@@ -179,6 +213,20 @@ class EffectView:
     The ceiling defaults to SENSING (ε = 0, the reversible origin): a fresh surface can dispatch
     read-only hands and nothing else. Raising ε is a deliberate, per-surface act — the §4
     graduated rollout expressed structurally."""
+
+    # The declared capability-scope (dn-capability-scope §2.4 table; bp-039 Item 3). A pure
+    # DECLARATION — a ClassVar, not a dataclass field, so it changes neither construction nor any
+    # read. `W_world = world_reach(default ceiling = SENSING)`; a specific view's effective world
+    # reach is `world_reach(self.ceiling)`, and the DEPLOYED ceiling is NONE (no EffectView wired at
+    # any tier — finding-0011, `core.scope.DEPLOYED_WORLD_CEILING`). Structural tier (the dual of
+    # MirrorView: an effect above ε is unconstructable, not checked-then-refused).
+    SCOPE: ClassVar[Scope] = Scope(
+        StratumScope.of(Stratum.WORLD),
+        EdgeScope.bottom(),
+        TimeScope(Clock.NOW, Window.point(ANCHOR)),
+        Authority(Privilege.READ, 0, world_reach(ReversibilityClass.SENSING)),
+        tier=Tier.STRUCTURAL,
+    )
 
     _effects: tuple[Effect, ...] = ()
     ceiling: ReversibilityClass = ReversibilityClass.SENSING

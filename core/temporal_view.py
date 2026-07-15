@@ -33,11 +33,23 @@ threads, `∂₁∂₂=0`). The two-snapshot `‖[d,τ]‖` citation-coherence (
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 import scipy.sparse as sp
 
+from core.scope import (
+    ANCHOR,
+    Authority,
+    Clock,
+    EdgeScope,
+    Scope,
+    Stratum,
+    StratumScope,
+    Tier,
+    TimeScope,
+    Window,
+)
 from core.temporal.complex import (
     CitationComplex,
     build_citation_complex,
@@ -102,6 +114,19 @@ class TemporalView:
     `CitationComplex` (built once, eagerly) and the anchor commit — the store's mutators are
     unreachable because no store handle is retained (§2.1 scope: the type names reads, never a
     mutator). Read-only + in-core (Inv 4/Inv 2)."""
+
+    # The declared capability-scope (dn-capability-scope §2.4 table; bp-039 Item 3). A pure
+    # DECLARATION — a ClassVar, not a dataclass field, so it touches neither construction nor any
+    # read. Σ = reference_repo; fibers {F, D} — the citation graph AND the supersession poset the
+    # coherence read consults (well-founded D); a commit point window (interval [n, n+1] for the
+    # two-snapshot coherence read); read-only; static+guard.
+    SCOPE: ClassVar[Scope] = Scope(
+        StratumScope.of(Stratum.REFERENCE_REPO),
+        EdgeScope.of("F", "D"),
+        TimeScope(Clock.COMMIT, Window.point(ANCHOR)),
+        Authority.read_only(),
+        tier=Tier.STATIC_GUARD,
+    )
 
     _complex: CitationComplex   # the anchored X_cite, built eagerly at .over(), frozen here
     commit: str                 # the anchor commit these reads are scoped to (as ReferenceView)

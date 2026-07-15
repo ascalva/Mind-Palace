@@ -11,6 +11,7 @@ clock so windows form a clean lattice; the cross-clock partiality is tested sepa
 
 from __future__ import annotations
 
+import dataclasses
 import itertools
 
 import pytest
@@ -19,10 +20,13 @@ from core.scope import (
     DENYLIST_IDEAL,
     Authority,
     Clock,
+    ClockMismatchError,
     EdgeScope,
     Ideal,
+    Inv,
     NoCommonClockError,
     Privilege,
+    Rate,
     Scope,
     SliceError,
     Stratum,
@@ -33,6 +37,7 @@ from core.scope import (
     WorldReach,
     admissible,
     common_refinement,
+    rate_under,
     req_admissible,
 )
 
@@ -62,7 +67,8 @@ def _population() -> list[Scope]:
     # A representative cross-section (not the full product — enough distinct points for the laws).
     pop = []
     for i, sigma in enumerate(sigmas):
-        pop.append(_scope(sigma, edges[i % len(edges)], windows[i % len(windows)], auths[i % len(auths)]))
+        pop.append(_scope(sigma, edges[i % len(edges)],
+                          windows[i % len(windows)], auths[i % len(auths)]))
     for w in windows:
         pop.append(_scope(StratumScope.of(Stratum.REFERENCE_REPO), EdgeScope.of("F"), w, auths[0]))
     for a in auths:
@@ -137,9 +143,11 @@ def test_cross_clock_meet_raises():
 
 
 def test_cross_clock_scope_meet_raises():
-    a = _scope(StratumScope.of(Stratum.OPS), EdgeScope.bottom(), Window.all(), Authority.read_only())
+    a = _scope(StratumScope.of(Stratum.OPS), EdgeScope.bottom(), Window.all(),
+               Authority.read_only())
     b = Scope(StratumScope.of(Stratum.OPS), EdgeScope.bottom(),
-              TimeScope(Clock.LAST_WRITE, Window.all()), Authority.read_only(), tier=Tier.STATIC_GUARD)
+              TimeScope(Clock.LAST_WRITE, Window.all()), Authority.read_only(),
+              tier=Tier.STATIC_GUARD)
     with pytest.raises(NoCommonClockError):
         a.meet(b)
 
@@ -155,7 +163,7 @@ def test_common_refinement_poset():
     parked N ⇒ None (the constructor-error trigger). commit ⪰ distinct_snapshot is the one
     materialized comparability in v1."""
     assert common_refinement(Clock.COMMIT, Clock.DISTINCT_SNAPSHOT) is Clock.COMMIT
-    assert common_refinement(Clock.COMMIT, Clock.N_S) is None       # only common refinement is N (parked)
+    assert common_refinement(Clock.COMMIT, Clock.N_S) is None   # only N (parked)
     assert common_refinement(Clock.COMMIT, Clock.WALL) is None
     assert common_refinement(Clock.N, Clock.COMMIT) is None         # N itself is parked
     assert common_refinement(Clock.COMMIT, Clock.COMMIT) is Clock.COMMIT
@@ -246,7 +254,8 @@ def test_store_write_must_be_bit():
 
 # ── tier is a min-composed annotation, NOT a lattice element ──────────────────────────────────
 def test_tier_min_composed_and_excluded_from_equality():
-    strong = _scope(StratumScope.of(Stratum.OPS), EdgeScope.bottom(), Window.all(), Authority.read_only())
+    strong = _scope(StratumScope.of(Stratum.OPS), EdgeScope.bottom(),
+                    Window.all(), Authority.read_only())
     weak = Scope(StratumScope.of(Stratum.OPS), EdgeScope.bottom(),
                  TimeScope(Clock.COMMIT, Window.all()), Authority.read_only(), tier=Tier.CONVENTION)
     # same four lattice coordinates, different tier ⇒ EQUAL (tier is compare=False)
@@ -264,3 +273,47 @@ def test_req_admissible_is_le():
                       Window.all(), Authority.read_only())
     assert req_admissible(required, granted)
     assert not req_admissible(granted, required)
+
+
+# ── Item 4 — Inv vs Rate(κ) result typing + Rule CLOCK ────────────────────────────────────────
+def test_rule_clock_accepts_matching_clock():
+    s = _scope(StratumScope.of(Stratum.REFERENCE_REPO), EdgeScope.of("F"), Window.all(),
+               Authority.read_only())   # clocked on COMMIT
+    r = rate_under(3.5, scope=s, clock=Clock.COMMIT)
+    assert isinstance(r, Rate)
+    assert r.clock is Clock.COMMIT and r.value == 3.5
+
+
+def test_rule_clock_rejects_mismatched_clock():
+    """`q : s → Rate(κ')` under a scope clocked on κ≠κ' is rejected — a rate off an unacknowledged
+    clock is unrepresentable (the A7 guard, one type earlier)."""
+    s = _scope(StratumScope.of(Stratum.REFERENCE_REPO), EdgeScope.of("F"), Window.all(),
+               Authority.read_only())   # clocked on COMMIT
+    with pytest.raises(ClockMismatchError):
+        rate_under(3.5, scope=s, clock=Clock.WALL)
+
+
+def test_rate_carries_its_clock_never_a_bare_number():
+    """A Rate is structurally unconstructable without a clock — `clock` is a required field."""
+    field_names = {f.name for f in dataclasses.fields(Rate)}
+    assert "clock" in field_names
+    with pytest.raises(TypeError):
+        Rate(value=1.0)          # type: ignore[call-arg]  # missing the required clock — the point
+
+
+def test_coherence_report_audits_as_inv():
+    """The one BUILT temporal instrument is Inv, not Rate: `CoherenceReport` holds a count
+    (`coherence_norm`) + two anchors (`commit_from`/`commit_to`) + booleans/counts, and NO ratio
+    field — it never divides (dn-capability-scope §2.3 / bp-039 §3 Q5). Asserted STRUCTURALLY so it
+    stays true as the report evolves."""
+    from core.temporal_view import CoherenceReport
+
+    fields = {f.name: f.type for f in dataclasses.fields(CoherenceReport)}
+    # the two anchors + the count are present
+    assert {"commit_from", "commit_to", "coherence_norm"} <= set(fields)
+    # NO field is a float / ratio / rate — the Inv guarantee (no clock index divides in)
+    for name, ftype in fields.items():
+        assert "float" not in str(ftype), f"CoherenceReport.{name} looks rate-like ({ftype})"
+        assert "rate" not in name.lower() and "ratio" not in name.lower()
+    # and the marker type wraps a value cleanly
+    assert Inv(value=7).value == 7
