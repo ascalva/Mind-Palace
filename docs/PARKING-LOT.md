@@ -147,24 +147,21 @@ roadmap starts there.
 ## Owner roadmap (2026-07-15) — sequenced onto the graph
 
 The owner directed, in order: **(1) complete the algebra → (2) create (if possible) a unified query
-language → (3) the diachronic dreamer tier.** Mapped to readiness:
+language → (3) the diachronic dreamer tier**, and RULED (2026-07-15) the concrete session sequencing:
 
-1. **Complete the algebra.** The algebra's *math* is done (ratified) and `core/temporal` is *built* but
-   **wired to nothing** (only tests import it). The ready, actionable "completion" is **`CQ-wire`** — give
-   X_cite + the operators (β₁ threads, `‖[d,τ]‖` citation-coherence) their **first live consumer**. The
-   *gated* upgrades (TA-a magnetic, TA-c diamond, the metric-coherence tier) are NOT cleanly available —
-   they root on an eval set / sample depth / census-evidence not yet present. **⚠ clarify with owner:**
-   "complete the algebra" = wire the built algebra live (ready now), or pursue the gated upgrades (blocked)?
-2. **Unified query language = `CQ-scope`** (the §2.1 capability-scope type system — all Views as one
-   bounded-lattice scope algebra). **Fable-grade design** → the formalization wants the **Jul-17 Fable
-   reset**; then a build. "if possible" is apt: it's the hardest piece, but its design is largely settled
-   in CQ §2.1 (fable-vetted). This is the clean typed *home* the diachronic dreamer would then plug into.
-3. **Diachronic dreamer tier = `DD-1`** (corpus-structural, over X_cite). **Depends on `CQ-wire`** (it
-   consumes the wired algebra) + `A7` (the discriminator) + the lens contract — so it naturally *follows*
-   step 1, exactly as sequenced. `DD-2` (the observed-plane weaving / Track D) waits on the self-sensing
-   substrate + sample depth, later.
+- **SESSION N+1 — build the algebra = `CQ-wire`.** "Complete the algebra" is settled = **wire the BUILT
+  `core/temporal` (X_cite + operators: β₁ threads, `‖[d,τ]‖` citation-coherence) into its first live
+  consumer** — it is built but wired to nothing (only tests import it). Opus, **no fable** needed. The
+  *gated* upgrades (TA-a magnetic, TA-c diamond, the metric-coherence tier Result 4) are NOT part of
+  this — they stay parked behind their eval-set / sample-depth / census-evidence triggers.
+  → orchestrator graduates a `CQ-wire` plan (proposed), owner blesses, builder builds.
+- **SESSION N+2 — a FABLE session = `CQ-scope`** (the §2.1 capability-scope type system — all Views as
+  one bounded-lattice scope algebra = the unified query language). Correctly placed **after the Jul-17
+  Fable reset** (Fable is 100% capped until then). Design largely settled in CQ §2.1 (fable-vetted); the
+  fable session formalizes + the build follows.
+- **SESSION N+3+ — the diachronic dreamer = `DD-1`** (corpus-structural tier over X_cite). **Depends on
+  `CQ-wire`** (consumes the wired algebra) + `A7` + the lens contract → naturally follows the algebra
+  build. `DD-2` (observed-plane weaving / Track D) waits on the self-sensing substrate + sample depth.
 
-Dependency-soundness check: **1 → 3 is a true edge** (`CQ-wire ► DD-1`); **2 is a home, not a hard
-blocker** for 3 (DD-1 can ship as a lens before the scope type system, then be re-homed). So the owner's
-order is right, with one option: 2 and 3 can swap or parallelize since 2 is fable-gated and 3 is ready
-once 1 lands.
+Dependency-soundness: **1 → 3 is a true edge** (`CQ-wire ► DD-1`); **2 is a home, not a hard blocker**
+for 3 (DD-1 could ship as a lens then re-home into the scope algebra). The owner's order holds.
