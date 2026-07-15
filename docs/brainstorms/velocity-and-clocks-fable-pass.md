@@ -299,6 +299,42 @@ carry-forward*. Defined; not proven to be the right object; data-gated twice ove
 per-note depth). The four-curvatures taxonomy (Forman / [d,τ] / activity-conformal /
 Ollivier-bridge) stands — this candidate would *relate* #2 and #3, never conflate them with #1.
 
+### T6 (owner coda, same session) — "is cosine enough? isn't the shortest distance a geodesic?"
+
+`[DERIVED — the question re-derives Mode 1b; answered from the banked algebra]` The owner's
+closing question: with rate-of-change distorting time and deforming distances, is cosine
+similarity sufficient — isn't the true distance a geodesic along the deformed geometry? Answer:
+**yes to the instinct; cosine is the local metric, not the distance** — and the algebra already
+carries the geodesic family the question asks for.
+
+1. **Cosine = the metric tensor.** It is the *infinitesimal* (adjacent-pair) comparison; global
+   distance is path-composed — a geodesic. Raw cosine between distant notes is the **chordal**
+   (extrinsic, ambient-space) distance; the corpus's **intrinsic** distance runs through chains
+   of intermediate notes (the manifold argument). Sharper: `1 − cos` is not even a metric
+   (triangle inequality fails); cosine's own home metric is `arccos(sim)` — the great-circle
+   arc — so flat cosine retrieval already uses the chord of a *spherical* geodesic. The only
+   question is which manifold: the ambient sphere or the corpus's own graph geometry.
+2. **The geodesic family is `K(β)`** (TRA A1): `β→∞` IS the graph geodesic (tropical shortest
+   path); `β→0` the diffusion/resistance **ensemble geodesic** (all paths, thermally weighted).
+   The β* theorem (TRA §2.6) rules the choice: the pure-geodesic limit generically exits the
+   kernel cone (not negative-type), so **finite β — the smeared geodesic — is the honest
+   object.** Cosine retrieval is the zeroth-order local approximation, valid one hop out.
+3. **The conformal field is a refractive index (Fermat).** The activity potential `Φ = L⁺|ẇ|`
+   (T3) rescales the local metric; geodesics in a conformal metric bend exactly as light in a
+   varying-index medium — toward or away from churn, per the open sign question. The T3
+   instrument (activity-for-density in the α-normalization) computes precisely "geodesic
+   distance in the activity-bent geometry," with α=0 recovering the undeformed case — the
+   deformation stays a dialed hypothesis, never baked in. **Internal coherence check: `L⁺`
+   appears twice** — it solves the potential (`Φ = L⁺J`) *and* it is the β→0 metric's Green's
+   function. The operator that bends the geometry is the operator that measures distance in it.
+4. **Typing (the time half).** A distance is well-defined only ON a slice — anchored at a cut,
+   `Inv`-typed relative to it (SLICE rule); cross-anchor comparison is a `σ_*` transport
+   question; a *spacetime* geodesic (a path through graph AND revisions) is a path in the
+   version bundle = T2's locally-clocked territory, data-gated as established.
+5. **Consequence:** parked **CQ-mode1b** is re-warranted — not a ranking trick but the intrinsic
+   retrieval geometry, with the J-weighted deformation (T3) as its extension. Gates unchanged
+   (a ranking customer + eval set; R1 for J).
+
 ## What changed in the ledgers (the honest delta)
 
 - The five VF-* objects now have **formalization DONE** (this pass); their **data gates are
@@ -354,6 +390,13 @@ decisions:
     measurable at R1.
   - T5: unification candidate 𝔸_Φ = d_Φ + τ (conformally weighted coboundary) recovering ‖[d,τ]‖
     at constant Φ — SKETCH, twice data-gated.
+  - T6 (owner coda): cosine is the LOCAL metric (the metric tensor; 1−cos not even a metric —
+    arccos is the spherical geodesic), NOT the distance; the retrieval distance is the K(β)
+    geodesic family (finite β per the β* theorem — the smeared geodesic stays in the kernel
+    cone); the activity field is a refractive index (Fermat) bending those geodesics, computed
+    by the same L⁺ that measures the β→0 distance; distances are slice-anchored (Inv at a cut);
+    spacetime geodesics = T2 territory. CQ-mode1b re-warranted as the INTRINSIC retrieval
+    geometry, gates unchanged.
 
 parked:
   - decision: every V-object's DATA gate (R1/R2/R3 as in PARKING-LOT)
