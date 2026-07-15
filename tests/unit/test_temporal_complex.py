@@ -109,6 +109,55 @@ def test_flag_boundary_composition_is_zero_on_a_cite(tmp_path):
     assert flag_boundary_composition_is_zero(build_citation_complex(store))
 
 
+# ── bp-037 Item 1: the OPTIONAL commit anchor (β₁ "as of" one commit, not the union) ─────────
+
+def _multi_commit_store(tmp_path: Path,
+                        edges: list[tuple[str, str, str]]) -> ReferenceEdgeStore:
+    """A citation store holding `(source, target, commit_sha)` edges across multiple commits."""
+    store = ReferenceEdgeStore(tmp_path / "reference_edges.sqlite")
+    store.add_batch([
+        ReferenceEdge.mint(source_kind="corpus", source_ref=u, target_kind="corpus",
+                           target_ref=v, ref_type="design-ref", commit_sha=c, source_line=i + 1)
+        for i, (u, v, c) in enumerate(edges)
+    ])
+    return store
+
+
+def test_commit_anchor_filters_to_one_snapshot(tmp_path):
+    # c1 is a chordless 4-cycle a—b—c—d—a (β₁=1 in isolation); c2 re-cites a→b (a duplicate that
+    # dedups in the union) plus a lone e→f (new nodes, no cycle). The anchor sees only its slice.
+    store = _multi_commit_store(tmp_path, [
+        ("a", "b", "c1"), ("b", "c", "c1"), ("c", "d", "c1"), ("d", "a", "c1"),
+        ("a", "b", "c2"), ("e", "f", "c2"),
+    ])
+    at_c1 = build_citation_complex(store, commit="c1")
+    assert at_c1.nodes == ("a", "b", "c", "d")               # only the c1 endpoints
+    assert at_c1.n_edges == 4
+    assert dim_ker_L1(at_c1) == 1                            # the c1 4-cycle's one thread
+
+    at_c2 = build_citation_complex(store, commit="c2")
+    assert at_c2.nodes == ("a", "b", "e", "f")
+    assert at_c2.n_edges == 2                                # {a,b} and {e,f}, no cycle
+    assert dim_ker_L1(at_c2) == 0
+
+    # The falsifier: a c2 edge never leaks into the c1 snapshot.
+    assert "e" not in at_c1.node_index and "f" not in at_c1.node_index
+
+
+def test_commit_none_is_the_all_history_union_unchanged(tmp_path):
+    # The default (no kwarg) === commit=None === the union over BOTH commits — the pre-bp-037
+    # behaviour, bit-for-bit. The a→b citation appears at both commits and collapses to one 1-cell.
+    store = _multi_commit_store(tmp_path, [
+        ("a", "b", "c1"), ("b", "c", "c1"), ("c", "d", "c1"), ("d", "a", "c1"),
+        ("a", "b", "c2"), ("e", "f", "c2"),
+    ])
+    union = build_citation_complex(store)
+    assert build_citation_complex(store, commit=None).edges == union.edges  # None ≡ default
+    assert union.nodes == ("a", "b", "c", "d", "e", "f")   # all 6 nodes across history
+    assert union.n_edges == 5                              # 4-cycle (4) + {e,f}; dup a→b deduped
+    assert dim_ker_L1(union) == 1                            # still one thread (the c1 cycle)
+
+
 # ── Item 6: δ_D² = 0 and the cycle stop-and-raise ───────────────────────────────────────────
 
 def test_delta_D_squared_is_zero_on_a_multistep_chain():

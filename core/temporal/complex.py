@@ -56,14 +56,24 @@ class CitationComplex:
         return len(self.edges)
 
 
-def build_citation_complex(ref_store: ReferenceEdgeStore) -> CitationComplex:
+def build_citation_complex(ref_store: ReferenceEdgeStore, *,
+                           commit: str | None = None) -> CitationComplex:
     """Assemble `X_cite` from the doc→doc citation edges — deterministic, run-to-run byte-identical
     on the same store (node/edge ordering is sorted, never dict-iteration-dependent).
 
     0-cells = the sorted set of note ids appearing as either endpoint of a `corpus_to_corpus` edge;
     1-cells = the undirected, de-duplicated citation pairs (a self-citation `u==u` is dropped — no
-    1-cell). `A_cite` is binary (combinatorial v1). Reads only; no store mutation."""
+    1-cell). `A_cite` is binary (combinatorial v1). Reads only; no store mutation.
+
+    `commit` is the OPTIONAL anchor (dn-core-query-protocol §3 Q2; bp-037/`TemporalView`): edges are
+    per-commit (`commit_sha` is part of edge identity — `reference_edges.py`), so `commit=None`
+    (default) assembles over the ALL-HISTORY union of citation edges — the original behaviour, kept
+    bit-for-bit — while `commit=<sha>` filters to that anchor, giving β₁ "as of" one commit rather
+    than a union that can count threads across citations that never co-existed. A pure-Python filter
+    over already-read rows: no new import, no store-API change, isolation untouched (§2.4)."""
     citations = ref_store.all(direction="corpus_to_corpus")
+    if commit is not None:
+        citations = [e for e in citations if e.commit_sha == commit]
 
     node_set: set[str] = set()
     for e in citations:

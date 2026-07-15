@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-037
 alias: CQ-wire
-status: proposed
+status: complete
 design_ref:
   - docs/design-notes/core-query-protocol.md
   - docs/design-notes/temporal-retrieval-algebra.md
@@ -24,11 +24,28 @@ cost:
       β₁ only, no `connected_set` BFS, no repo-grep oracle to write (the ripser β₁ cross-check already
       exists — Item 3 re-runs it on live data). Self-driven this session lands ~0.5–0.8× (budget-tight,
       week 89%). No fable (the math is banked theorem-grade in `dn-temporal-retrieval-algebra`).
-  actual: null
+  actual:
+    model: opus            # SELF-DRIVEN (orchestrator-as-builder, no delegation — the tight week)
+    tokens: ~96k           # measured (owner /usage): 96.4k opus output for the whole session
+                           # (graduation + build, one context); 925 LOC added / 140 removed
+    ratio: ~0.53           # ~96k / 180k — UNDER estimate (self-driven lands low; test-pinned surface,
+                           # no design re-derivation). Confirms the ~0.5–0.8× self-driven band.
+    dollars: ~10.76        # whole-session cost (graduation of bp-037 EARLIER + this build); the build
+                           # itself is the bulk. 12.4m cache-read — conversation subscription-covered.
+    session_delta: "session $10.76 total (graduate bp-037 + build), one context, no delegation, no fable"
+    week_delta: "89% → 89% (FLAT — the build cost ~nothing on the weekly meter; resets Jul 17 7:59pm ET)"
+    # Credits UNCHANGED at 89% ($89.59/$100). Confirmed pattern: convos weekly/subscription-covered.
+    # GREEN attested SEPARATELY (5-leg): ruff pass; mypy typed 0 (186 files, 185→186); argless mypy 69
+    # UNCHANGED (new tests added zero type errors — the tooth held, no re-baseline); ops.type_gate OK;
+    # pytest 1131 passed / 7 skipped / 2 FAILED — the 2 are the KNOWN-FLAKY live-model dream e2e
+    # (test_dream_v2_live, test_dreaming_live; TimeoutError on a loaded box), the ONLY tolerated ones.
+    # LIVE RESULT: β₁ = 24 (Hodge dim_ker_L1 == ripser H₁) at HEAD, n_nodes=110, n_edges=217, ∂₁∂₂=0.
 depends_on: []
 parallelizable_with: []
 created: 2026-07-15
 updated: 2026-07-15
+started: 2026-07-15
+completed: 2026-07-15
 links:
   - docs/design-notes/core-query-protocol.md
   - docs/design-notes/temporal-retrieval-algebra.md

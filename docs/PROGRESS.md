@@ -3224,3 +3224,21 @@ portable backstop):
   that polluted graph (practically useless). Both fixed: bp-036 strips props from the embedded text; the
   experiment wiped + regenerated clean dreams. finding-0079 is the follow-on calibration.
 - **Session close:** owner brings the daemon back up (`launchctl bootstrap …palace.plist`). Repo clean.
+
+## 2026-07-15 — bp-037 (CQ-wire) COMPLETE: `TemporalView`, the algebra's first live consumer
+
+- **Graduated + built + sealed in one session** (owner-directed sequence). `core/temporal` (X_cite,
+  bp-032/033) was built but test-only; bp-037 wires its single-snapshot half into a live read surface.
+- **Built:** `core/temporal_view.py` — `TemporalView` (frozen, commit-anchored; holds the assembled
+  `CitationComplex`, no store handle) + `open_temporal_view` factory (anchor resolved identically to
+  `ReferenceView`). Reads: `citation_threads()` (β₁), `boundary_composition_is_zero()` (∂₁∂₂=0),
+  `n_nodes`/`n_edges`. Item 1: additive `commit` kwarg on `build_citation_complex` (default None =
+  all-history union, unchanged; `<sha>` = anchored). Item 3: live β₁ cross-checked vs independent ripser.
+- **LIVE RESULT:** β₁ = **24** independent citation threads over the corpus reference graph @ HEAD
+  (Hodge `dim_ker_L1` == ripser H₁, cross-verified), n_nodes=110, n_edges=217, ∂₁∂₂=0.
+- **Gate:** ruff ✓; mypy typed 0 (186 files); argless mypy 69 (unchanged); type_gate OK; pytest 1131
+  passed / 7 skipped / 2 failed (the known-flaky live-model dream e2e, TimeoutError — the only tolerated).
+- **Cost:** self-driven opus, ~96k output / ~$10.76 whole-session (graduation + build), ratio ~0.53×;
+  **week held flat at 89%** (subscription-covered). No delegation, no fable.
+- **Next (owner-directed):** graduate CQ-wire-2 (two-snapshot `‖[d,τ]‖` coherence), then build it. Data
+  probed: 435 distinct commits carry corpus→corpus edges (~320/commit) — two-snapshot is NOT data-starved.
