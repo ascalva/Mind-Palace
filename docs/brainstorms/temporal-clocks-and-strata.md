@@ -360,3 +360,110 @@ in the prior section carries over verbatim with the source reread as `|ẇ|`: th
 geodesics bending toward high-churn regions, the owner-as-only-energy-source closure, and the causal-set
 skeleton. **Settled one-liner: a velocity-conformal geometry on a causal-set skeleton — the corpus
 curves where it is changing, and the owner's edits are the only source of change.**
+
+## 2026-07-15T16:59:52Z — dreaming is NECESSARY: two prime movers, a driven dissipative system (heat-death coda)
+
+**The correction (owner).** The prior sections leaned on `dn-temporal-retrieval-algebra` §2.5 — *"the
+owner is the only energy source in the dynamics"* — and concluded "you are the mass." **That is too
+strong.** The owner is **not** the only prime mover: the **dreamers (at least the synchronic dreamer)**
+are a second. They *delicately* add energy and keep the system **fluctuating and healthy**; **without the
+dreamer OR the owner, the corpus stagnates over time — heat death.** In the owner's distillation:
+**dreaming is necessary** — not an optional enrichment, a *load-bearing prime mover*.
+
+**Reconciling with §2.5 (the math stands; the gloss was too broad).** The §2.5 *result* — the active-view
+transport is a strict γ-contraction except at owner promotions — is about the **belief / active view** and
+its promotion gate, and it holds: a dream lands **INTERPRETED**, not MIRROR_READABLE, so it does not enter
+the belief dynamics until the owner promotes it. What was too strong is the *gloss* "only energy source."
+Corrected: **the owner is the only source of energy into the BELIEF view (via the promotion gate); the
+autonomous dreamer is a continuous source of energy into the INTERPRETED / exploratory layer** that keeps
+the whole system far from equilibrium and *feeds* the owner's promotion queue. **Two prime movers, two
+tiers, coupled by the promotion gate.**
+
+**The thermodynamic frame this completes.** The corpus is a **driven dissipative system** (a
+non-equilibrium steady state; Prigogine's dissipative structures). The γ-contraction is the *dissipation*
+— left alone it relaxes the corpus to a fixed point: no gradients, no change, **heat death**. Two **drives**
+hold it far from equilibrium:
+- **The owner** — *episodic, high-amplitude, exogenous, authoritative.* Brings genuinely new
+  world-information (authored notes) and is the promotion gate (crystallizes energy into ground truth).
+  The deep source.
+- **The dreamer** — *continuous, delicate, autonomous, exploratory.* Generates candidate structure and
+  tensions from the corpus (through a model that is a constrained window onto the world), keeping the
+  system **fluctuating** — the "temperature" that stops it freezing into a rigid local optimum — and
+  **prompting the owner** (surfacing what needs a verdict). A true second prime mover of *activity*. This
+  is *why* dreaming is necessary: it is the only autonomous drive; remove it and the system only
+  dissipates between owner touches.
+
+**The asymmetry (be honest).** The two are not symmetric. The owner is exogenous free energy + the gate;
+the dreamer's long-run fuel traces to the owner's deposited gradients + the model's world-window + the
+promotion gate. So the rigorous open question: is the dreamer a **genuine energy source** (importing
+exogenous world-structure through the model) or a **Maxwell's-demon / heat engine** running on the owner's
+gradients (surfacing latent negentropy the owner already deposited)? Both readings are defensible; the
+architecture's INTERPRETED + owner-gated-promotion firewall exists *precisely* to keep the dreamer's
+exogenous injection from silently becoming belief. Dreamer-alone eventually exhausts the frozen corpus's
+latent structure (re-dreams the same static graph → its own stagnation); owner-alone is alive but sluggish
+(no autonomous fluctuation between touches). **You need at least one driving; losing both is heat death —
+and since the owner is intermittent, the dreamer is what keeps it alive in between, hence necessary.**
+
+**Unification with the velocity-curvature thread.** Heat death is exactly `|ẇ| → 0` everywhere — the
+change-rate field vanishes, the velocity-conformal geometry goes **flat and dead**. The two prime movers
+are what keep `|ẇ| > 0` — they *sustain the curvature*, and the curvature is the life of the system.
+**Energy source → change (ẇ) → curvature → a living, rippling geometry.** Cut the sources and it relaxes
+to flat. So the two threads are one: the drives that fight heat death are the same drives that curve the
+corpus, and *dreaming is necessary* because it is a continuous supplier of `ẇ`.
+
+**Third mover ahead.** "At least the synchronic dreamer" — the **diachronic dreamer** (DD-1, now buildable)
+would be a *third* drive, one that reads and re-injects the **change/velocity** structure itself (the
+`X_cite` dynamics), not just the synchronic snapshot: a driver that feeds on `ẇ` and proposes over it —
+energy injected into the temporal layer specifically.
+
+```capsule
+topic: temporal-clocks-and-strata
+date: 2026-07-15
+
+decisions:
+  - DREAMING IS NECESSARY (owner). CORRECTION to dn-temporal-retrieval-algebra §2.5: the owner is NOT the
+    only energy source. There are (at least) TWO prime movers — the owner (episodic, exogenous,
+    authoritative; the promotion gate) and the autonomous dreamer (continuous, delicate, exploratory;
+    keeps the system fluctuating). The §2.5 MATH (γ-contraction except at owner promotions) stands for the
+    BELIEF view; the "only source" GLOSS is refined to "only source into the belief view; the dreamer
+    drives the INTERPRETED/exploratory layer." Since the owner is intermittent, the dreamer is what keeps
+    the system alive between owner touches — hence load-bearing, not optional.
+  - The corpus is a DRIVEN DISSIPATIVE SYSTEM (non-equilibrium steady state): γ-contraction = dissipation
+    toward heat death; owner + dreamer = the two drives holding it far from equilibrium. Lose both → the
+    system relaxes to a fixed point, |ẇ|→0, the velocity-conformal geometry goes flat and dead.
+  - Unification: the energy sources sustain the change-rate |ẇ|, which sustains the curvature; life =
+    sustained |ẇ| > 0. The heat-death thread and the velocity-curvature thread are one.
+
+parked:
+  - decision: Is the dreamer a GENUINE energy source (exogenous, via the model's world-window) or a
+      Maxwell's-demon/heat-engine on the owner's deposited gradients?
+    default: both readings defensible; the INTERPRETED + owner-gated-promotion firewall constrains the
+      exogenous injection by design
+    re_entry: a Fable pass on the corpus thermodynamics (post reset), or a measured dreamer-alone run that
+      shows whether it converges (demon) or keeps finding genuinely new structure (source)
+  - decision: The two drives are asymmetric (owner = exogenous+gate; dreamer = internal fluctuation +
+      prompts the owner); formalize the coupling (does the dreamer's fluctuation rate set a floor on |ẇ|?)
+    default: qualitative; not formalized
+    re_entry: the driven-dissipative model is formalized alongside the velocity-conformal geometry
+
+open_questions:
+  - Does the diachronic dreamer (DD-1) become a THIRD drive — one that feeds on ẇ and injects into the
+    temporal layer specifically?
+  - Is there a fluctuation-dissipation relation here (dreamer fluctuation amplitude ↔ γ-contraction rate)
+    that predicts the steady-state "temperature" of a healthy corpus?
+
+next_steps:
+  - Batch a note-erratum for dn-temporal-retrieval-algebra §2.5 ("owner is the only energy source" →
+    "owner + autonomous dreamer, two tiers coupled by the promotion gate; dreaming is necessary") — the
+    note is ratified/A8, so the correction rides a finding/owner-questions, applied at the post-reset revision.
+  - Fold the driven-dissipative framing into the same post-reset Fable pass as the velocity-conformal
+    geometry and the causal-set time-index.
+
+references:
+  - docs/brainstorms/temporal-clocks-and-strata.md
+  - docs/design-notes/temporal-retrieval-algebra.md
+  - core/dreams_view.py
+  - core/provenance.py
+  - docs/design-notes/core-query-protocol.md
+  - external [FROM MEMORY -- verify]: Prigogine dissipative structures / non-equilibrium steady states; the fluctuation-dissipation theorem.
+```
