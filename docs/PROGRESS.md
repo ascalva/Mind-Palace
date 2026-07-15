@@ -3343,3 +3343,25 @@ portable backstop):
   `dn-temporal-geometry`, `dn-velocity-instruments`) → each ratification unlocks /graduate → the
   builds are Opus-tier (no fable needed; the design is banked). Buildable immediately on ratification:
   the scope typing layer (`core/scope.py`) + the velocity-instrument pair.
+
+## 2026-07-15 — SAME SESSION (6): owner RATIFIED all three notes → CQ-scope GRADUATED (`bp-039` proposed)
+
+- **Owner ratified all three fable notes by hand** (`draft→ratified`: `dn-capability-scope`,
+  `dn-velocity-instruments`, `dn-temporal-geometry`) — the blessing flip committed FIRST at `3f5591d`
+  (0060 discipline; no Co-Authored-By — owner blessing, not agent code). `/graduate` now unblocked.
+- **Fresh /usage relayed** (prices the fable session): usage credits **$112.43/$150 = 74%** (up from
+  $89.59 → the fable session drew **~$22.84**, on credits as planned; ~$37.57 headroom, resets Aug 1);
+  **week 92%** (binding Opus meter, resets Jul 17 8pm ET); Fable weekly 100% (resets Jul 17).
+- **`dn-capability-scope` GRADUATED → `bp-039 CQ-scope` (proposed).** The note licenses exactly ONE
+  plan; this is it — `core/scope.py`, a **pure typing layer, zero behavior change** (bit-identical
+  reads the whole-plan falsifier). Four blast-radius-ordered items: (1) the `Scope` lattice + `WorldReach`
+  NONE-floor + partial clock T-meet + firewall ideals; (2) lattice-law/firewall/delegation property
+  tests; (3) `req()` retrofit — a `SCOPE` class constant on the five Views + the ops-side
+  `ReversibilityClass→WorldReach` bridge (touches existing code); (4) Inv/Rate markers (independently
+  approvable, the deferrable one). Grounded in-session via ONE Explore subagent (context economy).
+  Est. opus 240k, self-driven ~0.5–0.8×; no fable, no xhigh. **Awaiting owner `proposed→ready`.**
+- **Reconciliation surfaced at graduation** (§4): the note's `W_world = NONE < SENSING` is NOT the
+  code's `ReversibilityClass` (SENSING-floored); resolved as an EXTENSION — a new pure `WorldReach`
+  enum core-side, the bridge ops-side (ops→core preserved, `core/scope.py` imports nothing from ops).
+- **Still awaiting graduation** (owner picks slot): `dn-velocity-instruments` (the measurement-class
+  instrument pair) + `dn-temporal-geometry` (mostly gated programs). Both ratified, Opus-buildable.
