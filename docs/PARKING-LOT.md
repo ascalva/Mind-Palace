@@ -95,11 +95,11 @@ non-decision condition (data accretion, an owner ruling, the Fable cap).
 ### Vector-field candidates — `docs/brainstorms/edge-dynamics-vector-field.md` (~mine, fable-grade)
 | id | item | home | status | depends on | re-entry / trigger |
 |---|---|---|---|---|---|
-| VF-covar | velocity-covariance / Koopman-lite (the corrected Q1: `cos(ẇ_i,ẇ_j)` matrix eigenmodes; market-beta split) | brainstorm | parked | → R1, (ext) Fable | R1 series exist + a Fable pass to formalize |
-| VF-velhodge | velocity Hodge decomposition (harmonic-velocity = change orbiting an unstated gap) | brainstorm | parked | → R1, → L-a, (ext) Fable | R1 + Fable |
-| VF-jointspec | joint space×time spectrum (L₁ modes × Lomb–Scargle) | brainstorm | parked | → R2, → R3 | R2/R3 land |
-| VF-duality | distant-correlation ⟺ low-graph-frequency | brainstorm | parked | → VF-covar, → L-a | VF-covar built |
-| VF-residual | prediction-residual = live creative signal (autonomous predicts dissipation; owner is the forcing term) | brainstorm | parked | → R3, → R4 | the evolution operator is fit |
+| VF-covar | velocity-covariance (the corrected Q1: `cos(ẇ_i,ẇ_j)` matrix eigenmodes; market-beta split) | brainstorm; **formalized** `velocity-and-clocks-fable-pass` V2 | parked (formalized 2026-07-15: eigenmodes = **POD, not Koopman** — non-normal transport; legitimate as DMD's spatial half; compositional-closure caveat pinned) | → R1 | R1 series exist |
+| VF-velhodge | velocity Hodge decomposition | brainstorm; **formalized** pass V1 | parked-with-an-UNLOCK (formalized 2026-07-15: splits into `P_harm(Δw)` + `(ΔP_harm)w`; **two MEASUREMENT-class two-snapshot instruments buildable NOW** per X2 — the harmonic-subspace rotation (principal angles; TRA R4 made measurable, the metric complement of ‖[d,τ]‖) + the alive/stale hole discriminator) | → L-a (BUILT); series version → R1 | owner picks a graduation slot (measurement-class half); R1 (series half) |
+| VF-jointspec | joint space×time spectrum (L₁ modes × Lomb–Scargle) | brainstorm; **formalized** pass V3 | parked (formalized: track eigenSPACE projections, not eigenvectors — determinism repair) | → R2, → R3 | R2/R3 land |
+| VF-duality | distant-correlation ⟺ low-graph-frequency | brainstorm; **formalized** pass V4 | parked (formalized: HALF a theorem — forward holds, converse REFUTED; the cheap test stands) | → VF-covar, → L-a | VF-covar built |
+| VF-residual | prediction-residual = live creative signal | brainstorm; **formalized** pass V6 | parked (formalized: Kalman innovations; by TRA R6 supported on injection events; **provenance-decomposable r_owner + r_dreamer by construction** — demon-vs-source now a specified experiment; attribution design rides DD-1's charter) | → R3, → R4 | the evolution operator is fit |
 
 ### External conditions (not decisions — the roots the chains hang from)
 - **(ext) sample depth** — data accretion over commits; the root of the whole R-ladder + every VF-*.
@@ -107,9 +107,13 @@ non-decision condition (data accretion, an owner ruling, the Fable cap).
   honest-CV threshold today.
 - **(ext) a retrieval eval set** — roots TA-b, ML-c, CQ-mode1b. Note CQ-selfgrade (bp-035's oracle)
   *bootstraps* a structural eval set; a *directed-ranking* eval set is a further step.
-- **(ext) Fable weekly cap** — resets **Jul 17 8pm ET** (currently 100% used). Gates every VF-*
-  formalization. (CQ-scope cleared this gate early: its fable pass ran 2026-07-15 on **usage
-  credits**, per the owner's directive.)
+- **(ext) Fable weekly cap** — resets **Jul 17 8pm ET** (currently 100% used). **Largely
+  discharged early**: CQ-scope AND every VF-* formalization AND the temporal-clocks fable items
+  (T1 causal-set, T2 locally-clocked superconnection def+reduction, T3 conformal repairs, T4
+  driven-dissipative, T5 unification candidate) all cleared 2026-07-15 on **usage credits**
+  (`cq-scope-fable-pass.md` + `velocity-and-clocks-fable-pass.md`). Remaining genuinely
+  fable-gated: T2's full gauge theory + T5's proof — but both are DATA-gated first (version
+  depth), so no fable unit is currently blocked on the cap.
 - **SS-substrate** — `dn-self-sensing` B-a (interpreter-version supersession) + B-b (`AgentObservationStore`
   + φ_self). Roots DD-2 / Lane B. (Build-state to verify at /triage.)
 
@@ -136,7 +140,9 @@ L-a (BUILT) ──► L-b ──► PD-f ;  L-a ──► L-c ;  L-a ──► P
 
 CQ-ref (BUILT, bp-035) ──► CQ-align ; ──► CQ-mode1b ; ──► CQ-twin (parallel, owner-ruled)
 CQ-scope (FORMALIZED 2026-07-15, fable on usage credits) ──► owner ratifies dn-capability-scope ──► the scope-layer build
-(ext) Fable reset ──► every VF-* formalization
+VF-* (ALL FORMALIZED 2026-07-15, same fable session) ──► data gates only (R1/R2/R3 unchanged);
+   EXCEPT VF-velhodge's two measurement-class instruments (X2) ──► buildable now, owner picks the slot
+temporal-clocks T1/T4 (+ owner's §2.5 erratum) ──► ONE post-reset TRA revision, opus-draftable (warrant banked)
 ```
 
 **Reading it:** almost the entire *dynamics/velocity* half hangs off one external root — **sample depth**

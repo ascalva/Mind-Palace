@@ -3286,3 +3286,33 @@ portable backstop):
 - **Desk:** bp-038 `cost.actual` reconciled from the fresh /usage (credits flat $89.59 across the build;
   week 90%→91%). External citations in the pass flagged `[FROM MEMORY — verify]` per external-grounding.
 - No delegation. Docs-only session (no gate run needed — no Python surface touched).
+
+## 2026-07-15 — SAME SESSION (owner-extended): the rigorous pass over the two open brainstorm threads
+
+- **Owner asked in-session** for a proper rigorous pass over `edge-dynamics-vector-field.md` +
+  `temporal-clocks-and-strata.md` → **`docs/brainstorms/velocity-and-clocks-fable-pass.md`** (X1–X3,
+  V1–V6, T1–T5; every claim graded, several REFUTED-and-repaired). Headlines:
+  - **X2 (the unlock):** exact one-step differences are MEASUREMENT-class — the R-ladder gates fits
+    only (bp-038's precedent generalized). Two-snapshot velocity instruments need no R1.
+  - **V1:** velocity-Hodge splits (`P_harm Δw` + `(ΔP_harm)w`); NEW buildable instrument — the
+    **harmonic-subspace rotation** (principal angles; TRA R4 made measurable); the brainstorm's
+    falsifier was near-tautological → replaced by the **alive/stale hole discriminator**.
+  - **V2:** "Koopman-lite" REFUTED — covariance eigenmodes are POD, and the transport's
+    order-upper-triangularity makes it non-normal exactly when supersession is active; legitimized
+    as DMD's spatial half. **V4:** duality is half a theorem (converse refuted). **V5:** conflation
+    split. **V3:** eigenSPACE (determinism) repair.
+  - **V6:** prediction-residual = Kalman innovations; by TRA R6 supported on injection events;
+    **provenance-decomposable (r_owner + r_dreamer) by construction** — demon-vs-source is now a
+    specified experiment.
+  - **T1:** proper time = N_s-increment EXACTLY (per-store total orders); the TRA §2 anchor answer.
+    **T2:** locally-clocked superconnection DEFINED (clock field admissible iff target is a
+    consistent cut — the SLICE rule as admissibility); REDUCTION to [d,τ] at constant field proven.
+    **T3:** Φ=L⁺J auto-centers (global rate is gauge); geometry is Rate(κ)-typed (declare the clock);
+    first instrument = activity-for-density in diffusion-maps α; **ẅ/radiation REFUTED** (no wave
+    equation). **T4:** heat death = Banach on TRA R6; belief view has ONE injection channel (dreamer
+    modulates it — two-layer skew-product); **FDT first formula: corpus temperature σ² = q/(1−γ²)**.
+    **T5:** unification candidate `𝔸_Φ = d_Φ + τ` (SKETCH).
+- **Ledger:** all five VF-* rows → formalized (data gates unchanged; VF-velhodge partially UNLOCKED);
+  the Fable-cap external root largely discharged. The post-reset TRA revision now carries T1 + T4 +
+  the owner's §2.5 erratum in one revision, opus-draftable (warrant banked). One sonnet+web
+  citation-verify sweep now covers both passes' externals.
