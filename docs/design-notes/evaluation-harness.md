@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-evaluation-harness
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: not-built # the harness itself; §2.3 catalogs per-instrument reality (built-wired → design-only)
 created: 2026-07-15
 updated: 2026-07-15
