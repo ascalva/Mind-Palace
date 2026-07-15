@@ -1,3 +1,19 @@
+# [1.11.0](https://github.com/ascalva/Mind-Palace/compare/v1.10.0...v1.11.0) (2026-07-15)
+
+
+### Bug Fixes
+
+* **pages:** drop the dead edge.monitor docs stub — unbreak the mkdocs build ([af64031](https://github.com/ascalva/Mind-Palace/commit/af64031db4a9f2a923eca4b6e8ce93a1d4bdf639))
+
+
+### Features
+
+* **bp-035:** ReferenceView — the deterministic reference read surface (§2.3) ([1585150](https://github.com/ascalva/Mind-Palace/commit/158515084892236743a9eeb39c5756dee7960c10))
+* **bp-037:** TemporalView — the temporal algebra's first live consumer (β₁ threads) ([1a7be36](https://github.com/ascalva/Mind-Palace/commit/1a7be36da7f4f5d755fea327116279d559ee67cf))
+* **bp-038:** two-snapshot ‖[d,τ]‖ citation-coherence — the algebra fully wired ([d915e85](https://github.com/ascalva/Mind-Palace/commit/d915e850d8723c330c6318e813bb1d515e61e7d8)), closes [#1](https://github.com/ascalva/Mind-Palace/issues/1)
+* **scope:** req() retrofit on the five Views + Inv/Rate markers (bp-039 Items 3-4) ([f9897b5](https://github.com/ascalva/Mind-Palace/commit/f9897b5044f8c2b8b02e7e2db1838c3552bbe38d))
+* **scope:** the CQ-scope algebra + laws (bp-039 Items 1-2) ([0ae9070](https://github.com/ascalva/Mind-Palace/commit/0ae90705a34925ccf9bac5a3eb17aa9ebd075720)), closes [#6](https://github.com/ascalva/Mind-Palace/issues/6)
+
 # [1.10.0](https://github.com/ascalva/Mind-Palace/compare/v1.9.0...v1.10.0) (2026-07-15)
 
 
