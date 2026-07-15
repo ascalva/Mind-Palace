@@ -1,3 +1,11 @@
+# [1.10.0](https://github.com/ascalva/Mind-Palace/compare/v1.9.0...v1.10.0) (2026-07-15)
+
+
+### Features
+
+* **bp-030:** lifecycle control (down/up/restart) + enriched status [Items 1,3] ([7542062](https://github.com/ascalva/Mind-Palace/commit/7542062bf43a6cf5009eb2296e05e8a954f11eb4))
+* **bp-030:** remove the dead edge monitor [Item 2] — bp-030 COMPLETE ([f53730a](https://github.com/ascalva/Mind-Palace/commit/f53730a554a5ab10747c5a6d04e71838cf1cdf9d))
+
 # [1.9.0](https://github.com/ascalva/Mind-Palace/compare/v1.8.0...v1.9.0) (2026-07-14)
 
 
