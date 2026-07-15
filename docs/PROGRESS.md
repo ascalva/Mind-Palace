@@ -3429,3 +3429,39 @@ portable backstop):
 - **/triage-8 correction:** finding-0077 → **resolved** (bp-036 already stripped ALL `key::` props +
   the owner re-embedded — the strip question was answered before I batched it). **oq-0023 closed as
   moot.** So the σ work has no finding-0077 dependency.
+
+## 2026-07-15 — ⭐ FABLE pass: `dn-evaluation-harness` written (draft) — the consolidated evaluation harness
+
+- THE fable design pass (fable+xhigh, on usage credits, owner-directed): wrote
+  `docs/design-notes/evaluation-harness.md` (`dn-evaluation-harness`, **status: draft** — owner ratifies
+  by hand). Consolidates the two draft harness spines — `capability-evaluation-harness` (offline: masked
+  replay, transformation algebra, r0→r8 ladder, six batteries, eval-results store) +
+  `live-adoption-and-longitudinal-harness` (Track L: shadow/run ledger, verdicts/REPL, tuning manifest,
+  curves, digest) — into ONE subsystem: two corpus bindings (fixture-bound | mirror-bound) of one engine
+  over one substrate, unified key `(spec_hash, corpus_ref, config_fingerprint, seed)`.
+- Decisions taken in-note: **SUPERSEDES both spines** (draft+not-built; stamped at ratification, EH-a),
+  with 5 enumerated amendments (A-1 overnight thoroughness lifts the "3–5 values, cheap" compromises;
+  A-2 bounded auto-apply exists per-lever under §14, revising Track L §7; A-3 catalog extended +
+  Inv/Rate(κ)-typed; A-4 eval-results→DuckDB, run ledger→SQLite; A-5 one substrate literal).
+  **Objective function decided:** no global objective — per-sweep declared registry key; guardrails
+  (golden recall / drift≤Θ / grounding-defect≈0 / integrity green) lexicographically prior;
+  `f9_composite` default → `precision@review` once L2 verdicts accrue (EH-c). Optimizer = deterministic
+  grid code, **model-free** (the curve is the adviser).
+- The novel core (§2.6): sweep spec + optimizer over the lever grid; per-lever `autonomy` field
+  (`propose` default / `auto` opt-in: `auto_band ⊆ range`, max_step, cooldown; `SAFE_LEVERS` becomes
+  DERIVED from the manifest); never-tunable fixed points structurally unable to express either mode
+  (no `Lever` constructor → unnameable; denylist + loader hard-fail as backstops).
+- Build decomposition **E1–E8** (§3): E1 eval-results store+registry (keystone) → {E2 run ledger+shadow,
+  E4 reports+cost ledger} ∥; E3a propose-mode sweeps, E3b auto-apply (only after blessed propose-mode
+  sets); E5 wire flag-off instruments (A2 SnapshotStore, CoherenceReport, adjudicator panel,
+  effector_drift); E6 review REPL; E7 longitudinal+F4+Θ-calibration; E8 capability batteries.
+  **bp-040 re-derived as the first sweep instance** (`sweep.dreamer-sigma-ab`: full σ grid ×
+  {phase7, dream_v2} × {F9, A2 axes, golden, drift}; needs E1+E2+E5(A2)+E4); its report feeds bp-041.
+- Disk-status verified while writing: `core/stores/verdicts.py` EXISTS (L2 store built);
+  `runledger.py` / `tune.py` / `review.py` / `curves.py` / `eval/longitudinal.py` / `eval/capability/`
+  NOT built; `tests/longitudinal/` empty. Track L's "Built:" headers were spec, not reality. Exact lever
+  names pinned from `ops/levers.py` (dream_similarity_threshold etc.).
+- Docs-only session — no gate run needed (no Python surface). No status flipped; nothing built (A4).
+- **Plan board:** complete=bp-000..bp-039; bp-040 proposed (ON HOLD, subsumed — re-derive from this note
+  post-ratification); ready/in-progress=none. **Next: owner ratifies `dn-evaluation-harness` →
+  `/graduate` the E1–E8 decomposition** (align `dn-velocity-instruments` graduation with E5/catalog).
