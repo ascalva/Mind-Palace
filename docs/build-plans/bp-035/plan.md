@@ -20,9 +20,13 @@ cost:
     ratio: ~0.58           # ~145k / 250k — UNDER estimate. Delegated but still under: a well-pinned
                            # read-surface plan (§6 interfaces copied inline) let the builder execute
                            # without re-deriving design; the padding-for-delegation margin didn't bite.
-    dollars: pending       # builder token count only; a fresh owner /usage is owed to price it + week_delta
-    session_delta: "delegated worker (not the orchestrator's session); orchestrator review+merge ~small"
-    week_delta: "pending fresh owner /usage (last relayed: week 86% pre-build; Fable 100% capped, unused)"
+    dollars: ~12           # est bp-035 share (graduation authoring + delegated build + review/merge) of
+                           # the session's $41.28; the rest of the post-bp-030-seal delta (~$24) was the
+                           # big edge-dynamics BRAINSTORM (xhigh, 3 long note reads), not bp-035.
+    session_delta: "session $17.36 (@bp-030 seal) -> $41.28; bp-035's share ~$12, the brainstorm the rest"
+    week_delta: "86% -> 88% (+2pp) over graduation+build+brainstorm; bp-035 share ~+1pp; resets Jul 17 8pm ET"
+    # Credits UNCHANGED at 89% ($89.59/$100) — still subscription/weekly-covered, not billed to credits
+    # (the confirmed pattern). Fable 100% capped (unused — bp-035 needed none). Binding meter: WEEKLY (88%).
     # Verified GREEN by the orchestrator independently: worktree pytest 1123 passed / 9 skipped / 0 failed
     # on byte-identical code, legs 1-4 re-run (argless mypy 69 held — the new-tests tooth). Oracle
     # measured doc→doc 0.996 (builder, symlinked store); skips at un-deployed HEAD (deploy-lag, expected).
