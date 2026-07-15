@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-temporal-geometry
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: design-only # nothing built; states the fable-formalized time-index, geometry, and drive results
 created: 2026-07-15
 updated: 2026-07-15

@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-velocity-instruments
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: design-only # nothing built; two instruments are measurement-class and buildable on ratification
 created: 2026-07-15
 updated: 2026-07-15

@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-capability-scope
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: design-only # nothing built; the five Views exist but carry no explicit scope type
 created: 2026-07-15
 updated: 2026-07-15
