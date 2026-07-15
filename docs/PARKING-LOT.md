@@ -44,7 +44,8 @@ non-decision condition (data accretion, an owner ruling, the Fable cap).
 | TA-a | weighted vs combinatorial inner products (the magnetic `L^{(q)}` upgrade) | TRA parked (= PD-b) | parked | → PD-b | the metric-coherence tier (Result 4) is built, OR PD-b's 2nd customer is proposed |
 | TA-b | the `(β,z)` z-resolution dial | TRA parked | parked | (ext) a retrieval eval set | an eval set gives z a falsifier |
 | TA-c | homotopy-coherent (diamond) superconnection `τ_k` | TRA parked | parked | → MAG-census | measured fork/merge **diamond frequency** warrants the rigor |
-| CQ-wire | wire `core/temporal` (X_cite β₁, `‖[d,τ]‖`) into a query ANSWER | CQ §3 / TRA | **ready** | → TA-d (built) | a consumer is graduated (the algebra's first non-test customer) |
+| CQ-wire | wire `core/temporal` **single-snapshot** (X_cite β₁ threads) into a live read surface = `TemporalView` | CQ §3 / TRA | **active** (graduated → `bp-037` proposed, 2026-07-15; awaits owner bless) | → TA-d (built) | (done: graduated. `/build bp-037` after `proposed→ready`) |
+| CQ-wire-2 | wire `core/temporal` **two-snapshot** (`‖[d,τ]‖` citation-coherence, `σ_*`, poset `δ_D²=0`) into `TemporalView` | CQ §3 / TRA | parked | → CQ-wire (bp-037, so its `TemporalView` interface is built not inferred) | graduate AFTER bp-037 builds; its open design (σ resolution across commits, deleted-note totality vs DiamondError, two-distinct-commit data availability) settles in ITS grounded pass |
 
 ### Query protocol — `dn-core-query-protocol`
 | id | item | home | status | depends on | re-entry / trigger |
@@ -128,7 +129,7 @@ non-decision condition (data accretion, an owner ruling, the Fable cap).
 MAG-census (RAN) ──────────────────► ML-a gate(ii)/(iii)   [gate iii NOT met 2026-07-15]
 MAG-census ────────────────────────► DD-1 ;  MAG-census ─► TA-c (diamond frequency)
 
-TA-d / core-temporal (BUILT) ──► CQ-wire ──► DD-1 ──► DD-2 (+ SS-substrate + TrackD)
+TA-d / core-temporal (BUILT) ──► CQ-wire (bp-037: β₁ TemporalView) ──► CQ-wire-2 (‖[d,τ]‖) ──► DD-1 ──► DD-2 (+ SS-substrate + TrackD)
                                         └──► (the algebra's first live consumer)
 L-a (BUILT) ──► L-b ──► PD-f ;  L-a ──► L-c ;  L-a ──► PD-c (+ a Ricci rung)
 
@@ -154,7 +155,11 @@ language → (3) the diachronic dreamer tier**, and RULED (2026-07-15) the concr
   consumer** — it is built but wired to nothing (only tests import it). Opus, **no fable** needed. The
   *gated* upgrades (TA-a magnetic, TA-c diamond, the metric-coherence tier Result 4) are NOT part of
   this — they stay parked behind their eval-set / sample-depth / census-evidence triggers.
-  → orchestrator graduates a `CQ-wire` plan (proposed), owner blesses, builder builds.
+  → **GRADUATED 2026-07-15**: the built surface bifurcates by data shape, so `CQ-wire` split into
+  **`bp-037`** (single-snapshot — β₁ threads via a commit-anchored `TemporalView`, `proposed`, awaits
+  owner bless) + **`CQ-wire-2`** (two-snapshot `‖[d,τ]‖` coherence, gated on bp-037 so its upstream
+  interface is built-not-inferred; open σ-resolution design settles in its own grounded pass). The
+  owner may override at the bless gate and ask for both halves in one session.
 - **SESSION N+2 — a FABLE session = `CQ-scope`** (the §2.1 capability-scope type system — all Views as
   one bounded-lattice scope algebra = the unified query language). Correctly placed **after the Jul-17
   Fable reset** (Fable is 100% capped until then). Design largely settled in CQ §2.1 (fable-vetted); the
