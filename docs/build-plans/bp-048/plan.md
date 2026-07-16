@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-048
 alias: review-repl
-status: in-progress
+status: complete
 design_ref:
   - docs/design-notes/evaluation-harness.md   # §2.2 the verdict store + review REPL; §3 E6 (Track L L2)
 contract: builder
@@ -16,7 +16,14 @@ cost:
   estimate:
     model: opus
     tokens: 220k
-  actual: null
+  actual:
+    model: claude-opus-4-8
+    tokens: 109k          # harness-measured (subagent_tokens)
+    ratio: 0.49           # 109k / 220k — well under; matches the well-pinned-delegated calibration
+    tool_uses: 65
+    duration: ~15min
+    delegated: true       # parallel supervised builder, worktree
+    gate: 5-leg green (orchestrator re-ran independently; argless mypy tail==69; suite 1235 in-worktree, 1262 combined on main)
 depends_on: []
 parallelizable_with: [bp-047]
 created: 2026-07-16

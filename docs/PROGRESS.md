@@ -3733,5 +3733,25 @@ portable backstop):
   independently: all green, argless mypy tail==69, suite 1243 passed.** Merged `--no-ff` (`351dc6d`,
   `73873eb` → merge). Cost: 104k tokens (harness-measured) = **0.52×** the opus/200k estimate — matches
   the milestone's well-pinned-delegated-lands-under calibration. Worktree removed.
-- **bp-048 `review-repl` (E6)** — building in parallel (still running at bp-047 seal); merges next, then
-  /triage the accrued debt (2 RUN observations + φ_conversation-sensor capture + findings 0086/0087).
+- **bp-048 `review-repl` (E6) — SEALED, complete.** Items 17 (`scripts/review.py` model-free review
+  REPL: joins `RunLedger.claims()` to `runs()` `run_id→pipeline` = native A/B, interleaves novel-first/
+  conf-desc, keystroke→`VERDICT_TAXONOMY`, SIGNS each `VerdictPayload(subject_id=claim_id)` via the BUILT
+  `sign_verdict`→`build_verdict_receiver` seam — the `ReviewDeps` injection keeps the builder on the
+  in-memory/test-signer path, never the real signed store; fail-closed on missing owner key) + 18
+  (`eval/harness/probes.py` append-only idempotent `ProbeStore`, `plausible`-only trigger, candidates-only
+  — NO run trigger). **§3-Q4 probe schema GROUNDED in the Track L §3 annex** (`live-adoption-and-
+  longitudinal-harness.md:140` `probe(probe_id, hypothesis, expectation_kind, target_hints)` + the
+  `plausible→probe candidate` verdict-table row) — orchestrator verified the annex says exactly this; not
+  invented; implements the plan's scoped subset (owner-initiated free-text `probe` command is a superset,
+  out of scope). Falsifiers verified by diff-read (subject_id=claim_id; signed via receiver; model-free;
+  probe only on plausible). No findings; no §10 stop-and-raise. **Orchestrator re-ran the 5-leg gate
+  independently: green, argless mypy==69, worktree suite 1235.** Merged `--no-ff` (`33250a3`, `80c01e2`).
+  Cost: 109k tokens = **0.49×** the opus/220k estimate. Worktree removed.
+- **BUILD WAVE COMPLETE.** Both delegated builds landed under estimate (0.52× / 0.49×) — the well-pinned-
+  delegated calibration holds a 5th time. Combined suite on main **1262 passed**, argless mypy==69, both
+  features coexist green. Milestone-1's automated-tuning control surface (E3a-2) + the human-labeling
+  surface (E6) now exist.
+- **Next:** **/triage** the accrued debt (2 RUN observations — the polarity coverage gap + the 0.0 structural
+  axes sanity-check; φ_conversation-sensor capture; findings 0086/0087). Then **graduate E3a-1 (bp-046)**
+  — the sweep engine — from a FRESH context against the resolved σ-fork (register `[dream_rnd]` knobs as
+  levers; it supersedes bp-040). Later, owner-gated: bp-041 (wire dream_v2 live).
