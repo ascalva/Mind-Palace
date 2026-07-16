@@ -2,12 +2,13 @@
 type: build-plan
 id: bp-045
 alias: wire-snapshot-a2
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/evaluation-harness.md
 contract: builder
 write_scope:
-  - core/dreaming/dreamer.py            # build_dreamer: pass snapshots= (additive; the ONLY change)
+  # NOTE: no inline comments on globs — scope-guard does not strip them (finding-0085). Rationale §5.
+  - core/dreaming/dreamer.py
   - tests/unit/test_build_dreamer_snapshots.py
 session_budget: 1
 cost:
@@ -22,13 +23,14 @@ cost:
       critical slice of E5 ("E5(A2)") — the rest of E5 (CoherenceReport caller, adjudicator panel,
       effector_drift into reports) is a separate deferred plan (depends on E1+E4 built).
   actual: null
-depends_on: []                          # open_snapshot_store already exists; no other plan needed to build this
+depends_on: []                          # open_snapshot_store already exists; no dep needed to build this
 parallelizable_with:
   - bp-042
   - bp-043
   - bp-044
 created: 2026-07-15
 updated: 2026-07-15
+started: 2026-07-15
 links:
   - docs/design-notes/evaluation-harness.md
   - core/dreaming/dreamer.py
