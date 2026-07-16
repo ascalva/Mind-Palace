@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-052
 alias: velocity-pair
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/velocity-instruments.md   # RATIFIED 2026-07-15 — §2.2 (a) RotationReport + (b) alive/stale; §2.1 X1–X3 typing; §3.1 licenses exactly this plan
 contract: builder
@@ -16,6 +16,16 @@ cost:
   estimate:
     model: opus
     tokens: 180k
+  actual:
+    model: opus
+    tokens: 175093        # harness-measured (subagent_tokens)
+    tool_uses: 102
+    duration_min: 25
+    ratio: 0.97           # actual/estimate tokens — well-pinned, on estimate
+    merged: 6f02d09       # 5-leg green on main: ruff · mypy(204) · argless mypy 69 · type_gate · pytest 1315p/9s/9d
+    sealed: 2026-07-16
+    dollars: pending      # wave-level $ from owner end-of-session /usage relay → PROGRESS + self-rewrite
+    findings: [finding-0091]   # math: note left the cross-edge-space subspace-angle construction implicit (routed to design)
 depends_on: []
 parallelizable_with: [bp-050, bp-051]
 created: 2026-07-16

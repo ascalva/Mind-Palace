@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-050
 alias: fibers-consumer
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/sigma-fibers-and-multiscale-dreaming.md   # RATIFIED 2026-07-16 — §2.2 fiber object; §2.3 pers + three clauses; §2.4 harness realization (FB-1)
 contract: builder
@@ -16,6 +16,16 @@ cost:
   estimate:
     model: opus
     tokens: 240k
+  actual:
+    model: opus
+    tokens: 217144        # harness-measured (subagent_tokens)
+    tool_uses: 73
+    duration_min: 23
+    ratio: 0.90           # actual/estimate tokens — well-pinned, under estimate
+    merged: 8b56998       # 5-leg green on main: ruff · mypy(203) · argless mypy 69 · type_gate · pytest 1302p/9s/9d
+    sealed: 2026-07-16
+    dollars: pending      # wave-level $ from owner end-of-session /usage relay → PROGRESS + self-rewrite
+    findings: none        # no design/math routed; §3 grounding held on verification
 depends_on: []
 parallelizable_with: [bp-051, bp-052]
 created: 2026-07-16

@@ -4001,3 +4001,27 @@ diffs read directly), merged `--no-ff`, worktrees removed.
   8pm ET (tomorrow). Wave 1 est 660k ⇒ ~1.06M padded (1.6×) — comfortably inside a fresh week;
   starting after the reset is the clean play, before it is also viable at 12%.
 - Next session: OPUS/xhigh orchestrator, delegated wave-1 builders per the resume brief.
+
+### session-20 (2026-07-16) — WAVE 1 EXECUTION: bp-050 + bp-052 merged & sealed; bp-051 in flight
+
+- **Pre-flight /usage (owner-relayed at start):** session 16% · week (all) **12%** · Fable 10% ·
+  credits 81% ($122.94/$150). Wave draws the weekly pool (ample) — gate passed, spawned all three.
+- **Spawned 3 delegated builders**, opus, each in its own isolated worktree, disjoint write_scope
+  (verified: no file overlap across bp-050/051/052). Full contract inline (ratified note cite-only,
+  4-file scope, 5-leg gate, journal, findings routing, no-blessing).
+- **bp-050 `fibers-consumer` → COMPLETE.** Merged `8b56998` (branch had `69e673f`). Diff scope-clean
+  (writes eval store only via one `put()`; no network). 5-leg green on main: ruff · mypy(203) ·
+  argless mypy **69** · type_gate · pytest 1302p/9s. Actual **217k tok / 0.90×** est, 73 tools, ~23m.
+  No findings (§3 grounding held).
+- **bp-052 `velocity-pair` → COMPLETE.** Merged `6f02d09` (3 commits). Consumes core/complex via
+  hodge public surface only (isolation intact); no store/model/network. 5-leg green: mypy(204) ·
+  argless **69** · pytest 1315p/9s. Actual **175k tok / 0.97×** est, 102 tools, ~25m. Filed
+  **finding-0091** (`math`, routed to design): dn-velocity-instruments §2.2(a) left the
+  cross-edge-space subspace-angle construction implicit; builder resolved via union-edge-space
+  embedding (standard, all falsifiers green) — note-vs-code reconciliation, batch with finding-0090.
+- **bp-051 `spine-skeleton` — still running** (GC-1; the keystone for the temporal-scaling roadmap
+  the owner raised this session — event-sourced snapshots vs O(N×T) materialization). Merge on land.
+- **Suite 1287 → 1315** (bp-050 +14, bp-052 +13). Argless mypy baseline **69 HELD** through both.
+- **Dollars/session-deltas: pending** owner end-of-session /usage relay → fill the seals' `dollars`
+  fields + wave-level economics in the self-rewrite.
+- Next: merge+seal bp-051 on completion; waves 2/3 (bp-053..057) await owner `proposed→ready`.
