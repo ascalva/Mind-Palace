@@ -32,3 +32,67 @@
   write_scope. Retrofit-pre-widen does not bite (no existing surface moved).
 - **Next:** owner blesses `proposed→ready`; delegate as a supervised builder in parallel with bp-047
   (disjoint write_scope). Pre-flight budget gate first (est opus/220k).
+
+## 2026-07-16 — BUILD START (delegated builder, opus, worktree)
+
+Active-plan pointer set to bp-048. Context manifest read in order (annex + all read-only deps).
+
+### Grounding decisions (settled during context read — NO §10 STOP)
+- **§3 Q4 probe schema — GROUNDED, not invented.** Track L §3 annex
+  (`docs/design-notes/live-adoption-and-longitudinal-harness.md:140-142`) pins the probe record as
+  `probe(probe_id, hypothesis, expectation_kind, target_hints)`; the `plausible → probe candidate`
+  trigger is pinned in the annex verdict table (`:117`) AND `core/verdict/taxonomy.py:19`. Mapping
+  the annex fields onto a `plausible`-verdicted claim (plan Q4 "claim_id + probe question +
+  provenance key"):
+    - `probe_id` = sha256(claim_id ‖ hypothesis) — idempotency-by-(claim_id, question) made
+      structural (PRIMARY KEY);
+    - `claim_id` = verdict subject linkage (plan Q2);
+    - `hypothesis` = probe question = claim `surface_text` (annex field);
+    - `expectation_kind` = claim `kind`; `target_hints` = claim `support_json` (annex fields);
+    - `pipeline` = provenance (plan Q4).
+  Store honored in write_scope: small append-only SQLite table beside the verdict store (plan §11
+  parked default). Probe *execution* (catalog row 12, R-gated) stays OUT. → No STOP: annex grounds
+  the shape and write_scope honors it.
+- **RunLedger real schema** (`runledger.py:90-98`): `dream_claims` = `claim_id, run_id, kind,
+  confidence, support_json, surface_text, novel` — NO `polarity`/`pipeline` column (plan §6 pin
+  lists `polarity` loosely). pipeline is sourced from `runs()` `run_id → pipeline`. `claims(
+  novel_only=True)` exists and is used (design note: "queue novel-first").
+- **Fail-closed on missing owner key** mirrors `scripts/verdict.py:43-47` (stderr + return 1).
+
+### The seam (model-free + testable)
+`run_review(items, deps, blind=...)` with `deps: ReviewDeps` injecting `signer / submit / next_seq
+/ record_probe / read_key / write / now`. Production `main()` wires the REAL owner path
+(`get_secret` → `Ed25519Signer.from_seed`, `build_verdict_receiver(cfg)`, `open_verdict_store` for
+seq, `open_probe_store`). Tests inject an in-memory `VerdictStore` + generated test signer +
+scripted keystrokes — the builder NEVER touches the real signed store. Keystroke map:
+`n`=novel_useful `k`=true_known `p`=plausible `w`=wrong `x`=noise; `s`=skip `q`=quit; unknown key
+re-prompts the SAME claim with NO store write.
+
+### Progress
+- [x] Item 17 — `scripts/review.py` (model-free REPL: interleaved A/B, keystroke signed verdicts
+      via the built receiver seam, `subject_id=claim_id`, session summary split by pipeline).
+- [x] Item 18 — `eval/harness/probes.py` (annex-grounded `ProbeCandidate` + append-only idempotent
+      `ProbeStore`; wired into `review.py`'s `plausible` branch via `deps.record_probe`).
+- [x] green gate (5 legs) — all green; argless mypy == 69 baseline.
+
+### Tests (write scope)
+- `tests/integration/test_review_repl.py` — 7 cases: signed+monotonic+claim_id-keyed verdicts;
+  re-emission shares subject_id; out-of-taxonomy key rejected with NO write; skip/quit; input
+  exhaustion; keymap == taxonomy; model-free source scan.
+- `tests/unit/test_probes.py` — 11 cases: annex-field mapping; idempotency by (claim_id, question);
+  open_probes reader; no mutation API; store-path placement; plausible→exactly-one-probe;
+  non-plausible→none (parametrized); re-emitted plausible → one probe.
+
+### Green-gate output (all five legs run SEPARATELY)
+- `ruff check .` → All checks passed!
+- `mypy core agents eval ops scheduler scripts` → Success: no issues found in 197 source files
+- `mypy` (argless) → Found 69 errors in 20 files (checked 403 source files)  [== baseline; exit 1]
+- `python -m ops.type_gate` → Tier-2 membership OK; bare-ignore scan OK
+- `pytest -q -m 'not live'` → 1235 passed, 10 skipped, 9 deselected
+
+### Notes for a fresh agent
+- The seam is `run_review(items, deps)`; production wiring in `main()`/`_build_production_deps`
+  is the ONLY place the real owner key + real stores are touched — untested by design (owner's act).
+- Interleave orders pipelines ALPHABETICALLY (`dream_v2` before `phase7`), novel-first/conf-desc
+  within each group — the queue `[C, A, B]` in the integration test is deliberate, not incidental.
+- No §10 STOP triggered; no finding filed. Probe schema grounded at annex `:140-142` (see above).
