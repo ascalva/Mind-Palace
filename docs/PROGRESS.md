@@ -3679,3 +3679,38 @@ portable backstop):
 - **Feeds:** bp-041 (wire dream_v2 live — the 8-vs-1 differential is the evidence) + oq-0024 (σ:
   this run used the default `[dream_rnd].sigma`; the A/B is the substrate a σ-sweep varies).
 - **Next:** graduate E3a (2-plan split) + E6 from fresh grounding (owner: this session, after the RUN).
+
+## 2026-07-16 (session 16) — GRADUATED E3a-2 (bp-047) + E6 (bp-048); E3a-1 (bp-046) PARKED on the σ-fork (owner-decided)
+
+- Ran /graduate over ratified `dn-evaluation-harness` §3 with the whole note in view (opus, self-driven).
+  Delivered TWO of the three intended plans as `proposed`; the third surfaced a genuine design fork that
+  is the owner's call, so it was filed + parked rather than built on an inferred decision (graduate A4).
+- **bp-047 `tuning-manifest` (E3a-2) — PROPOSED.** `config/tuning.toml` (per-lever `autonomy`-schema
+  overlay on the BUILT lever registry) + `eval/harness/tuning.py` (manifest model + resolved-manifest
+  fingerprint) + `scripts/tune.py` (`show`/`set`/`history`/`--revert`, attended, driving the BUILT §14
+  `SelfModLoop`). Items 15-16. `auto` mode + `apply_unattended` = E3b (out of scope). Fork-independent
+  (a schema layer over whatever levers exist). Est opus/200k. `parallelizable_with: [bp-048]`.
+- **bp-048 `review-repl` (E6) — PROPOSED.** `scripts/review.py` (model-free REPL: interleave the run
+  ledger's phase7 vs dream_v2 claims = native A/B, keystroke owner verdicts SIGNED + stored via the
+  BUILT verdict path reused verbatim from `scripts/verdict.py`, `subject_id = claim_id`) +
+  `eval/harness/probes.py` (theory-probe candidate recorder; schema grounded in the Track L §3 annex at
+  build, NOT invented). Items 17-18. Greenfield (`scripts/review.py` verified absent). Independent of
+  everything + the σ-fork. Est opus/220k. `parallelizable_with: [bp-047]` → real parallel fan-out once
+  both blessed.
+- **finding-0087 (design) + the σ-fork — RESOLVED by owner.** Grounding found the note's sweep example
+  (`levers = { dream_similarity_threshold = "full" }`) can't move the BUILT `ShadowRunner`: the 4
+  registered levers are `[dreaming]`, but the runner computes from `[dream_rnd].sigma` (unregistered)
+  and only fingerprints `[dreaming]` (`shadow.py:94-105`, a bp-043-parked placeholder). A sweep over any
+  current lever → flat curves. oq-0024's σ (`dreaming.similarity_threshold`) ≠ the runner's knob
+  (`dream_rnd.sigma`). **Owner chose fork option 1: register the `[dream_rnd]` knobs as levers** (the
+  sweep varies what the runner reads; every swept knob stays a §14-gated registered lever). Folded into
+  oq-0024 (σ VALUE still open — the sweep determines it).
+- **E3a-1 (bp-046) — RESERVED, graduates next session against the resolved fork.** The complex plan (the
+  sweep engine + the `ops/levers.py` widening + the `_config_fingerprint` widening touching `shadow.py`);
+  banked for a fresh grounded pass per context economy. bp-046 items reserved as 12-14; bp-047=15-16,
+  bp-048=17-18 (item order ≠ plan-id order here — documented). **bp-040 stays proposed/subsumed** until
+  E3a-1 graduates (its superseder); NOT flipped this session.
+- **Plan board:** complete=bp-000..bp-039, bp-042..bp-045; **proposed=bp-040 (subsumed), bp-047, bp-048**;
+  reserved=bp-046 (E3a-1); ready/in-progress=none.
+- **Next:** owner blesses bp-047 + bp-048 `proposed→ready` (by hand) → delegate as parallel supervised
+  builders (disjoint write_scope). Graduate E3a-1 (bp-046) from a fresh context against the resolved fork.

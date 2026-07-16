@@ -1,7 +1,7 @@
 ---
 type: finding
 id: finding-0087
-status: open
+status: resolved
 created: 2026-07-16
 updated: 2026-07-16
 links:
@@ -14,7 +14,7 @@ links:
 ftype: design
 origin_plan: E3a-graduation (bp-046 reserved)
 route: orchestrator
-resolution: owner-decision-owed (folds into oq-0024)
+resolution: owner-decided 2026-07-16 — FORK OPTION 1 (register [dream_rnd] knobs as levers)
 ---
 
 # The sweep can't sweep the runner: registered levers are `[dreaming]`, but `ShadowRunner` computes from `[dream_rnd]`
@@ -69,5 +69,14 @@ explicitly parked to E3), so cells are honestly distinguishable.
 ## Routing
 `design`, route → orchestrator → owner. **Folds into oq-0024** (which already asks "re-tune σ + build
 a σ-sweep harness"): this finding is the concrete grounding that the harness must resolve the
-which-knob fork first. Non-blocking for the rest of the harness (E3a-2, E6, E7 unaffected). Re-entry:
-owner picks a fork → E3a-1 (bp-046) graduates against it.
+which-knob fork first. Non-blocking for the rest of the harness (E3a-2, E6, E7 unaffected).
+
+## Resolution (owner-decided 2026-07-16)
+Owner chose **fork option 1 — register the `[dream_rnd]` knobs as levers**. E3a-1 (bp-046) graduates
+against this in a fresh session (banked in the resume brief). The graduation must first decide, as a
+reviewable diff to `ops/levers.py` (its module docstring demands exactly this), **which** `[dream_rnd]`
+knobs become levers and with what bounds — seed from `config/defaults.toml`'s `[dream_rnd]` documented
+bounds, mirroring how the 4 `[dreaming]` levers were seeded (`ops/levers.py:69-73`). `dream_rnd.sigma`
+is the headline (oq-0024's σ, once relocated to the runner's real knob). E3a-1 then also widens
+`_config_fingerprint` (`shadow.py:94-105`, the widening bp-043 parked to E3) to cover the swept knob.
+The σ VALUE itself (oq-0024 part a) stays open — the sweep is what determines it.

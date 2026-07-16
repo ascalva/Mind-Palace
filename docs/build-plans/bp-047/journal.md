@@ -23,6 +23,8 @@
   `dream_rnd.sigma` (unregistered). Resolving this (register `dream_rnd` knobs as levers? fix the
   runner to read `[dreaming]`? widen the sweep grammar?) is an owner design decision on the deliberate
   self-mod boundary → routed to the owner (finding + oq-0024). E3a-1 graduates once the fork is picked.
+  **FORK RESOLVED 2026-07-16:** owner chose **register the `[dream_rnd]` knobs as levers** (finding-0087
+  option 1). E3a-1 (bp-046) graduates against this next session (banked in the resume brief).
 - **Grounding banked (all `path:line` in §3/§6 of the plan):** the registry is exactly 4 `[dreaming]`
   levers (`ops/levers.py:75-112`); `SelfModLoop.execute` writes the overlay + records prior for exact
   rollback + `refresh_config` (`ops/selfmod.py:129-140`); `--revert` is the rollback path but ONLY for

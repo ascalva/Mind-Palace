@@ -665,7 +665,11 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   (finding-0087): (1) register `[dream_rnd]` knobs as levers [orchestrator's lean — most faithful here];
   (2) fix ShadowRunner to read `[dreaming]`; (3) widen the sweep grammar past the lever registry [weak].
   This BLOCKS graduating E3a-1 (bp-046 reserved); E3a-2 (bp-047) + E6 (bp-048) graduated regardless.
-- answer:
+- answer (2026-07-16, the WHICH-KNOB fork only): owner chose **register the `[dream_rnd]` knobs as
+  levers** (finding-0087 option 1) — the sweep varies what the runner reads, every swept knob stays a
+  registered lever inside the §14 gate. E3a-1 (bp-046) graduates against this next session. The σ VALUE
+  (part a) + the final σ pick REMAIN open — the sweep harness is what will determine them; this oq stays
+  open on that axis until the owner reviews the first σ sweep.
 
 ---
 
