@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-resolution-result-typing
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: design-only
 created: 2026-07-16
 updated: 2026-07-16
@@ -55,6 +55,13 @@ A `Res(π)` result is a measurement of **variation across a declared family of c
 over one fixed event set** — where `Inv` sees one construction and `Rate(κ)` divides by an
 event-clock's index, `Res(π)` spans a parameter family none of whose members changes what the
 client may see. First inhabitant: `pers(χ) : Res(π_σ)` (`dn-sigma-fibers` §2.3).
+
+**The motivating principle (owner ruling, 2026-07-16, recorded):** *"at different resolutions,
+different processes could be visible."* A resolution is a selector over which dynamics an
+instrument can register — high σ shows only strong-association structure, low σ admits loose
+coupling; β→∞ sees shortest paths, β→0 sees diffusion; L2 sees touchpoints, L1 sees semantics.
+The type exists so that "which process was visible" is carried with every value instead of
+being remembered by convention — the same reason a Rate carries its clock.
 
 ### 2.2 Rule SCALE
 

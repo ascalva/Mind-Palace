@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-cross-strata-dreamer
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: design-only
 created: 2026-07-16
 updated: 2026-07-16
@@ -77,6 +77,22 @@ into what looks like the owner's insight).
 **What ratifying this note changes, precisely:** it grants the *client class* "cross-strata
 correlator" a declared **read-exemption** from the mirror-payload ideal (§2.2) — read-only,
 with the §2.3 bounding conditions. It changes no enum, no view, no store, no baseline path.
+
+> **Owner ruling (2026-07-16, chat — recorded; operative on the hand-flip to `ratified`):** the
+> fork resolves YES, **in generalized form** — *"dreamers can be scoped to different strata
+> layers, and different combinations … the generalized answer would be yes, the dreamers should
+> be allowed to be scoped to use non-authored seeds; we can test it all."* I.e. the unit of
+> permission is not one bespoke subsystem but the **scope grant**: a dreamer is a
+> capability-scoped client (`dn-core-query-protocol` §2.1), and non-authored / composed strata
+> combinations are grantable **per-scope**, each grant owner-declared (a join is grantable only
+> by its holder — the ratified law), each scoped dreamer **evaluable by the harness** (the
+> per-scope A/B is the same machinery as the per-σ A/B). The bounding conditions are unchanged
+> and bind every such grant: outputs `interpreted`-only (structural), `MIRROR_READABLE`
+> untouched, the MIRROR dreamer itself stays authored-only (I6 verbatim), owner ratification the
+> only authored crossing, and the G1–G4 gate chain still fronts any build. The generalization
+> strengthens rather than loosens §2.2: the typed shape (per-stratum clocks, certified cuts,
+> ideal admissibility per client class) is what makes "different combinations" *testable* instead
+> of hazardous.
 
 ### 2.2 The union scope, typed — the algebra answers the feasibility question
 
@@ -165,7 +181,7 @@ reads are thinkable), and the Track D charter, when written, inherits §2.2's ty
 
 | id | decision | default recorded | re-entry condition |
 |---|---|---|---|
-| XS-a | the exemption's Σ extent (does it include `curated`? `ops`?) | the §2.2 four-stratum list; curated/ops excluded | the Track D charter argues a concrete consumer per added stratum |
+| XS-a | the exemption's Σ extent | **PER-GRANT (owner ruling 2026-07-16)** — no fixed list; each scoped-dreamer grant names its strata combination, is owner-declared, and is harness-evaluated (per-scope A/B = a new pipeline lane under the existing key). Gating is per-grant: G1 binds any promotion crossing; G3 binds multi-stratum grants only (single-stratum non-mirror grants need no cut — bare "now" is well-typed single-stratum); G2 binds the correlator; G4's mirror-value-first ordering stays prudential for anything feeding the promotion queue | a concrete grant is proposed (its own brainstorm → note → plan chain) |
 | XS-b | unified-snapshot semantics | per-stratum anchors in the output (§2.2 forced shape) | CS-a materializes N, or a cut-construction note ratifies — **both are now `dn-global-event-clock` (draft): its GC-3 certified cuts are the re-entry artifact** |
 | XS-c | whether cross-strata candidates carry a persistence-style strength | unscored v1 (candidates ranked by the correlator's own evidence) | companion FB-3 validates; a cross-strata fixture battery exists |
 | XS-d | authored-dialogue capture into the mirror (the substrate-growth lever the capsule flagged) | untouched here — belongs to the conversation-sensor brainstorm | that brainstorm's own graduation |
