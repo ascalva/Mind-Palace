@@ -763,4 +763,15 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   item in the bundle after the Res(π) amendment. Corrections recorded: the temporal-clocks capsule's
   "op-seq is already the spine" gloss (op-seq is ONE store's chain); the eval store records NO append
   order (keyed only — its events order via references alone).
+- update 2026-07-16 (final pass, same session): the whole temporal stack was audited against the spine
+  (dn-global-event-clock §2.9 — TRA's dilation scoped per-stratum; A7's void-the-reading rule becomes a
+  checkable window-purity spine predicate; TG-a's admissibility oracle = GC-3 cuts; the A-4 routing pin
+  IS the chain/chain-less boundary; TRA's β-dial + TG's α-knob join Res(π) as inhabitants from RATIFIED
+  notes — five total). One erratum filed: **finding-0090** (dn-temporal-geometry §2.1 "proper time =
+  per-stratum event count, exactly" holds per CHAIN, not per stratum — standing-erratum channel, the
+  ratified note untouched). **Recommended ratification order** (each unlock maximal; any subset safe):
+  Res(π) → global-event-clock → σ-fibers → cross-strata. Full design/build/test path:
+  dn-global-event-clock §3.1 (wave 1: FB-1 + GC-1 + the ratified velocity pair + the σ-sweep RUN;
+  wave 2: GC-2 + FB-2; wave 3: GC-3 + GC-4 + FB-3; wave 4: the gated instruments, incl. uuid-identity
+  before Track D).
 - answer:

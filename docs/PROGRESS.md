@@ -3905,3 +3905,35 @@ diffs read directly), merged `--no-ff`, worktrees removed.
   store's chain — supersession-lifecycle §1); the eval-store no-order audit finding. Consumer wiring:
   dn-cross-strata-dreamer G3/XS-b updated in-draft to point here. oq-0027 updated (bundle of FOUR).
 - Session-19 remains design-only: no code, no build, suite 1287 untouched, zero models resident.
+
+### session-19 final (2026-07-16) — 🔭 THE STACK AUDIT: the temporal theory checked end-to-end against the spine; the recommended path pinned
+
+- Owner asked for a final coherence pass (global clock × temporal algebra × local clocks × edge
+  dynamics) + the recommended design/build/test path. Re-read IN FULL: dn-temporal-retrieval-algebra,
+  dn-velocity-instruments, dn-temporal-geometry (all ratified), plus the built core/temporal/*. Result:
+  **dn-global-event-clock §2.9** (eight audited interactions) + **§3.1** (the sequenced path).
+- **Audit findings:** (1) TRA R5's Sz.-Nagy dilation scoped precisely — per-stratum chains embedding in
+  (N,∗), not the global object itself; (2) the A7 apophenia discriminator's "version boundary voids the
+  reading" becomes a mechanical WINDOW-PURITY spine predicate (GC-1 gives it an oracle); (3) the
+  locally-clocked superconnection's admissibility (TG §2.4: clock field targets must be consistent
+  cuts) = exactly GC-3's certified cuts — TG-a's prerequisite is GC-2+GC-3 + its data gate; (4)
+  cut-pair windows generalize the ratified interval evaluation regime conservatively (σ-transports per
+  stratum between frontiers — the same pairwise shape cross-strata forces); (5) the A-4 routing pin
+  (ledgers→SQLite, analytics→DuckDB) IS the chain/chain-less g1 boundary; (6) **finding-0090 FILED**:
+  dn-temporal-geometry §2.1's "proper time = per-stratum event count, exactly" holds per CHAIN not per
+  stratum (DuckDB stores chain-less; version chains per-doc; strata span stores) — standing-erratum
+  channel, ratified note untouched, corrected statement carried by GC-N6; (7) GC-N7 re-binning
+  sharpened by velocity X2 (measurement-class iff event-exact; interpolation ⇒ a fit ⇒ R-gated); (8)
+  **TRA's β-dial and TG's α-knob are Res(π) inhabitants** — five total (σ, β, α, grain, depth), two
+  from RATIFIED notes; the capability-invisibility proof covers them verbatim; a β*-sweep is drivable
+  by the existing sweep engine. dn-resolution-result-typing §2.5 table extended accordingly.
+- **The recommended path (dn-global-event-clock §3.1):** ratify Res(π) → global-event-clock → σ-fibers
+  → cross-strata (any subset safe). Build wave 1 (parallel, read-side): FB-1 + GC-1 + the ratified
+  velocity measurement pair + the σ-sweep RUN (owner, any night — feeds select AND FB-1). Wave 2: GC-2
+  (clock maps + N_s; C1/C2 property tests) + FB-2 (registry rows, Res-gated, 0086 riders). Wave 3:
+  GC-3 (certified cuts; crossing-edge integrity) + GC-4 (T-meet completion; bit-identical-legal-meets
+  falsifier) + FB-3 (the F9-validated gate). Wave 4 (each per its own gate): φ_coh clocked, R1
+  velocity series, J/Φ + corpus temperature, demon-vs-source (owner-gated), β*-sweep; uuid-stable
+  identity (TRA A6, owner-ruled HARD) before the diachronic reader / Track D.
+- Session remains design-only; suite 1287 untouched. The four drafts + finding-0090 + the path are the
+  session's complete deliverable set.
