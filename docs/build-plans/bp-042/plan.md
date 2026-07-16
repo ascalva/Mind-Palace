@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-042
 alias: eval-results-store
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/evaluation-harness.md
 contract: builder
