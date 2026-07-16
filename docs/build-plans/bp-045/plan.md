@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-045
 alias: wire-snapshot-a2
-status: in-progress
+status: complete
 design_ref:
   - docs/design-notes/evaluation-harness.md
 contract: builder
@@ -22,7 +22,17 @@ cost:
       bp-040's 90k. Calibrated ~60k opus. NO fable, NO xhigh. Self-driven ~0.5–0.8×. The milestone-
       critical slice of E5 ("E5(A2)") — the rest of E5 (CoherenceReport caller, adjudicator panel,
       effector_drift into reports) is a separate deferred plan (depends on E1+E4 built).
-  actual: null
+  actual:
+    model: opus            # SELF-DRIVEN (orchestrator-as-builder, no delegation)
+    tokens: pending        # measured $/opus-output await owner /usage (backfill with bp-042 at wrap)
+    ratio: pending         # vs 60k est; trivial-mechanical wiring — expected well under
+    loc: "~10 added (1-line import extend + 1 kwarg + 3-line comment in build_dreamer) + 1 test file (~95)"
+    # GREEN attested SEPARATELY (5-leg): ruff `.` PASS; mypy `core agents eval ops scheduler scripts`
+    # == 0 (190 files); argless mypy == 69 UNCHANGED (the 1 test-only _RowSource→VectorStore arg-type
+    # fixed with a cast, matching test_dream_v2's idiom); ops.type_gate OK; pytest -q -m 'not live'
+    # == 1185 passed / 7 skipped / 9 deselected(live) / 0 failures (+2 new). Live dream-e2e deselected.
+    # Falsifiers held: phase7 dream() writes no snapshot through the wired store; dream_v2 writes exactly
+    # one; no [dream_rnd] disk flag touched; existing dreamer/dream_v2 suites green unmodified.
 depends_on: []                          # open_snapshot_store already exists; no dep needed to build this
 parallelizable_with:
   - bp-042
@@ -31,6 +41,7 @@ parallelizable_with:
 created: 2026-07-15
 updated: 2026-07-15
 started: 2026-07-15
+completed: 2026-07-15
 links:
   - docs/design-notes/evaluation-harness.md
   - core/dreaming/dreamer.py
