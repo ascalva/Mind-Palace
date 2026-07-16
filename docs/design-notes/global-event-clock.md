@@ -13,6 +13,9 @@ links:
   - docs/design-notes/supersession-lifecycle.md                # §1 op-seq — the per-store chain exemplar
   - docs/design-notes/cross-strata-dreamer.md                  # G3 — the consumer whose need IS CS-a's re-entry condition
   - docs/design-notes/attestation-layer.md                     # §2 derived_from — the built reads-from generator
+  - docs/design-notes/temporal-geometry-and-drives.md          # §2.1 time-index (erratum: finding-0090); §2.4 the clock-field consumer
+  - docs/design-notes/velocity-instruments.md                  # X1-X3 typing; the Rate(κ) customers GC-2 gives clocks to
+  - docs/findings/finding-0090.md                              # the proper-time-exactness erratum the §2.2 audit surfaced
 supersedes: null
 superseded_by: null
 warrant: docs/brainstorms/temporal-clocks-and-strata.md
@@ -261,7 +264,63 @@ opens no socket (a pure-core read-side consumer; the sealed-core import discipli
   disagreeing with the spine's restriction to attested events — g2's exemplar is the calibration
   oracle; disagreement means the generalization, not the exemplar, is wrong.
 
-### 2.9 Constraints honored
+### 2.9 The stack audit — every temporal surface, checked against the spine (the final pass)
+
+The whole temporal theory was re-read against this note (2026-07-16, same session). Findings,
+each grounded; where a correction was needed it is recorded here or filed:
+
+1. **TRA §2.3 R5 (Sz.-Nagy dilation), scoped precisely.** The proven dilation is per-stratum:
+   `T_active`'s dilation is the *citation ledger's* embedding chain `H_n ↪ H_{n+1}` — the
+   stratum-level `(N_cite, ∗)`, which **embeds into** the global `(N, ∗)`. The earlier gloss
+   "(N,∗) = the dilation space" is hereby sharpened: the global all-window *contains* every
+   stratum's dilation space; the theorem is about each chain, the spine is their common home.
+   No contradiction; a scoping the audit caught.
+2. **The A7 discriminator becomes a spine predicate.** TRA §2.5 / dn-velocity-instruments bind
+   every drift claim to "Δ(record) at a FIXED interpreter version; a version boundary inside the
+   window voids the reading." In spine terms this is **window purity**: a window W is
+   content-pure iff no interpreter-version event lies in `p_κ⁻¹(W)` — a checkable query, not a
+   convention. The void-the-reading rule gets a mechanical oracle when GC-1 lands (re-embed
+   events are g1 events in the interpreter-version chain, exactly as self-sensing §2.4 mandates).
+3. **The locally-clocked superconnection's admissibility oracle is GC-3.** dn-temporal-geometry
+   §2.4 defines the clock field `n : V → ℕ` as admissible **iff its target is a consistent cut**
+   (SLICE as admissibility). Certified cuts (§2.4 here) are precisely that oracle — so TG-a's
+   prerequisite is GC-2 (N_s materialized) **plus** GC-3 (cut certification), alongside its own
+   data gate (per-note version depth). The reduction theorem (constant n ≡ 1 recovers the built
+   `[d,τ]`, `core/temporal/superconnection.py`) is untouched.
+4. **Cut-pair windows generalize the interval evaluation regime conservatively.** The ratified T
+   semantics (point ⇒ `π_active` ambient; interval ⇒ `σ_*`/`σ^*` between endpoint slices) lifts
+   to N-windows: an interval between two certified cuts evaluates σ-transports **per stratum**
+   between the cuts' per-stratum frontiers — the same pairwise product `dn-cross-strata-dreamer`
+   §2.2 forces. Single-stratum windows recover the ratified regimes verbatim.
+5. **The A-4 routing pin IS the chain boundary.** dn-evaluation-harness A-4 routed ledgers →
+   SQLite and analytics → DuckDB. The §2.2 audit shows this doubles as the g1 boundary:
+   SQLite-backed stores (versions, run ledger, edges, derived, attestations, proposals,
+   verdicts, observations) carry rowid chains; DuckDB-backed stores (eval results, telemetry)
+   are **chain-less** — their events enter Ev via g2/g3 only. The §2.2 table is therefore the
+   *core* enumeration, completed store-by-store at GC-1 under the no-silent-caps rule (any store
+   left unenumerated is named in the spine's report, never silently absent).
+6. **Proper-time exactness corrected — finding-0090.** dn-temporal-geometry §2.1 (ratified)
+   claims per-stratum totality makes "proper time = event count" an identity. The audit shows
+   exactness holds **per chain** (per-doc version chains, per-run claim sequences), not per
+   stratum (strata span stores; DuckDB stores are chain-less; version chains are per-doc). The
+   ratified note is untouched (A8); finding-0090 is the standing erratum; §2.3/GC-N6 here
+   carries the corrected statement.
+7. **Re-binning inherits X2 (measurement vs fit).** GC-N7's "re-binning = re-measurement" is
+   sharpened by dn-velocity-instruments X2: a re-binned `Rate(κ′)` is *measurement-class* only
+   when computed from exact event increments on the common window; anything requiring
+   interpolation or resampling is a **fit** and stays R-ladder-gated. The spine makes re-binning
+   possible; it does not promote fits to measurements.
+8. **TRA's β-dial and TG's α-knob are `Res(π)` inhabitants.** `K(β)` (TRA A1 — the
+   walk-temperature family with the β\* phase transition) and the diffusion-maps α-deformation
+   (`K_J = K/(J(x)J(y))^α`, TG §2.3) parameterize derived constructions over unchanged reads —
+   capability-invisible by the same proof as σ. Both are resolution rulers: β-curves and
+   α-deformations are `Res(π_β)` / `Res(π_α)`-graded results, and a future β\*-sweep is a
+   scale-family instrument the existing sweep engine can drive with zero new machinery. Recorded
+   in `dn-resolution-result-typing` §2.5; it strengthens that amendment's case (five inhabitants,
+   two of them from ratified notes) and confirms the §2.6 line: **clock-side = changes the
+   denoted events (T, scope); dial-side = changes only the derived construction (π, result).**
+
+### 2.10 Constraints honored
 
 | constraint | binding form |
 |---|---|
@@ -292,6 +351,62 @@ opens no socket (a pure-core read-side consumer; the sealed-core import discipli
   formerly-raising inputs gain values).
 
 Order: GC-1 → GC-2 → {GC-3, GC-4}. Each is a session-sized plan; `/graduate` decides splits.
+
+### 3.1 The recommended design/build/test path (the whole temporal program, sequenced)
+
+The final-pass recommendation across the four drafts and the already-ratified instrument notes —
+ratification order chosen so each blessing unlocks the maximum downstream work; build waves
+blast-radius ordered; every stage names its test tier. (This is a recommendation for `/graduate`
+and the owner's review order; it licenses nothing by itself.)
+
+**Ratify in this order (any subset is safe; defaults recorded per note):**
+`dn-resolution-result-typing` (smallest, additive; unlocks FB-2's tags and names the β/α family)
+→ `dn-global-event-clock` (unlocks GC-1..4; the CS-a/CS-b unpark) → `dn-sigma-fibers` (the first
+full consumer of both) → `dn-cross-strata-dreamer` (the fork record; no build either way).
+
+**Build wave 1 — read-side consumers, zero risk, parallelizable (delegable per the owner's
+worktree rule):**
+- **FB-1** the fibers consumer — *tests:* the degeneracy anchor + ruler falsifiers (§2.3 of
+  dn-sigma-fibers), the exact-partition oracle as the unit test; no store schema touched.
+- **GC-1** the spine skeleton — *tests:* acyclicity (integrity, non-skippable), per-store chain
+  embedding, attestation-DAG agreement (§2.8 clause 5), no-payload row audit.
+- **The velocity measurement pair** (dn-velocity-instruments §3.1 — already ratified,
+  independent of the clocks): RotationReport + global alive/stale energy — *tests:* its own
+  §2.2 falsifiers (identical-snapshots ⇒ zero; β₁=0 ⇒ empty report).
+- *Operational, owner-gated, any night:* the σ-sweep RUN (oq-0024) — one night feeds bp-049's
+  `select` AND FB-1's first real dataset.
+
+**Build wave 2 — the clock layer:**
+- **GC-2** clock maps + N_s — *tests:* C1 monotone / C2 convex-fiber property tests per
+  registered `Clock`, commit-as-range verified against the repo. Unlocks: declared clocks for
+  every `Rate(κ)` customer (velocity VI-a, φ_coh, the corpus-temperature series), and TG-a's
+  first prerequisite.
+- **FB-2** registry + catalog rows (`sigma_persistence.*`, `Res(σ)` tags; riders finding-0086's
+  `structural_axes.*`) — *tests:* registry round-trip, comparability-string presence; gated on
+  the Res(π) ratification (fallback recorded).
+
+**Build wave 3 — cuts, meets, and the gate:**
+- **GC-3** certified cuts — *tests:* the crossing-edge integrity search (§2.4); certificate
+  composition; `Scope.cut` typing. Unlocks: cross-strata G3, TG-a's admissibility oracle.
+- **GC-4** the T-meet completion — *tests:* bit-identical results on every previously-legal
+  meet (the falsifier surface); pullback-meet property tests; `NoCommonClockError` narrowed but
+  present for wall/exogenous.
+- **FB-3** the strength→surfacing gate — *tests:* the §2.5 F9 validation protocol on the
+  F1-variant fixtures; ships only if the three gate criteria hold (else parked as
+  no-signal-at-this-scale).
+
+**Build wave 4 — the instruments the clocks were for (each per its own ratified note, its own
+gate):** φ_coh with a declared clock; the R1 velocity series (`Rate(N_corpus)`); then the
+J/Φ diagnostic + corpus temperature `σ² = q/(1−γ²)` (dn-temporal-geometry §3.3, R1-gated);
+the demon-vs-source run (owner-gated); the β\*-sweep as the second `Res` instrument (TRA §2.6,
+drivable by the existing sweep engine). **On the critical path but independent of clocks:**
+the uuid-stable-identity prerequisite (TRA A6, owner-ruled HARD) before the diachronic reader /
+Track D charter; the cross-strata dreamer waits on its full G0–G4 chain regardless.
+
+**The standing test spine at every wave:** the 5-leg local gate; the integrity suite
+(non-skippable) grows by spine acyclicity + cut soundness + the no-payload audit; every new
+instrument lands with its three clauses and its falsifier test in the same plan (§7 acceptance
+discipline); every claimed number keyed `(spec_hash, corpus_ref, config_fingerprint, seed)`.
 
 ## Parked decisions
 

@@ -138,13 +138,19 @@ Result-store form at zero schema cost: `type_tag = "Res(<name>)"` in the existin
 | π | family | status |
 |---|---|---|
 | `π_σ = ("sigma", [0.55,0.75], Γ_21)` | σ-fibers claim persistence | first inhabitant (`dn-sigma-fibers`) |
+| `π_β = ("beta", (0,∞), curve)` | the `K(β)` walk-temperature retrieval family + the β\* phase-transition sweep (`dn-temporal-retrieval-algebra` §2.1/§2.6, ratified) | second inhabitant on TRA's own build; a β-sweep is drivable by the existing sweep engine (the stack audit, `dn-global-event-clock` §2.9-8) |
+| `π_α = ("alpha", [0,1], dial)` | the diffusion-maps density/activity deformation `K_J = K/(J(x)J(y))^α` (`dn-temporal-geometry` §2.3, ratified; R1-gated) | named; α=0 recovers the undeformed geometry — the floor-zero posture built into the dial |
 | `π_grain = ("grain", {chunk sizes}, …)` | chunk-smear retrieval | **parked, unchanged** — single-scale-at-chunk-grain stands; the offline grain experiment is the gate (`doc-code-entanglement` 2026-07-11) |
 | `π_depth = ("depth", {L0,L1,L2}, exact)` | conversation-layer sensor | **parked, unchanged** — L2-first build ordering per its own capsule |
 
 This table is the honest extent of the "scale as a first-class dimension" meta-pattern: **the
 typing and comparability discipline is shared; the fusion instruments are not** (selection vs
-retention-tiering vs privacy-ordering — three rules, three falsifiers, per `dn-sigma-fibers`
-§2.8). Neither park's evidence bar is lowered by being named in this table.
+retention-tiering vs privacy-ordering vs β-selection vs α-dialing — one rule per family, one
+falsifier per rule, per `dn-sigma-fibers` §2.8). No park's evidence bar is lowered by being
+named here — and two of the five inhabitants now come from *ratified* notes, which is the
+strongest evidence the type is real: the algebra keeps re-inventing it feature-by-feature. The
+capability-invisibility proof (§2.3) covers β and α verbatim: each parameterizes a derived
+construction over unchanged reads.
 
 ## 3. Consequences — what this note licenses (on ratification)
 
