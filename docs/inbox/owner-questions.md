@@ -679,3 +679,24 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   is the corrected plan-of-record). Parks as finding-0080; re-entry — owner annotates the note by hand,
   or a book chapter / downstream design is about to cite the stale 61k / extractor-first framing.
 - answer:
+
+---
+
+## oq-0026 — `dn-evaluation-harness` note-erratum: `implementation: not-built` is now stale (milestone-1 code-complete) — annotate by hand, or leave PROGRESS as the standing erratum?
+- status: open
+- origin: docs/build-plans/bp-042/plan.md §4, bp-043/plan.md §4, bp-044/plan.md §4 (batched on completion, the bp-039 pattern)
+- blocking: false
+- question: Ratified `dn-evaluation-harness` carries frontmatter `implementation: not-built`. That is now
+  overtaken by the code: **milestone-1 is code-complete** — E1 (bp-042 eval-results store + registry),
+  E2 (bp-043 run ledger + shadow runner), E4 (bp-044 report generator + cost ledger), and E5(A2) (bp-045
+  SnapshotStore-into-build_dreamer) are all BUILT + SEALED. The harness §3 decomposition still lists them
+  as pending, and §2.2/§2.6 describe several surfaces as "NOT built" that now exist. The note is ratified
+  → **immutable (A8)**; it is never hand-edited to "fix" this. Decision: **annotate** the ratified note by
+  hand (owner-only — a dated "milestone-1 built; see PROGRESS 2026-07-16 + bp-042/043/044/045" pointer in
+  the frontmatter or a header banner), or **leave** PROGRESS.md + the sealed plans as the erratum of record
+  (same discipline as oq-0025 / finding-0080 — the note stays frozen, the plan board is the plan-of-record)?
+- default_if_unanswered: leave PROGRESS.md + the sealed plans as the standing erratum (the note stays frozen
+  per A8; the plan board is the built-reality-of-record). Re-entry — owner annotates the note by hand, or a
+  book chapter / downstream design is about to cite the stale "not-built" / "NOT built" framing (the harness
+  chapter is the likely trigger — book debt is growing).
+- answer:
