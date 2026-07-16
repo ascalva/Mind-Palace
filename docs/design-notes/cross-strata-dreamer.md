@@ -11,6 +11,7 @@ links:
   - docs/design-notes/capability-scope-algebra.md              # §2.2 ideals/SLICE/partial T-meet — the machinery that types this note's verdicts
   - docs/design-notes/observed-data-and-the-assistant-tier.md  # the two-pool core decision this note preserves
   - docs/design-notes/recursive-strata.md                      # I1 + promote-by-verdict — the only authored crossing
+  - docs/design-notes/global-event-clock.md                    # G3's re-entry artifact — certified cuts (drafted same pass)
 supersedes: null
 superseded_by: null
 warrant: docs/brainstorms/cross-strata-and-multiscale-dreamers.md
@@ -148,7 +149,7 @@ joint, and the formal ground for §2.3's placement ruling.
 | G0 | THIS note ratified (the fork decision — owner hand) | draft |
 | G1 | verdict taxonomy ratified → `promote`/`OwnerVerdict` un-stubbed (`core/provenance.py:129-160`; recursive-strata §8 action 2) | unratified, stub |
 | G2 | Track D correlator charter (the subsystem this generalizes) — its ObservedView consumer, schema, budgets | not chartered |
-| G3 | the cut discipline: either CS-a (materialize N) or a ratified per-stratum-anchor output design (§2.2) | CS-a parked; anchor design drafted here, not ratified |
+| G3 | the cut discipline: either CS-a (materialize N) or a ratified per-stratum-anchor output design (§2.2) | **`dn-global-event-clock` (draft, 2026-07-16) is CS-a's designed re-entry** — certified quiescent frontiers (its §2.4/GC-3) satisfy this gate on its ratification + GC-3 shipping; the per-stratum-anchor fallback (§2.2) stands meanwhile |
 | G4 | the mirror-substrate precondition: the *mirror* dreamer demonstrates value first (the same ordering that parks recursion behind adoption — `recursive-strata.md` §1) | dual-dreamer A/B just beginning (13 notes / 4 edges) |
 
 ## 3. Consequences
@@ -165,7 +166,7 @@ reads are thinkable), and the Track D charter, when written, inherits §2.2's ty
 | id | decision | default recorded | re-entry condition |
 |---|---|---|---|
 | XS-a | the exemption's Σ extent (does it include `curated`? `ops`?) | the §2.2 four-stratum list; curated/ops excluded | the Track D charter argues a concrete consumer per added stratum |
-| XS-b | unified-snapshot semantics | per-stratum anchors in the output (§2.2 forced shape) | CS-a materializes N, or a cut-construction note ratifies |
+| XS-b | unified-snapshot semantics | per-stratum anchors in the output (§2.2 forced shape) | CS-a materializes N, or a cut-construction note ratifies — **both are now `dn-global-event-clock` (draft): its GC-3 certified cuts are the re-entry artifact** |
 | XS-c | whether cross-strata candidates carry a persistence-style strength | unscored v1 (candidates ranked by the correlator's own evidence) | companion FB-3 validates; a cross-strata fixture battery exists |
 | XS-d | authored-dialogue capture into the mirror (the substrate-growth lever the capsule flagged) | untouched here — belongs to the conversation-sensor brainstorm | that brainstorm's own graduation |
 
