@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-057
 alias: sigma-gate
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/sigma-fibers-and-multiscale-dreaming.md   # RATIFIED — §2.5 the strength→surfacing gate + the F9 validation protocol + the gate falsifier (FB-3)
 contract: builder

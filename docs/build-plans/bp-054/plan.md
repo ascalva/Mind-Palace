@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-054
 alias: res-typing-registry
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/resolution-result-typing.md               # RATIFIED — §2.2 Rule SCALE; §3.2 the Res[T] build item; §2.4 zero-schema tags
   - docs/design-notes/sigma-fibers-and-multiscale-dreaming.md   # RATIFIED — §2.4.4 the registry rows (FB-2)

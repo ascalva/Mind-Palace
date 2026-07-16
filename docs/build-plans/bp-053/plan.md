@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-053
 alias: clock-maps
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/global-event-clock.md   # RATIFIED — §2.3 clock laws C1–C4 + GC-N6; §2.9-3 (TG-a prerequisite) (GC-2)
 contract: builder

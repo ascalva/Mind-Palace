@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-055
 alias: certified-cuts
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/global-event-clock.md   # RATIFIED — §2.4 GC-N3 certified cuts + the cut falsifier (GC-3)
 contract: builder

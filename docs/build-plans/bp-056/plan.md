@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-056
 alias: tmeet-completion
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/global-event-clock.md   # RATIFIED — §2.5 the T-meet totalization + the bit-identical falsifier (GC-4)
 contract: builder
