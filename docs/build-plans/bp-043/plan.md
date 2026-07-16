@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-043
 alias: run-ledger-shadow
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/evaluation-harness.md
 contract: builder
