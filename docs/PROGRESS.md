@@ -3759,3 +3759,39 @@ portable backstop):
   axes sanity-check; φ_conversation-sensor capture; findings 0086/0087). Then **graduate E3a-1 (bp-046)**
   — the sweep engine — from a FRESH context against the resolved σ-fork (register `[dream_rnd]` knobs as
   levers; it supersedes bp-040). Later, owner-gated: bp-041 (wire dream_v2 live).
+
+### 2026-07-16 (session 17 cont.) — GRADUATED E3a-1: bp-046 `sweep-levers` + bp-049 `sweep-engine` (proposed); bp-040 SUPERSEDED
+
+- Owner directed continuing the harness build in-session (opus). Ran the grounded /graduate pass over
+  ratified `dn-evaluation-harness` §2.6/§2.9 against the RESOLVED σ-fork (finding-0087). **Split E3a-1 into
+  TWO plans** (the fork-resolution is a distinct owner-blessable unit from the engine, and the engine
+  depends on it) — fits the reserved 12-14 item band, no collision with bp-047/048's 15-18.
+- **bp-046 `sweep-levers` (item 12) — PROPOSED.** The σ-fork resolution made concrete: register
+  `dream_rnd_sigma` (section=`dream_rnd`, key=`sigma`, `[0.55,0.75]` FLOAT — the knob `shadow.py:139-146`
+  actually reads for the dream_v2 graph, NOT `dreaming.similarity_threshold`) + widen
+  `core/dreaming/shadow.py:_config_fingerprint` to hash the live value of every REGISTERED lever (derived
+  from `ops.levers.LEVERS`, so bp-049 needs no second edit). write_scope: ops/levers.py, shadow.py,
+  test_levers.py, test_shadow_runner.py (retrofit — carries the `config_fingerprint` assertions). Warrant:
+  finding-0087. Est opus/120k. `depends_on: []`.
+- **bp-049 `sweep-engine` (items 13-14) — PROPOSED.** The deterministic model-free optimizer: spec-TOML →
+  grid over the swept lever → drive BUILT `ShadowRunner.run(config=modified)` per cell (resumable by the
+  eval store's keying — free) → curve from `EvalResultsStore.query` → admissibility filter (guardrails
+  lexicographically prior) → selection (§8 math: plateau center + least-motion tie-break) → emit
+  `ProposedChange` into the §14 ledger via `SelfModLoop.propose` (PROPOSED only; honors `[selfmod] enabled`).
+  Item 13 (spec+grid, writes cells) → 14 (optimizer+emit, the effect). write_scope: eval/harness/sweep.py,
+  config/sweeps/dreamer-sigma-ab.toml, scripts/sweep.py + 2 tests. Est opus/240k. `depends_on: [bp-046]`,
+  `supersedes: bp-040`.
+- **Two grounding nuances baked into the plans (neither blocks build):** (1) `config_fingerprint` must hash
+  live lever VALUES, not bp-047's manifest POLICY (static across a sweep → would collide every cell) —
+  §2.1's "sha256 of the resolved tuning manifest" clarified in bp-046 §4. (2) `f9_composite` is REGISTERED
+  (`registry.py:80`) but NOT written per-cell by `ShadowRunner` — so the first sweep's objective must be a
+  written metric (`golden_recall`/`drift_D`/`structural_axes.*`); F9-per-cell wiring is a parked E5/E7/rider
+  concern (bp-049 §3 Q3, §11).
+- **bp-040 `dream-calibrate` → SUPERSEDED** (`superseded_by: bp-049`; orchestrator flip at graduation per
+  §2.9, NOT a blessing). Its σ-connectivity sweep is re-derived as `config/sweeps/dreamer-sigma-ab.toml`.
+  bp-040 stays inspectable.
+- **Plan board:** complete=bp-000..bp-039 + bp-042..bp-048; **proposed=bp-046, bp-049**; superseded=bp-040;
+  ready/in-progress=none.
+- **Next:** owner blesses bp-046 → ready (by hand), builds it; THEN bp-049 → ready + build (depends on
+  bp-046). /triage still owed. Once both build + the sweep RUNs → the σ curve closes oq-0024's value axis +
+  feeds bp-041 (wire dream_v2 live, owner-gated).

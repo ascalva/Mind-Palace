@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-040
 alias: dream-calibrate
-status: proposed
+status: superseded
 design_ref: []            # no design note — warranted by finding-0079 (σ) + the owner's 2026-07-15
                           # directive to bring the full dreamer online. Implements NO new design: the σ
                           # knob (config/defaults.toml:211,229) and dream_v2 (built, tested, flag-off)
@@ -36,7 +36,7 @@ links:
   - config/defaults.toml
 re_entry: null
 supersedes: null
-superseded_by: null
+superseded_by: bp-049   # E3a-1b re-derives this σ sweep as config/sweeps/dreamer-sigma-ab.toml (dn-evaluation-harness §2.9); orchestrator flip at graduation 2026-07-16
 warrant: docs/findings/finding-0079.md
 ---
 
