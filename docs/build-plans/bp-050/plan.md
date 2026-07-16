@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-050
 alias: fibers-consumer
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/sigma-fibers-and-multiscale-dreaming.md   # RATIFIED 2026-07-16 — §2.2 fiber object; §2.3 pers + three clauses; §2.4 harness realization (FB-1)
 contract: builder

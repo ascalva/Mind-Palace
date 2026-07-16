@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-051
 alias: spine-skeleton
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/global-event-clock.md   # RATIFIED 2026-07-16 — §2.1 GC-N1; §2.2 generators g1/g2/g3 + the store audit; §2.7 no-payload; §2.8 three clauses (GC-1)
 contract: builder

@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-052
 alias: velocity-pair
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/velocity-instruments.md   # RATIFIED 2026-07-15 — §2.2 (a) RotationReport + (b) alive/stale; §2.1 X1–X3 typing; §3.1 licenses exactly this plan
 contract: builder
