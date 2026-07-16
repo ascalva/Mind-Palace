@@ -3795,3 +3795,38 @@ portable backstop):
 - **Next:** owner blesses bp-046 → ready (by hand), builds it; THEN bp-049 → ready + build (depends on
   bp-046). /triage still owed. Once both build + the sweep RUNs → the σ curve closes oq-0024's value axis +
   feeds bp-041 (wire dream_v2 live, owner-gated).
+
+### session-18 (2026-07-16) — the SEQUENTIAL sweep-engine build SHIPPED (bp-046 → bp-049)
+
+Both halves of E3a-1 built, merged, sealed — sequential (bp-049 `depends_on: [bp-046]`, NOT a parallel
+wave). Each a supervised worktree builder (opus), independently 5-leg-gated + scrutinized (falsifier
+diffs read directly), merged `--no-ff`, worktrees removed.
+
+- **bp-046 `sweep-levers` COMPLETE** (`03a47df` merge, `a1ebf61` seal; cost 0.67×, 80k/240k... 80k/120k,
+  $4.24). Registered `dream_rnd_sigma` (section=dream_rnd — the knob dream_v2 actually reads for the mirror
+  graph; distinct from the `[dreaming]` live-path σ) as a `[0.55,0.75]` FLOAT lever; widened
+  `shadow.py:_config_fingerprint` to hash the live value of EVERY registered lever, derived from
+  `ops.levers.LEVERS` (not a hardcoded list), keyed `<section>.<key>`. Falsifier verified: registered σ
+  moves the fingerprint, unregistered dream_rnd knobs do not. **finding-0088 RESOLVED** as an orchestrator
+  merge-scrutiny fix (the bp-047 shipped-manifest test made registry-faithful — a write_scope omission the
+  builder correctly filed rather than routed around).
+- **bp-049 `sweep-engine` COMPLETE** (`0f5f5c3` merge, `4717c77` seal; cost 0.61×, 148k/240k). The
+  deterministic model-free grid optimizer: spec-TOML → grid over the swept lever → drive the BUILT
+  `ShadowRunner` per cell (ONE shared eval store + ONE run ledger reused; golden-fixture retriever;
+  resumability = the store's dedup, engine never re-keys) → curve from `EvalResultsStore.query` →
+  admissibility filter (guardrails lexicographically prior, applied BEFORE argmax; not-captured refuses to
+  emit) → §8 selection (widest near-optimal plateau center via grid-adjacency, least-motion tie-break —
+  verified NOT to peak-chase a knife-edge max by an adversarial test) → emit `ProposedChange` via
+  `SelfModLoop.propose` (PROPOSED only, honors `[selfmod] enabled`, never auto-executes). Supersedes bp-040.
+  **finding-0089** (which per-pipeline curve `select` uses) resolved in-scope with a recorded
+  `select_pipeline` default (the dream_v2 lane the σ lever drives); the design-note question left OPEN for
+  /triage.
+- **Suite 1264 (after bp-046) → 1287 (after bp-049)** on main; argless mypy==69 [HELD]; all 5 legs green.
+- **Economics:** session-18 aggregate **$12.86** (opus; bp-046 $4.24 + bp-049/orchestration ~$8.62). Week
+  6%→7% (+1pt), Fable 0%, **credits UNCHANGED $122.94/$150** — a build wave draws the WEEKLY allowance, not
+  the $27 credit pool (confirmed a third time). Well-pinned delegated builds landed 0.67× / 0.61×.
+- **Plan board:** complete=bp-000..bp-039 + bp-042..bp-049; superseded=bp-040; proposed/ready/in-progress=none.
+- **Next:** the σ-sweep can RUN (owner/scheduler act; needs `[selfmod] enabled` to emit) → closes oq-0024's
+  VALUE axis + feeds bp-041 (wire dream_v2 live, owner-gated). Owner floated a **σ-fibers / multi-strength
+  design idea** (captured `brainstorms/`) — a live thread with the carried multiscale-dreamers brainstorm.
+  /triage still owed (2 RUN obs + φ_conversation-sensor + findings 0086/0089).
