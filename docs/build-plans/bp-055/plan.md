@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-055
 alias: certified-cuts
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/global-event-clock.md   # RATIFIED — §2.4 GC-N3 certified cuts + the cut falsifier (GC-3)
 contract: builder
@@ -15,6 +15,17 @@ cost:
   estimate:
     model: opus
     tokens: 180k
+  actual:
+    model: opus
+    tokens: 220355        # harness-measured
+    tool_uses: 124
+    ratio: 1.22           # actual/estimate (180k) — GC-3 carried a live-data integrity tooth + cross-strata composition
+    merged: d95810f       # 5-leg green on main: ruff · mypy(205) · argless 69 · type_gate · pytest 1398p/7s;
+                          # live-data cut-soundness (2 *_on_real_stores legs) PASSED on data/ in the uncommitted merge
+    sealed: 2026-07-16
+    dollars: ~$21.18 session-21 total  # incl. aborted bp-056/057 spawns + worktree recovery; credits +$5.61 ($122.94→$128.55, 85%), week +1pt (19→20%), 5h-session window maxed (100%)
+    findings: [finding-0095]   # spec-fidelity RESOLVED — stratum→certificate map (_STRATUM_CERTIFICATES);
+                          # §10 trough contingency resolved WITHOUT a park (JobQueue.counts() readable quiescence)
 depends_on: [bp-053]
 parallelizable_with: [bp-056, bp-057]
 created: 2026-07-16

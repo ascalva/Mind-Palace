@@ -4093,3 +4093,35 @@ unchanged (5th pool-split confirmation).
   gated + sealed + pushed. The per-plan seals' `dollars` defer here — this block is the authoritative figure.
 - **Session hit 83%** at wrap — stopped at the wave-2 boundary (context-economy); wave 3 handed to a fresh
   session via the rewritten resume brief.
+
+### session-21 (2026-07-16) — WAVE 3 START: bp-055 merged & sealed; PAUSED (session window maxed, credits low)
+
+- **bp-055 (certified-cuts, GC-3) MERGED `d95810f` + SEALED `complete`.** `CertifiedCut` + the three
+  certificates (commit / trough-quiescent / handoff-empty) + composition + the crossing-edge soundness
+  tooth, all additive on the spine; `core/scope.py` UNTOUCHED (the pin held — CertifiedCut rides the opaque
+  `cut`). 5-leg green on main (ruff · mypy 205 · **argless 69** · type_gate · pytest **1398p/7s**, suite
+  1375→1398). **Live-data cut-soundness ran on real `data/` in the uncommitted merge state — both
+  `*_on_real_stores` legs PASSED** (the bp-051 discipline applied). **220k harness tokens / 1.22×** (a live-
+  data tooth + cross-strata composition, slightly over the well-pinned band). **finding-0095**
+  (spec-fidelity, RESOLVED): the stratum→certificate map (`_STRATUM_CERTIFICATES`); the §10 trough
+  contingency resolved **WITHOUT a park** — the scheduler exposes readable quiescence via `JobQueue.counts()`
+  (injected as `TroughState`, since core can't import scheduler — a cycle). No design/math/direction findings.
+- **INCIDENT + RECOVERY (worktree corruption): bp-056/bp-057 died on transient `Connection closed
+  mid-response` API drops during worktree setup.** Resuming them via `SendMessage` re-ran setup into a
+  corrupted state: bp-056's branch got checked out in the MAIN dir (`main` was checked out nowhere), bp-057
+  got no worktree at all. **No work lost** (both were only reading; main dir was clean, zero commits on the
+  stray branch). Recovery: stopped both, `git switch main` in the main dir, deleted the tangled empty branch,
+  pruned. **LESSON (recorded for the delegate skill): a worktree-isolated agent that dies DURING worktree
+  setup must be RE-SPAWNED FRESH, never `SendMessage`-resumed** — resume corrupts the half-built worktree.
+- **Owner directive mid-session: serialize to ONE active builder at a time** (the double-drop happened at 3
+  concurrent). Re-spawned bp-056 fresh (clean worktree, verified), then stopped it to honor serial mode;
+  bp-055 ran solo to completion. bp-056/bp-057 remain `ready`, unbuilt.
+- **Economics (owner-relayed /usage at pause):** session cost **$21.18** (opus; incl. the aborted bp-056/057
+  spawns + worktree recovery + bp-055's merge/gate/seal). **5h session window hit 100% (maxed)** → resets
+  8:19pm ET. **Week (all) 19%→20% (+1pt).** Fable 10% unchanged. **Credits 81%→85% (+$5.61,
+  $122.94→$128.55)** — this BREAKS session-20's "credits unchanged" pattern *precisely because* the session
+  window maxed: once the 5h subscription allowance is exhausted, overflow spills to the $150 credit pool.
+  A NEW economic datum — the weekly-pool-only rule holds only while the session window has headroom.
+- **PAUSED after the bp-055 merge per owner** (credits low + session maxed). bp-056 (merge LAST, xhigh
+  scope.py review) + bp-057 (conditional ship / park-and-record) handed to a fresh session via the rewritten
+  resume brief — best resumed after the 8:19pm session reset, ONE builder at a time.
