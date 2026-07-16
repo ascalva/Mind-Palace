@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-045
 alias: wire-snapshot-a2
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/evaluation-harness.md
 contract: builder
