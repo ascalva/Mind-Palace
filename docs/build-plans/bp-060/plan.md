@@ -207,19 +207,33 @@ def run_conductance(*, view, spine, sigma_grid, t_grid, eval_store, base_fingerp
 - **Parallelizable?** No.  **Depends on:** item 4.
 
 ### Item 6 — the reconnection rider (synthetic-verified) + entry point + readings  (blast: additive writes)
-- **Objective:** `reconnection_scan` on a cut-pair: a Δ-conductance spike verified by leave-one-out edge
-  attribution; the entry point + keyed readings with the ConnEvidence pin.
+
+> **CORRECTION BANNER (finding-0099, 2026-07-17, pre-blessing):** CN-3's "a rise requires new
+> edges" is the **unweighted shadow** of the exact law. Under this plan's weighted measure
+> (`w = cos^α·exp(…)` — and `cos` moves when a note is edited), Rayleigh monotonicity says:
+> conductance is monotone in each edge **weight**; a rise between cuts requires ≥1 edge-**weight**
+> increase, of which a new edge is the 0→w special case. The attribution set is therefore the
+> **weight-increased edges** (added OR edited), not new edges only; leave-one-out verification
+> applies to it verbatim. Numerically checked (capture `graph-at-a-past-cut` D5).
+
+- **Objective:** `reconnection_scan` on a cut-pair: a Δ-conductance spike verified by leave-one-out
+  attribution over the **weight-increased edge set** (new edge = 0→w); the entry point + keyed readings
+  with the ConnEvidence pin.
 - **Files:** `eval/harness/conductance.py`, `tests/quality/test_conductance.py`.
 - **Acceptance test:** `uv run pytest tests/quality/test_conductance.py -q` green — on a **synthetic
   cut-pair** `G2 = G1 + {e}` the scan reports a positive Δ-conductance and names `e` as the bridging edge
-  (leave-one-out re-computation without `e` erases the rise); a **decay-only** synthetic interval
-  (`G2 = G1 − edges`) shows **no** conductance increase (the null); every reading's `evidence_ref` decodes
-  to a ConnEvidence carrying the σ-grid + t-grid + cut fingerprint; `put()` idempotent (re-run writes 0).
-  The real-corpus forward scan runs with ≥2 sampled cuts if the store holds them, else reports "no cut pair
-  yet" and notes it (a sanctioned partial outcome).
+  (leave-one-out re-computation without `e` erases the rise); on a synthetic **edit-rise** pair
+  (`G2 = G1` with one existing edge's weight raised, no new edge) the scan reports the rise and names the
+  weight-increased edge (finding-0099 — an enumeration restricted to new edges MUST fail this case); a
+  **decay-only** synthetic interval (`G2 = G1 − edges` and/or weights lowered) shows **no** conductance
+  increase (the null); every reading's `evidence_ref` decodes to a ConnEvidence carrying the σ-grid +
+  t-grid + cut fingerprint; `put()` idempotent (re-run writes 0). The real-corpus forward scan runs with
+  ≥2 sampled cuts if the store holds them, else reports "no cut pair yet" and notes it (a sanctioned
+  partial outcome).
 - **Falsifier:** a bridging edge named that leave-one-out does NOT confirm (a guessed reconnection — CN-3
-  forbids); a decay-only interval showing a conductance rise (the monotonicity/attribution is broken); a
-  reading missing the t-grid or cut fingerprint.
+  forbids); the edit-rise case unattributed (the enumeration is new-edges-only — finding-0099's exact
+  failure mode); a decay-only interval showing a conductance rise (the monotonicity/attribution is
+  broken); a reading missing the t-grid or cut fingerprint.
 - **Invariant(s):** reconnection reports only edges it *verified* (leave-one-out), never a guess; the
   (σ,t) profile discipline; idempotent-by-key writes; certified-cut-only.
 - **Touches stored data?** Yes — eval Readings; dry-run in-memory `EvalResultsStore` in the test first;
@@ -231,6 +245,12 @@ def run_conductance(*, view, spine, sigma_grid, t_grid, eval_store, base_fingerp
   thoughts (commute-time proportional). *valid when:* reported as the (σ,t) profile with the degeneracy
   self-diagnostic; per connected component. *fails its keep if:* it degenerates to `1/d_A+1/d_B` (the
   diagnostic fires) and is still reported as the authoritative distance instead of finite-t diffusion.
+- **Weighted Rayleigh monotonicity (the attribution law — finding-0099)** — *measures:* which Δ-elements
+  between cuts can account for a conductance change. *valid when:* stated over edge WEIGHTS (conductance
+  monotone non-decreasing in each `w(u,v)`; a rise requires ≥1 weight increase; a new edge is the 0→w
+  case; an edit that raises `cos` qualifies). *fails its keep if:* the edit-rise synthetic case cannot be
+  attributed (the enumeration was new-edges-only), or a rise is observed with no weight-increased edge in
+  the Δ (the law itself would be violated — STOP, the Laplacian is wrong).
 - **Finite-t diffusion / commute distance** — *measures:* expected wander time of a dreamer-like walk.
   *valid when:* `t` is finite and declared in the t-grid; the graph is connected in-component. *fails its
   keep if:* it disagrees with R_eff in the sparse regime where R_eff is NOT degenerate (both should agree there).

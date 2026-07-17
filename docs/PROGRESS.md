@@ -4275,3 +4275,26 @@ unchanged (5th pool-split confirmation).
   `bless(...)` commit; bp-059 is the natural first (the keystone). Then `/build` each ready plan (5-leg gate,
   seal w/ cost.actual). No agent flips readiness (gate-guard + Stop-gate audit). Cross-strata σ-sweep design
   note still DEFERRED (these instruments are its phase-B re-analysis layer — build first).
+
+## 2026-07-17 (session 24 cont., Fable/xhigh) — graph-at-a-past-cut design pass; bp-059 BLESSED ready
+
+- **bp-059 blessed `proposed → ready` by the owner** (by hand; recorded `a5da95f`). bp-060/061/062 remain
+  `proposed` (oq-0029). Build starts next session (OPUS).
+- **Design pass (owner-chartered): the graph as of a past cut** → captured
+  `docs/brainstorms/graph-at-a-past-cut.md` (D1–D9, O1–O4). The headline results, all grounded/checked:
+  (1) **retention is already constitutional** — frontier → versions chain (doc_id, version_seq → digest,
+  append-only) → immutable rawstore (digest → bytes) → re-embed (anticipated at `core/ingest/embed.py:6`):
+  retro reconstruction is a pure function of retained data, EVAL-SIDE via the `RowSource` Protocol seam
+  (`core/mirror.py:54-60`) — no core change, no git archaeology; (2) **three gauges** (anchored / retro /
+  archival — declare, never conflate); the ANCHORED memory curve σ*(A,B;c) needs only versions-chain
+  membership + bp-059's module — the cheap follow-on; (3) **conditional monotonicity** numerically checked
+  (growth ⇒ σ*/conductance non-decreasing; an edit can drop σ* .7071→0 — a drop CERTIFIES an edit/tombstone,
+  attributable); (4) **note-grain identity across cuts is already solved** (doc_id; uuid-identity gates only
+  claim grain); (5) **wall-clock = bookmarks, not order** (owner q): annotations already exist (versions.at,
+  committer dates); only the ambiguity-widening wall-range→cut-interval RESOLVER is new; Law C4 intact.
+- **Findings:** **0099** (math — CN-3's "rise requires new edges" is the unweighted shadow; attribution =
+  weight-increased edges incl. edits; **bp-060 item 6/§8 amended pre-blessing** with the banner + an
+  edit-rise synthetic case) · **0100** (design — corrects bp-059 §11's re-entry prerequisite from "a core/
+  plan" to an eval-side adapter; no change to the blessed plan itself). Next finding = **0101**.
+- **NEXT:** /clear → fresh OPUS session → `/build bp-059`. After the tranche: graduate the
+  graph-at-a-past-cut capture into a design note (memory curve v1 = candidate first follow-on plan).
