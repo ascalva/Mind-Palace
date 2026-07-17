@@ -2,20 +2,25 @@
 type: build-plan
 id: bp-065
 alias: core-graph-rehome
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/core-graph-instruments.md      # the placement ruling (P1-P6) this executes
   - docs/design-notes/connectivity-instruments.md    # RATIFIED — the MATH (CN-2/3/4) — unchanged, amended on placement only
 contract: builder
+# write_scope annotations: connectivity.py = thin-ify + re-exports (the ONE existing file
+# edited); conductance.py (eval) = NEW thin wrapper; test_conductance* = harvested from
+# bp-060's branch (builder's quality filename kept); test_graph_boundary.py = NEW (the P1
+# import-boundary + P3 equivalence teeth). Comments live HERE, not inline — scope-guard
+# parses entries literally (formatting repair, session-26; capability unchanged).
 write_scope:
   - core/graph/__init__.py
   - core/graph/sigma_star.py
   - core/graph/conductance.py
-  - eval/harness/connectivity.py                     # thin-ify + re-exports (the ONE existing file edited)
-  - eval/harness/conductance.py                      # NEW thin wrapper
-  - tests/unit/test_conductance.py                   # harvested from bp-060's branch
-  - tests/quality/test_conductance_reconnection.py   # harvested (builder's filename kept)
-  - tests/unit/test_graph_boundary.py                # NEW — the P1 import-boundary + P3 equivalence teeth
+  - eval/harness/connectivity.py
+  - eval/harness/conductance.py
+  - tests/unit/test_conductance.py
+  - tests/quality/test_conductance_reconnection.py
+  - tests/unit/test_graph_boundary.py
 session_budget: 1
 cost:
   estimate:
