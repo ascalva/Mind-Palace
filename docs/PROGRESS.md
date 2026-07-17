@@ -4125,3 +4125,34 @@ unchanged (5th pool-split confirmation).
 - **PAUSED after the bp-055 merge per owner** (credits low + session maxed). bp-056 (merge LAST, xhigh
   scope.py review) + bp-057 (conditional ship / park-and-record) handed to a fresh session via the rewritten
   resume brief — best resumed after the 8:19pm session reset, ONE builder at a time.
+
+### session-21 cont. (2026-07-17) — 🏁 WAVE 3 COMPLETE: bp-057 + bp-056 merged & sealed — ALL 8 TEMPORAL-QUARTET PLANS DONE
+
+- **Session window reset to 0% → owner said "spawn both in parallel, keep building."** Re-spawned bp-057 +
+  bp-056 as PARALLEL worktree builders off `61fdedb` (disjoint scopes — eval/ vs core/scope.py+atlas.py). Both
+  got clean isolated worktrees (the session-21 corruption was resume-only, not fresh-spawn). No drops this time.
+- **bp-057 (sigma-gate, FB-3) MERGED `0742d09` + SEALED — SHIPS.** The conditional gate validated GENUINELY:
+  (i) noise SETTLED-rate **0.0**, (ii) planted claims reach SETTLED, (iii) tiered precision **1.0 > 0.667**
+  best-single-σ baseline — all three §2.5 criteria hold, no θ loosened. `assign_tiers`/`hunch_section` over
+  bp-050's ClaimFiber; I1 asserted structurally (AST-proven: no store mutator, no pers×confidence fusion,
+  RETAINED never surfaced). **162k / 0.74×.** No finding (reserved 0097 unused — SHIP). 2 spec-fidelity reads
+  journaled (best-single-σ = max-over-σ; `sigma_gate.validation.*` registration deferred to E6). Suite →1417.
+- **bp-056 (tmeet-completion, GC-4) MERGED `d467258` + SEALED — the highest-scrutiny plan, conservative.**
+  Cross-clock T-meet via an injectable `ClockAtlas` Protocol in scope.py + concrete `SpineAtlas` in the NEW
+  `core/temporal/atlas.py`. **Orchestrator line-by-line review at xhigh CONFIRMED conservativeness:** the
+  original `meet` RAISED on EVERY cross-clock pair (scope.py:337 no-refinement + :345 comparable-but-retrieval-
+  math) — so the only previously-legal meets are same-clock, and the atlas branch (inserted before the raises)
+  gives values ONLY on the former-error path. **Cardinal falsifier MET: `test_scope.py` 28 passed with ZERO
+  edits** on the merged state; scope.py stays pure-core (Protocol seam, imports no store/atlas); N-window =
+  `interval(token,token)` avoids the SLICE rule; `Window` grammar not loosened. **200k / 1.00×** (exactly at
+  estimate). No finding (reserved 0096 unused). Suite 1417→**1430**; argless mypy **69** held throughout.
+- **Wave-3 economics:** 2 plans, both delegated opus, both clean-merge (no rework). Per-plan: bp-055 220k/1.22×
+  (session-21) · bp-057 162k/0.74× · bp-056 200k/1.00×. **Mean over the 3 wave-3 plans ≈ 0.99×** — dead-on
+  estimate, validating [[seal-cost-fields]] (well-pinned plans track ~1×). Every merge gated + sealed + pushed;
+  ZERO findings from wave 3 (both plans' reserved numbers went unused — the plans were pinned tightly enough
+  that no design/math/direction question arose). Dollars: `pending` in the seals → owner end-of-session /usage.
+- **THE RATIFIED TEMPORAL QUARTET IS COMPLETE (bp-050..bp-057, 8 plans):** GC-1 spine → GC-2 clock maps →
+  GC-3 certified cuts → GC-4 T-meet completion; FB-1 fibers → FB-2 registry → FB-3 σ-gate; + velocity-pair.
+  **Next lead (per the retired resume brief's self-rewrite trigger): /triage (finding-0090/0091 → owner batch)
+  + the σ-sweep RUN + (owner-gated) the wave-4 instruments** (dn-global-event-clock §3.1). The
+  retrieval/temporal-scaling brainstorm (`d355750`) is now ripe to graduate into a design note.

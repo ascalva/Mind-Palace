@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-057
 alias: sigma-gate
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/sigma-fibers-and-multiscale-dreaming.md   # RATIFIED — §2.5 the strength→surfacing gate + the F9 validation protocol + the gate falsifier (FB-3)
 contract: builder
@@ -15,6 +15,17 @@ cost:
   estimate:
     model: opus
     tokens: 220k
+  actual:
+    model: opus
+    tokens: 162242        # harness-measured
+    tool_uses: 61
+    ratio: 0.74           # actual/estimate (220k) — well-pinned, under estimate
+    merged: 0742d09       # 5-leg green on main: ruff · mypy(206) · argless 69 · type_gate · pytest 1417p/7s;
+                          # SHIP — all 3 §2.5 criteria hold (noise SETTLED 0.0 · planted→SETTLED · tiered prec 1.0>0.667)
+    sealed: 2026-07-17
+    dollars: pending      # wave-level $ from owner end-of-session /usage relay
+    findings: []          # SHIP outcome — reserved finding-0097 not needed; 2 spec-fidelity reads journaled
+                          # (best-single-σ = max-over-σ; sigma_gate.validation.* registration deferred to E6)
 depends_on: [bp-050, bp-054]
 parallelizable_with: [bp-055, bp-056]
 created: 2026-07-16

@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-056
 alias: tmeet-completion
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/global-event-clock.md   # RATIFIED — §2.5 the T-meet totalization + the bit-identical falsifier (GC-4)
 contract: builder
@@ -15,6 +15,18 @@ cost:
   estimate:
     model: opus
     tokens: 200k
+  actual:
+    model: opus
+    tokens: 200776        # harness-measured
+    tool_uses: 69
+    ratio: 1.00           # actual/estimate (200k) — exactly at estimate
+    merged: d467258       # 5-leg green on main: ruff · mypy(207) · argless 69 · type_gate · pytest 1430p/7s;
+                          # additive proof: test_scope.py 28 passed UNCHANGED; CONSERVATIVE — every cross-clock meet
+                          # RAISED before (scope.py:337+345), so the atlas branch gives values only on the former-error
+                          # path; scope.py stays pure-core (Protocol seam, no store/atlas import)
+    sealed: 2026-07-17
+    dollars: pending      # wave-level $ from owner end-of-session /usage relay
+    findings: []          # reserved finding-0096 not needed — no design/math/direction question arose
 depends_on: [bp-053]
 parallelizable_with: [bp-055, bp-057]
 created: 2026-07-16
