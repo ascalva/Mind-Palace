@@ -618,6 +618,12 @@ class Launcher:
             # (superseded generations) rides the guarded `observation_history.sqlite`
             # sidecar above, unaffected by this reset. bp-019 Item 8 / §6(h).
             p.data_dir / "agent_observations.sqlite",
+            # Chat utterances are CORPUS-side too — the observed chat stratum's READINGS
+            # (ratified dn-chat-sensor CS-2). Wiped with the corpus and rebuilt by re-ingest
+            # from the IMMUTABLE rawstore (p.raw_store, above — the verbatim archive is NOT a
+            # reset target; raw is sacred). bp-063 Q6 (parked to the orchestrator; launcher.py
+            # was outside the builder's write_scope).
+            p.data_dir / "chatlog.sqlite",
         ]
         out: list[Path] = []
         for c in candidates:
