@@ -32,9 +32,13 @@ re_entry: null
 ## 0. Mode & provenance — OWNER-DIRECTED enforcement
 Not graduated from a design note — **owner-directed in-session (2026-07-17)**, warranted by
 finding-0103. The "design" is the principle itself, written into `CONVENTIONS.md` (the standing
-engineering-practice doc). Owner rulings pinned: (a) core imports **nothing** outside `core/` —
-**period, config included, no wiggle room** (core is the processing unit; everything else is
-machinery); (b) enforce **immediately, RED today** — a loud failure now, never a silent allowlist or
+engineering-practice doc). Owner rulings pinned: (a) **core is SACRED** — its dependency surface is exactly the Python
+stdlib + **pinned, side-effect-free third-party libraries** (numpy, scipy, …; `uv.lock`
+authoritative) + `core` itself, and **nothing first-party outside `core/`** — period, config
+included, no wiggle room. Core is the processing unit; everything else (config, eval, ops, agents,
+edge, scheduler) is machinery *around* it, and first-party code core reaches for is a **liability**
+(mutable, side-effecting, coupling the sacred to the machinery's churn — the opposite of a pinned
+lib); (b) enforce **immediately, RED today** — a loud failure now, never a silent allowlist or
 "handle later"; (c) DROP the eval-example parenthetical from the rule text (the rule is absolute, not
 eval-specific). Cleanup of the 106 violations is a SEPARATE program (config-split + 16 inversions,
 finding-0103) — **NOT this plan**; this plan lands the enforcement and the docs only.
@@ -110,10 +114,14 @@ def test_core_imports_nothing_outside_core() -> None:
 - **Objective:** Rule 1 (DRY) in §Language & style; Rule 2 (self-containment) in §Trust boundaries.
 - **Acceptance test:** `CONVENTIONS.md` §Language & style carries the DRY bullet (reuse before
   re-implement; a duplicated implementation is a defect not a nit; drift rationale); §Trust
-  boundaries carries the self-containment bullet (**core imports nothing outside `core/`, period —
-  core is the processing unit; the arrow is `everything → core`, never the reverse; never a
-  re-implementation of what core already has**). **NO eval-example parenthetical** (owner
-  correction — the rule is absolute). Each cross-references the other + finding-0103.
+  boundaries carries the self-containment bullet — stated as **sacredness + the two allowed inputs**:
+  *core is SACRED and self-contained; its only dependencies are the stdlib and pinned,
+  side-effect-free third-party libraries (`uv.lock` authoritative) — it imports NOTHING first-party
+  outside `core/` (config/eval/ops/agents/edge/scheduler are machinery around core; first-party code
+  core reaches for is a liability). The arrow is `everything → core`, never the reverse; core never
+  re-implements what it already has. Template: core computes and returns pure data; the machinery
+  calls core, records, grades, runs.* **NO eval-example parenthetical** (owner correction — the rule
+  is absolute). Each cross-references the other + finding-0103.
 - **Falsifier:** the self-containment bullet scoped to eval only, or carrying the dropped paren; the
   DRY bullet absent from §Language & style; the rules stating a wiggle-room exception.
 - **Invariant(s):** the rules are absolute as ruled; sit beside their existing siblings.
