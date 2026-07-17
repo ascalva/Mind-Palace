@@ -4358,3 +4358,52 @@ unchanged (5th pool-split confirmation).
 - **NEXT (owner-gated):** owner blesses bp-063 → build (OPUS) → owner blesses bp-064 → build. These
   interleave with the connectivity tranche (bp-060/061/062) per the owner's sequencing. Next plan id
   **bp-065**; next finding **0101**. dn-chat-sensor stays ratified (unedited — graduation changes no note).
+
+## 2026-07-17 (session 26) — EXECUTE the locked build order: Wave 1 spawned (bp-060 ∥ bp-063)
+
+- **Orchestrator posture.** All 5 plans `ready` (owner-blessed, `552f885`); build order LOCKED
+  2-wide parallel (owner, session-25), bp-062 partial. NO blessings pending. Main green at `552f885`
+  (bless-only over `67b373d`; suite 1454p, argless mypy 69).
+- **Budget gate PASSED.** Owner /usage relayed: session 13%, **weekly (all models) 33%** (the gate
+  build waves draw; resets tonight ~8pm — ~67% headroom), credits 86% (NOT the gate). 2-wide fits.
+- **Wave 1 SPAWNED** — two OPUS full-strength builders, isolated worktrees, disjoint write_scopes,
+  running concurrently:
+  - **bp-060** (conductance, CN-3/4) — `eval/harness/conductance.py` + 2 test files. Carries the
+    weighted-Rayleigh attribution law (finding-0099); item 6 edit-rise synthetic; real-corpus scan a
+    sanctioned partial.
+  - **bp-063** (chat-sensor core, CS-1/2/3) — `core/stores/chatlog.py` + `ops/chat_sensor.py` + 2
+    test files. OBSERVED-only structural firewall; verbatim-first; fail-closed secret guard.
+    `reset_targets()` registration OWED to orchestrator post-merge (builder NAMES, does not edit).
+- **Merge discipline:** integrate SERIALLY — merge builder 1, re-run FULL 5-leg gate on integrated
+  tree (argless mypy == 69 tree-wide), then builder 2, re-gate. Seal each with enriched cost.actual.
+- **NEXT:** await completions → review diffs (scope + real gate output + falsifiers) → serial merge +
+  re-gate → seal. Then Wave 2 (bp-061 ∥ bp-064; bp-064 = spine surface, watch hardest). Next finding
+  0101; next plan bp-065.
+
+## 2026-07-17 (session 26 cont.) — bp-063 SEALED · owner ruling (A): graph math moves INTO core · dn-core-graph-instruments drafted · bp-065 staged
+
+- **bp-063 COMPLETE + sealed** — merged `7cc0975` (ff, scope-clean: exactly write_scope + journal);
+  orchestrator verified the structural firewall (to_row hardcodes OBSERVED, no provenance param) +
+  fail-closed guard (whole-session refusal BEFORE add_batch, pattern NAME never value) by reading the
+  diff; owed `reset_targets()` registration done (`chatlog.sqlite`, rebuilt from immutable rawstore).
+  Integrated gate ALL 5 legs green on main: ruff ✓ · mypy targeted ✓ · **argless 69 ✓** · type_gate ✓ ·
+  **pytest 1498p/10s (26:32)**. cost.actual: 137k opus, ratio 0.68, dollars/deltas pending /usage relay.
+- **bp-060: builder STOPPED (killed by orchestrator), work preserved** — branch
+  `worktree-agent-a1d5f2b78350b8586` holds items 4-6 COMMITTED (`3c7421e`, `88e73ca`; final 5-leg
+  attestation never ran); artifacts snapshotted to session scratchpad `bp060-harvest/`. NOT merged.
+- **OWNER RULING (in-session): (A) reconcile immediately** — the connectivity math is CORE vocabulary;
+  architecture selected: new `core/graph/` reusing `core/complex` (ONE Laplacian), eval thin wrappers;
+  session switched to fable/xhigh, refactor directed now. finding-0101 → **promoted**; oq-0030 answered.
+- **`dn-core-graph-instruments` DRAFTED** (amendment-by-link to dn-connectivity-instruments §3:210
+  "All eval-side"; warrant finding-0101). Key rulings: P1 self-containment (core never imports eval for
+  math; permanent grep-tooth on core/graph), P3 one Laplacian (core/complex's; bp-060's dense
+  re-derivation deleted), **P4 no-silent-metric-change** (diffusion_map is L_sym — a SIBLING geometry to
+  the finite-t heat kernel over combinatorial L; Φ(S) ≠ pairwise R_eff; reuse bounded by object
+  identity), P5 re-export compat (bp-059 tests must pass UNCHANGED), P6 full boundary audit →
+  **finding-0102** filed (shadow.py imports eval.drift/golden LOGIC — own lane, grandfathered not licensed).
+- **bp-065 (`core-graph-rehome`) STAGED** in scratchpad (files on ratification — /graduate refuses a
+  draft note): harvest bp-060's branch into core/graph/conductance.py + thin eval wrappers + boundary
+  and L-equivalence tests; supersedes bp-060. bp-061/062 → re-mint against core/graph AFTER it lands.
+- **NEXT (owner, two hand acts):** ratify `dn-core-graph-instruments` → orchestrator files bp-065 →
+  owner blesses `ready` → in-session fable build. Chat lane: bp-064 unaffected, queued behind the
+  reconciliation. Next finding 0103; next plan bp-066 (after bp-065 files).

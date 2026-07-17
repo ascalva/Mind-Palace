@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-063
 alias: chat-sensor-core
-status: ready
+status: complete           # sealed 2026-07-17 (session-26): merged 7cc0975, integrated gate 1498p/10s
 design_ref:
   - docs/design-notes/chat-sensor.md            # RATIFIED — CS-1 (raw retention), CS-2 (OBSERVED), CS-3 (utterance grain + tool-strip + secret guard)
 contract: builder
@@ -16,7 +16,13 @@ cost:
   estimate:
     model: opus
     tokens: 200k
-  actual: null
+  actual:
+    model: opus                 # delegated worktree builder (2-wide Wave 1)
+    tokens: 137k                # harness-measured subagent total (136,551; 60 tool uses, 22 min)
+    ratio: 0.68                 # vs 200k estimate — well-pinned (interfaces inline; plan-pinning lever)
+    dollars: null               # pending owner /usage relay (session/week deltas likewise)
+    session_delta: null
+    week_delta: null            # a build wave draws the WEEKLY (33% at spawn)
 depends_on: []
 parallelizable_with: []
 created: 2026-07-17

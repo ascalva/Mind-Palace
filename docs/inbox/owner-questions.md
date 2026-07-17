@@ -858,3 +858,34 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   as the tranche; re-entry — owner blesses one or more plans `proposed → ready` by hand, then `/build <id>`.
   bp-059 is the natural first bless (the keystone all three others consume).
 - answer:
+
+## oq-0030 — connectivity instruments re-derive `core/complex/` primitives: reconcile the design, or land-and-unify-later? (finding-0101)
+- status: answered
+- origin: bp-060 post-build review + owner dialogue (2026-07-17, session-26) — owner's "these are core
+  graph instruments operating on the raw graph across strata" lead
+- blocking: false (connectivity lane held; chat lane bp-063/064 proceeds regardless)
+- question: bp-060's built `eval/harness/conductance.py` rolls its OWN Laplacian + diffusion-distance while
+  `core/complex/` already provides them as first-class core primitives — `laplacian.py` (L=D−A),
+  `spectral.py` (`diffusion_map` = diffusion distance at scale t, `fiedler` connectivity), `cut.py`
+  (`conductance` Φ(S), `grounding_cut`), `curvature.py` (`most_negative_edges` = candidate cross-domain
+  bridges = bp-061's job). Same graph: `core/complex/build.py`'s `build_complex(view: MirrorView)` derives
+  its adjacency from the same cosine-over-notes source as `MirrorGraph.sim`. The tranche
+  (`dn-connectivity-instruments`: bp-059 σ* merged, bp-060 conductance built-unmerged, bp-061 bridges,
+  bp-062 helix) never reconciled with `core/complex/`. Full evidence + honest caveats in finding-0101.
+  Two paths:
+  - **(A) Reconcile first** — pause the connectivity lane, revisit `dn-connectivity-instruments` against
+    `core/complex/` (build on / move beside the core primitives; re-graduate bp-060/061 as needed). Cheapest
+    now (before bp-061/062 build); avoids cementing a second Laplacian across three plans. **Orchestrator
+    recommends (A).**
+  - **(B) Land as-is, unify later** — merge bp-060 (built + green on its branch), note the duplication, and
+    schedule a dedicated "unify on `core/complex` primitives" plan afterward. Faster; risks calcification +
+    bp-061/062 compounding it.
+- default_if_unanswered: connectivity lane STAYS held — bp-060 unmerged (built + green on branch
+  `worktree-agent-a1d5f2b78350b8586`), bp-061/062 unspawned. Chat lane proceeds (bp-064 after bp-063).
+  Re-entry — owner picks (A) or (B). finding-0101 flips to `promoted` on (A) (a note amendment), or stays
+  `open` linked to the unify plan on (B).
+- answer: **(A) — reconcile immediately** (owner, in-session 2026-07-17: "I do not agree with that
+  machinery being outside of the core"; architecture selected = new `core/graph/` reusing `core/complex`,
+  eval thin wrappers; session switched to fable/xhigh and the refactor directed performed now). Recorded
+  in `dn-core-graph-instruments` (draft; owner ratification pending); finding-0101 → promoted; bp-065
+  staged for mint-on-ratification.
