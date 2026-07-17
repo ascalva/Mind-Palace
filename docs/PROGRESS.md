@@ -4313,3 +4313,29 @@ unchanged (5th pool-split confirmation).
   intuition bounded by math, made representable/constructable, self-validated (the guardrails are the
   kiln); frontier → the temporal-connectivity family entering build; recursion gains the chat-sensor turn.
 - Owner memory updated: the project is art-first; excitement is the point.
+
+## 2026-07-17 (session 25, OPUS) — bp-059 σ*/MST BUILT & sealed (the keystone of the connectivity family)
+
+- **`/build bp-059` COMPLETE** — in-session opus self-build; `ready → in-progress → complete`.
+  New `eval/harness/connectivity.py` (the CN-1 scaffolding + CN-2 σ*/MST) + unit tests + quality battery.
+  Status flipped `complete`; sealed with `cost.actual` (77.9k opus output, ratio **0.43** — very
+  well-pinned; $9.79 session; weekly 31%→32%, credit pool unchanged → a build wave draws the weekly).
+- **The load-bearing surface for bp-060/061/062 landed:** `ConnIndex(grid, cut)` (declares σ* uses
+  (grid, cut), no t), `ConnEvidence(grid, base_fingerprint, cut_fingerprint)` (FibersEvidence pattern
+  verbatim), `acquire_mirror_cut(spine)` (latest-cut gate, `CutCertificateError` propagates, CN-1
+  crossing-edge tooth), `build_max_spanning_tree` / `sigma_star(forest, a, b, *, grid)` (grid-snapped
+  bottleneck + realizing MST chain; forest when disconnected), `run_connectivity(...)` (idempotent
+  keyed `sigma_star.*` readings). Registration of the metric names deferred (fibers precedent — a
+  bp-054-style companion; `registry.py` out of scope).
+- **Both CN-2 falsifiers pass:** ultrametric inequality on real triples + **MST ≡ union-find** on every
+  pair (independent oracle test-side). Grid-relativity observable (bridged two-cluster fixture: cross
+  pair connects at loose grid, "not connected within grid" at tight). σ* kept DECOUPLED from
+  golden_recall (finding-0096 honored). Module reads no clock (Law C4).
+- **5-leg gate GREEN** (diff vs merge-base c14d6a4, legs run separately): ruff clean · mypy targeted 0 ·
+  argless mypy **69** (baseline held) · type_gate 11p · pytest **1454p/4s/0f** (+16 new: 10 unit + 6 quality).
+- **No findings filed** — clean build; 3 design decisions journaled (corpus_ref = sorted-digest hash;
+  SigmaStar kept minimal per §6 pin, pre-snap bottleneck internal; `_SNAP_EPS`), none rose to a finding.
+- **NEXT:** owner blesses **bp-060** (as amended per finding-0099) `proposed → ready` → build (imports
+  this module's `ConnIndex`/`ConnEvidence`). Then bp-061; bp-062 gated on uuid-identity. After the
+  tranche: graduate `graph-at-a-past-cut` → design note (memory curve v1). Next plan id bp-063; next
+  finding 0101. oq-0029 still open (bless the rest of the tranche item-by-item).

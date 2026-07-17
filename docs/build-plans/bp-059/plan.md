@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-059
 alias: sigma-star-mst
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/connectivity-instruments.md   # RATIFIED — CN-1 (the (σ,t,cut) index discipline) + CN-2 (σ*/MST, the keystone)
 contract: builder
@@ -15,11 +15,30 @@ cost:
   estimate:
     model: opus
     tokens: 180k
-  actual: null
+  actual:
+    model: opus
+    tokens: 77900         # opus OUTPUT for the WHOLE in-session self-build (owner /usage relay); no
+                          # isolated worker count — build-dominant, well under the 180k estimate
+    tool_uses: ~40        # manifest read → module write → items 1–2 tests → item-3 battery →
+                          # 5-leg gate → ruff-reflow cleanup → seal
+    ratio: 0.43           # 77.9k output / 180k estimate — VERY well-pinned (interfaces pinned inline,
+                          # grounding carried in plan+journal; the keystone came in at <half estimate)
+    merged: c14d6a4→HEAD  # DIRECT on-main self-build (no separate branch this session); diffed vs
+                          # merge-base c14d6a4, 5 legs run separately
+    sealed: 2026-07-17
+    cost:
+      dollars: 9.79       # WHOLE session (owner /usage relay); a build wave drew the WEEKLY allowance
+                          # (31% → 32%) — the $150 credit pool UNCHANGED at $130.23 (confirms week-draw)
+      session_pool: "6% used post-build (fresh window; resets 8:10pm ET)"
+      week_delta: "31% → 32% weekly (all-models); Fable untouched at 21%"
+    findings: []          # clean build; reserved finding-0096 (recall-decoupling) honored, unused as
+                          # a blocker. 3 design decisions journaled (corpus_ref grain; SigmaStar kept
+                          # minimal per §6 pin; _SNAP_EPS) — none rose to a design/math/direction finding
+    gate: "ruff · mypy targeted 0 · argless 69 · type_gate 11 · pytest 1454p/4s/0f (+16 new: 10u+6q)"
 depends_on: []
 parallelizable_with: []
 created: 2026-07-17
-updated: 2026-07-17
+updated: 2026-07-17   # ready → in-progress → complete (in-session opus self-build; 5-leg green)
 links:
   - docs/design-notes/global-event-clock.md                       # GC-3 certified cuts (the cut index)
   - docs/design-notes/sigma-fibers-and-multiscale-dreaming.md      # the FibersEvidence pinning discipline this family copies
