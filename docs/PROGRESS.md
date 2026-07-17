@@ -4203,3 +4203,28 @@ unchanged (5th pool-split confirmation).
   unscaffolded (no SYNC.md) — book debt growing (harness + connectivity chapters), /scribe offered.
 - **Next:** build bp-058 items 1→2→3 here; 5-leg gate; seal; then pre-flight V1–V5; owner fires run 1;
   analyze per FROZEN rules; dispose oq-0024. Next free finding = **0096** (reserve on build).
+
+## 2026-07-17 (session 23 cont.) — bp-058 COMPLETE: the σ-sweep experiment wiring is built + sealed
+
+- **Built + sealed bp-058** (`c1de27c`, self-build in the orchestrator session, owner-directed
+  supervision). Three items, all closed: **(1) V3 control battery** — `eval/harness/experiment.py`
+  `run_control_battery` lifts `test_sigma_gate._compute_validation` into the harness;
+  `scripts/experiment.py controls` = one GREEN/RED invocation (non-zero exit on RED). **(2) SE-3
+  blind-sample generator** — `generate_blind_sample` (seeded, stratified 8/8/8, UNLABELED
+  presentation + SEALED labels file). **(3) §2.3 composite report assembler** — `assemble_composite`
+  renders the V1–V5 evidence block (incl. the certified cut), SE-1 selection, SE-2 fibers, SE-3
+  occupancy/stability, control outcomes, blind cross-tab; registered names only; writes only
+  `data/reports/`. Model-free, deterministic, read-only over stores; no core.
+- **5-leg gate GREEN:** ruff · mypy targeted 0 · argless 69 · type_gate 11 · pytest **1436p/0f** (+16
+  new). End-to-end verified: `controls`→GREEN, `blind-sample`→empty-ledger guard, `report`→6-section
+  composite written (V1+V3 populated pre-run; honest previews + coverage notes for V2/V4/SE-1/SE-2/E4).
+- **One journaled design refinement** (not a spec change): the assembler takes a pre-built E4 `Report`
+  rather than raw stores — cleaner + testable in-memory; §2.3 content identical.
+- **Economics:** session $26.30, opus output 146.7k tokens (~at the 150k estimate; ratio 0.98,
+  well-pinned); drew the WEEKLY allowance (→28%), NOT the $150 credit pool ($130.23 unchanged, resets
+  Aug 1). Session pool 49% (resets 2:50pm ET). Finding-0096 reserved but unused (clean build).
+- **NEXT (the experiment path, gated on the owner):** V1–V5 pre-flight → owner flips `[selfmod]
+  enabled=true, unattended=false` (owner-by-hand, config/defaults.toml:240) → owner fires
+  `uv run scripts/sweep.py config/sweeps/dreamer-sigma-ab.toml` → analyze STRICTLY per FROZEN §2.2
+  (SE-1 disposes oq-0024) → assemble the composite → seal the run journal. Connectivity tranche still
+  DEFERRED until run-1 findings.

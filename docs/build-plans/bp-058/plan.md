@@ -24,7 +24,7 @@ cost:
                             # isolated worker count — build-dominant, came in ~at the 150k estimate
     tool_uses: ~55          # Item 1→2→3 + the 5-leg gate + a ruff-reflow cleanup pass
     ratio: 0.98             # 146.7k session output / 150k estimate (build-dominant; well-pinned)
-    merged: pending         # bp-058-build → main (fast-forward); recorded on merge
+    merged: c1de27c         # bp-058-build → main (fast-forward), 2026-07-17
     sealed: 2026-07-17
     cost:
       dollars: 26.30        # WHOLE session (self-build dominant), owner /usage relay; drew the WEEKLY
