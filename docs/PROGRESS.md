@@ -4181,3 +4181,25 @@ unchanged (5th pool-split confirmation).
 - **Economics:** dollars for wave 3 + this fable session remain `pending` in the seals — fill from the next
   owner /usage relay (weekly reset was Jul 17 ~8pm ET; credits last read 86%/$130.23). Finding numbers:
   0096/0097 reserved in wave 3 went UNUSED — **next free = 0096**. /triage (0090/0091 → owner batch) still owed.
+
+## 2026-07-17 (session 23, OPUS/high) — THE EXPERIMENT SESSION: bp-058 graduated + blessed; /triage swept; self-build underway
+
+- **Re-read the FROZEN pre-registration §2 in full first** (owner's standing instruction: the note at
+  `d932670` is the authority, not a paraphrase). `/usage` relayed: weekly pool **27% used** (resets tonight
+  ~8pm ET), credits **86% / $130.23 of $150** (resets Aug 1) — budget gate PASS for bp-058 (~150k).
+- **/graduate dn-sigma-sweep-experiment → bp-058** (`sigma-sweep-experiment-wiring`, `69b5985` proposed):
+  the ONE thin wiring item §3 licenses, three serial sub-items — (1) control battery (V3 as one GREEN/RED
+  invocation, reuses bp-057 F9 fixtures verbatim); (2) blind-sample generator (seeded, labels SEALED to a
+  separate file, SE-3); (3) composite report assembler (§2.3 contract + the V1–V5 evidence block incl. the
+  certified cut). Write scope `eval/harness/experiment.py` + `scripts/experiment.py` + 3 unit tests; NO core;
+  all consumed interfaces built + pinned inline §6. Est opus/150k. One grounded decision flagged (tier-
+  stability partition, §3 Q6 / §11). Blast radius: all read-only sensing (writes only `data/reports/`).
+- **Owner blessed bp-058 `proposed → ready` by hand** (recorded in the bless commit) AND directed
+  **self-build with supervision here** (not a spawned builder — owner wants to keep tabs on the experiment).
+- **/triage** (owed sweep): findings **0090 + 0091** (both `math`, ratified-note errata, non-blocking, no
+  code implied) flipped `open → routed` and batched into **oq-0028** (annotate-by-hand vs standing-erratum,
+  the oq-0025/26 pattern). No newly-complete plans to seal (bp-055/056/057 already sealed; their `dollars`
+  stay pending — this relay is a cumulative snapshot, not a wave-3 delta, so not fabricated). Book: still
+  unscaffolded (no SYNC.md) — book debt growing (harness + connectivity chapters), /scribe offered.
+- **Next:** build bp-058 items 1→2→3 here; 5-leg gate; seal; then pre-flight V1–V5; owner fires run 1;
+  analyze per FROZEN rules; dispose oq-0024. Next free finding = **0096** (reserve on build).

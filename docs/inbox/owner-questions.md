@@ -799,3 +799,33 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
     meets); zone separation = GC-N1 read-side-only (the sequencer rejection). Folded into the note.
   - item 1 (dn-sigma-fibers) — no chat ruling; ratified directly by the hand flip (observed on disk
     2026-07-16, same session as items 2–4's flips).
+
+---
+
+## oq-0028 — two ratified-note errata from the 2026-07-16 design pass: annotate by hand, or leave the findings as standing errata? (finding-0090 · finding-0091)
+- status: open
+- origin: docs/findings/finding-0090.md · docs/findings/finding-0091.md (batched by /triage 2026-07-17)
+- blocking: false
+- question: The 2026-07-16 design/build passes surfaced two note-vs-reality fidelity gaps in RATIFIED
+  (A8-immutable) notes — each a `math` finding, non-blocking, implying NO code change:
+  1. **finding-0090** — `dn-temporal-geometry` §2.1 asserts "proper time = per-stratum event count,
+     exactly" because "each stratum's store is totally ordered." The `dn-global-event-clock` §2.2 store
+     audit overtakes the premise: DuckDB stores (eval, telemetry) carry no append chain at all, and
+     chained stores are per-KEY chains (per-doc `version_seq`), so a stratum's restriction is a union of
+     chains — a partial order. Exactness holds PER CHAIN, not per stratum; the corrected statement is
+     already carried by `dn-global-event-clock` §2.3/GC-N6.
+  2. **finding-0091** — `dn-velocity-instruments` §2.2(a) pins `RotationReport` principal angles between
+     two harmonic subspaces whose restricted complexes do NOT share an edge set, without naming the shared
+     ambient space the SVD of `Qₐᵀ Q_b` lives in. bp-052 resolved it constructively (zero-embed both bases
+     into the union edge space over the common nodes — the standard principal-angles construction; all
+     pinned falsifiers pass, 6 tests green). The note and code now agree by the builder's judgment, not the
+     note's letter.
+  Both notes are ratified → immutable (A8); neither is hand-edited to "fix" this — the findings ARE the
+  standing-erratum channel (the oq-0025/oq-0026 discipline). Decision, per finding (independent): for each,
+  **annotate** the ratified note by hand (owner-only — a dated "superseded/clarified by finding-00NN"
+  pointer), or **leave** the finding as the erratum of record?
+- default_if_unanswered: leave both findings as standing errata (the notes stay frozen per A8; the corrected
+  statements live in `dn-global-event-clock` (0090) and `core/temporal_view.py` + bp-052 (0091)). Parks as
+  finding-0090 / finding-0091; re-entry — owner annotates a note by hand, or a book chapter / successor
+  design is about to cite §2.1's exactness claim or §2.2(a)'s under-specified cross-space construction.
+- answer:

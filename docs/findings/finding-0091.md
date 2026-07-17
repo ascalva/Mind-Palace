@@ -1,9 +1,9 @@
 ---
 type: finding
 id: finding-0091
-status: open
+status: routed        # /triage 2026-07-17: routed to orchestrator; batched to oq-0028 (non-blocking erratum)
 created: 2026-07-16
-updated: 2026-07-16
+updated: 2026-07-17
 links:
   - docs/design-notes/velocity-instruments.md   # the ratified §2.2 (a) RotationReport the build had to make constructive (A8 — never hand-edited)
   - core/temporal_view.py                        # RotationReport / _principal_angles — where the choice was resolved

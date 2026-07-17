@@ -1,9 +1,9 @@
 ---
 type: finding
 id: finding-0090
-status: open
+status: routed        # /triage 2026-07-17: routed to orchestrator; batched to oq-0028 (non-blocking erratum)
 created: 2026-07-16
-updated: 2026-07-16
+updated: 2026-07-17
 links:
   - docs/design-notes/temporal-geometry-and-drives.md   # the ratified §2.1 claim this corrects (A8 — never hand-edited)
   - docs/design-notes/global-event-clock.md             # the store audit that surfaced it (§2.2)
