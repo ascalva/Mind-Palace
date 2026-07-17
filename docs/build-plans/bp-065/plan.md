@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-065
 alias: core-graph-rehome
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/core-graph-instruments.md      # the placement ruling (P1-P6) this executes
   - docs/design-notes/connectivity-instruments.md    # RATIFIED — the MATH (CN-2/3/4) — unchanged, amended on placement only
