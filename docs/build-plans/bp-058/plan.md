@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-058
 alias: sigma-sweep-experiment-wiring
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/sigma-sweep-experiment.md   # RATIFIED @ d932670 (FROZEN pre-registration) — §2.1 V1–V5, §2.2 SE-1..SE-4, §2.3 report contract, §3 licenses THIS one thin build item
 contract: builder
@@ -21,7 +21,7 @@ cost:
 depends_on: [bp-049, bp-050, bp-054, bp-055, bp-057]
 parallelizable_with: []
 created: 2026-07-17
-updated: 2026-07-17
+updated: 2026-07-17    # ready → in-progress (session-23 self-build)
 links:
   - config/sweeps/dreamer-sigma-ab.toml                          # the frozen sweep spec run 1 executes
   - docs/design-notes/evaluation-harness.md                      # E4 report contract this assembler composes over
