@@ -110,3 +110,28 @@ references:
     (Rayleigh monotonicity); temporal-graph reachability; Ollivier–Ricci curvature (optional);
     covering-space lifts / holonomy.
 ```
+
+## 2026-07-17 14:15 UTC — addendum (owner, mid-fable-pass): the arc
+
+**The owner's frame (near-verbatim):** "Thinking of the conductivity part as when you connect a
+piece of wood to two cables to complete a circuit — if the voltage is powerful enough, you start to
+see a lightning-like pattern emit from both edges, both edges trying to find the shortest path to
+arc across. The analogy might be off, but the idea: if you know points A and B, you can plausibly
+come at it from both directions until they meet? Seems more like a strategy — not saying this is
+the way, just another thought supporting the conductivity phrasing."
+
+```capsule
+decisions:
+  - The analogy is NOT off — it is dielectric breakdown (Lichtenberg figures), whose standard
+    model (DBM, Niemeyer–Pietronero–Wiesmann) grows streamers with probability ∝ |∇φ|^η where φ
+    solves the SAME Laplace problem that defines effective conductance. The field view (C3) and
+    the growth view (this) are one object. [ESTABLISHED]
+  - What it adds is the missing STRATEGY layer: bidirectional, field-guided, budget-bounded
+    query-time search (meet-in-the-middle), with "voltage" = the work budget giving principled
+    REFUSAL semantics ("no arc at this voltage"). Rigor + weave in the fable pass §C7.
+parked:
+  - Stochastic η-growth as a dreamer-adjacent explorer (DBM's η interpolates diffuse→directed).
+    Re-entry: after bridge-search v1 ships deterministic (high-η/greedy limit).
+references:
+  - docs/brainstorms/conductivity-and-reasoning-chains-fable-pass.md §C7 (the rigorization)
+```
