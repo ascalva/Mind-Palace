@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-058
 alias: sigma-sweep-experiment-wiring
-status: in-progress
+status: complete
 design_ref:
   - docs/design-notes/sigma-sweep-experiment.md   # RATIFIED @ d932670 (FROZEN pre-registration) — §2.1 V1–V5, §2.2 SE-1..SE-4, §2.3 report contract, §3 licenses THIS one thin build item
 contract: builder
@@ -17,7 +17,23 @@ cost:
   estimate:
     model: opus
     tokens: 150k
-  actual: null
+  actual:
+    model: opus
+    tokens: 146700          # opus output tokens for the WHOLE session (graduate + triage + self-build
+                            # + 5-leg gate + reflow cleanup) per the /usage relay; self-build has no
+                            # isolated worker count — build-dominant, came in ~at the 150k estimate
+    tool_uses: ~55          # Item 1→2→3 + the 5-leg gate + a ruff-reflow cleanup pass
+    ratio: 0.98             # 146.7k session output / 150k estimate (build-dominant; well-pinned)
+    merged: pending         # bp-058-build → main (fast-forward); recorded on merge
+    sealed: 2026-07-17
+    cost:
+      dollars: 26.30        # WHOLE session (self-build dominant), owner /usage relay; drew the WEEKLY
+                            # allowance (28% used) — NOT the $150 credit pool ($130.23, unchanged)
+      session_pool: "49% used (resets 2:50pm ET)"
+      week_delta: "→28% weekly (all-models)"
+    findings: []            # clean build; reserved finding-0096 unused. One journaled design
+                            # refinement (assembler takes a pre-built E4 Report, not raw stores)
+    gate: "ruff · mypy targeted 0 · argless 69 · type_gate 11 · pytest 1436p/0f (+16 new)"
 depends_on: [bp-049, bp-050, bp-054, bp-055, bp-057]
 parallelizable_with: []
 created: 2026-07-17
