@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-064
 alias: chat-clock-wiring
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/chat-sensor.md            # RATIFIED — CS-4 (per-session chains in observed; cuts at session close)
 contract: builder
@@ -16,7 +16,16 @@ cost:
   estimate:
     model: opus
     tokens: 150k
-  actual: null
+  actual:
+    model: opus                                    # in-session self-build (session-27); no delegation
+    tokens: ~85k                                   # well under the 150k estimate — the plan's §3 Q1-Q5
+    ratio: ~0.57                                   # + §6 pins carried the build; little re-derivation
+    dollars: pending /usage relay                  # OWED — folds into the bp-063/065/066 relay
+    session_delta: pending /usage relay
+    week_delta: pending /usage relay
+    note: >-
+      Tightly pinned plan (the versions g1 exemplar + the certificate-map ground truth were both in
+      §6) ⇒ low ratio. §3 Q4 held exactly (no atlas change, no finding). No stop-and-raise fired.
 depends_on: [bp-063]
 parallelizable_with: []
 created: 2026-07-17
