@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-066
 alias: core-self-containment-enforcement
-status: proposed
+status: ready
 design_ref:
   - CONVENTIONS.md                                 # the standing engineering-practice doc this AMENDS (the two rules land here)
   - docs/findings/finding-0103.md                  # THE WARRANT — the full audit + the owner's strict ruling
