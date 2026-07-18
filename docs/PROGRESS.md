@@ -4716,3 +4716,29 @@ scope signatures in the ratified CQ-scope algebra → **`docs/design-notes/agent
 **Next (after the owner's hand-ratification of the note):** re-ground bp-069 (the dialogue sensor
 agent, rates 0+1) in the note's language → owner bless → build; mint bp-070 (the first full
 integrator: chat↔code↔doc, witness law, fiber C, DIALOGUE enum addition folded in).
+
+---
+
+## 2026-07-18 (session 28, FABLE) — the NEW game plan: the diamond (supersedes the session-27 track order)
+
+Owner called for a full analysis across the three programs. Result: a DIAMOND, not three lanes —
+`dn-agent-taxonomy` (R) is the root; the sensor (bp-069) and integrator (bp-070) are the arms;
+connectivity (A2) is the sink consuming both; the dreamer grant machinery (A1) is parallel with its
+own gate chain. Plus the forgotten OPS LEG: daemon runs pre-bp-068 code — 0105 impl → push → DEPLOY
+(owner gate) is what makes the sensors live continuously.
+
+**Sequence:** 0) OWNER ratifies dn-agent-taxonomy → 1) re-ground bp-069 → OWNER bless →
+2) build 69 items 1-2 (lossless L0 + watcher; TIME-BOUNDED — frozen tails recoverable only within
+the CLI transcript-retention window; re-ingest after) → 3) ops leg (0105 impl, push ~25 commits,
+owner deploy) → 4) build 69 item 3 (L1 action log) → 5) mint+bless+build bp-070 (integrator; item 1
+= fiber C + DIALOGUE enum extensions) → 6) A2 connectivity re-measure ({mirror ∪ dialogue nodes} ×
+{E_sim ∪ E_proven}; resolve 0096-0100/oq-0031; CN-3 if the data moves) → 7) A1 strata-access grant
+machinery (fable design pass FIRST — it must batch the G1-class owner decisions; can start parallel
+any time after 0). Critical path ≈ 6-8 opus sessions + owner gates. Fable only for 7 + any CN-3 math.
+
+**Key re-diagnosis:** oq-0031's 13-doc saturation was input starvation (nodes + edge classes), not
+σ-tuning; the integrator's E_proven + the chat nodes are the fix — strata-access (A1) serves the
+DREAMER, not the integrator (deterministic, structural enforcement — no runtime grants needed to
+build). Risks instrumented: retention window (step 2 first), schema drift (parity ratchet +
+C-coverage ship WITH 69/70), A1's hidden owner decisions (surface early), A2's graph-choice
+(explicit eval-design decision at step 6).
