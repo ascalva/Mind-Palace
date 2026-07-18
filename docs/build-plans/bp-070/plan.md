@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-070
 alias: scope-tooling
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/agent-taxonomy.md            # dn-agent-taxonomy §3 Phase Α — REQUIRES RATIFICATION first
   - docs/design-notes/capability-scope-algebra.md  # RATIFIED — the lattice this extends additively
