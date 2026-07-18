@@ -27,12 +27,16 @@ the owner's `proposed → ready` blessing (owner-only, by hand).
   behavior under growth (a secret in a new turn freezes the session at its pre-secret state; still
   fail-closed — bright line #10 intact).
 
-**Architecture refinement (owner, 2026-07-18):** ONE agent, MULTI-RATE PROJECTION — the model-free chat
-sensor always accepts the latest real-time transcripts and projects each layer at its own rate. bp-069 =
-*rate 0* (real-time: raw layer 0 + dialogue-strata projection); layers 1 (summaries) + 2 (references) are
-LOWER-rate projections by the same agent, later, on already-scrubbed text (Track 2 / CS-5). Credential
-removal stays the DETERMINISTIC gate at the real-time rate (bright line #10 — a model never reads a
-secret; downstream projections read only scrubbed text). Recorded in §1 + finding-0109.
+**Architecture SETTLED (owner, 2026-07-18, over several refinements):** one source (the transcript),
+projected at different rates, ALL deterministic/model-free. **bp-069 = layers 0 + 1** ("the agent projects
+twice"). Layer 0 = the rich dialogue (raw snapshot + tool-stripped prose), real-time, lossless. Layer 1 =
+**WHAT actions were performed** — an ordered typed ACTION LOG (`owner_prompt → commit → ratify → build_plan
+→ …`) extracted deterministically from the transcript's turns + TOOL RECORDS (so it reads the FULL raw
+transcript, not the tool-stripped chatlog); no prose ("for prose, read layer 0"), no model. Layer 2 (=
+**WHERE** they happened — deterministic edges to the exact commit/file/doc from the same tool records,
+proving causation) is the SEPARATE connector agent, **bp-070**. Corrections banked in finding-0109: NO
+Track-2/strata-access (reads its own transcript only), NOT the dreamer, layer 2 is causal-not-time-join. The
+abstractive model summary is a LATER rate. bp-069 has no model → #10 not in play here.
 
 **Next action when blessed:** Item 1 (growth-aware sensor + torn-line) → Item 2 (watcher + generalization
 + multi-watcher launcher + `[chat]` config). Est opus/180k, session_budget 2. ⚠️ suite stays RED-by-design

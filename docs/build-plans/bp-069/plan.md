@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-069
-alias: chat-realtime-lossless
+alias: chat-projection-agent-l0-l1
 status: proposed
 design_ref:
   - docs/design-notes/chat-sensor.md               # RATIFIED dn-chat-sensor; this AMENDS its Q4 (freeze-once)
@@ -10,22 +10,26 @@ contract: builder
 write_scope:
   - ops/chat_sensor.py
   - core/ingest/watch.py
+  - core/chat_events.py
+  - core/stores/chat_events.py
   - scheduler/chat_sync.py
   - scheduler/vault_sync.py
   - scheduler/router.py
+  - scheduler/cron.py
   - ops/lifecycle/launcher.py
   - config/defaults.toml
   - core/config/**
   - tests/unit/test_chat_sensor.py
   - tests/unit/test_chat_sync.py
+  - tests/unit/test_chat_events.py
   - tests/integration/test_chat_sensor_wiring.py
   - tests/integration/test_vault_watcher.py
   - tests/integration/test_lifecycle.py
-session_budget: 2
+session_budget: 3
 cost:
   estimate:
     model: opus
-    tokens: 180k
+    tokens: 280k
   actual: null
 depends_on: [bp-063, bp-068]
 parallelizable_with: []
@@ -37,7 +41,7 @@ updated: 2026-07-18
 re_entry: null
 ---
 
-# Build Plan — real-time, lossless chat ingestion (growth-aware append + a live transcript watcher)
+# Build Plan — the chat projection agent, rates 0 + 1 (real-time lossless layer 0 + delayed layer-1 action log)
 
 ## 0. Mode & provenance
 Owner-directed (2026-07-18), warranted by **finding-0109**. bp-068 wired the chat sensor to RUN, and its
@@ -50,22 +54,41 @@ system, so ingestion of transcripts must be immediate."* This plan makes chat in
 ratified dn-chat-sensor Q4 (owner is the design authority; §4 records the amendment).
 
 ## 1. Objective
-The chat sensor ingests every transcript change IMMEDIATELY and never loses a turn:
-- **Growth-aware:** a changed transcript is re-parsed and its new turns APPENDED (by `(session_id,
-  turn_index)`); nothing is frozen. Raw keeps versioned snapshots (content-addressed — "git for
-  transcripts"). Reading a live-appended file never crashes (torn trailing line tolerated).
-- **Real-time:** a debounced FS watcher on the transcripts dir (mirroring the vault watcher) re-ingests
-  the instant a session changes — minimal debounce, immediate. The 6h housekeeping tick stays a backstop.
-Still OBSERVED-only, local-file, model-free, secret-guarded (no bright line moves — finding-0109).
+The chat projection agent reads its own store and emits at MULTIPLE RATES (owner, 2026-07-18: "the agent
+itself reads its own store and then emits everything at its own rates"). This plan builds **rates 0 and 1**:
 
-**Architecture (owner, 2026-07-18): one agent, MULTI-RATE PROJECTION.** The chat sensor is the single
-model-free agent that always accepts the latest real-time transcripts and projects each layer at its own
-rate: the REAL-TIME rate = raw snapshot (layer 0) + the dialogue-strata projection (cleaned utterances) —
-**this plan builds that rate**; LOWER rates = layer 1 (summaries) + layer 2 (references), projected later
-on their own cadence from the already-scrubbed dialogue strata (Track 2 / CS-5, hung off a periodic tick
-like `dream`/`curate`). Credential removal is the agent's DETERMINISTIC gate at the real-time rate, so
-every downstream (lower-rate) projection reads only scrubbed text — a model never touches a secret (bright
-line #10). bp-069 is *rate 0*: the lossless real-time foundation the slower projections read.
+- **Rate 0 — real-time, lossless, deterministic (layer 0).** The transcript is loaded live and projected
+  IMMEDIATELY: a changed transcript is re-parsed and its new turns APPENDED (by `(session_id, turn_index)`);
+  nothing is frozen. Raw keeps versioned snapshots (content-addressed — "git for transcripts"). Reading a
+  live-appended file never crashes (torn trailing line tolerated). A debounced FS watcher on the transcripts
+  dir re-ingests the instant a session changes — minimal debounce, immediate. Model-free; the credential
+  scrub is this rate's DETERMINISTIC gate.
+- **Rate 1 — delayed EVENT SEQUENCE (layer 1), DETERMINISTIC.** At a LOWER rate (housekeeping), a MODEL-FREE
+  projector emits the ORDERED LOG OF WHAT HAPPENED in each session — typed events in sequence: `owner_prompt
+  → agent_response → commit(<sha>) → ratify(<artifact>) → build_plan(<id>) → finding(<id>) → …` (owner,
+  2026-07-18: "a summary of the session in the correct order … no prose, but what actually happened"). NO
+  prose — for the rich text, read layer 0. Events are extracted deterministically from the transcript's turns
+  + TOOL RECORDS (commits, `Edit`/`Write`, writes to `docs/build-plans/` etc.), so **rate 1 reads the FULL
+  raw transcript, NOT the tool-stripped chatlog** — the same tool-record substrate layer 2 (bp-070) reuses
+  for its cross-artifact edges. Stored as an ordered event log per session in the agent's own store.
+  Incremental: re-extract a session only when it grew. **The abstractive model-generated summary is a LATER
+  rate — explicitly NOT in this plan (§9, §11); if you want prose, read layer 0.**
+
+**The whole bp-069 agent is deterministic + model-free** (layers 0 and 1). No model touches chat here, so
+#10 is not in play (the events store structural refs — shas/paths/turn-indices — never verbatim
+secret-bearing content). When the later model summary lands, it will read ONLY the scrubbed store,
+keeping the model-boundary = the #10 line. Structurally two cooperating components (sensor + event
+projector), conceptually one multi-rate agent.
+
+**Out of THIS plan — rate 2 (layer 2):** a SEPARATE deterministic connector agent. Its source is the
+transcript's own TOOL RECORDS (the `Edit`/`Write` file_paths + the `git commit` SHAs the tool_results
+report, each at its exact dialogue position) — the exact blocks layer 0 STRIPS. It projects PROVABLE CAUSAL
+links (this chat turn → these exact file changes → this exact commit), read straight from the raw
+transcript. NOT a time-based / co-occurrence join (owner, 2026-07-18: "we can deterministically create the
+links that prove causation"). No model, no strata read. Its own plan (bp-070).
+
+Still OBSERVED-only (layer 0) / INTERPRETED (layer 1), local, secret-guarded (no bright line moves —
+finding-0109).
 
 ## 2. Context manifest (read in order)
 1. `docs/findings/finding-0109.md` — the decision + the owner's standard (immediacy, no loss, code parity).
@@ -88,7 +111,17 @@ line #10). bp-069 is *rate 0*: the lossless real-time foundation the slower proj
 8. `ops/lifecycle/launcher.py` — `Components.watcher` (SINGLE) + `_serve` (`c.watcher.start()`) +
    `_shutdown` (`c.watcher.stop()`) + `build_components`. Generalize to `watchers: list` for N watchers.
 9. `config/defaults.toml` + `core/config/loader.py` — a `[chat]` section (watch debounce/poll +
-   `transcripts_dir` override, folding finding-0108 G1). Plain fields — the ratchet must STAY 19.
+   `transcripts_dir` override [finding-0108 G1] + layer-1 cadence/cap). Plain fields — the ratchet STAYS 19.
+10. `scheduler/cron.py` — the TROUGH-JOB WIRING PATTERN (kind + handler + enqueue at housekeeping). Rate 1
+    borrows only this wiring shape for `CHAT_EVENTS_KIND` — MODEL-FREE, so the pinned tier (like chat_sync),
+    NOT the synthesis tier; fires on the delayed (housekeeping) cadence, not the real-time watcher.
+11. `core/chat_events.py` (NEW) + `core/stores/chat_events.py` (NEW) — the rate-1 projector. To see the
+    ACTIONS (commits, edits, plan-writes, ratifications) it must read the FULL raw transcript (the tool
+    records layer 0 strips), NOT the tool-stripped chatlog: it fetches each session's raw blob via the
+    `transcript_digest` the chatlog carries (`rawstore.get(digest)`), parses turns + tool records, and writes
+    an ORDERED typed event log per session into its own store (keyed by `session_id`; a corpus-side reset
+    target). No model, no other-stratum read. The tool-record parser is the substrate layer 2 (bp-070)
+    reuses for its "where" edges.
 
 ## 3. Investigation & grounding
 - **Q1 — how to detect growth without a state store?** The rawstore. `add_text(text)` returns
@@ -116,6 +149,31 @@ line #10). bp-069 is *rate 0*: the lossless real-time foundation the slower proj
   GENERALIZE to `DirectoryWatcher` (rename `vault`→`path`, class name) and repoint the one caller, rather
   than watch a chat dir with a class named "Vault" (a smell). Vault behavior stays byte-identical (pure
   rename); covered by `test_vault_watcher.py`.
+- **Q7 (rate 1) — RESOLVED (owner, 2026-07-18): the ordered ACTION LOG ("what was performed"), model-free.**
+  Layer 1 is a per-session ORDERED sequence of typed events — `owner_prompt`, `agent_response`,
+  `commit(sha,msg)`, `file_edit(path)`, `build_plan(id)`, `ratify(artifact)`, `finding(id)`, … — in the order
+  they occurred, extracted deterministically from the transcript's turns + tool records. NO prose ("if we
+  want prose, read layer 0"), no model, no dreamer. Events carry structural REFS (sha/path/id/turn_index),
+  never verbatim content. Home: a dedicated `core/stores/chat_events.py` store the agent owns. The
+  abstractive model summary is a LATER rate (§9, §11).
+- **Q7b (rate 1) — event taxonomy + extraction rules (deterministic).** From the raw JSONL: `owner_prompt`/
+  `agent_response` from user/assistant turns; `commit` from a Bash `git commit` tool_use + its tool_result
+  SHA; `file_edit` from `Edit`/`Write` tool_use (`file_path`); `build_plan`/`finding`/`design_note` from a
+  `Write` whose path matches `docs/build-plans/`|`docs/findings/`|`docs/design-notes/`; `ratify` from an
+  `Edit` flipping a `status:` line. Rules are mind-palace-aware and grep-visible (a §10 change is a code
+  edit, not silent). Unknown tool calls → a generic `tool_use(name)` event (fail-open to a recorded event,
+  never dropped).
+- **Q8 (rate 1) — source + incrementality.** Reads the FULL raw transcript (tool records), fetched by the
+  chatlog's `transcript_digest` per session (`rawstore.get`) — NOT the tool-stripped chatlog. Re-extract a
+  session only when its `transcript_digest` changed since the last event-log row (layer 0 is growth-aware, so
+  the digest changes on growth). Cap N sessions/pass (config). RESOLVED.
+- **Q9 (rate 1) — no model, so #10 is not in play here.** Nothing is sent to a model; events store structural
+  refs, not verbatim (secret-bearing) content. (Reading the raw is safe precisely because the reader is
+  deterministic code, not a model — bright line #10 is about MODELS reading secrets.)
+- **Q10 (rate 1) — cadence + tier.** Delayed rate = the housekeeping tick. MODEL-FREE ⇒ the pinned tier
+  (like chat_sync — `ensure_tier` a no-op), NOT the synthesis tier. Enqueued in `_housekeeping`.
+- **Q11 (rate 1) — testability.** Pure functions: raw JSONL → ordered `ChatEvent`s; tests seed a transcript
+  with a prompt + a commit + an Edit + a plan-write and assert the exact event sequence. No model, no Ollama.
 
 ## 4. Reconciliation
 - `ops/chat_sensor.py` — `sync()` becomes growth-aware (remove the freeze-skip; drive off rawstore
@@ -129,15 +187,25 @@ line #10). bp-069 is *rate 0*: the lossless real-time foundation the slower proj
 - `ops/lifecycle/launcher.py` — `Components.watcher` → `watchers: list`; `_serve`/`_shutdown` iterate;
   `build_components` builds both the vault + chat watchers. Additive to the loop shape.
 - `config/defaults.toml` + `core/config/**` — a `[chat]` section (`transcripts_dir` override,
-  `watch_debounce_s`, `watch_poll_interval_s`); plain fields, ratchet STAYS 19 (finding-0108 G1 folded).
+  `watch_debounce_s`, `watch_poll_interval_s` [rate 0] + `events_max_per_pass` [rate 1]); plain fields,
+  ratchet STAYS 19 (finding-0108 G1 folded).
+- `core/stores/chat_events.py` (NEW) + `core/chat_events.py` (NEW, rate 1) — the ordered-event-log store +
+  the model-free projector: parses each session's raw transcript (turns + tool records) into a typed event
+  sequence. NOT the dreamer. Core-internal ⇒ ratchet unaffected.
+- `scheduler/cron.py` (rate 1) — add `CHAT_EVENTS_KIND` + `chat_events_handler(projector)` +
+  `enqueue_chat_events` (trough kind/handler/enqueue WIRING shape only; pinned tier — model-free).
+- `ops/lifecycle/launcher.py` — register the chat-events handler, enqueue it in `_housekeeping` (the delayed
+  rate), and add the new event-log store to `reset_targets()` (corpus-side). Additive.
 
 ## 5. Write scope
-`ops/chat_sensor.py` (growth-aware + torn-line), `core/ingest/watch.py` (→ DirectoryWatcher),
+Rate 0: `ops/chat_sensor.py` (growth-aware + torn-line), `core/ingest/watch.py` (→ DirectoryWatcher),
 `scheduler/chat_sync.py` (build_chat_watcher), `scheduler/vault_sync.py` (repoint),
-`scheduler/router.py` (_PINNED_KINDS), `ops/lifecycle/launcher.py` (multi-watcher), `config/defaults.toml`
-+ `core/config/**` (`[chat]`), and the five test files.
-**OUT:** `core/stores/chatlog.py` + `core/stores/rawstore.py` (consumed, not modified); the CS-5
-correlator / layer-2 references (Track 2); the foundation denylist.
+`scheduler/router.py` (_PINNED_KINDS), `ops/lifecycle/launcher.py` (multi-watcher + event-log wiring).
+Rate 1: `core/stores/chat_events.py` + `core/chat_events.py` (NEW), `scheduler/cron.py` (CHAT_EVENTS job).
+Both: `config/defaults.toml` + `core/config/**` (`[chat]`), and the six test files.
+**OUT:** `core/stores/chatlog.py` + `core/stores/rawstore.py` (consumed via their public APIs, not modified);
+the abstractive model-generated summary (a LATER rate); rate 2 — the "where" edges connecting actions to
+commits/files/docs (the layer-2 causal connector, bp-070); the foundation denylist.
 
 ## 6. Interfaces pinned inline
 ```python
@@ -190,8 +258,34 @@ class Components:
 @dataclass(frozen=True)
 class ChatConfig:
     transcripts_dir: Path | None = None      # override; None → _default_transcripts_dir() (G1)
-    watch_debounce_s: float = 0.5            # small → immediate; coalesces one turn's multi-line write
+    watch_debounce_s: float = 0.5            # rate 0: small → immediate; coalesces one turn's write
     watch_poll_interval_s: float = 5.0
+    events_max_per_pass: int = 50            # rate 1: cap sessions event-extracted per housekeeping tick
+
+# core/chat_events.py  (NEW) — the model-free rate-1 projector: raw transcript → ordered ACTION LOG.
+@dataclass(frozen=True)
+class ChatEvent:
+    session_id: str; order: int; actor: str      # owner | agent
+    kind: str                                      # prompt|response|commit|file_edit|build_plan|ratify|finding|tool_use
+    ref: str                                       # sha | path | artifact-id | turn_index (structural, never verbatim)
+    turn_index: int
+def extract_events(session_id: str, transcript_text: str) -> list[ChatEvent]: ...  # pure: turns+tool records → ordered events
+@dataclass
+class ChatEventProjector:
+    chatlog: ChatlogStore; rawstore: RawStore; store: ChatEventStore
+    def project(self, *, max_sessions: int) -> int:  # for each session whose transcript_digest changed:
+        ...                                          #   raw = rawstore.get(chatlog digest); store.replace(extract_events(...))
+
+# core/stores/chat_events.py  (NEW) — the agent's layer-1 store (ordered event log per session):
+class ChatEventStore:                     # data/chat_events.sqlite; (session_id, order); replace-per-session
+    def replace(self, session_id: str, events: list[ChatEvent], transcript_digest: str) -> None: ...
+    def events_for(self, session_id: str) -> list[ChatEvent]: ...
+    def digest_for(self, session_id: str) -> str | None: ...   # last-extracted transcript_digest (incrementality)
+
+# scheduler/cron.py  (borrow dream/curate WIRING shape; pinned tier — MODEL-FREE, not synthesis):
+CHAT_EVENTS_KIND = "chat_events"
+def chat_events_handler(p: ChatEventProjector) -> Handler: ...   # p.project(...); logs the count
+def enqueue_chat_events(queue: JobQueue, router: Router, cfg: Config) -> Job: ...  # pinned tier, background
 ```
 
 ## 7. Items
@@ -223,14 +317,38 @@ class ChatConfig:
 - **Invariant(s):** additive loop shape (no supervisor reshape); local-file, no edge seam.
   **Touches stored data?** Yes (live chatlog on a real run). **Parallelizable?** No (after Item 1).
 
+### Item 3 — rate 1: the deterministic per-session ACTION LOG (what happened, in order)  (blast: new model-free store + trough job)
+- **Objective:** `core/stores/chat_events.py` (the ordered-event store) + `core/chat_events.py`
+  (`extract_events` pure fn + `ChatEventProjector.project`) + `CHAT_EVENTS_KIND`/handler/enqueue in
+  `scheduler/cron.py`, registered + enqueued at `_housekeeping` (pinned tier, model-free), + the new store in
+  `reset_targets()` + `[chat] events_max_per_pass`.
+- **Acceptance test:** `uv run pytest tests/unit/test_chat_events.py -q` green — `extract_events` over a
+  seeded transcript (owner prompt → agent response → a `git commit` Bash call+result → an `Edit` → a `Write`
+  to `docs/build-plans/bp-xxx/plan.md`) yields the EXACT ordered typed sequence with the right refs (sha,
+  path, plan-id) and actors; `project()` re-extracts only sessions whose `transcript_digest` changed
+  (idempotent — no-growth re-run writes 0; a grown session's log is REPLACED) and honours `max_sessions`;
+  the handler runs it; `Router(cfg).plan("chat_events").tier == pinned`. ruff + mypy clean; **ratchet stays
+  19**. Full deterministic suite green-except-the-intentional-ratchet.
+- **Falsifier:** an event is misordered, mis-typed, or dropped (esp. a commit/plan-write — the load-bearing
+  actions); verbatim/secret content lands in a `ref` (must be structural only); a grown session is NOT
+  re-extracted (stale layer 1 — freeze-once one layer up); it re-extracts unchanged sessions every tick
+  (churn); the job pulls a model / a non-pinned tier (it is deterministic).
+- **Invariant(s):** MODEL-FREE (no Ollama); reads its own raw transcript (via the chatlog's
+  `transcript_digest`) — no other stratum; refs are structural (sha/path/id/turn), never verbatim content;
+  event store is corpus-side (reset target). **Touches stored data?** Yes (the event store; tests temp/
+  in-memory). **Parallelizable?** No (after Item 1 — needs the growth-aware chatlog + its `transcript_digest`).
+
 ## 8. Math carried explicitly
 N/A — no mathematical object. Event-driven ingest + append-only store semantics + a config section.
 
 ## 9. Non-goals
-NO CS-5 correlator / layer-2 references (Track 2, separate). NO change to the extraction/tool-strip/secret
-patterns (bp-063's, beyond torn-line tolerance + the Q2 refusal note). NO edge seam (local files only).
-NO ratchet regression (`[chat]` is plain fields; watcher stays core-internal). NO removal of the 6h
-housekeeping tick (kept as a backstop behind the watcher).
+NO abstractive MODEL-generated summary — layer 1 here is the DETERMINISTIC action log ONLY; the model summary is
+a later rate/refinement (owner, 2026-07-18), on the scrubbed store, its own plan. NO layer 2 (the
+deterministic causal connector reading the transcript's tool records → chat↔file↔commit links — its own plan
+bp-070; NOT a time-join, NOT CS-5/Track-2). NO change to the extraction/tool-strip/secret patterns (bp-063's,
+beyond torn-line tolerance + the Q2 refusal note). NO edge seam (local files only). NO ratchet regression
+(`[chat]` is plain fields; the event projector + watcher stay core-internal). NO removal of the housekeeping tick
+(the rate-1 cadence + the rate-0 backstop).
 
 ## 10. Stop-and-raise conditions
 - The rawstore `is_new` signal does not cleanly detect growth (e.g. a store that re-hashes differently) →
@@ -249,12 +367,16 @@ housekeeping tick (kept as a backstop behind the watcher).
 | watcher class | generalize `VaultWatcher`→`DirectoryWatcher` | reuse `VaultWatcher(vault=chat_dir)` as-is (a "Vault" class watching chat is a DRY/clarity smell — owner-strict) | the rename proves risky to the always-on vault path |
 | debounce | 0.5s (immediate; coalesces one turn) | 0s (fires per line — thrash) / vault's 1.0s (a touch slow for "immediate") | the owner feels lag or thrash |
 | whole-session refusal under growth | freeze at pre-secret state (partial kept; secret never lands) | re-refuse + purge the whole session each pass (throws away good earlier turns) | guard precision becomes an owner concern |
+| layer-1 fidelity | deterministic ACTION LOG now (what happened, in order; refs only) | an abstractive MODEL summary (deferred — a later rate on the scrubbed store; "for prose, read layer 0") | the owner wants prose/abstraction over the action log |
+| layer-1 event source | the FULL raw transcript (tool records give commits/edits/plan-writes) | the tool-stripped chatlog (CANNOT see actions — tools are stripped) | — (chatlog structurally lacks the actions) |
 
 ## 12. Dependency & ordering summary
-`depends_on: bp-063` (sensor + stores) + `bp-068` (the wiring this extends). Items serial: 1 (sensor
-growth-aware — the data-model fix) → 2 (the watcher + launcher — the real-time trigger, needs the
-growth-aware sync to be meaningful). Blast radius: Item 1 reversible/append-only; Item 2 renames the vault
-watcher (covered by its test) + adds a second watcher. **Downstream:** lossless real-time chat is the
-complete, trustworthy layer-0/1 the connectivity strata-access track (Track 2) + CS-5 layer-2 references
-will read — no silent gaps. Folds finding-0108's two follow-ups (G1 transcripts_dir override, G2
-_PINNED_KINDS).
+`depends_on: bp-063` (sensor + stores) + `bp-068` (the wiring this extends). Items serial: 1 (rate-0
+growth-aware sensor — the data-model fix) → 2 (the live watcher + launcher — the real-time trigger) → 3
+(rate-1 action-log projection — "what happened, in order", the delayed rate). Blast: Items 1–2
+reversible/append-only + a pure vault-watcher rename; Item 3 is additive (a new projector + trough job).
+**Downstream:** rates 0+1 are the agent's real-time + delayed projections; **rate 2 (bp-070)** is the
+SEPARATE deterministic causal connector — it reads the transcript's tool records (the exact file changes +
+commit SHAs at each dialogue position, the blocks layer 0 strips) to project provable chat↔file↔commit
+links. All three are the one multi-rate chat projection agent; none reads another stratum. Folds
+finding-0108's two follow-ups (G1 transcripts_dir override, G2 _PINNED_KINDS).

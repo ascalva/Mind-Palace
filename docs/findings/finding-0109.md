@@ -47,18 +47,25 @@ be immediate."**
 This SUPERSEDES the Q4 "freeze once / mid-append out of v1" decision in the ratified note — the owner is
 the design authority; the note's Q4 should be amended to record it (owner-gated).
 
-## Architecture the decision sits in — one agent, MULTI-RATE PROJECTION (owner, 2026-07-18)
-The chat sensor is the single model-free agent that always accepts the latest real-time transcripts and
-performs the projections of the different layers AT DIFFERENT RATES:
-- **Real-time rate** — raw snapshot (layer 0) + the dialogue-strata projection (cleaned utterances). This
-  is bp-069.
-- **Lower rates** — layer 1 (summaries) + layer 2 (references touched), each projected on its own cadence
-  from the already-scrubbed dialogue strata (Track 2 / CS-5; hung off a periodic tick like dream/curate).
+## Architecture the decision sits in — one agent, MULTI-RATE PROJECTION (owner, 2026-07-18, refined)
+One source (the transcript), projected at different rates — all DETERMINISTIC / model-free:
+- **Layer 0 (real-time)** — the rich dialogue: raw byte-verbatim snapshot + tool-stripped prose utterances,
+  appended live, lossless. The full text lives here. **bp-069.**
+- **Layer 1 (delayed) — WHAT actions were performed.** An ordered, typed ACTION LOG per session
+  (`owner_prompt → agent_response → commit → ratify → build_plan → …`), extracted deterministically from the
+  transcript's turns + TOOL RECORDS. No prose ("for prose, read layer 0"), no model. Reads the FULL raw
+  transcript (the tool records layer 0 strips). **bp-069.**
+- **Layer 2 (delayed) — WHERE they happened.** Deterministic edges connecting each action to the exact
+  commit / file / doc — read straight from the same tool records (the SHAs + file_paths the transcript
+  records), proving causation. NOT a time-based co-occurrence join; NOT CS-5; NO strata-access/`MirrorView`
+  needed. A SEPARATE deterministic connector agent. **bp-070.**
 
-**Safety ordering (bright line #10):** credential removal is the agent's DETERMINISTIC gate at the
-real-time rate (the existing `ChatSecretGuard`, model-free) — NOT a model. Every downstream (lower-rate)
-projection reads only scrubbed text, so a model never touches a secret. An "agent that removes
-credentials" must never mean a MODEL reading un-scrubbed text.
+**Corrections to my first framing (recorded so the plan doesn't inherit them):** (a) layers 1/2 do NOT need
+the Track-2 strata-access machinery — the agent reads its OWN transcript, never other strata; (b) layer 1 is
+NOT modeled on the dreamer (no synthesis/clustering); (c) layer 2 is deterministic CAUSATION from the tool
+records, not a time-join. The abstractive model summary is a LATER rate (not bp-069). **#10:** bp-069 has no
+model at all; when the later model summary lands it reads only the scrubbed store — the model boundary is the
+#10 line.
 
 ## Routing
 `design` → owner (DECIDED). Warrants **bp-069** (owner-directed). Not a bright-line change: still
