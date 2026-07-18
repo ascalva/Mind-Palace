@@ -18,7 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal
 
-from config.loader import Config
+from core.config import Config
 from core.constitution import Message, frame_context
 from core.factory.registry import AgentRegistry
 from core.factory.roles import BASE_ROLES, PRE_DECLARED_MAX, RoleTemplate
@@ -175,8 +175,12 @@ def build_factory(config: Config | Literal[False] | None = None, *,
     if config is False:                                  # server-less wiring (tests)
         return AgentFactory(server=None, tools=build_default_registry(broker))
 
-    from config.loader import get_config
+    # bp-067: get_config repointed to core.config. `build_secrets_backend` (network Vault, hvac)
+    # stays on the outside `config` package — it belongs OUT of core (Invariant 1); it is the
+    # DEFERRED factory secrets-inversion (finding-0103/0104; bp-068+), left RED on purpose. The
+    # token `get_secret` at :82 likewise stays on `config.loader` (the facade's token-capable form).
     from config.secrets_backend import build_secrets_backend
+    from core.config import get_config
 
     cfg = config or get_config()
     secrets = build_secrets_backend(cfg)         # None unless [secrets] enabled (fail-closed)

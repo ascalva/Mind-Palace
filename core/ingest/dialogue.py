@@ -18,8 +18,8 @@ import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from config.loader import Config
 from core.attestation import Attestor
+from core.config import Config
 from core.ingest.embed import Embedder
 from core.ingest.index import index_records
 from core.ingest.logseq import ParsedNote
@@ -71,8 +71,8 @@ class DialogueCapture:
 
 def build_dialogue_capture(config: Config | None = None) -> DialogueCapture:
     """Wire a DialogueCapture against the configured stores + embedder."""
-    from config.loader import get_config
     from core.attestation import build_attestor
+    from core.config import get_config
     from core.ingest.embed import build_embedder
 
     cfg = config or get_config()

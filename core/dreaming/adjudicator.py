@@ -29,7 +29,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from config.loader import Config, get_config
+from core.config import Config, get_config
 from core.dreaming.interpreters import Claim, run_panel
 from core.dreaming.rnd import require_rnd_enabled
 from core.mirror import MirrorView

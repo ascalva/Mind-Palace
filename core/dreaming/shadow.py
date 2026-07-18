@@ -59,7 +59,7 @@ from eval.harness import registry
 from eval.harness.store import EvalKey, EvalResultsStore, Reading
 
 if TYPE_CHECKING:
-    from config.loader import Config
+    from core.config import Config
 
 _log = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ class ShadowRunner:
 
 
 def _get_config() -> Config:
-    from config.loader import get_config
+    from core.config import get_config
     return get_config()
 
 

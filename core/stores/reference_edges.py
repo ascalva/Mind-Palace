@@ -91,7 +91,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from config.loader import Config
+from core.config import Config
 
 # The §2.3 references_out type vocabulary — the note's pinned shape. NOTE: this is the
 # schema DOMAIN, not a precision verdict; which types the extractor actually mints is
@@ -337,7 +337,7 @@ def open_reference_edge_store(config: Config | None = None) -> ReferenceEdgeStor
     """The `open_*` helper: `data/reference_edges.sqlite` — the sibling-store convention
     beside `code_observations.sqlite`. Corpus-layer (Q4): a `reset_targets()` wipe target
     (registered by the orchestrator post-merge, oq-0013 concurrence)."""
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     return ReferenceEdgeStore(cfg.paths.data_dir / "reference_edges.sqlite")

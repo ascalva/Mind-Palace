@@ -18,8 +18,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from config.loader import Config
 from core.attestation import Attestor
+from core.config import Config
 from core.ingest.embed import Embedder
 from core.ingest.index import index_records
 from core.ingest.logseq import parse_note
@@ -73,8 +73,8 @@ def ingest_curated(paths: list[Path], raw: RawStore, store: VectorStore, embedde
 def build_and_ingest_curated(config: Config | None = None) -> CuratedReport:
     """Wire + run the curated ingest against the configured stores + embedder (needs the live
     embedder — owner-run, see scripts/ingest_self_knowledge.py)."""
-    from config.loader import REPO_ROOT, get_config
     from core.attestation import build_attestor
+    from core.config import REPO_ROOT, get_config
     from core.ingest.embed import build_embedder
 
     cfg = config or get_config()

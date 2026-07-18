@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from config.loader import Config, get_config
 from core.agent import Agent
+from core.config import Config, get_config
 from core.constitution import constitution_fingerprint
 from core.models import ModelServer, build_model_server
 from core.sealing import assert_sealed, seal

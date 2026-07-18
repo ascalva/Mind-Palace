@@ -25,8 +25,8 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from config.loader import Config
 from core.attestation import Attestor
+from core.config import Config
 from core.ingest.embed import Embedder
 from core.ingest.index import index_amendment
 from core.ingest.logseq import DEFAULT_EXCLUDE_DIRS, iter_vault, parse_note
@@ -182,8 +182,8 @@ class VaultSync:
 
 def build_vault_sync(config: Config | None = None) -> VaultSync:
     """Wire a VaultSync against the configured vault + real stores + embedder."""
-    from config.loader import get_config
     from core.attestation import build_attestor
+    from core.config import get_config
     from core.ingest.embed import build_embedder
     from core.stores.versions import open_version_store
 

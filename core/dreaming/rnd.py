@@ -14,7 +14,7 @@ lands) gated by construction, not by remembering to be careful.
 
 from __future__ import annotations
 
-from config.loader import Config, DreamRnDConfig, get_config
+from core.config import Config, DreamRnDConfig, get_config
 
 
 class DreamRnDDisabledError(RuntimeError):

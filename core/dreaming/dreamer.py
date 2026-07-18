@@ -21,10 +21,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from config.loader import Config
 from core.attestation import Attestor
 from core.complex.support import grounding_with_support
 from core.complex.temporal import SnapshotStore, compute_snapshot, open_snapshot_store
+from core.config import Config
 from core.constitution import Message, frame_context
 from core.dreaming.cluster import Cluster, cluster_notes, note_centroids, note_snippets
 from core.dreaming.graph import MirrorGraph
@@ -265,8 +265,8 @@ class Dreamer:
 def build_dreamer(config: Config | None = None, *, tier: str = "synthesis") -> Dreamer:
     """Wire a Dreamer against the real configured stores + synthesis model. Pulling the
     synthesis-tier model is required only to actually run it (the unit path injects a fake)."""
-    from config.loader import get_config
     from core.attestation import build_attestor
+    from core.config import get_config
     from core.models import build_model_server
     from core.stores.derived import open_derived_store
     from core.stores.vectorstore import open_vector_store

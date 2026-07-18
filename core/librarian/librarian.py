@@ -23,7 +23,7 @@ import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from config.loader import Config
+from core.config import Config
 from core.constitution import Message, frame_context
 from core.ingest.embed import Embedder
 from core.ingest.index import semantic_search
@@ -206,7 +206,7 @@ class Librarian:
 
 def build_librarian(config: Config | None = None, *, k: int = 5) -> Librarian:
     """Wire a Librarian against the real configured stores and models."""
-    from config.loader import get_config
+    from core.config import get_config
     from core.ingest.embed import build_embedder
     from core.models import build_model_server
     from core.stores.vectorstore import open_vector_store

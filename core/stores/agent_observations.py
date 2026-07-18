@@ -56,7 +56,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from config.loader import Config
+from core.config import Config
 from core.provenance import Provenance
 from core.stores.observation_history import ObservationHistoryStore
 
@@ -288,7 +288,7 @@ def open_agent_observation_store(config: Config | None = None) -> AgentObservati
     """The `open_*` helper: `data/agent_observations.sqlite` (plan §6(b) — the sibling-store
     convention beside `code_observations`, no dedicated cfg path; registered in
     `reset_targets()` as a corpus-side wipe target, plan §6(h))."""
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     return AgentObservationStore(cfg.paths.data_dir / "agent_observations.sqlite")

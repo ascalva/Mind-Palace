@@ -59,7 +59,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from config.loader import Config
+from core.config import Config
 from core.provenance import Provenance
 
 # φ_chat's worldview coordinate (the self-sensor / code-sensor precedent: a deterministic
@@ -212,7 +212,7 @@ def open_chatlog_store(config: Config | None = None) -> ChatlogStore:
     """The `open_*` helper: `data/chatlog.sqlite` (the sibling-store convention beside
     `code_observations`, no dedicated cfg path; registered in `reset_targets()` as a
     corpus-side wipe target — the orchestrator's post-merge step, Q6)."""
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     return ChatlogStore(cfg.paths.data_dir / "chatlog.sqlite")

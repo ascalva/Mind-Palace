@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from config.loader import Config, get_config
+from core.config import Config, get_config
 from core.ingest.embed import build_embedder
 from core.ingest.index import index_records
 from core.ingest.pipeline import ingest_vault

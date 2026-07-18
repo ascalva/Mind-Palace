@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 import numpy as np
 from scipy.sparse.csgraph import connected_components
 
-from config.loader import Config
 from core.complex.balance import signed_spectrum
 from core.complex.blocks import sbm
 from core.complex.build import ReasoningComplex
@@ -37,6 +36,7 @@ from core.complex.cut import min_conductance
 from core.complex.hodge import harmonic_basis
 from core.complex.spectral import fiedler
 from core.complex.topology import long_lived_holes
+from core.config import Config
 
 _DDL = """
 CREATE SEQUENCE IF NOT EXISTS snapshot_seq;
@@ -201,7 +201,7 @@ class SnapshotStore:
 
 
 def open_snapshot_store(config: Config | None = None) -> SnapshotStore:
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     # Beside the derived store: interpreted-layer structure, regenerable in principle.

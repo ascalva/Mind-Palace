@@ -39,13 +39,13 @@ from typing import Any
 
 import numpy as np
 
-from config.loader import Config, DreamRnDConfig
 from core.complex.blocks import sbm
 from core.complex.build import ReasoningComplex, build_complex
 from core.complex.curvature import most_negative_edges
 from core.complex.hodge import edge_index, harmonic_basis
 from core.complex.spectral import spectral_labels
 from core.complex.topology import cosine_distance_matrix, long_lived_holes
+from core.config import Config, DreamRnDConfig
 from core.dreaming.cluster import cluster_notes, note_centroids
 from core.dreaming.graph import MirrorGraph
 from core.dreaming.rnd import require_rnd_enabled

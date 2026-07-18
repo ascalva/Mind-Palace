@@ -19,8 +19,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from config.loader import Config
 from core.complex_types import EdgeSign
+from core.config import Config
 
 # Binary relation types (a small, mostly-closed set; kept as string constants rather than an enum
 # because it is still growing — unlike the polarity, which is a closed ±1 set and IS an enum).
@@ -140,7 +140,7 @@ class EdgeStore:
 
 
 def open_edge_store(config: Config | None = None) -> EdgeStore:
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     # Reuse the derived-store directory; edges are interpreted-layer structure alongside dreams.

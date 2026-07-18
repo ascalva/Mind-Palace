@@ -23,7 +23,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from config.loader import Config
+from core.config import Config
 
 # query text -> answer text. Wires to the librarian / factory; injected so the inbox stays
 # model-agnostic and testable.
@@ -100,7 +100,7 @@ def build_core_inbox(config: Config | None = None) -> CoreInbox:
     `scheduler.budget` budgeter, and a top-level import would invert core's layering — the
     Ambassador is core-side but is assembled, not imported, at module load (no network either)."""
     from agents.ambassador import build_ambassador
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     ambassador = build_ambassador(cfg)

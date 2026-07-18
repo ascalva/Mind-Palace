@@ -98,7 +98,7 @@ from core.stores.versions import VersionStore
 from eval.harness.store import EvalResultsStore
 
 if TYPE_CHECKING:
-    from config.loader import Config
+    from core.config import Config
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════
@@ -332,7 +332,7 @@ class SpineSources:
         resolver has no side effects (never creates an empty DB). A store whose DuckDB file is
         write-locked (a running daemon) is skipped rather than raising; it surfaces as absent from
         the report's `stores_enumerated` (honest, no silent cap)."""
-        from config.loader import get_config
+        from core.config import get_config
 
         cfg = config or get_config()
         base = cfg.paths.derived_store.parent

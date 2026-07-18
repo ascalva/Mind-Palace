@@ -199,7 +199,7 @@ class RunLedger:
 def open_run_ledger(config: Any = None) -> RunLedger:
     """Open the configured run ledger — its SQLite file lives beside the derived store (the
     telemetry precedent). Import of `config.loader` is lazy so the module stays dependency-light."""
-    from config.loader import get_config
+    from core.config import get_config
 
     config = config or get_config()
     return RunLedger(config.paths.derived_store.parent / "run_ledger.sqlite")

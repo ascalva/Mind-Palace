@@ -50,7 +50,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from config.loader import Config
+from core.config import Config
 from core.stores.authored_supersession import OwnerDeclaration, verify_owner_declaration
 
 
@@ -175,7 +175,7 @@ def _row(r: sqlite3.Row) -> Version:
 
 
 def open_version_store(config: Config | None = None) -> VersionStore:
-    from config.loader import get_config
+    from core.config import get_config
 
     cfg = config or get_config()
     return VersionStore(cfg.paths.derived_store.parent / "versions.sqlite")
