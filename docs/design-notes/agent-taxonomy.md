@@ -161,10 +161,15 @@ established `sourceset` pattern: a derived object IS the set of its source recor
 re-derivable from retained raw at will. It is **not** edges in the `EdgeScope` fibers `{F, D, C}`,
 which type *inter-stratum / inter-artifact* structure, stored beside the data and granted via E.
 Storing projection tissue as graph edges would duplicate what the rows already carry and pollute
-the connectivity graph with derivation stars. Rule of thumb: **within a stratum, layers connect by
-projection fibers (structure on the data); across strata, records connect by E-fiber edges
-(structure beside the data)** — the sensor/integrator boundary restated at the data level. The two
-senses meet in exactly one place, the witness law: a C-edge's witness is *composed of* these
+the connectivity graph with derivation stars. The rule of thumb is in fact a **criterion**:
+*structure re-derivable from ONE stratum's retained raw is a fiber — store it on the data
+(backpointers); structure whose derivation requires jointly reading ≥ 2 strata is an edge — store
+it beside the data, in a fiber-scoped edge store.* The integrator exists precisely because
+cross-strata structure is not a function of any single stratum; the criterion *derives* the
+sensor/integrator boundary rather than declaring it. Corollary (the floor invariant): **the entire
+deterministic floor — every layer and every proven edge — is a pure function of the retained raw
+archives**; its falsifier is any floor artifact that cannot be recomputed from raw. The two senses
+of "fiber" meet in exactly one place, the witness law: a C-edge's witness is *composed of* these
 projection backpointers — the fibers are the raw material the proofs are made of.
 
 ### 2.5 The integrator, generalized — the witness law (bp-070's charter)
@@ -177,10 +182,14 @@ from, sufficient to re-derive or refute it — for the chat↔code↔doc integra
 file path, doc path)`. Not a time-join; a reference-resolution. Causation is *read*, not inferred.
 
 **Well-typedness under the ratified algebra.** The SLICE rule (`dn-capability-scope` §2.2) demands a
-consistent cut for any `|Σ| > 1` point-window scope — and *the commit SHA is the cut for repo-backed
-strata*. The integrator's witnesses carry their commit SHAs, so **every proven edge arrives
-cut-stamped by construction**: the multi-strata access the owner mandated is not merely permitted by
-the algebra; it satisfies its consistency discipline for free (`Clock.COMMIT` is its clock).
+consistent cut for any `|Σ| > 1` point-window scope. Stated precisely for the integrator: the commit
+SHA cuts the *repo-backed* strata and the transcript digest cuts the *dialogue* side — the
+consistent cut is the **pair** `(transcript_digest, commit SHA)`, and the witness's causal bracket
+(§ below) is what **proves the pair is a valid antichain** (neither side's stamped state contains an
+event that happened after the other's). So every proven edge arrives cut-stamped — not because one
+token magically covers both strata, but because the witness carries both tokens *and* the
+happened-before evidence that makes them jointly consistent (`Clock.COMMIT` on one side, the chat
+`N_s` on the other).
 
 **Commits as cross-clock bookmarks (owner, 2026-07-18 — recorded).** The same SHA plays a second,
 diachronic role. `Clock.COMMIT` is a *range* of the parked global event clock N; a C-edge's witness
@@ -216,6 +225,21 @@ the derivation-retention `dn-chat-sensor` was founded on, now a typed two-hop qu
 **integrator** (deterministic, proven edges — this role) and the **cross-strata dreamer** (model,
 interpretive edges — the ratified note's subject). The refinement changes nothing ratified; it names
 the halves so each can be built and priced correctly.
+
+**Stated assumptions & required instruments (falsifier discipline).** Two assumptions this design
+leans on are named here so they are held by instruments, not vigilance:
+1. **Source monotonicity is an assumption, not a fact.** Transcripts are append-mostly but the CLI
+   *prunes by retention* — a source may shrink or rewrite. The design survives (content-addressed
+   raw snapshots; replace-per-session projection), but every sensor must declare its source's
+   mutation model; freeze-once is forbidden either way.
+2. **The transcript schema is a third-party format** — not a contract we control. Deterministic
+   extraction is not robust extraction: a CLI update could silently thin the event stream, and every
+   downstream consumer (connectivity, the grounding law, the clock anchors) would quietly degrade.
+   Required instruments, per the structural-enforcement rule (a property is only real when a
+   test/ratchet proves it): a **parity ratchet** (raw `tool_use` record count vs extracted events;
+   unknown-kind ratio bounded) and a **C-coverage gauge** (fraction of D-events carrying a C-witness
+   — also the honest measure of the fact that C-coverage is inherently partial: an owner hand edit
+   has D without C, and connectivity must never assume C is total).
 
 ### 2.6 What none of this touches
 
