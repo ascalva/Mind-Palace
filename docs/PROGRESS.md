@@ -4809,3 +4809,26 @@ Ratchet untouched, still red at 19 in the full suite. finding-0105 → **resolve
 
 **Next.** `palace deploy` is now owner-runnable to promote the daemon onto HEAD (owner gate — chat
 sensing runs continuously once landed). Then the diamond lead: `/build bp-070` (Phase Α).
+
+---
+
+## 2026-07-18 (session 29, OPUS) — bp-070 SEALED: Phase Α scope tooling (the diamond's root)
+
+The diamond's first plan lands. Three additive, deterministic, fixture-tested deliverables:
+- **D1** (`core/scope.py`): `DIALOGUE` base stratum + `dialogue_transcript`/`dialogue_artifact`
+  refinements into `Stratum`/`_REFINES`; fiber `C` (causal-witnessed) into `Fiber`/`EdgeScope.top()`.
+  Additive lattice extension — `test_scope.py` EXTENDED (4 new tests), the existing 28 pass verbatim.
+- **D2** (`core/agent_scope.py`, NEW): the declared-scope agent layer — `sensor_scope`/`query_scope`/
+  `integrator_scope`/`dreamer_scope` (§2.1 role regions) + `Handle`/`assert_conforms` conformance.
+  Agents are BORN scoped; composition is the EXISTING `Scope.meet` (no new lattice op). Integrator
+  validates ≥2 base strata + write fibers ⊆ {C,F}; conformance rejects a smuggled handle.
+- **D3** (`core/graph/composed.py`, NEW): `compose(nodes, sim_edges, proven_edges)` → a `ComposedGraph`
+  presenting MirrorGraph's exact surface, so the EXISTING σ*/conductance math consumes `E_sim ∪
+  E_proven` UNCHANGED (a `cast` static-bridges in the test; math untouched). Per-class attribution
+  retained; a proven bridge edge (weight 1.0) joins two σ-components (the oq-0031 answer, in miniature).
+
+**Verified:** full deterministic suite (gate cmd, ratchet deselected) = **1567 passed / 4 skipped /
+0 failures**; ratchet held **19** (all three modules import core substrate only). No Views/stores/
+harness touched. ruff+mypy clean throughout. Committed; pushed. **Next:** `/build bp-069` (Phase Β,
+the dialogue sensor agent — READY, depends_on bp-070 now satisfied); it consumes D2's
+`sensor_scope(DIALOGUE)` + conformance. bp-071 (Γ) stays proposed until Β seals. Δ mints at Γ-seal.

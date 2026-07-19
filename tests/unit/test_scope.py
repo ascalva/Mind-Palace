@@ -317,3 +317,59 @@ def test_coherence_report_audits_as_inv():
         assert "rate" not in name.lower() and "ratio" not in name.lower()
     # and the marker type wraps a value cleanly
     assert Inv(value=7).value == 7
+
+
+# ── D1 (dn-agent-taxonomy §2.3/§2.5) — DIALOGUE stratum + fiber C, additive lattice extensions ──
+# These EXTEND the suite: every test above passes verbatim; the extension adds no new machinery,
+# only new elements to the existing enum/literal, so the lattice laws must still hold over them.
+def test_dialogue_downward_closure():
+    """A `dialogue` grant includes both refinement predicates (the downset)."""
+    d = StratumScope.of(Stratum.DIALOGUE).strata
+    assert Stratum.DIALOGUE_TRANSCRIPT in d
+    assert Stratum.DIALOGUE_ARTIFACT in d
+    # a leaf refinement alone is already downward-closed (no parent pulled in)
+    assert (StratumScope.of(Stratum.DIALOGUE_TRANSCRIPT).strata
+            == frozenset({Stratum.DIALOGUE_TRANSCRIPT}))
+
+
+def test_top_sigma_includes_dialogue_and_still_excludes_foundation():
+    """⊤_Σ grows by the DIALOGUE base stratum (+ its two refinements) and STILL excludes 𝔇 — the
+    extension widens the grantable top by exactly one base stratum, the denylist untouched."""
+    top = StratumScope.top().strata
+    assert {Stratum.DIALOGUE, Stratum.DIALOGUE_TRANSCRIPT, Stratum.DIALOGUE_ARTIFACT} <= top
+    assert Stratum.FOUNDATION not in top
+
+
+def test_fiber_c_joins_the_edge_top():
+    """C (causal-witnessed) joins F and D in the edge-fiber top (dn-agent-taxonomy §2.5). C is a
+    fresh independent axis: it meets F/D to ⊥ and joins to the union — orthogonal, not a refine."""
+    assert EdgeScope.top().fibers == frozenset({"F", "D", "C"})
+    assert EdgeScope.of("C") <= EdgeScope.top()
+    assert EdgeScope.of("C").meet(EdgeScope.of("F")) == EdgeScope.bottom()
+    assert EdgeScope.of("C").join(EdgeScope.of("F")) == EdgeScope.of("C", "F")
+
+
+def test_lattice_laws_hold_over_dialogue_and_c():
+    """The lattice laws (idempotent / commutative / associative / absorption, `⊑ ⟺ meet`,
+    delegation monotonicity) hold over a population carrying the NEW DIALOGUE strata and the C fiber
+    — proof the extension is a genuine lattice extension, not merely new enum members."""
+    def s(sigma: StratumScope, edges: EdgeScope) -> Scope:
+        return _scope(sigma, edges, Window.all(), Authority.read_only())
+
+    ext = [
+        s(StratumScope.of(Stratum.DIALOGUE), EdgeScope.of("C")),
+        s(StratumScope.of(Stratum.DIALOGUE_TRANSCRIPT), EdgeScope.of("F", "C")),
+        s(StratumScope.of(Stratum.DIALOGUE, Stratum.OPS), EdgeScope.of("F", "D", "C")),
+        s(StratumScope.top(), EdgeScope.top()),
+        s(StratumScope.of(Stratum.REFERENCE), EdgeScope.of("D", "C")),
+    ]
+    for a in ext:
+        assert a.meet(a) == a and a.join(a) == a
+    for a, b in itertools.combinations(ext, 2):
+        assert a.meet(b) == b.meet(a) and a.join(b) == b.join(a)
+        assert a.meet(a.join(b)) == a and a.join(a.meet(b)) == a
+        assert (a <= b) == (a.meet(b) == a)
+        assert a.meet(b) <= a and a.meet(b) <= b        # delegation monotonicity over C/dialogue
+    for a, b, c in itertools.combinations(ext, 3):
+        assert a.meet(b).meet(c) == a.meet(b.meet(c))
+        assert a.join(b).join(c) == a.join(b.join(c))

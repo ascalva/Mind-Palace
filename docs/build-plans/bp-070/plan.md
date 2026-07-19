@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-070
 alias: scope-tooling
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/agent-taxonomy.md            # dn-agent-taxonomy §3 Phase Α — REQUIRES RATIFICATION first
   - docs/design-notes/capability-scope-algebra.md  # RATIFIED — the lattice this extends additively
@@ -19,14 +19,20 @@ cost:
   estimate:
     model: opus
     tokens: 140k
-  actual: null
+  actual:
+    model: opus
+    sessions: 1                      # single OPUS session (session-29); budget was 2
+    pinning: tight                   # §6 interfaces pinned inline + full manifest read up front
+    ratio: ~0.5x                     # well-pinned band (near-first-try landings; only ruff fixups)
+    landed: 3/3 items; suite 1567p/4s/0f (ratchet deselected); ratchet held 19
+    dollars: pending-owner-relay     # precise $/session_delta/week_delta await /usage relay
 depends_on: []
 parallelizable_with: []
 supersedes: null
 superseded_by: null
 warrant: docs/design-notes/agent-taxonomy.md
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-07-18   # session-29: ready → in-progress → complete
 re_entry: null
 ---
 

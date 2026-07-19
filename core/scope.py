@@ -16,12 +16,13 @@ made each component well-posed and this module types it. A `Scope` is a point in
 whose four coordinates are themselves lattices:
 
   * **Σ (`StratumScope`)** — a downward-closed subset of the stratum-refinement forest R. Base
-    strata (mirror, curated, observed, ops, reference, interpreted, world) with refinement
+    strata (mirror, curated, observed, ops, reference, interpreted, world, dialogue) with refinement
     predicates BELOW them as first-class elements (`reference_repo ⊂ reference`,
-    `mirror_authored ⊂ mirror`). `⊤_Σ = R ∖ 𝔇`: even the fullest grant excludes the foundation
-    denylist 𝔇 (an order-ideal), so `CONSTITUTION.md` / `eval/golden/**` are structurally
-    ungrantable.
-  * **E (`EdgeScope`)** — the edge-class fibers `E ⊆ {F, D}` (F = citation, D = supersession).
+    `mirror_authored ⊂ mirror`, `dialogue_transcript`/`dialogue_artifact ⊂ dialogue`).
+    `⊤_Σ = R ∖ 𝔇`: even the fullest grant excludes the foundation denylist 𝔇 (an order-ideal),
+    so `CONSTITUTION.md` / `eval/golden/**` are structurally ungrantable.
+  * **E (`EdgeScope`)** — the edge-class fibers `E ⊆ {F, D, C}` (F = citation, D = supersession,
+    C = causal-witnessed; dn-agent-taxonomy §2.5).
   * **T (`TimeScope`)** — `(clock, window)`. A clock is a monotone coarsening of the ledger causal
     order; the clock poset has the global event clock N (finest, PARKED — not yet materialized) at
     the top. The T-meet is PARTIAL: same clock → intersect windows; different clocks → a constructor
@@ -64,6 +65,12 @@ class Stratum(StrEnum):
     REFERENCE_REPO = "reference_repo"        # ⊂ reference (the C1 refinement predicate)
     INTERPRETED = "interpreted"
     WORLD = "world"
+    # the discourse substrate + its two refinements (dn-agent-taxonomy §2.3): dialogue_transcript =
+    # the chat stores (rawstore/chatlog/chat_events); dialogue_artifact = brainstorms/design-notes/
+    # docs (overlaps reference_repo in v1 — R is grant vocabulary, not a disk partition).
+    DIALOGUE = "dialogue"
+    DIALOGUE_TRANSCRIPT = "dialogue_transcript"      # ⊂ dialogue
+    DIALOGUE_ARTIFACT = "dialogue_artifact"          # ⊂ dialogue
     FOUNDATION = "foundation"                # 𝔇 — CONSTITUTION.md / eval/golden/**; NEVER grantable
 
 
@@ -72,6 +79,8 @@ class Stratum(StrEnum):
 _REFINES: dict[Stratum, Stratum] = {
     Stratum.MIRROR_AUTHORED: Stratum.MIRROR,
     Stratum.REFERENCE_REPO: Stratum.REFERENCE,
+    Stratum.DIALOGUE_TRANSCRIPT: Stratum.DIALOGUE,   # dn-agent-taxonomy §2.3
+    Stratum.DIALOGUE_ARTIFACT: Stratum.DIALOGUE,     # dn-agent-taxonomy §2.3
 }
 
 # the base strata (the roots of R) — everything a maximal grant may name, minus the denylist.
@@ -133,12 +142,14 @@ class StratumScope:
 # E — the edge-class fibers (dn-capability-scope §2.1)
 # ═══════════════════════════════════════════════════════════════════════════════════════════════
 
-Fiber = Literal["F", "D"]      # F = citation/warrant edges; D = supersession edges
+# F = citation/warrant edges; D = supersession edges; C = causal-witnessed production edges
+# (dn-agent-taxonomy §2.5 — origin, not lineage: a dialogue action → the artifact it produced).
+Fiber = Literal["F", "D", "C"]
 
 
 @dataclass(frozen=True)
 class EdgeScope:
-    """`E ⊆ {F, D}` — dispositional edge-class fibers. meet = ∩, join = ∪, ⊑ = ⊆."""
+    """`E ⊆ {F, D, C}` — dispositional edge-class fibers. meet = ∩, join = ∪, ⊑ = ⊆."""
 
     fibers: frozenset[str]
 
@@ -152,7 +163,7 @@ class EdgeScope:
 
     @classmethod
     def top(cls) -> EdgeScope:
-        return cls(frozenset({"F", "D"}))
+        return cls(frozenset({"F", "D", "C"}))
 
     def meet(self, other: EdgeScope) -> EdgeScope:
         return EdgeScope(self.fibers & other.fibers)
