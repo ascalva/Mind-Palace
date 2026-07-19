@@ -1,3 +1,53 @@
+# [1.12.0](https://github.com/ascalva/mind-palace/compare/v1.11.0...v1.12.0) (2026-07-19)
+
+
+### Bug Fixes
+
+* **bp-046:** make shipped-manifest test registry-faithful — resolves finding-0088 ([fd0f5ff](https://github.com/ascalva/mind-palace/commit/fd0f5ff4f2c6ed7dc5d798d78758f085ccbcac92))
+* **bp-065:** audit — restore module-top MirrorGraph imports in both wrappers (exact move fidelity) ([f44cf1f](https://github.com/ascalva/mind-palace/commit/f44cf1f2821f1f112a0e7e9658496fbcef317aa9))
+* **ci:** deselect the intentional-red ratchet in the CI ratchet job (finding-0105 decision-A, CI half) ([5943622](https://github.com/ascalva/mind-palace/commit/5943622aeb58014a91f16cb76c1ead6261fad503))
+* **ci:** repair pre-existing red CI jobs — ruff, mypy baseline, gitleaks, config Tier-2 ([c9171d4](https://github.com/ascalva/mind-palace/commit/c9171d44f3d6141cfa86330e8958869d9c3c472c))
+* **core:** stop spine g2 from cycling on shared attestation hashes ([14b3140](https://github.com/ascalva/mind-palace/commit/14b31407f3ff5e094201cc1e5a5d237fbad2c410))
+* **graduate-skill:** forbid inline write_scope comments + retrofit test-path pre-widen (finding-0085a) ([b65cc3f](https://github.com/ascalva/mind-palace/commit/b65cc3f51ea370ad40bc81c10c3d9f6f9c7aa64f))
+* **ops:** deploy gate deselects the one intentional-red ratchet (finding-0105) ([fdfaac1](https://github.com/ascalva/mind-palace/commit/fdfaac11033356bd0d1bf5f5130e10b0e756be9d))
+
+
+### Features
+
+* **bp-046:** register dream_rnd_sigma lever + widen _config_fingerprint over the registry ([72ce216](https://github.com/ascalva/mind-palace/commit/72ce21681bdc82da49ff6d537a69d5931560bcd0))
+* **bp-049:** the deterministic model-free sweep engine (E3a-1b, Items 13+14) ([21efcdf](https://github.com/ascalva/mind-palace/commit/21efcdf93b34e50be493d3e91af508a8ddadeb78))
+* **bp-050:** add the σ-fibers consumer (FB-1) ([69e673f](https://github.com/ascalva/mind-palace/commit/69e673f3ea101bdb3db77dec6bfb36deab94983f))
+* **bp-057:** add F9-validated σ-gate surfacing tiers ([02388fd](https://github.com/ascalva/mind-palace/commit/02388fd3f761f966780002992d2b88237e590fb4))
+* **bp-059:** CN-2 σ*/MST — the abstraction ultrametric via one max spanning tree per certified cut ([67b373d](https://github.com/ascalva/mind-palace/commit/67b373df8bfa34d101a806f01aff9433e7e37e90))
+* **bp-063:** item 1 — the OBSERVED-only chatlog store, utterance grain ([bfb53b2](https://github.com/ascalva/mind-palace/commit/bfb53b29870e8dc5b5573af54978b8163ba9c479))
+* **bp-063:** items 2-3 — the chat sensor pipeline (retain-raw-first, tool-strip, fail-closed secret guard) ([7cc0975](https://github.com/ascalva/mind-palace/commit/7cc0975ab72db95961086386fa2d45f2a572d281)), closes [#10](https://github.com/ascalva/mind-palace/issues/10)
+* **bp-065:** item 1 — σ*/MST math re-homed to core/graph, connectivity thins to the instrument ([2e362e9](https://github.com/ascalva/mind-palace/commit/2e362e9142ee40353ca0d7ea1ce38664b3a53955))
+* **bp-065:** item 2 — conductance math re-homed to core/graph on core/complex's Laplacian ([53289bf](https://github.com/ascalva/mind-palace/commit/53289bf0161972a00e360a9e6665aa9e8930d082))
+* **bp-068:** wire the chat sensor to RUN — chat ingests (110 sessions live); ratchet held 19 ([2093c69](https://github.com/ascalva/mind-palace/commit/2093c69249f9791a3b149668c9edb90cd9a4f56c))
+* **chat-sensor:** bp-069 Item 1 — L0 growth-aware, torn-line tolerant, total accounting ([c5d8bbf](https://github.com/ascalva/mind-palace/commit/c5d8bbf362cf1b32b120c000374968a14b33325d))
+* **chat-sensor:** bp-069 Item 2 — real-time trigger (DirectoryWatcher + multi-watcher launcher + [chat]) ([2821a53](https://github.com/ascalva/mind-palace/commit/2821a53dd297ad2bc1fbd4797c4c538c093383da))
+* **chat-sensor:** bp-069 Item 3 — L1 action log + the born scope + D2 conformance ([632fa6f](https://github.com/ascalva/mind-palace/commit/632fa6fdaf7a2390ed7b390db6aaceb9ecf46747))
+* **core:** add GC-1 derived causal event spine (read-side) ([6f49f5f](https://github.com/ascalva/mind-palace/commit/6f49f5f2b4478ed5073ad30e98a940bc633412ef))
+* **core:** add GC-2 clock maps p_κ + N_s to the spine ([6e66961](https://github.com/ascalva/mind-palace/commit/6e66961c670235c98173c579e848176a2c3c6a37))
+* **core:** add GC-3 certified quiescent cuts to the spine ([a6cb902](https://github.com/ascalva/mind-palace/commit/a6cb902e89765f7312f50e34519379dfcb386051)), closes [trou#quiescent](https://github.com/trou/issues/quiescent)
+* **core:** add Res[T] result grade beside Inv/Rate (Rule SCALE) ([a649abd](https://github.com/ascalva/mind-palace/commit/a649abd485737d36a715c0e8460df6269575a2c9))
+* **core:** add RotationReport harmonic-subspace rotation to TemporalView ([4ee0078](https://github.com/ascalva/mind-palace/commit/4ee007833c51ab041de4363ff11cf994de733c8a))
+* **core:** add velocity_view alive/stale harmonic-velocity discriminator ([ad949dc](https://github.com/ascalva/mind-palace/commit/ad949dc7a7a7d4f5b9b1e7dc419a3cee75ce7800))
+* **core:** bp-070 Phase Α scope tooling — DIALOGUE+fiber-C, agent layer, composed graph ([5d19a9a](https://github.com/ascalva/mind-palace/commit/5d19a9acef81c744c3f01f00d1a840109ddb015e))
+* **core:** complete cross-clock T-meet via an injectable clock atlas ([5d27f2f](https://github.com/ascalva/mind-palace/commit/5d27f2f75c4764d0a67775af421098dd86683264))
+* **core:** wire the chat clock — chatlog as observed-stratum g1 chains (CS-4) ([c3fef76](https://github.com/ascalva/mind-palace/commit/c3fef7616b351cfe28a43862709cda407b5e79e9))
+* **dreaming:** the run ledger + shadow runner + trough job (bp-043, E2) ([196e5fc](https://github.com/ascalva/mind-palace/commit/196e5fc09699830217af567cb7a0778cf8d1740a))
+* **dreaming:** wire SnapshotStore into build_dreamer (bp-045, E5(A2)) ([92b8874](https://github.com/ascalva/mind-palace/commit/92b887497f77b025689ec3a56ad5723630a559c7))
+* **eval:** register sigma_persistence.* + structural_axes.* rows ([9031376](https://github.com/ascalva/mind-palace/commit/90313769e59f1c9fbaf188e2ff20ba9b87a4ecd9))
+* **eval:** the eval-results store + metric registry (bp-042, E1 keystone) ([4bb201b](https://github.com/ascalva/mind-palace/commit/4bb201b73becd2282f5b7be1e9156ac63749fde4))
+* **eval:** tuning manifest model + loader + resolved fingerprint (bp-047 Item 15) ([351dc6d](https://github.com/ascalva/mind-palace/commit/351dc6dc907424e3f9cea52b9a37c13d669bd397))
+* **harness:** pure terminal sparkline (bp-044 Item 8, E4) ([b0331dd](https://github.com/ascalva/mind-palace/commit/b0331dd7c4a3b4c6e5deaf088ba829787c1e253b))
+* **harness:** the report generator — markdown/JSON, drift study, A/B, cost appendix (bp-044 Item 9, E4) ([a6a4adb](https://github.com/ascalva/mind-palace/commit/a6a4adb816b011b0ee0067e457eedd2624ff1a95))
+* **probes:** E6 Item 18 — theory-probe candidate recorder (annex-grounded) ([80c01e2](https://github.com/ascalva/mind-palace/commit/80c01e2ef448a432a0e83a6cb93ef25a4d6a10a5))
+* **review:** E6 Item 17 — the model-free review REPL (signed keystroke verdicts) ([33250a3](https://github.com/ascalva/mind-palace/commit/33250a3796870f6a4813675f997f88bdd8f157b3))
+* **scripts:** tune.py — the attended tuning CLI over the §14 gate (bp-047 Item 16) ([73873eb](https://github.com/ascalva/mind-palace/commit/73873eb90db56cc4f880829ac86d2089433c4908))
+* **telemetry:** additive harness_cost ledger, SCHEMA_VERSION 2->3 (bp-044 Item 10, E4) ([3185d44](https://github.com/ascalva/mind-palace/commit/3185d44a0490c386793c4777e37d9a8a381a6b65))
+
 # [1.11.0](https://github.com/ascalva/Mind-Palace/compare/v1.10.0...v1.11.0) (2026-07-15)
 
 
