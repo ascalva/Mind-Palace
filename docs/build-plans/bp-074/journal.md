@@ -178,3 +178,48 @@ Acceptance (Item 3): met — the A9 block is fenced, headed `A9 —`, and its cl
 match the landed code (baseline content = commits guard; brief mtime vs
 last-commit `%ct`; orchestrator-posture scope; fail-open on missing baseline).
 Falsifier avoided: A9 does NOT claim a baseline-mtime comparison.
+
+### Verification — full attestable-green gate (each leg run separately)
+
+Run with `uv run --extra dev …` (fresh worktree venv; dev deps are the `dev`
+optional-dependency group).
+
+1. `ruff check .` → `All checks passed!`
+2. `mypy core agents eval ops scheduler scripts` → `Success: no issues found in
+   228 source files`
+3. `mypy` (argless) → `Found 69 errors in 20 files (checked 482 source files)`
+   — equals the tests/-baseline of **69**; the new `test_handoff_gate.py` adds
+   zero mypy errors.
+4. `python -m ops.type_gate` → Tier-2 membership OK; bare-ignore scan OK.
+5. `pytest` green gate:
+   - As literally instructed (two `--deselect`, no marker filter):
+     `1 failed, 1667 passed, 11 skipped, 1 deselected in 651.36s`. The one
+     failure is `tests/e2e/test_scheduler_live.py::test_supervisor_dispatches_a_
+     real_job` — `pytestmark = pytest.mark.live`, an e2e LIVE test that drives a
+     real router/model and asserts non-empty output; it got `''` (live-infra
+     flake). It is unrelated to this diff (hooks `_lib.py` + a new integration
+     test file — no scheduler/router surface). NOT a stop-and-raise: it is not an
+     enforcement test reddening beyond §3 Q5.
+   - With the repo's standard attestable exclusion `-m 'not live and not podman
+     and not needs_vault and not needs_restic'` (same two deselects):
+     **`1652 passed, 7 skipped, 21 deselected in 24.83s`** — fully green.
+   - Enforcement tests specifically (the §3 Q5 surface):
+     `test_worktree_enforcement.py` + `test_handoff_gate.py` → **14 passed**,
+     zero reddening. §3 Q5 prediction (zero existing-test reddening) HELD.
+
+### Working-tree note for the orchestrator
+
+`plan.md`'s `status: ready → in-progress` flip (build ceremony) is left UNSTAGED
+and uncommitted — plan.md is outside this builder's write_scope, so it is not in
+any of my three commits and will NOT appear in the merged diff. The Stop-gate (b)
+allows it (the active plan path is in the allow-list), so it does not block close.
+The orchestrator owns plan status (flip to `complete` at seal).
+
+### Commits on this worktree branch (worktree-agent-a198f4cd…)
+
+- `5e816e6` feat(bp-074): stop-audit clause (e) — the session-handoff gate
+- `40ffe25` test(bp-074): integration tests for stop-audit clause (e)
+- `7f9d444` docs(bp-074): journal — emit amendment A9 text + seal-session warning
+- (this checkpoint) docs(bp-074): journal — gate results + orchestrator notes
+
+All three plan items DONE; do NOT merge/push (orchestrator reviews + sequences).
