@@ -17,7 +17,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts"))
 
-import palace  # noqa: E402
+import palace  # type: ignore[import-not-found]  # noqa: E402
 
 
 def _plan(root: Path, pid: str, body: str) -> Path:

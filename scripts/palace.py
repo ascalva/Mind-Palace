@@ -10,7 +10,7 @@
     uv run scripts/palace.py reset --confirm # fresh-start wipe of the corpus layer
     uv run scripts/palace.py deploy         # promotion gate: cycle the live run onto HEAD
     uv run scripts/palace.py ingest-chat    # on-demand: ingest the local Claude Code transcripts
-    uv run scripts/palace.py bless <id>     # owner-only: flip a build plan proposed -> ready (blessing gate)
+    uv run scripts/palace.py bless <id>     # owner-only: flip a plan proposed -> ready (gate)
 
 `start` seals the core (Invariant 1 — loopback only), runs preflight (ensures our own
 components, VERIFIES Vault/Ollama/podman, fail-closed), records the run pinned to the current
@@ -32,10 +32,11 @@ import sys
 from datetime import date
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_ROOT))  # repo root on path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # repo root on path
 
 from core.sealing import seal
+
+_ROOT = Path(__file__).resolve().parent.parent  # repo root, for the bless path resolution
 
 USAGE = ("usage: palace.py {start|stop|down|up|restart|status|reset|deploy|ingest-chat|bless} "
          "[--force] [--confirm] [--skip-tests] [<plan-id>]")
@@ -84,6 +85,9 @@ def bless(plan_id: str) -> int:
         print(f"{plan_id}: no status: line in front-matter", file=sys.stderr)
         return 2
     m = re.match(r"^(\s*status:\s*)(\S+)(.*)$", lines[status_i].rstrip("\n"))
+    if m is None:  # unreachable: status_i was found by the same-shape finder regex (defensive)
+        print(f"{plan_id}: malformed status: line", file=sys.stderr)
+        return 2
     prefix, value, rest = m.group(1), m.group(2), m.group(3)
     # (3) EXACTLY proposed — no force, no override (the leading \S+ already excludes a
     #     trailing ' # comment', so the compare is on the bare value token).
@@ -105,7 +109,7 @@ def bless(plan_id: str) -> int:
             lines[updated_i] = f"{um.group(1)}{date.today().isoformat()}{um.group(3)}{unl}"
     plan.write_text("".join(lines), encoding="utf-8")
     # (5) Report.
-    print(f"{plan_id}: proposed -> ready (blessed by hand). Now: uv run scripts/palace.py or /build.")
+    print(f"{plan_id}: proposed -> ready (blessed by hand). Next: /build {plan_id}.")
     return 0
 
 
@@ -113,7 +117,7 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in {"-h", "--help"}:
         print(USAGE)
         return 0
-    if argv[0] == "bless":  # owner-only gate; never touches the daemon -> dispatch BEFORE seal()/launcher
+    if argv[0] == "bless":  # owner-only gate; never touches the daemon -> before seal()/launcher
         if len(argv) != 2:
             print("usage: palace.py bless <plan-id>", file=sys.stderr)
             return 2

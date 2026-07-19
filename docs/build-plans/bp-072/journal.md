@@ -189,16 +189,27 @@ build specified in `docs/supplemental/cockpit.md`). `uv run scripts/readmap.py b
 it verbatim once committed:
 
 ```read-map
-scripts/palace.py:58: bless() guard order — CLAUDECODE refusal BEFORE path resolution (the gate, proven by fake-id probe)
-scripts/palace.py:97: the line-targeted status flip — preserves front-matter comments, never a YAML round-trip
-scripts/docket.py:141: scan_docket — the derived owner-awaiting view, recomputed every run (a pure function of the tree ⇒ cannot drift)
+scripts/palace.py:59: bless() guard order — CLAUDECODE refusal BEFORE path resolution (the gate, proven by fake-id probe)
+scripts/palace.py:101: the line-targeted status flip — preserves front-matter comments, never a YAML round-trip
+scripts/docket.py:144: scan_docket — the derived owner-awaiting view, recomputed every run (a pure function of the tree ⇒ cannot drift)
 scripts/docket.py:34: the DRY seam — imports _lib's front-matter parser, never re-derives one (AST-enforced)
 scripts/readmap.py:37: last ```read-map block wins, emitted verbatim — the authoring format IS the output format
 scripts/cockpit.sh:58: join() — $TMUX-aware switch-vs-attach, idempotent, never nests
 tests/unit/test_bless.py:111: the falsifier worth reading — the guard fires BEFORE resolution (fake id, zero flip risk)
-tests/unit/test_docket.py:123: the DRY / no-core falsifier, enforced by static AST inspection
+tests/unit/test_docket.py:120: the DRY / no-core falsifier, enforced by static AST inspection
 docs/supplemental/cockpit.md:16: the guide-not-gate rule, verbatim from owner-cockpit.md — the trust surface named honestly
 docs/supplemental/cockpit.md:88: the read-map block format spec (this very format)
 ```
 
 Fresh-agent sufficient. bp-072 sealed.
+
+**CI reconciliation (post-push).** The first push (05db00b) went red on `ratchet` + `type-gate`:
+I had run pytest locally but NOT `ruff check` / `mypy` — the miss. Fixed with no behavior change:
+ruff E501 line-length on 6 lines + E402 on palace.py (pycodestyle permits only `sys.path` calls —
+not a `_ROOT=` assignment — before an import, so `_ROOT` now defines AFTER the `core.sealing`
+import); mypy Tier-2 floor (typed `sort_key: tuple[int,str]`, `_status(fm: dict[str,object])`,
+narrowed the `bm`/`m` match guards, `# type: ignore[import-not-found]` on the three dynamic
+sys.path imports — specific codes, so the bare-ignore scan passes) and the `tests/` baseline held
+at exactly 69. Local re-run of the full CI matrix GREEN: `ruff check .` clean · `mypy scripts` 0 ·
+`mypy` 69 · `ops.type_gate` OK · import-firewall OK · pytest 1648p/4s/21deselected. Read-map anchors
+above re-pinned to the shifted line numbers. Lesson: run ruff+mypy, not just pytest, before a seal.

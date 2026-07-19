@@ -18,7 +18,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts"))
 
-import docket  # noqa: E402
+import docket  # type: ignore[import-not-found]  # noqa: E402
 
 
 def _write(path: Path, text: str) -> None:
@@ -27,19 +27,16 @@ def _write(path: Path, text: str) -> None:
 
 
 def _plan(root: Path, pid: str, status: str, created: str) -> None:
-    _write(
-        root / "docs" / "build-plans" / pid / "plan.md",
-        f"---\ntype: build-plan\nid: {pid}\nstatus: {status}\ncreated: {created}\n---\n\n# Build Plan — {pid} the thing\n",
-    )
+    fm = f"---\ntype: build-plan\nid: {pid}\nstatus: {status}\ncreated: {created}\n---\n"
+    body = f"{fm}\n# Build Plan — {pid} the thing\n"
+    _write(root / "docs" / "build-plans" / pid / "plan.md", body)
 
 
 def _note(root: Path, stem: str, status: str, created: str = "") -> None:
     c = f"created: {created}\n" if created else ""
     # trailing comment on the status line mirrors the live tree — docket must normalize it
-    _write(
-        root / "docs" / "design-notes" / f"{stem}.md",
-        f"---\ntype: design-note\nstatus: {status}               # draft -> ratified is owner-only\n{c}---\n\n# {stem} note\n",
-    )
+    fm = f"---\ntype: design-note\nstatus: {status}     # draft -> ratified is owner-only\n{c}---\n"
+    _write(root / "docs" / "design-notes" / f"{stem}.md", f"{fm}\n# {stem} note\n")
 
 
 def _oqs(root: Path, body: str) -> None:

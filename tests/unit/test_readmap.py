@@ -14,7 +14,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts"))
 
-import readmap  # noqa: E402
+import readmap  # type: ignore[import-not-found]  # noqa: E402
 
 
 def _journal(root: Path, plan_id: str, text: str) -> None:

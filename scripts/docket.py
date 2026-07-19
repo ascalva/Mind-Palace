@@ -31,7 +31,10 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # Reuse the artifact front-matter machinery — never re-derive it (plan §2 DRY audit).
 sys.path.insert(0, str(ROOT / ".claude" / "hooks"))
-from _lib import _normalize_status, parse_front_matter  # noqa: E402
+from _lib import (  # type: ignore[import-not-found]  # noqa: E402
+    _normalize_status,
+    parse_front_matter,
+)
 
 # Sort classes (lower = higher on the docket). Blocking questions first — a blocked
 # builder is the sharpest cost; then the readiness gate; then notes; then the rest.
@@ -46,7 +49,7 @@ class DocketRow:
     id: str
     kind: str  # "plan" | "note" | "oq"
     action: str
-    sort_key: tuple  # (class_rank, secondary) — secondary sorts oldest-first within class
+    sort_key: tuple[int, str]  # (class_rank, secondary) — secondary sorts oldest-first within class
     title: str
     path: str  # repo-relative
 
@@ -65,7 +68,7 @@ def _read(path: Path) -> str:
         return ""
 
 
-def _status(fm: dict) -> str | None:
+def _status(fm: dict[str, object]) -> str | None:
     s = fm.get("status")
     if isinstance(s, str) and s:
         return _normalize_status(s)
@@ -127,7 +130,7 @@ def _scan_oqs(root: Path) -> list[DocketRow]:
         if status != "open":
             continue  # answered / swept are not owner-awaiting
         bm = re.search(r"(?m)^-\s*blocking:\s*(\w+)", body)
-        blocking = bool(bm) and bm.group(1).strip().lower() == "true"
+        blocking = bm is not None and bm.group(1).strip().lower() == "true"
         cls = _CLASS_BLOCKING_OQ if blocking else _CLASS_OPEN_OQ
         rows.append(DocketRow(
             id=oid, kind="oq",
@@ -154,7 +157,7 @@ def render(rows: list[DocketRow]) -> str:
         out.append(f"    {r.path}")
     out.append("")
     out.append("_A derived view — recomputed from the artifact tree, never hand-maintained._")
-    out.append("_Guide, not gate: it points; the owner acts (`palace bless`, ratify by hand, answer)._")
+    out.append("_Guide, not gate: it points; the owner acts (bless, ratify, answer)._")
     return "\n".join(out) + "\n"
 
 
