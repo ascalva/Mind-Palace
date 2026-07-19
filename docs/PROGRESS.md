@@ -4928,3 +4928,29 @@ refined.** Honest, not forced (`discriminates=False` stands beside the strong σ
 green; ruff clean. Cost: 179.8k output (0.90×), $21.03 opus, week 19%→20%. **Next:** bp-072
 (owner-cockpit, reserved); a fresh σ-sweep on the 208-doc corpus (oq-0024); or deepen Track H.
 Diagnostic owed (why the mirror is stuck at 13 notes) — separate open thread.
+
+## 2026-07-19 (session 33, FABLE) — bp-072 MINTED (owner-cockpit, proposed) + usage self-serve probe
+
+**Post-Δ verification:** main in sync with origin @ `486628b`; CI all-green on both post-seal commits
++ a successful `release` dispatch. Nothing owed from session-32.
+
+**bp-072 minted `proposed`** (`docs/build-plans/bp-072/plan.md`, alias owner-cockpit) — the reading
+room + decision-routing v1: `cockpit.sh` (idempotent tmux session `palace`), `docket.py` (derived
+awaiting-the-owner view + ambient count; front-matter via the hooks `_lib`, DRY), `readmap.py`
+(quickfix emitter for a NEW structured ```read-map block — legacy prose seals honestly refused),
+owner-run `palace bless <plan-id>` (guard order pinned: CLAUDECODE refusal BEFORE path resolution;
+line-targeted flip, no YAML round-trip; no force path), `docs/supplemental/cockpit.md` (snippet
+block — dotfiles adopted by hand, never written). **Direct mint from brainstorm, owner-authorized**
+(`owner-cockpit.md:10`: "no design-note gate needed for the tooling itself"; decision-routing v1 =
+"no governance change"). Blessing stays owner-by-hand — bootstrap self-reference honored: the bless
+CLI cannot approve its own creation. Grounded in-session: `CLAUDECODE` env verified live; tmux 3.7b
+`focus-events` runtime-settable (settles brainstorm open-Q1 — dotfiles boundary governs FILES);
+`.claude/state/` already gitignores the generated docket. Estimate: opus 100k, budget 1.
+
+**Usage self-serve (owner steer, this session):** verified `claude -p "/usage"` renders the full
+usage screen headless (session/week/fable %) at ~zero cost — the pre-flight budget gate no longer
+needs the owner relay. Captured `docs/brainstorms/usage-automation.md` (process rule effective now;
+scheduled ledger PARKED with re-entry); memory updated.
+
+**Next:** owner blesses bp-072 by hand → an OPUS build session; or the oq-0024 σ-sweep (un-blocked);
+or deepen Track H. Usage at mint end: session ~52%, week 21%, fable 15%.
