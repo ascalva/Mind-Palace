@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/ascalva/mind-palace/compare/v1.12.0...v1.13.0) (2026-07-19)
+
+
+### Features
+
+* **bp-071:** the chat↔code↔doc integrator — store, resolver, wiring, instruments ([2cfa0c0](https://github.com/ascalva/mind-palace/commit/2cfa0c0f320ffd30b201c6e99e1542dd4c677f67))
+
 # [1.12.0](https://github.com/ascalva/mind-palace/compare/v1.11.0...v1.12.0) (2026-07-19)
 
 
