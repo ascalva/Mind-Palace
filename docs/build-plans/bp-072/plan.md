@@ -153,7 +153,10 @@ def scan_docket(root: Path) -> list[DocketRow]: ...
 #   ```
 # i.e. quickfix lines "path:line: why", vim-consumed as :cfile + ]q.
 
-# scripts/cockpit.sh — idempotent: attach if tmux session "palace" exists, else build:
+# scripts/cockpit.sh — idempotent: join the "palace" session if it exists, else build it.
+#   Joining is $TMUX-aware: OUTSIDE tmux -> `tmux attach -t palace`; INSIDE another session ->
+#   `tmux switch-client -t palace` (attach would nest — the owner jumps sessions with prefix+s/L,
+#   so in-tmux invocation is the NORMAL case, not an edge).
 #   window "desk": left pane `nvim .claude/state/docket.md` (after `uv run scripts/docket.py --write`),
 #                  right pane `claude`; panes rooted at repo root (derived from the script's own path).
 #   window "ops":  `uv run scripts/palace.py status` + daemon log tail (path pinned at Item 0).
@@ -219,10 +222,13 @@ def scan_docket(root: Path) -> list[DocketRow]: ...
 - **Files:** `scripts/cockpit.sh`, `docs/supplemental/cockpit.md`.
 - **Acceptance test:** `bash -n scripts/cockpit.sh` clean; `--dry-run` prints the §6 layout (session
   `palace`, desk + ops windows, status-right count hook, runtime focus-events) executing nothing, and
-  its has-session branch shows attach-not-rebuild (idempotence legible in the dry run). `cockpit.md`
+  its has-session branch shows join-not-rebuild, $TMUX-aware (attach outside tmux, switch-client
+  inside — idempotence and non-nesting both legible in the dry run). `cockpit.md`
   carries: the snippet block (autoread, permanent focus-events line, `<leader>pb` → `palace bless`,
-  the `:cfile` read-map recipe, render-markdown suggestion), the read-map format spec (Item 2), and
-  the guide-not-gate rule stated verbatim.
+  the `:cfile` read-map recipe, render-markdown suggestion), the read-map format spec (Item 2), the
+  guide-not-gate rule stated verbatim, and a session-switching tips line (`prefix+s` choose-tree,
+  `prefix+L` last-session toggle — the owner's cmd+tab between their session and `palace`; owner
+  steer 2026-07-19).
 - **Falsifier:** cockpit.sh writing ANY path outside the repo (the dotfiles boundary); requiring the
   daemon to be up to open the cockpit; setting any tmux server option other than `focus-events`;
   a second run minting a second session.
