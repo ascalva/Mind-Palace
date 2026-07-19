@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-072
 alias: owner-cockpit
-status: ready
+status: complete
 design_ref:
   - docs/brainstorms/owner-cockpit.md      # THE SPEC — and the direct-mint warrant (line 10: "no design-note gate needed for the tooling itself")
   - docs/brainstorms/decision-routing.md   # §Sequencing v1: docket + bless CLI, zero governance change
@@ -21,11 +21,16 @@ cost:
   estimate:
     model: opus
     tokens: 100k
-  actual: null
+  actual:
+    model: opus
+    session_delta: "59%->63% (+4%)"   # /usage-measured; output-token count not directly observable
+    week_delta: "22%->22% (<1%)"       # the gate figure — a cheap, well-pinned papercut
+    fable_delta: "untouched (opus build — correct model discipline)"
+    ratio: "~0.8x (approx, %-derived — pinning held: no re-derivation, one owner-routed finding)"
 depends_on: []
 parallelizable_with: []
 created: 2026-07-19
-updated: 2026-07-19
+updated: 2026-07-19   # session-34: ready -> in-progress -> complete
 links:
   - docs/brainstorms/dyadic-epistemology.md   # S2 — why the cockpit is load-bearing, not cosmetic
 re_entry: null

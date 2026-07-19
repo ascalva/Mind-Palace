@@ -4954,3 +4954,47 @@ scheduled ledger PARKED with re-entry); memory updated.
 
 **Next:** owner blesses bp-072 by hand → an OPUS build session; or the oq-0024 σ-sweep (un-blocked);
 or deepen Track H. Usage at mint end: session ~52%, week 21%, fable 15%.
+
+---
+
+## 2026-07-19 (session 34, OPUS @ medium) — bp-072 BUILT + SEALED (owner-cockpit, complete)
+
+**Pre-flight:** verified bp-072 `ready` (owner blessed by hand, `7b343b9`), main in sync with
+origin. Self-serve budget probe (`claude -p "/usage"`): session 59%, week 22%, fable 17% — a
+well-pinned 100k papercut fit the headroom, ran OPUS inline (no fable/xhigh — execution, not design).
+
+**Built (all five deliverables; +21 tests GREEN):**
+- `scripts/docket.py` (+`test_docket.py`) — the derived awaiting-the-owner view: proposed plans /
+  draft notes / open oqs, NOTHING agent-actionable; recomputed every run (pure fn of the tree ⇒
+  cannot drift); `--count` / `--write`. DRY: reuses `_lib` front-matter parser, never imports
+  `core` (both AST-enforced). Live: 52 rows, lists oq-0003/oq-0024.
+- `scripts/readmap.py` (+`test_readmap.py`) — emits the LAST ```read-map block of a seal journal
+  verbatim (authoring format IS output format); legacy prose → exit 1, never guesses (live: bp-073).
+- `scripts/palace.py` `bless <id>` (+`test_bless.py`) — owner-only proposed→ready flip; guard order
+  LAW (CLAUDECODE refusal BEFORE path resolution — proven live with a fake id, zero flip risk;
+  exact-`proposed` only, no force; line-targeted, comments survive byte-identical). Dispatches before
+  `seal()`/launcher. Mints no capability; the Stop-gate audit is unchanged.
+- `scripts/cockpit.sh` — idempotent tmux `palace`: desk (vim-on-docket | claude) + ops (status +
+  daemon log tail, `data/logs/palace.out.log`, never needs the daemon up); status-bar awaiting-count;
+  runtime `focus-events`; `$TMUX`-aware join (switch-client inside / attach outside). `--dry-run` is
+  the headless-testable surface; `bash -n` clean.
+- `docs/supplemental/cockpit.md` — dotfiles snippets (adopted by hand, never written): autoread,
+  `<leader>pb`→bless, `:PalaceRead`→readmap→`:cfile`, permanent focus-events line, session-switching
+  tips; the guide-not-gate rule VERBATIM; the read-map block format spec.
+
+**Gate:** CI green gate reproduced locally — `pytest -m 'not live and not podman and not needs_vault
+and not needs_restic' --deselect test_core_self_containment::test_core_imports_nothing_outside_core`
+→ **1648 passed, 4 skipped, 21 deselected**. finding-0103 ratchet unchanged at **19** (core untouched).
+
+**Finding filed:** `finding-0114` (`direction`, routed to orchestrator) — owner-observed `scripts/`
+drift (34 files → three drawers: durable entrypoints · spent migrations · eval-flavored harnesses);
+a future tidy plan, not acted on mid-build (moving harnesses touches `eval/`, outside scope).
+
+**Seal-time process firsts:** this seal is the FIRST authored in the structured ```read-map block
+format (`readmap.py bp-072` will emit it); the **checkpoint** skill gained the read-map cross-ref
+(orchestrator act, plan §4); `cost.actual` filled (session 59→63% +4%; week 22→22% <1% = the gate
+figure; fable untouched — opus discipline; ~0.8× approx, %-derived).
+
+**Next:** push → verify CI green (routine; docs+scripts, no deploy). Then standing options: oq-0024
+σ-sweep (un-blocked), or triage finding-0114 into a `scripts/` tidy plan, or deepen Track H.
+Usage at seal: session 63%, week 22%, fable 17%.

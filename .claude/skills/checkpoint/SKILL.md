@@ -34,6 +34,16 @@ the journal, not the summary.
    HOOK-FAILUREs). Keep these in a `## Markers` section at the file's end where
    hooks append.
 
+## Seal entries carry a read map
+
+A **SEAL** entry (the final entry, written on completion) additionally carries a
+`read-map` fenced block: the load-bearing ~15% of the diff as `path:line: why`
+quickfix lines (design first, then load-bearing code, then falsifier-encoding
+tests; mechanical coverage counted, not listed). `scripts/readmap.py <plan-id>`
+emits the **last** such block verbatim for a vim `:cfile` walk. Format spec:
+`docs/supplemental/cockpit.md` → "The read-map block format" (bp-072). Legacy prose
+seals are not back-filled; `readmap.py` exits 1 on them rather than guess.
+
 ## The fresh-agent test — the acceptance bar
 
 A new session given **only** `plan.md` + this journal + the write-scope files must
