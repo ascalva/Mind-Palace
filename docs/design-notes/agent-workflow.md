@@ -303,3 +303,25 @@ Amendments to a ratified note are warranted by findings and re-ratified by hand 
   `gate-guard`'s transition denials (`→ratified`, `→ready`) are unchanged and compose
   with the new content rule. Net: the blessed record stays sacred; the working material
   becomes workable — task capability still never exceeds what §5 grants.
+- **A9** — warrant: dn-session-handoff-gate (ratified `87a3d90`; implemented by
+  bp-074). Adds Stop-audit clause **(e)**, the session-handoff gate. In
+  orchestrator posture only (`plan is None`), `cmd_stop_audit` blocks session
+  close when commits landed THIS session but the resume brief is stale or
+  missing. The commits-this-session guard READS `.claude/state/session-baseline`:
+  current HEAD (`git log -1 --format=%H`) is compared to the baseline's content,
+  and a mismatch means the session committed. Freshness compares
+  `mtime(.claude/state/resume-brief.md)` to the **last-commit time**
+  (`git log -1 --format=%ct`) — the same test clause (a) uses for the journal,
+  NOT the baseline's mtime; a missing brief is infinitely stale (blocks whenever
+  commits happened). Fail-open on a missing/unreadable baseline (the signal
+  cannot be evaluated, so no block). This CORRECTS §6c's closing sentence
+  (":151", "`session-baseline` survives only for the SessionStart brief's
+  narration; enforcement does not read it"): enforcement now reads it — clause
+  (e) is its second consumer, scoped to orchestrator posture. Clause (c) still
+  does not read it (it diffs against HEAD). The §6 journal-gate table row (":143")
+  enumeration extends to (a)–(e); per the A1–A8 precedent the amendment log
+  carries the change rather than rewriting the row in place. No new machinery:
+  `session-brief.sh:52` already writes the baseline each SessionStart, and (e)
+  adds no git subprocess (the (a) last-commit fetch is hoisted to `--format=%H
+  %ct` and shared). Builder sessions are unaffected — they carry an active plan
+  and their handoff artifact is the journal, governed by (a).
