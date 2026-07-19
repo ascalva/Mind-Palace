@@ -34,11 +34,11 @@ cost:
   actual:
     model: opus
     sessions: 1                      # single OPUS session (session-30); budget was 3 — well under
-    tokens: ~170k                    # output, approx (no /usage readout this session); vs 280k est
-    ratio: ~0.6x                     # actual/estimate; tight §6 pinning — main churn was ruff E501s
-    dollars: pending                 # owner /usage relay (session started at 5%)
-    session_delta: pending           # owner /usage relay
-    week_delta: pending              # owner /usage relay
+    tokens: 156.0k                   # output (owner /usage relay); vs 280k estimate → ratio 0.56x
+    ratio: 0.56x                     # actual/estimate output; tight §6 pinning, main churn was ruff E501s
+    dollars: 23.31                   # this session's opus spend (owner /usage relay)
+    session_delta: n/a               # session window reset mid-run (5% → 0% reset); not cleanly measurable
+    week_delta: +1%                  # week all-models 15% → 16% (owner /usage relay; the gate figure)
     landed: 3/3 items; full suite 1584p/4s/0f (ratchet deselected); ratchet held 19
 depends_on: [bp-063, bp-068, bp-070]
 parallelizable_with: []
