@@ -1,3 +1,15 @@
+# [1.14.0](https://github.com/ascalva/mind-palace/compare/v1.13.0...v1.14.0) (2026-07-19)
+
+
+### Bug Fixes
+
+* **bp-073:** type-gate — mypy Tier-2 floor (object-typed rows + σ* None narrowing) ([c8802c5](https://github.com/ascalva/mind-palace/commit/c8802c5caec9255957fdfe24df12a8253b55aa1a))
+
+
+### Features
+
+* **bp-073:** Phase Δ connectivity re-measure — assemble + oq-0031 verdict (eval-side) ([6741fcf](https://github.com/ascalva/mind-palace/commit/6741fcf4a2a77200f16bd00cad3a8d4148c1a438))
+
 # [1.13.0](https://github.com/ascalva/mind-palace/compare/v1.12.0...v1.13.0) (2026-07-19)
 
 
