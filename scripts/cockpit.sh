@@ -37,24 +37,42 @@ run() {
   fi
 }
 
-build() {
-  # desk: docket (regenerated) open in vim, left; a claude session, right.
-  run tmux new-session -d -s "$SESSION" -c "$ROOT" -n desk
-  run tmux send-keys -t "$SESSION:desk" "uv run scripts/docket.py --write && nvim .claude/state/docket.md" Enter
-  run tmux split-window -h -t "$SESSION:desk" -c "$ROOT"
-  # Pin the reading-room session to the router default (opus-medium) so it always opens at
-  # the confirmed tier regardless of what a prior /model re-tier left saved globally; the
-  # owner still re-tiers in place with /model for a design/gate turn.
-  run tmux send-keys -t "$SESSION:desk.1" "claude --model 'opus[1m]'" Enter
-  run tmux select-pane -t "$SESSION:desk.0"          # leave focus on the reading pane
-  # ops: system snapshot + a live daemon-log tail (never requires the daemon to be up).
-  run tmux new-window -t "$SESSION" -n ops -c "$ROOT"
-  run tmux send-keys -t "$SESSION:ops" "uv run scripts/palace.py status; tail -n 40 -F $LOG" Enter
+# Runtime session/server settings — everything that is NOT window/pane structure. Factored
+# out of build() so it is (re)applied on EVERY invocation, including a join of an existing
+# session: re-running the cockpit after editing these lines reloads them live, no rebuild.
+# All of it is ephemeral (session options + server options/bindings), so nothing touches a
+# dotfile (Q6) and re-applying is idempotent.
+apply_settings() {
   # status bar: the ambient awaiting-count, recomputed each minute.
   run tmux set -t "$SESSION" status-interval 60
   run tmux set -t "$SESSION" status-right "#(cd $ROOT && uv run scripts/docket.py --count) awaiting "
   # runtime focus-events — a server option, set ephemerally; no dotfile touched (Q6).
   run tmux set -s focus-events on
+  # vim-style pane navigation: prefix + h/j/k/l selects the pane left/down/up/right.
+  # Server-scoped key bindings, set at runtime like focus-events above — no dotfile touched.
+  run tmux bind-key h select-pane -L
+  run tmux bind-key j select-pane -D
+  run tmux bind-key k select-pane -U
+  run tmux bind-key l select-pane -R
+}
+
+build() {
+  # desk: docket (regenerated) open in vim, left; a claude session, right.
+  run tmux new-session -d -s "$SESSION" -c "$ROOT" -n desk
+  run tmux send-keys -t "$SESSION:desk" "uv run scripts/docket.py --write && nvim .claude/state/docket.md" Enter
+  run tmux split-window -h -t "$SESSION:desk" -c "$ROOT"
+  # Pin the reading-room session to the router default (opus-medium, auto mode) so it always
+  # opens at the confirmed tier AND effort AND permission mode regardless of what a prior
+  # /model or /effort re-tier left saved globally (the global settings.json default model is
+  # fable — the model pin is the fable-inheritance fix; --effort/--permission-mode close the
+  # same footgun for the other two dials). The owner still re-tiers in place (/model, effort
+  # dial) for a design/gate turn.
+  run tmux send-keys -t "$SESSION:desk.1" "claude --model 'opus[1m]' --effort medium --permission-mode auto" Enter
+  run tmux select-pane -t "$SESSION:desk.0"          # leave focus on the reading pane
+  # ops: system snapshot + a live daemon-log tail (never requires the daemon to be up).
+  run tmux new-window -t "$SESSION" -n ops -c "$ROOT"
+  run tmux send-keys -t "$SESSION:ops" "uv run scripts/palace.py status; tail -n 40 -F $LOG" Enter
+  apply_settings
   run tmux select-window -t "$SESSION:desk"
 }
 
@@ -76,7 +94,8 @@ main() {
     return 0
   fi
   if tmux has-session -t "$SESSION" 2>/dev/null; then
-    join     # already built — jump in, never rebuild (idempotence)
+    apply_settings   # already built — reload runtime settings live, then jump in (never rebuild)
+    join
   else
     build
     join
