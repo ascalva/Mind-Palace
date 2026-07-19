@@ -27,7 +27,10 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:  # annotation only — `config.loader` imports this module lazily; keep type-only
+    from config.loader import Config
 
 
 class VaultPermissionDenied(Exception):
@@ -157,7 +160,7 @@ class VaultClient:
         return resp["data"]["data"]["value"]
 
 
-def build_secrets_backend(config: object | None = None) -> SecretsBackend | None:
+def build_secrets_backend(config: Config | None = None) -> SecretsBackend | None:
     """Wire a real `VaultClient` from `[secrets]` — `None` when disabled, the normal state
     until the owner stands up a Vault dev-server (Step 6 runbook). Unlike attestation's
     fail-closed signing gate, a missing supervisor token here is not a silent-fallback risk

@@ -287,11 +287,11 @@ class Launcher:
         # finding-0105 (owner decision A, 2026-07-18): deselect ONLY the one intentional-red ratchet
         # (test_core_self_containment) so the deploy gate enforces everything else throughout the
         # self-containment cleanup and regains full strength automatically when the ratchet reaches
-        # zero (the node stops existing / the assertion goes green either way). This is surgical, not
+        # zero (the node stops existing / the assertion goes green either way). Surgical, not
         # blunt: --skip-tests drops the WHOLE gate, and an xfail/skip on the test would weaken the
-        # ratchet in the full suite too. The other tests in that file (the scanner guards) still run,
+        # ratchet in the full suite too. The other tests in that file (scanner guards) still run,
         # so a REAL scanner/import regression still blocks the gate.
-        "--deselect", "tests/unit/test_core_self_containment.py::test_core_imports_nothing_outside_core",
+        "--deselect", "tests/unit/test_core_self_containment.py::test_core_imports_nothing_outside_core",  # noqa: E501
     )
     # remote half of the gate + release-on-deploy (ops/ci_witness.py). Subprocesses, not
     # imports: the witness talks to api.github.com and must stay outside this sealed process.

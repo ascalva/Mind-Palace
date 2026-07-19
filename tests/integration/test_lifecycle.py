@@ -8,6 +8,7 @@ NEVER the production Vault Raft store.
 
 import dataclasses
 from pathlib import Path
+from typing import cast
 
 from config.loader import load_config
 from ops.lifecycle.launcher import Components, Launcher
@@ -408,10 +409,10 @@ def test_gate_deselects_only_the_intentional_ratchet():
       (2) BEHAVIOURAL — running the real self-containment file WITH exactly that deselect is GREEN.
           This is a stable invariant across the ratchet's life: the deselected node's own colour
           never matters, so a green result means the un-deselected guards actually ran and passed.
-          Were a guard to regress, this file would go red under the same selection and the gate would
-          refuse — which is the whole point of keeping the deselect surgical.
+          Were a guard to regress, this file goes red under the same selection and the gate
+          would refuse — which is the whole point of keeping the deselect surgical.
     """
-    gate = Launcher.__dataclass_fields__["gate_cmd"].default
+    gate = cast(tuple[str, ...], Launcher.__dataclass_fields__["gate_cmd"].default)
     assert gate.count("--deselect") == 1
     assert gate[gate.index("--deselect") + 1] == _RATCHET_NODE
 

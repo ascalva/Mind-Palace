@@ -1,0 +1,20 @@
+# gitleaks configuration — mind-palace (CI: .github/workflows/ci.yml, gitleaks job).
+#
+# Extends the full default ruleset (nothing is dropped — real secret detection over all code and
+# history is unchanged). The single allowlist below covers the chat-sensor's secret-GUARD tests:
+# those files deliberately embed OBVIOUSLY-FAKE credential strings (sequential dummies like
+# `0123456789abcdef…`, `AKIA1234567890ABCDEF`) as fixtures that EXERCISE the fail-closed secret
+# scanner (dn-chat-sensor CS-3, bp-063). They are test inputs, not credentials — so the scanner
+# must not flag its own test data. Scoped to those two files by path; every other file (and any
+# real secret in them) is still scanned by the default rules.
+title = "mind-palace gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Fake secret fixtures for the secret-guard tests (bp-063 / dn-chat-sensor CS-3)."
+paths = [
+    '''tests/unit/test_chat_sensor\.py''',
+    '''tests/integration/test_chat_sensor_wiring\.py''',
+]

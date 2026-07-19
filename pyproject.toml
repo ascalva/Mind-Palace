@@ -125,7 +125,7 @@ select = ["E", "F", "I", "B", "UP"]
 # unchecked by RECORDED DEFAULT, not deferred debt — see the follow_imports override below
 # for why their errors don't surface when pulled in transitively by Tier-2 importers.
 # Report-only until B-2 wires the gate.
-files = ["core", "agents", "eval", "ops", "scheduler", "scripts", "tests"]
+files = ["core", "agents", "config", "eval", "ops", "scheduler", "scripts", "tests"]
 explicit_package_bases = true       # scripts/ are entry points, not a package: scripts/eval.py
                                     # must resolve as scripts.eval, not collide with eval/
 check_untyped_defs = true
@@ -149,21 +149,21 @@ warn_return_any = true
 # V2 (2026-07-11): no py.typed upstream. `lancedb`/`sknetwork`/`psutil` are wrapped by the
 # §2.5 boundary shims (core/typedshims/{lancedb,sknetwork,psutil}.py — bp-006 Item 2); each
 # shim carries its own per-line warranted ignore, so no blanket override remains for them.
-# `watchdog` alone keeps the interim override: an OPTIONAL extra, lazily imported inside
-# core/ingest/watch.py, and possibly absent from the environment entirely.
+# `watchdog` + `hvac` keep the interim override: OPTIONAL extras, lazily imported (watchdog inside
+# core/ingest/watch.py; hvac inside config/secrets_backend.py) and possibly absent from the
+# environment entirely — no upstream py.typed either way.
 [[tool.mypy.overrides]]
-module = ["watchdog.*"]
+module = ["watchdog.*", "hvac.*"]
 ignore_missing_imports = true
 
-# bp-007 Item 5 (2026-07-11): `edge`/`config` are Tier-3 by measurement (V1a — zero core
-# imports) but are NOT in `files` above, so they are absent from the Tier-2 checked region
-# by construction; they nonetheless surface in a run because mypy follows imports
-# transitively from Tier-2 modules that import them (`ops`, `agents`, `scheduler`, and
-# `scripts` all reach `config`; `scheduler.interface`/`scripts.monitor` reach `edge`).
-# `follow_imports = "silent"` keeps their types available to Tier-2 callers (no loss of
-# checking on the Tier-2 side) while suppressing error-reporting FOR those Tier-3 modules
-# themselves — the recorded-default-not-debt posture stays honest instead of accidentally
-# becoming stricter than the note licenses via transitive leakage.
+# bp-007 Item 5 (2026-07-11) measured `edge`/`config` as Tier-3 (V1a — zero core imports). bp-067
+# (finding-0103) then moved the config LOADER into `core.config` and made `config/loader.py` a thin
+# core-importing facade — so `config` now imports core and is a Tier-2 module by the membership
+# invariant (`ops/type_gate.py`). It is therefore promoted into `files` above and DROPPED from the
+# silent-follow list here (its errors report like any Tier-2 module's). `edge` stays Tier-3 (zero
+# core imports): `follow_imports = "silent"` keeps its types available to the Tier-2 callers that
+# reach it transitively (`scheduler.interface`/`scripts.monitor`) while suppressing error-reporting
+# FOR edge itself — the recorded-default-not-debt posture, honest not accidentally stricter.
 [[tool.mypy.overrides]]
-module = ["edge.*", "config.*"]
+module = ["edge.*"]
 follow_imports = "silent"
