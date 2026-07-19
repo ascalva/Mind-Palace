@@ -1,16 +1,19 @@
-"""Local vault watcher — core-side, LOCAL filesystem only, NO network (vault-sync task).
+"""Local directory watcher — core-side, LOCAL filesystem only, NO network.
 
-Watches the configured vault path and signals when notes change, so the system keeps the
-owner's embeddings current as they write. It does **not** mutate the stores itself and does
-**not** import the scheduler: on a change it just calls an injected `on_change` callback. The
-scheduler wiring (`scheduler/vault_sync.py`) supplies a callback that enqueues a background
-`vault_sync` job, so all store writes stay on the single supervisor writer.
+Watches a configured directory and signals when its files change, so the system keeps derived
+state current as the source is written. It does **not** mutate the stores itself and does
+**not** import the scheduler: on a change it just calls an injected `on_change` callback. A
+scheduler wiring supplies that callback — `scheduler/vault_sync.py` enqueues a background
+`vault_sync` (the owner's vault), `scheduler/chat_sync.py` enqueues a `chat_sync` (the Claude
+Code transcripts, bp-069) — so all store writes stay on the single supervisor writer. One
+generic watcher, many watched directories (the class was `VaultWatcher`; generalizing it to
+`DirectoryWatcher` is a pure rename — a Vault-named class watching chat is a DRY smell).
 
 Seal integrity: this module imports no `edge`, no sockets, no http — only the local
 filesystem (the import-lint proves it). `watchdog` (FSEvents/inotify) is an OPTIONAL real-time
 backend, imported lazily; without it the watcher falls back to **polling** (a timer that
-triggers a periodic rescan). Either way `on_change` ultimately runs the idempotent
-`VaultSync.rescan`, so missed/duplicate events are harmless.
+triggers a periodic rescan). Either way `on_change` ultimately runs an idempotent re-ingest, so
+missed/duplicate events are harmless.
 """
 
 from __future__ import annotations
@@ -34,8 +37,8 @@ class ObserverLike(Protocol):
 
 
 @dataclass
-class VaultWatcher:
-    vault: Path
+class DirectoryWatcher:
+    path: Path
     on_change: OnChange
     debounce_s: float = 1.0       # coalesce a burst of saves into one on_change
     poll_interval_s: float = 5.0  # fallback cadence when watchdog isn't available
@@ -88,7 +91,7 @@ class VaultWatcher:
                 watcher.notify()
 
         observer = Observer()
-        observer.schedule(_Handler(), str(self.vault), recursive=True)
+        observer.schedule(_Handler(), str(self.path), recursive=True)
         observer.daemon = True
         observer.start()
         self._observer = observer
@@ -104,7 +107,7 @@ class VaultWatcher:
             while not stop.wait(self.poll_interval_s):
                 self.on_change()
 
-        t = threading.Thread(target=loop, name="vault-watch-poll", daemon=True)
+        t = threading.Thread(target=loop, name="dir-watch-poll", daemon=True)
         t.start()
         self._poll_thread = t
 

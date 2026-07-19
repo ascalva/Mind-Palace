@@ -24,10 +24,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from core.ingest.watch import DirectoryWatcher
 from scheduler.queue import PRIORITY_BACKGROUND, Job, JobQueue
 from scheduler.router import Router
 
 if TYPE_CHECKING:  # the sensor is INJECTED into the handler — no runtime ops import needed here
+    from config.loader import Config
     from ops.chat_sensor import ChatSensor
 
 CHAT_SYNC_KIND = "chat_sync"
@@ -43,10 +45,34 @@ def chat_sync_handler(sensor: ChatSensor) -> Handler:
 
 
 def enqueue_chat_sync(queue: JobQueue, router: Router) -> Job:
-    """Enqueue one background chat re-ingest. `sync()` is idempotent (a session already in the
-    store is frozen/skipped), so duplicate jobs are harmless. Pins the job to the always-warm tier
-    directly (chat_sync isn't in `router._PINNED_KINDS`, finding-0108) — a model-less file scan
-    must not force a worker load; the supervisor honours the stored `job.tier`."""
-    pinned = router.config.pinned_model
-    return queue.enqueue(CHAT_SYNC_KIND, pinned.tier, pinned.num_ctx,
-                         priority=PRIORITY_BACKGROUND)
+    """Enqueue one background chat re-ingest. `sync()` is idempotent + growth-aware (an unchanged
+    session is skipped, a grown one re-ingests its tail, bp-069), so duplicate jobs are harmless.
+    `chat_sync` is now in `router._PINNED_KINDS` (finding-0108 G2), so it plans onto the always-warm
+    tier; enqueued at BACKGROUND so a model-less file scan yields to interactive work."""
+    plan = router.plan(CHAT_SYNC_KIND, priority=PRIORITY_BACKGROUND)
+    return queue.enqueue(plan.kind, plan.tier, plan.num_ctx, priority=plan.priority)
+
+
+def build_chat_watcher(
+    queue: JobQueue, router: Router, config: Config | None = None
+) -> DirectoryWatcher:
+    """A watcher over the Claude Code transcripts dir whose on_change enqueues a background
+    `chat_sync` job — the real-time trigger (finding-0109 — parity with the code sensor: every
+    transcript change ingests, not a periodic-only poll). The supervisor must have the `chat_sync`
+    handler registered (see `chat_sync_handler`). The watched dir honours the `[chat]`
+    `transcripts_dir` override (finding-0108 G1) via the sensor's resolver; the debounce/poll come
+    from `[chat]` (a small debounce for immediacy, Q4)."""
+    from config.loader import get_config
+    from ops.chat_sensor import _default_transcripts_dir
+
+    cfg = config or get_config()
+
+    def _on_change() -> None:
+        enqueue_chat_sync(queue, router)
+
+    return DirectoryWatcher(
+        path=cfg.chat.transcripts_dir or _default_transcripts_dir(),
+        on_change=_on_change,
+        debounce_s=cfg.chat.watch_debounce_s,
+        poll_interval_s=cfg.chat.watch_poll_interval_s,
+    )

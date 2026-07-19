@@ -108,4 +108,25 @@ frozen tail RECOVERED — grown=1); run 2 = `ingested=0 grown=1 utterances=0 unc
 (the grown=1 is my OWN still-open session — the real-time behavior itself; the recovered sessions are
 now unchanged, churn-free). Parity held live both passes.
 
-### Item 2 NEXT — DirectoryWatcher rename + multi-watcher launcher + `[chat]` config
+### Item 2 DONE — real-time trigger: DirectoryWatcher + multi-watcher launcher + `[chat]` config
+**Changed:** `core/ingest/watch.py` — `VaultWatcher` → `DirectoryWatcher`, field `vault` → `path`
+(pure rename; the 4 callers — watch.py, scheduler/vault_sync.py, test_vault_watcher.py, launcher.py
+docstring — all repointed; NO alias, per owner rule). `scheduler/vault_sync.py` — `build_vault_watcher`
+now returns `DirectoryWatcher(path=cfg.vault.path, …)` (vault behavior byte-identical). `scheduler/
+chat_sync.py` — NEW `build_chat_watcher(queue, router, cfg)` (on_change → `enqueue_chat_sync`; path +
+debounce/poll from `[chat]`, transcripts_dir via the sensor's resolver); `enqueue_chat_sync` now uses
+`router.plan(CHAT_SYNC_KIND, priority=BACKGROUND)` (canonical, since chat_sync is now pinned).
+`scheduler/router.py` — `_PINNED_KINDS |= {chat_sync, chat_events}` (finding-0108 G2). `core/config/
+loader.py` + `config/defaults.toml` — NEW `[chat]` section / `ChatConfig` (transcripts_dir override
+G1, watch_debounce_s=0.5, watch_poll_interval_s=5.0, events_max_per_pass=50); `Config.chat` defaulted
+(direct-construction-safe). `ops/chat_sensor.py` — `build_chat_sensor` honours `cfg.chat.transcripts_dir
+or _default_transcripts_dir()`. `ops/lifecycle/launcher.py` — `Components.watcher` → `watchers: list`;
+`_serve` starts each, `_shutdown` stops each; `build_components` builds `[vault, chat]` watchers.
+**Tests:** test_vault_watcher (DirectoryWatcher rename), test_chat_sensor_wiring (+chat-watcher enqueues
+chat_sync + tier==pinned), test_lifecycle (+two-watcher start/stop; both Components updated to
+`watchers=[…]`). **Full deterministic suite: 1574 passed / 4 skipped / only the ratchet red (19).**
+ruff clean on all new lines (4 pre-existing E501 in launcher.py gate_cmd + test_lifecycle docstring are
+finding-0105 debt, line-shifted, NOT mine — pytest node-id string, unsplittable). mypy clean.
+Config ratchet STAYS 19 (`[chat]` is plain fields, no core.config first-party import).
+
+### Item 3 NEXT — L1 action log (`core/chat_events.py` + store, cron job) + the born scope + conformance

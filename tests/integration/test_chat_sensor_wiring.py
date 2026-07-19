@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from config.loader import load_config
+from core.ingest.watch import DirectoryWatcher
 from core.models.loader import TwoSlotLoader
 from core.models.ollama_client import OllamaClient
 from core.models.registry import Registry
@@ -27,7 +28,12 @@ from core.stores.chatlog import ChatlogStore
 from core.stores.rawstore import RawStore
 from ops.chat_sensor import ChatSecretGuard, ChatSensor
 from ops.lifecycle.launcher import build_launcher
-from scheduler.chat_sync import CHAT_SYNC_KIND, chat_sync_handler, enqueue_chat_sync
+from scheduler.chat_sync import (
+    CHAT_SYNC_KIND,
+    build_chat_watcher,
+    chat_sync_handler,
+    enqueue_chat_sync,
+)
 from scheduler.presence import Presence
 from scheduler.queue import DONE, JobQueue
 from scheduler.router import Router
@@ -77,6 +83,21 @@ def test_daemon_runs_a_chat_sync_job_and_the_store_gains_rows(tmp_path: Path) ->
     assert queue.get(job.id).state == DONE
     assert sensor.store.sessions() == ["sess-a"]          # OBSERVED rows landed
     assert len(sensor.store.rows_for("sess-a")) == 2
+
+
+# --- 1b. the real-time trigger: a DirectoryWatcher whose on_change enqueues chat_sync (bp-069) ---
+def test_chat_watcher_enqueues_chat_sync_on_a_change(tmp_path: Path) -> None:
+    cfg = load_config()
+    queue = JobQueue(tmp_path / "q.db")
+    router = Router(cfg)
+    watcher = build_chat_watcher(queue, router, cfg)
+    assert isinstance(watcher, DirectoryWatcher)
+    assert watcher.debounce_s == cfg.chat.watch_debounce_s      # sourced from [chat] (Q4 immediacy)
+    assert queue.depth() == 0
+    watcher.on_change()                                     # a debounced transcript change fired
+    assert queue.depth() == 1                                    # one background chat_sync enqueued
+    # chat_sync now plans onto the always-warm pinned tier (finding-0108 G2 — model-less file work):
+    assert router.plan(CHAT_SYNC_KIND).tier == cfg.pinned_model.tier
 
 
 # --- 2. the `palace ingest-chat` verb runs the sensor in-process -------------------------------

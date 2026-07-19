@@ -374,12 +374,14 @@ def build_chat_sensor(config: Config | None = None, *,
 
     `active_session_id` excludes THIS process's own open transcript (Q4). The rawstore is the
     shared corpus archive (`cfg.paths.raw_store` — the ingest/watcher convention); the chatlog
-    store is the sibling `data/chatlog.sqlite`. No attestor, no edge handoff (Q3/Q6)."""
+    store is the sibling `data/chatlog.sqlite`. The transcripts dir honours the `[chat]`
+    `transcripts_dir` override (finding-0108 G1) and falls back to the resolved default. No
+    attestor, no edge handoff (Q3/Q6)."""
     from config.loader import get_config
 
     cfg = config or get_config()
     return ChatSensor(
-        transcripts_dir=_default_transcripts_dir(),
+        transcripts_dir=cfg.chat.transcripts_dir or _default_transcripts_dir(),
         rawstore=RawStore(cfg.paths.raw_store),
         store=open_chatlog_store(cfg),
         guard=ChatSecretGuard(),

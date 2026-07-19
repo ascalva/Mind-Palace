@@ -77,6 +77,21 @@ class VaultConfig:
 
 
 @dataclass(frozen=True)
+class ChatConfig:
+    """The dialogue sensor over the local Claude Code transcripts (bp-069). Plain fields — the
+    self-containment ratchet stays 19 (no first-party import into core.config). `transcripts_dir` is
+    the finding-0108 G1 override: None ⇒ the resolved default `_default_transcripts_dir()`
+    (`~/.claude/projects/<repo-slug>`); set it when the canonical repo path differs from a worktree.
+    A small `watch_debounce_s` (0.5s) makes ingestion "immediate" to a human (Q4).
+    `events_max_per_pass` caps the L1 action-log projector per pass (Item 3)."""
+
+    transcripts_dir: Path | None = None
+    watch_debounce_s: float = 0.5
+    watch_poll_interval_s: float = 5.0
+    events_max_per_pass: int = 50
+
+
+@dataclass(frozen=True)
 class EmbeddingConfig:
     model: str
     dim: int
@@ -273,6 +288,7 @@ class Config:
     airlock: AirlockConfig
     models: tuple[ModelConfig, ...]
     # Default keeps direct Config(...) construction (e.g. in tests) working without this section.
+    chat: ChatConfig = field(default_factory=ChatConfig)   # bp-069 dialogue sensor
     ambassador: AmbassadorConfig = field(default_factory=AmbassadorConfig)
     attestation: AttestationConfig = field(default_factory=AttestationConfig)
     secrets: SecretsConfig = field(default_factory=SecretsConfig)
@@ -324,6 +340,7 @@ def load_config(path: Path | None = None) -> Config:
     v, e, s = raw["vault"], raw["embedding"], raw["sandbox"]
     itf, dr, rnd = raw["interface"], raw["dreaming"], raw["dream_rnd"]
     al, at = raw["airlock"], raw.get("attestation", {})
+    ch = raw.get("chat", {})
     amb = raw.get("ambassador", {})
     sec = raw.get("secrets", {})
     bak = raw.get("backup", {})
@@ -408,6 +425,15 @@ def load_config(path: Path | None = None) -> Config:
             results_prefix=str(al["results_prefix"]),
             poll_interval_s=int(al["poll_interval_s"]),
             poll_timeout_s=int(al["poll_timeout_s"]),
+        ),
+        chat=ChatConfig(
+            # transcripts_dir override (finding-0108 G1): ~ expands to $HOME; unset ⇒ None ⇒ the
+            # sensor's resolved default. Every other field is a plain knob (ratchet stays 19).
+            transcripts_dir=(Path(ch["transcripts_dir"]).expanduser()
+                             if ch.get("transcripts_dir") else None),
+            watch_debounce_s=float(ch.get("watch_debounce_s", 0.5)),
+            watch_poll_interval_s=float(ch.get("watch_poll_interval_s", 5.0)),
+            events_max_per_pass=int(ch.get("events_max_per_pass", 50)),
         ),
         ambassador=AmbassadorConfig(
             retrieval_k=int(amb.get("retrieval_k", 5)),

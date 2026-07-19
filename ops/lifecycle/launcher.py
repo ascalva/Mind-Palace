@@ -44,8 +44,9 @@ class SupervisorLike(Protocol):
 
 
 class WatcherLike(Protocol):
-    """`core.ingest.watch.VaultWatcher`'s real surface here (structural, same reasoning).
-    `start()` narrowed to no-arg (the only call shape here: `c.watcher.start()`)."""
+    """`core.ingest.watch.DirectoryWatcher`'s real surface here (structural, same reasoning).
+    `start()` narrowed to no-arg (the only call shape here: iterating `c.watchers` and calling
+    `w.start()`/`w.stop()`)."""
 
     def start(self) -> object: ...
     def stop(self) -> None: ...
@@ -131,7 +132,7 @@ class Components:
     """What `serve` drives. Injectable so tests exercise the lifecycle without models."""
 
     supervisor: SupervisorLike
-    watcher: WatcherLike
+    watchers: list[WatcherLike]      # one per watched dir: vault + chat transcripts (bp-069)
     queue: QueueLike
     enqueue_catchup: Callable[[], None] = lambda: None     # reconcile corpus on start
     enqueue_housekeeping: Callable[[], None] = lambda: None  # dream + curate pass
@@ -159,7 +160,12 @@ def build_components(cfg: Config) -> Components:
     from core.typedshims import psutil
     from ops.chat_sensor import build_chat_sensor
     from ops.gate import HumanGate
-    from scheduler.chat_sync import CHAT_SYNC_KIND, chat_sync_handler, enqueue_chat_sync
+    from scheduler.chat_sync import (
+        CHAT_SYNC_KIND,
+        build_chat_watcher,
+        chat_sync_handler,
+        enqueue_chat_sync,
+    )
     from scheduler.cron import cron_handlers, enqueue_curate, enqueue_dream, research_handler
     from scheduler.interface import (
         AMBASSADOR_KIND,
@@ -218,7 +224,9 @@ def build_components(cfg: Config) -> Components:
         **cron_handlers(build_dreamer(cfg), build_curator(cfg)),
     }
     supervisor = Supervisor(queue=queue, loader=loader, handlers=handlers, telemetry=telemetry)
-    watcher = build_vault_watcher(queue, router, cfg)
+    # One watcher per watched dir: the owner's vault + the Claude Code transcripts (bp-069). Both
+    # are generic DirectoryWatchers; on a change each enqueues its own model-less background job.
+    watchers = [build_vault_watcher(queue, router, cfg), build_chat_watcher(queue, router, cfg)]
 
     def _housekeeping() -> None:
         enqueue_dream(queue, router)
@@ -235,7 +243,7 @@ def build_components(cfg: Config) -> Components:
     # snapshot SEAMS on Components stay dormant (their defaults: no children, no-op snapshot) for
     # the future dashboard redo.
     return Components(
-        supervisor=supervisor, watcher=watcher, queue=queue,
+        supervisor=supervisor, watchers=watchers, queue=queue,
         enqueue_catchup=_catchup,
         enqueue_housekeeping=_housekeeping,
         health_check=health_check,
@@ -326,8 +334,8 @@ class Launcher:
     def _serve(self, max_ticks: int | None) -> None:
         c = self._components
         assert c is not None
-        backend = c.watcher.start()
-        print(f"watching {self.cfg.vault.path} (backend={backend}); supervising. "
+        backends = [w.start() for w in c.watchers]        # start every watched dir (vault + chat)
+        print(f"watching {len(c.watchers)} dir(s) (backends={backends}); supervising. "
               "Ctrl-C or `palace stop` to drain + stop cleanly.")
         for child in c.children:                          # the supervised child processes (Inv 2)
             child.start()
@@ -370,10 +378,11 @@ class Launcher:
             return
         run_id, self._run_id = self._run_id, None        # idempotent: only once
         if self._components is not None:
-            try:
-                self._components.watcher.stop()
-            except Exception:  # noqa: BLE001 — shutdown must not raise
-                pass
+            for w in self._components.watchers:            # stop every watched dir (vault + chat)
+                try:
+                    w.stop()
+                except Exception:  # noqa: BLE001 — shutdown must not raise
+                    pass
             for child in self._components.children:        # drain the child processes (SIGTERM)
                 try:
                     child.stop()

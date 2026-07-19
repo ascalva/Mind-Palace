@@ -139,7 +139,7 @@ def _launcher(tmp_path, **kw):
         return []
 
     comps = Components(
-        supervisor=sup, watcher=watch, queue=q,
+        supervisor=sup, watchers=[watch], queue=q,
         enqueue_catchup=_catchup,
         enqueue_housekeeping=_housekeeping,
         health_check=_health,
@@ -165,6 +165,22 @@ def test_start_serves_then_marks_run_clean(tmp_path):
     assert (not last.active) and last.clean_shutdown and not last.recovery   # graceful clean stop
 
 
+def test_serve_starts_and_stops_every_watcher(tmp_path):
+    """bp-069: the lifecycle drives a LIST of watchers (the vault + the chat transcripts) — both
+    start on serve and both stop cleanly on graceful shutdown."""
+    sup, q = _FakeSupervisor(), _FakeQueue()
+    w1, w2 = _FakeWatcher(), _FakeWatcher()
+    comps = Components(supervisor=sup, watchers=[w1, w2], queue=q)
+    passing = Preflight((Check("x", required=True, ok=True, detail="ok"),))
+    launcher = Launcher(
+        cfg=_cfg(tmp_path), runs=RunLedger(tmp_path / "runs.sqlite"),
+        repo_root=Path(".").resolve(), components_factory=lambda _c: comps,
+        preflight_fn=lambda _c: passing, tick_seconds=0, health_interval_s=0)
+    assert launcher.start(max_ticks=1) == 0
+    assert w1.started and w2.started            # both watched dirs started
+    assert w1.stopped and w2.stopped            # both drained on graceful shutdown
+
+
 class _FakeChild:
     name = "monitor"
     pid = 123
@@ -187,7 +203,7 @@ class _FakeChild:
 def test_launcher_supervises_children_and_writes_snapshots(tmp_path):
     sup, watch, q = _FakeSupervisor(), _FakeWatcher(), _FakeQueue()
     child, snaps = _FakeChild(), []
-    comps = Components(supervisor=sup, watcher=watch, queue=q, children=[child],
+    comps = Components(supervisor=sup, watchers=[watch], queue=q, children=[child],
                        snapshot=lambda run, flags: snaps.append((run, flags)))
     passing = Preflight((Check("x", required=True, ok=True, detail="ok"),))
     launcher = Launcher(
