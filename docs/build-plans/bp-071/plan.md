@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-071
 alias: chat-code-doc-integrator
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/agent-taxonomy.md            # dn-agent-taxonomy §2.5 (the integrator charter) + §3 Phase Γ
   - docs/findings/finding-0109.md                  # the proven-edge rationale (layer 2 = WHERE it happened)
@@ -30,7 +30,7 @@ supersedes: null
 superseded_by: null
 warrant: docs/design-notes/agent-taxonomy.md
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-07-19
 re_entry: null
 ---
 
@@ -70,18 +70,32 @@ never inferred; NOT a time-join (finding-0109).
 6. `scheduler/cron.py` + `ops/lifecycle/launcher.py` — the trough-job wiring pattern (as extended by
    bp-069; register beside `chat_events`).
 
-## 3. Investigation & grounding (to COMPLETE at Item 0; charter-level answers recorded)
-- **Q1 edge shape:** `(src=(session_id, order|turn), kind=C, dst=commit|file|doc, witness, pair_cut)`;
-  one row per resolved endpoint, grouped by the originating event. Weight 1.0 (bp-070 parked).
-- **Q2 resolution semantics:** a SHA resolves against the commit ledger; file paths against the
-  commit's file set (repo-relative); doc paths → artifact ids where the path is a tracked artifact
-  (build-plans/findings/design-notes) else a plain file endpoint. Unresolvable refs are NAMED in the
-  report (a pruned/rewritten history is possible — never silently dropped).
-- **Q3 idempotency/incrementality:** keyed by (witness) — re-runs are no-ops; process sessions whose
-  L1 changed since the last pass (the same digest-based incrementality as L1 itself).
-- **Q4 F-edges:** where an L1 event cites a doc without production semantics, mint F (citation) not C
-  — the C/F boundary is the tool-record kind (write/commit ⇒ C; read/reference ⇒ F). Default lean;
-  confirm at re-ground.
+## 3. Investigation & grounding (COMPLETED at Item 0, 2026-07-19 — see finding-0111)
+RE-GROUND against landed Β rewrote Q2/Q4 (finding-0111). The charter (proven edges, no inference)
+is unchanged; the provisional resolution model was.
+- **Q1 edge shape:** `CausalEdge(session_id, event_order, kind="C", dst_type, dst, witness_digest,
+  witness_turn, pair_cut_sha)`; one row per directly-proven endpoint. Weight 1.0 (bp-070 parked).
+- **Q2 resolution semantics (RE-GROUND).** Every edge is minted DIRECTLY from ONE L1 event's tool
+  record — no fan-out, no join. Two species:
+  - a `commit` event (ref = ABBREVIATED sha) resolves against the commit ledger (`snapshots`) by
+    PREFIX-match → `dst_type=commit, dst=full_sha`, `pair_cut_sha=full_sha` (the (digest, sha) cut).
+    0 matches → `unknown-sha`; >1 → `ambiguous-sha`; ref="" → `unparsed-sha` — NAMED, no edge.
+  - a `file_edit`/`build_plan`/`finding`/`design_note` event (ref = path/artifact-id) mints its
+    endpoint DIRECTLY (the Write/Edit tool record is the proof) → `dst_type=file|doc`,
+    `dst=path|artifact-id`, `pair_cut_sha=""` (a working-tree write has no commit anchor — honest).
+    `dst_type` INHERITS the L1 event kind (the sensor already ran `_classify_file_write` at
+    projection — DRY by construction: the integrator maps kind→dst_type, re-parses nothing).
+  - **The ledger stores the FULL TREE, not the diff** (`_py_blobs` = `git ls-tree -r`), so a
+    commit's *changed* file set is NOT resolvable from any store; fanning a commit out to it would
+    be an inferred edge (the falsifier). action→commit and commit→file are composed by Δ's
+    `ComposedGraph` (C≠D composition), never joined here.
+- **Q3 idempotency/incrementality:** replace-per-session-digest (the LANDED L1 `replace_session`
+  pattern) — a `causal_edge_digests(session_id, transcript_digest)` sidecar; unchanged digest ⇒
+  skip; grown digest ⇒ delete-then-remint. Witness-keyed identity is `(digest, event_order, dst)`.
+- **Q4 F-edges (RE-GROUND):** v1 mints **C only**. The landed L1 emits a structural `ref` ONLY for
+  writes/commits (a read collapses to `tool_use("Read")`, no path) — so no read/cite endpoint
+  survives L1. F stays in the scope (`write_fibers={C,F}`) as a declared-but-unfed capability; the
+  edge-store write handle claims fiber "C" only (conformance: actual ⊑ declared).
 
 ## 4. Reconciliation
 All additive: a NEW core module + NEW store + job registration beside existing kinds; router
@@ -94,24 +108,32 @@ As front-matter. **OUT:** `core/chat_events.py`/store (bp-069's — consumed); t
 (read-only); `reference_edges` (proto — untouched unless Item 0 rules "extend", then a scope
 amendment via finding); the dreamer/grant machinery; the eval harness (Δ).
 
-## 6. Interfaces pinned inline (PROVISIONAL until Item 0)
+## 6. Interfaces pinned inline (RE-GROUND at Item 0, 2026-07-19 — finding-0111)
 ```python
 # core/integrator.py (NEW — the role's first full instance; model-free):
 INTEGRATOR_SCOPE = integrator_scope(
     read=[(Stratum.DIALOGUE, "L1"), (Stratum.OBSERVED, "commit-ledger"),
           (Stratum.DIALOGUE_ARTIFACT, "*")],
-    write_fibers=["C", "F"])
+    write_fibers=["C", "F"])                    # F declared-but-unfed in v1 (finding-0111)
 @dataclass(frozen=True)
 class CausalEdge:
-    session_id: str; event_order: int; kind: str          # "C" | "F"
+    session_id: str; event_order: int; kind: str          # "C" (v1 mints only C)
     dst_type: str; dst: str                                # commit|file|doc → sha|path|artifact-id
-    witness_digest: str; witness_turn: int                 # the pair-cut: (digest, sha) rides dst+witness
+    witness_digest: str; witness_turn: int                 # witness = (digest, turn) + event (kind,ref)
+    pair_cut_sha: str                                      # (digest, sha) cut — full sha for commit
+                                                           # edges, "" for working-tree writes
 @dataclass
 class Integrator:
-    events: ChatEventStore; ledger: <commit-ledger>; edges: CausalEdgeStore
+    events: ChatEventStore                                 # bp-069 L1 (read): events_for/digest_for/sessions
+    ledger: sqlite3.Connection                             # code_snapshots.sqlite (read): commit existence
+    edges: CausalEdgeStore                                 # C-fiber writer (write)
     def integrate(self, *, max_sessions: int) -> IntegrationReport: ...   # resolve; account everything
+    # conformance: assert_conforms(INTEGRATOR_SCOPE, (
+    #   Handle("chat_events", DIALOGUE), Handle("commit_ledger", OBSERVED),
+    #   Handle("causal_edges", DIALOGUE, writes_fiber="C")))
 
-# core/stores/causal_edges.py (NEW): keyed by witness; C-coverage + parity queries for the gauges.
+# core/stores/causal_edges.py (NEW): replace-per-session-digest (L1 pattern) + causal_edge_digests
+#   sidecar; content id over (witness_digest, event_order, dst_type, dst); C-coverage + parity queries.
 # scheduler/cron.py: INTEGRATE_KIND + handler + enqueue (pinned tier, housekeeping cadence).
 ```
 
@@ -139,8 +161,11 @@ class Integrator:
 
 ## 8. Math carried explicitly
 The witness law (E_proven = image of a deterministic map over retained raw — re-derivable; the floor
-invariant); the pair-cut as a two-token consistent cut proven by the causal bracket
-`turn_i ≺ commit ≺ turn_{i+1}` (dn-agent-taxonomy §2.5). No inference anywhere.
+invariant). Each edge is the image of ONE L1 tool record under the deterministic resolver — no
+fan-out, no join, so no unchanged-file leaks into E_proven (finding-0111). The pair-cut
+`(digest, full_sha)` is the two-token consistent cut for a `commit` edge (the causal bracket
+`turn_i ≺ commit ≺ turn_{i+1}`, dn-agent-taxonomy §2.5, read from op-seq ORDER not wall-clock);
+working-tree writes carry `pair_cut_sha=""` (witness-only, no cross-clock cut). No inference anywhere.
 
 ## 9. Non-goals
 NO model. NO time-based joins. NO interpretive edges (dreamer territory). NO harness/instrument
@@ -156,9 +181,10 @@ bp-069's modules or the code sensor.
 ## 11. Parked decisions
 | Decision | Default | Re-entry |
 |---|---|---|
-| extend reference_edges vs sibling store | sibling (`causal_edges.sqlite`) | Item 0 review |
-| C/F boundary | write/commit ⇒ C; read/cite ⇒ F | Item 0 review |
-| doc endpoints | artifact-id where tracked, else path | Δ-phase consumption needs |
+| extend reference_edges vs sibling store | **DECIDED sibling** (`causal_edges.sqlite`; finding-0111) | — |
+| C/F boundary | **DECIDED** write/commit ⇒ C; v1 mints C only, F declared-unfed (finding-0111) | — |
+| doc endpoints | dst_type INHERITED from L1 kind (sensor already classified) | Δ-phase consumption needs |
+| commit→file composition | NOT joined here — Δ's `ComposedGraph` composes it (finding-0111) | Δ |
 
 ## 12. Dependency & ordering summary
 `depends_on: [bp-069, bp-070]` — Phase Γ. Item 0 (re-ground) → 1 → 2. **Downstream:** Δ feeds
