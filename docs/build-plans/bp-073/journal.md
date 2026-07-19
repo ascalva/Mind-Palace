@@ -169,3 +169,22 @@ under contention with the live daemon (run #29 also embeds); a fitting demonstra
 read-only/daemon-safe (Item 2b) yet shares the deterministic embedder. The curve is the primary
 quantification. **Ratchet confirmed 19 (unchanged); 91 graph/eval tests + 14 re_measure tests green;
 ruff clean.** Remaining: commit (feat re_measure / finding / seal); push; CI green; seal.
+
+### SESSION PAUSE (2026-07-19, session-32) — build COMPLETE + committed locally; awaiting owner
+All three items done. Two commits landed on `main` (local, NOT pushed): `6741fcf` feat (re_measure.py
++ test_re_measure.py) · `739ecd7` finding-0112/0113 + journal + plan(status→in-progress). Tree clean
+except this pause note. **Held the push deliberately** — the oq-0031 verdict (finding-0113) is the
+arc's payoff + an OWNER-ROUTED math finding, presented to Alberto for engagement before it goes to
+CI/main. **PARKED on owner (re-entry conditions):**
+1. `/usage` relay to fill `cost.actual` (well-pinned build, ~0.5× territory expected).
+2. Owner blessing to resolve the **0096–0100** cluster with finding-0113's verdict (a design act).
+3. Push decision (routine — push→CI→semantic-release; expect a rebase onto a `chore(release)` commit
+   per finding-0110).
+**To SEAL (after owner):** clear `.claude/state/active-plan`; flip plan status→complete + cost.actual;
+PROGRESS.md checkpoint (orchestrator, single-writer — do AFTER clearing active-plan so scope-guard
+permits it); final journal seal w/ read map; push; verify CI all-green BEFORE claiming attestable.
+**Read map (concept-bearing lines, ~15% of the diff):** `eval/harness/re_measure.py`
+`proven_pairs_from_causal` (the co-production projection + fail-loud witness), `sim_edges_from_embeddings`
+(the grid-floor threshold matching MirrorGraph), `re_measure_oq0031` (E_sim-only vs full + the σ*-uplift
+loop), `ProvenBridge` docstring (why the bottleneck is NOT the proven edge), `embed_docs` (ephemeral
+read-only doc embedding); `finding-0113` §Verdict (the 3-part answer). Fresh-agent sufficient.
