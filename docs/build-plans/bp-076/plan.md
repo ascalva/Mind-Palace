@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-076
-status: ready
+status: superseded
 design_ref:
   - docs/design-notes/ouroboros-principal.md
 contract: builder
@@ -30,9 +30,18 @@ links:
   - docs/design-notes/exhaust-lane.md
 re_entry: null
 supersedes: null
-superseded_by: null
-warrant: null
+superseded_by: bp-078
+warrant: finding-0116
 ---
+
+> **SUPERSEDED 2026-07-20 by `bp-078`** (three-place, `dn-supersession-lifecycle`
+> shape; warrant `finding-0116`). This plan was graduated from
+> `dn-ouroboros-principal` (the two-principal model, now superseded by
+> `dn-plane-principals`). As written it would `chown` `exhaust/reports/`
+> `ouroboros`-write-only, re-introducing finding-0116 (workflow can no longer
+> place build reports). Re-graduated against the four-plane model as `bp-078`,
+> which carries the 8-point delta recorded below in `journal.md`. Kept inspectable;
+> do NOT build.
 
 # Build Plan — The Ouroboros principal: LaunchDaemon support, migration runbook, verifier, ratchet
 

@@ -68,3 +68,13 @@ delivery (exactly finding-0116). Material deltas the re-graduation carries:
 
 Not touched here: plan.md (re-graduation is the orchestrator's; blessing the
 owner's). This entry only parks the build with its re-entry condition.
+
+## 2026-07-20 — SUPERSEDED by bp-078 (orchestrator, session-37, opus@high)
+
+Re-graduation done. `dn-plane-principals` ratified (`215070d`, supersedes
+`dn-ouroboros-principal` on warrant `finding-0116`). Minted `bp-078` (`proposed`)
+against it, discharging all 8 deltas above. This plan flipped
+`ready → superseded` (`superseded_by: bp-078`, `warrant: finding-0116`) — the
+three-place supersession, orchestrator-performed (graduate skill: a defective/
+orphaned plan is superseded, not edited; the discredited plan stays inspectable).
+Not built. See `docs/build-plans/bp-078/`.
