@@ -27,7 +27,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from config.loader import get_config
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # repo root on path (CLI)
+
+from config.loader import get_config  # noqa: E402
 
 
 def report_name(plan: str, slug: str, on: date) -> str:
