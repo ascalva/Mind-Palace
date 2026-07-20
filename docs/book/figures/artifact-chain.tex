@@ -1,0 +1,33 @@
+% figures/artifact-chain.tex — the artifact chain as a one-way, gated cycle.
+% Source: \artifact{dn-agent-workflow} §3 (state-machine table) + the CLAUDE.md
+% "artifact chain" section (\coderef{CLAUDE.md}{\gitref}). Node names from notation.tex.
+% \input by chapters/01-philosophy.tex inside a figure environment.
+\begin{tikzpicture}[
+    node distance=6mm and 12mm,
+    stage/.style={draw=inkblue, thick, rounded corners=2pt, fill=panel,
+      align=center, inner sep=4pt, text width=20mm, minimum height=11mm,
+      font=\small\sffamily},
+    flow/.style={-{Stealth[length=2mm]}, thick, inkblue},
+    gate/.style={text=gate, font=\scriptsize\itshape, align=center},
+  ]
+  \node[stage] (br) {brainstorm};
+  \node[stage, right=of br] (dn) {design\\note};
+  \node[stage, right=of dn] (bp) {build\\plan};
+  \node[stage, right=of bp] (jf) {journal\\+ findings};
+  \node[stage, right=of jf] (rf) {reflection\\(\texttt{/triage})};
+
+  \draw[flow] (br) -- (dn);
+  \draw[flow] (dn) -- (bp);
+  \draw[flow] (bp) -- (jf);
+  \draw[flow] (jf) -- (rf);
+
+  % The two owner-only blessing gates (dn-agent-workflow §10).
+  \node[gate, above=1mm of $(br)!0.5!(dn)$] {owner gate\\draft$\to$ratified};
+  \node[gate, above=1mm of $(dn)!0.5!(bp)$] {owner gate\\proposed$\to$ready};
+
+  % Findings are the ONLY channel back into design (one-way flow, gated re-entry).
+  \draw[flow, gate, dashed]
+    (rf.south) .. controls +(0,-9mm) and +(0,-9mm) .. (dn.south)
+    node[midway, below, font=\scriptsize\itshape, text=gate]
+    {findings --- the only channel back into design};
+\end{tikzpicture}

@@ -1,0 +1,29 @@
+% figures/fixed-point.tex — the immovable centre a self-modifying system measures
+% drift against. Source: \coderef{CONSTITUTION.md}{\gitref} §V + \coderef{docs/BUILD-SPEC.md}{\gitref}
+% §4 (the fixed-point argument) and §3 invariant 9 / §15 (frozen baselines).
+% \input by chapters/01-philosophy.tex inside a figure environment.
+\begin{tikzpicture}[
+    every node/.style={font=\small\sffamily},
+    loop/.style={-{Stealth[length=2mm]}, thick, soft},
+  ]
+  % The immovable centre.
+  \node[draw=gate, very thick, rounded corners=2pt, fill=panel, align=center,
+        inner sep=6pt, text width=34mm] (core)
+    {\bfseries the fixed point\\[2pt]
+     \footnotesize\Constitution{} + frozen baselines\\
+     \scriptsize\itshape never auto-modified; human-only};
+
+  % The self-modification cycle orbiting it (dn / BUILD-SPEC §14 invariant 5).
+  \foreach \ang/\lbl [count=\i] in
+    {90/propose, 18/human-approve, -54/execute, -126/validate, 162/auto-rollback}
+    { \node[soft, font=\scriptsize] (s\i) at (\ang:26mm) {\lbl}; }
+  \draw[loop] (s1) to[bend left=18] (s2);
+  \draw[loop] (s2) to[bend left=18] (s3);
+  \draw[loop] (s3) to[bend left=18] (s4);
+  \draw[loop] (s4) to[bend left=18] (s5);
+  \draw[loop] (s5) to[bend left=18] (s1);
+
+  % The measurement: every change is judged against the centre.
+  \draw[-{Stealth[length=2mm]}, thick, gate] (s4) -- (core.south)
+    node[midway, sloped, above, font=\scriptsize\itshape, text=gate] {drift measured against};
+\end{tikzpicture}
