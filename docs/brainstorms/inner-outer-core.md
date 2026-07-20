@@ -158,3 +158,32 @@ next_steps:
   - Re-cut the draft note to adopt v2 before ratification: recompute the fixed point at HEAD,
     rewrite the membership appendix and the affected sections; ratification remains owner-by-hand.
 ```
+
+## 2026-07-20T22:55Z (session-39, fable — owner fires P8: the temporal math belongs inside)
+
+Shown that v2-as-computed excludes the temporal-mathematics family (boundary/complex/operators/
+superconnection, via store imports) plus integrator/recursion_ops (inline sqlite3), the owner:
+*"I would want the temporal math in the inner core."* That is P8's re-entry condition firing at
+design time, before ratification.
+
+```capsule
+topic: inner-outer-core
+date: 2026-07-20
+
+decisions:
+  - The temporal math WILL live in the inner ring (owner): the P8 math↔persistence splits are
+    wanted work, not a parked maybe. The note is amended pre-ratify: P8 converts from parked to a
+    licensed second session-sized plan beside M0 (split shape = bp-065/sigma_star precedent — the
+    pure builder takes data, the store-reading acquisition seam moves outward; "machinery calls
+    core, core returns data").
+  - Grounding already in hand: boundary.py is HALF-SPLIT already (pure `supersession_poset` core
+    + a thin VersionStore wrapper at :115); complex.py's seam is one function
+    (`build_citation_complex(ref_store,…)` :59); integrator holds a raw `sqlite3.Connection`
+    field (:136) beside pure gauge math. Expected promotion ≈ the temporal family (5) +
+    integrator + recursion_ops (2); chat_events/dreams_view are store-TYPED vocabulary — a
+    protocol-typing question, may defer (interacts with P5).
+
+next_steps:
+  - Worker amends the note (P8 → licensed plan w/ computed promotion preview) at the session-window
+    reset, BEFORE the dreamer pass dispatches; ratify then rules the amended note in one sitting.
+```
