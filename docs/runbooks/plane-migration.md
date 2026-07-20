@@ -182,42 +182,43 @@ goes through the agent silently thereafter. **Do NOT strip the passphrase off th
 
 ## §5 — ⛔ STOP-GATE: bootstrap + verify Claude Code credentials for `ouroboros-work` (Q9)
 
-**This is the sharpest step and a genuine spike (`finding-0120`).** Claude Code keeps its OAuth
-credential in the login **Keychain** (service `Claude Code-credentials`) or, on a Keychain-less
-platform, `~/.claude/.credentials.json`; a role account's keychain is **not** auto-unlocked (it
-never GUI-logs-in). No agent can settle where the credential lands or whether a locked keychain
-breaks the pane relaunch — **only you, by observing it.** Do NOT proceed to daily use until this
-gate is green.
+**The sharpest step — a genuine spike (`finding-0120`), RESOLVED on the 2026-07-20 migration.**
+Claude Code stores its subscription OAuth credential in the macOS **login Keychain only** — there is
+**no file-based fallback on macOS** (`~/.claude/.credentials.json` is Linux/Windows). A role account
+never GUI-logs-in, so it has **no login keychain**: an interactive `sudo -u ouroboros-work -H claude`
+login **cannot persist** — macOS reports *"a keychain cannot be found to store …"* and `claude`
+stays "not logged in". (Confirmed empirically.) Manually creating a keychain under `sudo -u` is
+undocumented and fragile (no securityd session) — **do NOT** go down that path.
+
+**The supported headless pattern that KEEPS subscription billing: a long-lived OAuth token**
+(`claude setup-token` → `CLAUDE_CODE_OAUTH_TOKEN`). Confirmed working 2026-07-20.
 
 ```sh
-# 1. Authenticate claude ONCE as the role user (its own ~/.claude via -H):
-sudo -u ouroboros-work -H claude    # complete the OAuth login in the browser it opens, then /exit
-# 2. Create the role user's login keychain if prompted, and set a password you record.
-# 3. THE TEST THAT MATTERS — lock the keychain, then relaunch the pane and see if it re-auths:
-sudo -u ouroboros-work -H security lock-keychain
-sudo -u ouroboros-work -H claude -p 'say ok'    # does it answer, or fail on a locked keychain?
+# 1. On your GUI session (as ascalva), mint a one-year subscription-billed OAuth token:
+claude setup-token          # browser approves; the token prints — copy it
+# 2. Validate it authenticates the role account headlessly (env sets it for just this child):
+sudo -u ouroboros-work -H env CLAUDE_CODE_OAUTH_TOKEN='<token>' /opt/homebrew/bin/claude -p 'say ok'
+# 3. Persist it in ASCALVA's keychain (never the repo, #10) for the cockpit wrapper to read:
+security add-generic-password -U -s claude-oauth-token -a ouroboros-work -w '<token>'
 ```
 
-**Decide the mitigation from what you observe (preference order, note §3.2 cost 1):**
+The cockpit wrapper (`scripts/cockpit.sh` / its launch helper) reads the token from ascalva's
+keychain and exports `CLAUDE_CODE_OAUTH_TOKEN` before `sudo -u ouroboros-work -H claude …`, and does
+the SAME for the ssh signing-key passphrase (`finding-0122`) — both secrets fetched at launch, one
+place, never in the repo.
 
-- **(a) preferred — unlock in the cockpit wrapper.** If the relaunch fails on a locked keychain,
-  add BEFORE the `sudo -u ouroboros-work -H claude …` line in `scripts/cockpit.sh` (or a wrapper it
-  calls):
-  ```sh
-  sudo -u ouroboros-work -H security unlock-keychain -p "$OUROBOROS_WORK_KC_PW" \
-       /var/ouroboros-work/Library/Keychains/login.keychain-db
-  ```
-  (keep `$OUROBOROS_WORK_KC_PW` in YOUR keychain, read at cockpit launch — never in the repo, #10.)
-- **(b) fallback — skip the keychain entirely.** Set an `apiKeyHelper` in
-  `/var/ouroboros-work/.claude/settings.json` (a script that prints a key) or export
-  `ANTHROPIC_API_KEY` in the role session. Usage still pools against your one account; only the OS
-  identity differs.
+**⚠️ Do NOT** set `ANTHROPIC_API_KEY` or an `apiKeyHelper` returning an API key: those switch the
+account OFF the subscription onto metered per-token API billing, and `ANTHROPIC_API_KEY` takes
+**precedence** over the OAuth token (silently breaking it). The token is the only subscription-billed
+headless path.
 
-- **Verify:** step 3's relaunch answers `ok` with the keychain locked (mitigation applied). Record
-  which of (a)/(b) you used in `finding-0120` and flip it to `resolved`.
-- **Rollback:** `sudo -u ouroboros-work -H claude /logout`; remove the wrapper line / settings.
-- **§10 stop-and-raise:** if NEITHER (a) nor (b) makes the locked-keychain relaunch succeed, **stop
-  the migration** and re-open the design via `finding-0120` — do not invent a third path.
+- **Verify:** step 2 prints `ok`. (`verify_planes.py` "claude credential" — a manual SKIP; this is it.)
+- **Rollback:** `security delete-generic-password -s claude-oauth-token -a ouroboros-work`; revoke the
+  token in the Claude Console if needed.
+- **Reissue:** the token lasts one year — re-run `claude setup-token` + re-store (step 3) annually or
+  on suspected compromise.
+- **§10 stop-and-raise:** retained for the general case, but the token path above is confirmed; a
+  stop-and-raise is only if `setup-token` itself is unavailable on your plan.
 
 ---
 

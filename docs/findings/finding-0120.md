@@ -1,18 +1,30 @@
 ---
 type: finding
 id: finding-0120
-status: open
+status: resolved
 created: 2026-07-20
 updated: 2026-07-20
 links:
   - docs/design-notes/plane-principals.md          # §3.2 cost 1 — the credential bootstrap
   - docs/build-plans/bp-078/plan.md                # Q9 (§3), Item 6 STOP-gate, §10, §11
-  - docs/runbooks/plane-migration.md               # where the STOP-gate lands
+  - docs/runbooks/plane-migration.md               # §5 — amended with the resolution
+  - docs/findings/finding-0122.md                  # sibling secret (ssh signing key), same wrapper
 re_entry: null
 ftype: direction
 origin_plan: bp-078
 route: orchestrator
-resolution: null
+resolution: >
+  Settled empirically on the 2026-07-20 live migration. Claude Code stores its subscription
+  OAuth credential in the macOS login Keychain ONLY (no file fallback on macOS); a role account
+  has no login keychain (never GUI-logs-in), so an interactive `sudo -u ouroboros-work -H claude`
+  login cannot persist ("a keychain cannot be found to store"; stays not-logged-in). The keychain
+  path (runbook §5 mitigation a) is therefore unworkable for a role account, and apiKeyHelper/
+  ANTHROPIC_API_KEY (mitigation b) switch OFF the subscription onto metered API billing (rejected).
+  RESOLUTION: the documented headless pattern `claude setup-token` -> a one-year OAuth token in
+  `CLAUDE_CODE_OAUTH_TOKEN`, which KEEPS subscription billing. Validated: `sudo -u ouroboros-work
+  -H env CLAUDE_CODE_OAUTH_TOKEN=<tok> claude -p 'say ok'` printed `ok`. Runbook §5 rewritten with
+  this. Implementation follow-up (not this finding): the cockpit wrapper reads the token from
+  ascalva's keychain and exports it at launch (same wrapper handles finding-0122's ssh passphrase).
 ---
 
 # Q9 spike — the Claude Code credential for `ouroboros-work` can only be settled by an owner-run bootstrap, not by an agent
