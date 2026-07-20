@@ -96,7 +96,28 @@ and an `ascalva` daemon still reads it. Therefore:
   plane. The boundary in one line: **ascalva builds the machine; ouroboros is
   the machine running.**
 
-### 3.3 Ownership and modes of the lanes
+### 3.3 Agents and the principal — the taxonomy nests inside the planes
+
+The uid boundary separates **planes**, not agent types (owner question,
+2026-07-19). Workflow agents (orchestrator / builder / scribe — Claude Code
+sessions) act on the repo and run as `ascalva`. In-system agents (the
+dreamers, the librarian, the interpreters, the ambassador) are **components of
+the daemon** — spawned inside its process tree, reasoning over the corpus with
+the local models — so they inherit `ouroboros` automatically when the daemon
+moves. No per-agent arrangement exists or is needed: *ascalva builds the
+machine; ouroboros is the machine running.*
+
+Two layers, stated so neither is mistaken for the other: the **uid** bounds
+what a *process can* do; the **constitution frame and scope signatures** bound
+what an *agent may* do (bounded recursion, scope ceilings, minted-agent caps —
+unchanged by this note, now running inside the ouroboros envelope). And one
+boundary this note deliberately does NOT kernel-enforce: **core-vs-edge inside
+ouroboros**. A network-touching edge component in the daemon's tree retains
+OS-level vault-read *capability*; non-negotiable 2 remains enforced by the
+import firewall (`scripts/check_imports.py`, Invariant 2), exactly as today.
+The hardening that closes it — **edge as a third principal** — is parked below.
+
+### 3.4 Ownership and modes of the lanes
 
 | Path | Owner | Mode | Writes | Reads |
 |---|---|---|---|---|
@@ -114,7 +135,7 @@ Note the owner's phone edits vault notes via SyncTrain — those writes arrive
 `ascalva`-side edits to vault files stop working by design; the capture path
 is the phone/sync or a sanctioned drop (parked below if ever wanted).
 
-### 3.4 Execution protocol — owner-run, agent-authored, reversible
+### 3.5 Execution protocol — owner-run, agent-authored, reversible
 
 This is infra + a trust boundary: **every mutating step is performed by the
 owner**, not an agent (no user creation, `chown`, launchd or keychain change
@@ -133,7 +154,7 @@ the deploy rule). The build delivers three artifacts, none of which act:
    enforced after; the flip of that skip is the migration's acceptance);
    ownership/mode asserts pinned to the table above.
 
-### 3.5 Sequencing
+### 3.6 Sequencing
 
 `dn-exhaust-lane` builds first (mechanical, ownership-agnostic). This note's
 build follows as its own session; nothing else depends on it, and it can wait
@@ -155,6 +176,12 @@ includes a `palace status`-verified restart at each stage.
 
 ## Parked decisions
 
+- **Edge as a third principal** (`ouroboros-edge`: network, no vault; core:
+  vault, no network — non-negotiable 2 becomes kernel-enforced, not just
+  import-firewall-enforced). Default: edge stays inside ouroboros, #2 enforced
+  by `check_imports.py` as today. Re-entry: any effector tier rises above NONE
+  (Track G wiring), or an edge component gains a listening/network surface
+  beyond the Tailscale-local ambassador.
 - **Personal-Syncthing split.** Default: move the single instance (it serves
   only the vault). Re-entry: owner reports personal shares on it → second
   instance under ouroboros instead.
