@@ -102,3 +102,34 @@ references:
   - core/graph/sigma_star.py · core/dreaming/    # where the ring runs through a module
   - docs/brainstorms/dyadic-epistemology.md      # the sibling session's capture (same evening)
 ```
+
+## 2026-07-20T21:28Z (session-39, fable — owner directive: the repo structure reflects the split)
+
+Owner, in chat while dispatching the design pass: *"I do want the eventual repo structure to
+reflect the separation."* This lifts the 2026-07-19 parked item (directory repackaging as
+"optional cosmetics, later") into a decided end-state: the physical layout WILL eventually mirror
+the inner/outer rings. What stays open is the concrete layout and its sequencing — that is now a
+first-class obligation of the design pass, not an afterthought.
+
+```capsule
+topic: inner-outer-core
+date: 2026-07-20
+
+decisions:
+  - The eventual repo structure REFLECTS the inner/outer separation (owner, session-39). The
+    2026-07-19 parked decision "directory repackaging (core/kernel/ vs core/machinery/)" is
+    decided in DIRECTION — physical separation is the committed end-state, no longer optional
+    cosmetics. Layout and sequencing remain design-pass questions.
+
+open_questions:
+  - The concrete target layout (core/inner/ + core/outer/? kernel/ vs machinery/? something else)
+    and migration sequencing (before/after the outer ratchet reaches 0; before/after the ring map
+    stabilizes) — the dn-inner-outer-core pass must answer both with a migration path.
+
+next_steps:
+  - The dn-inner-outer-core fable design pass (dispatched this session) treats target layout +
+    migration path as first-class sections of the note.
+
+references:
+  - docs/brainstorms/hypothetical-subspace.md   # captured same session — first concrete outer-core consumer
+```
