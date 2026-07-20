@@ -133,3 +133,30 @@ report naming, and the writer command with its overwrite-refusal note. Preserved
 guide-not-gate framing (a report is a review surface; every blessing/apply is at the
 keyboard; the system writes exhaust and reads the vault, neither lane reads the other).
 Placed before the read-map section; nothing auto-applied.
+
+## Session 2 — VERIFICATION (full attestable-green gate, live-excluded)
+
+All legs run with `uv run --extra dev`, each separate, live/podman/vault/restic
+markers excluded + the two known-red deselects (finding-0105 self-containment node,
+finding-0103 ratchet at 19):
+
+- **ruff check .** → `All checks passed!`
+- **mypy core agents eval ops scheduler scripts** → `Success: no issues found in 229 source files`
+- **mypy (argless)** → `Found 69 errors in 20 files (checked 484 source files)` — tests
+  baseline 69 HELD; the new test file added zero net errors.
+- **python -m ops.type_gate** → `Tier-2 membership: OK` + `Bare-ignore scan: OK`.
+- **pytest -q -m 'not live and not podman and not needs_vault and not needs_restic'
+  --deselect …self_containment… --deselect …finding_0103_ratchet…**
+  → `1659 passed, 7 skipped, 21 deselected in 53.08s` (incl. the 7 new exhaust tests).
+
+A post-commit `ruff --fix` re-sorted the test import block (removed one blank line);
+folded into the lint commit below. No behavior change.
+
+## SEAL-READY
+
+All 4 items complete + green. Files touched: `core/config/loader.py`,
+`config/loader.py`, `scripts/exhaust_report.py` (new),
+`tests/unit/test_exhaust_report.py` (new), `docs/supplemental/cockpit.md`.
+`config/defaults.toml [exhaust]` was already merged (`9bb4d3b`) — not re-touched.
+Plan stays `in-progress`; the orchestrator seals + flips to `complete` (no
+builder status-flip). No new findings; finding-0115 was resolved by the amendment.

@@ -30,7 +30,6 @@ sys.path.insert(0, str(REPO / "scripts"))
 
 import exhaust_report  # type: ignore[import-not-found]  # noqa: E402
 
-
 # --------------------------------------------------------------------------------------------
 # Item 2 — the ingest-invariant (note §2.2)
 # --------------------------------------------------------------------------------------------
