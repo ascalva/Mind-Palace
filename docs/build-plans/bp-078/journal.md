@@ -56,3 +56,97 @@ one session, file `spec-defect` and re-graduate — do NOT re-split mid-build.
 
 Status: `proposed`. Awaiting the owner's `palace bless bp-078` + hand commit
 (proposed→ready is owner-only, by hand).
+
+## 2026-07-20 — build start + grounding (delegated builder, opus@high, worktree)
+
+Blessed `ready` (`6b8e4a5`); worktree rebased onto main to obtain the plan. Status
+flipped `ready → in-progress` (`0e98112`, no trailer). Context manifest read in
+order: plan whole → dn-plane-principals (§3.1/3.2/3.4/4) → dn-ouroboros-principal
+(§2/3.1/3.2/3.5/3.6 retained) → launcher.py whole → the gui plist → both lifecycle
+tests → cockpit.sh → config/defaults.toml + core/config/loader.py → vault-unseal.sh.
+
+**Read-only grounding probes (mutated nothing):**
+- **Q10 CONFIRMED on this machine (2026-07-20):** global git signing is
+  `user.signingkey=/Users/ascalva/.ssh/id_ed25519.pub`, `gpg.format=ssh`,
+  `commit.gpgsign=true`, `user.email=ascalva@gmail.com`; NO repo-local signing
+  config (`git config --local --get user.signingkey` empty). Under `sudo -u … -H`
+  the global `~/.gitconfig` is not read → signing silently breaks unless the
+  runbook writes repo-local config. The note's "repo-local, HOME-independent"
+  prescription is NECESSARY, not tidy.
+- **Role accounts + `palace` group ABSENT** (pre-migration, as expected):
+  `id ouroboros{,-work,-edge}` all fail; no `palace` group. So `pwd.getpwnam`
+  raises for the three users — the verifier + ratchets MUST degrade to
+  skip/PENDING (never crash) when a principal is absent. This is the primary
+  self-configuring signal.
+- **pfctl parse (Item 3) — a finding-0118-style env truth:** `pfctl -n -f <file>`
+  runs WITHOUT sudo and DOES parse-check (broken syntax → rc 1). BUT `user
+  ouroboros` fails `pfctl -n`: "unknown user ouroboros" (rc 1) because the user
+  does not exist yet. So the LITERAL Item-3 acceptance command (`pfctl -n -f
+  ops/network/ouroboros-egress.pf.conf`) cannot pass pre-migration. RESOLVED
+  INLINE (spec-fidelity, builder-owned): the committed anchor names `user
+  ouroboros` (the real post-migration form; a numeric uid is unknowable pre-create,
+  and any existing user would be wrong). Its PROOF is split: (1) ordering falsifier
+  = a pure text assertion that the `pass … lo0` line precedes the `block … user
+  ouroboros` line (needs no pfctl); (2) syntax = `pfctl -n -f` on a copy with
+  `ouroboros` substituted by a resolvable user, skipped if pfctl absent. The
+  runbook makes the literal `pfctl -n -f <file>` a POST-user-creation verify step.
+- **Config loader (finding-0115 lineage):** `core/config/loader.py::load_config`
+  builds `Config` section-by-section and SILENTLY IGNORES unknown TOML sections
+  (they land in `raw`, are never read, and `Config` does not choke). So adding
+  `[planes]` to defaults.toml is SAFE (test_config_split does not enumerate
+  sections) BUT it is NOT surfaced via `get_config()` — there is no `PlanesConfig`
+  and `core/config/loader.py` is OUT of write_scope. Therefore verify_planes.py +
+  the ratchets read the `[planes]` block by a direct `tomllib` parse of
+  defaults.toml (with the local.toml overlay honored), not via `get_config()`.
+  The vault path IS exposed (`get_config().vault.path`) and is read that way.
+- **Q9 (Claude Code credential for `ouroboros-work`) — SPIKE disposition:** the
+  metadata probe of the credential stores was DENIED by the auto-mode guardrail
+  (non-negotiable #10, "secrets never read by a model") — correctly, and that
+  denial is itself the answer: a service user's credential store is NOT
+  agent-probeable by design. I did not work around it. So the empirical bootstrap
+  (authenticate `claude` once as `ouroboros-work`, observe where the credential
+  lands + whether a locked keychain breaks the pane relaunch) is INHERENTLY
+  owner-run. Grounded from documented behavior: Claude Code on macOS keeps its
+  OAuth credential in the login Keychain (service `Claude Code-credentials`) or, on
+  Keychain-less platforms, `~/.claude/.credentials.json`; it also honors
+  `apiKeyHelper` and `ANTHROPIC_API_KEY`. Runbook Item 6 pins the BOOTSTRAP-AND-
+  VERIFY STOP-gate with the §3.2 mitigation order (a: `security unlock-keychain`
+  in the cockpit wrapper → b: apiKeyHelper/env). Filing finding-0120 (direction,
+  route: orchestrator) so the owner runs the empirical settle; NOT inventing a path.
+
+**Import firewall** scans `core/` only — verify_planes.py (scripts/) is exempt and
+may use `subprocess`/`pwd`/`grp`. It stays repo-workflow tooling: stdlib + `config`
+facade, NEVER `core` (docket/exhaust_report AST precedent), asserted by a no-core
+AST test.
+
+## 2026-07-20 — Item 1 DONE (domain/user-aware Launcher + daemon plist + `[planes]`)
+
+Landed a `LaunchDomain` frozen dataclass (`ops/lifecycle/launcher.py`) as the single
+gui↔system axis: `.target()`, `.bootstrap_domain()`, `.launchctl_argv()` (prepends
+`sudo` only for system), `.installed_plist()`, `.repo_plist()`. The gui form is
+BYTE-IDENTICAL to the historical incantations. Changes:
+- `_launchd_managed(label, domain=gui)` + `_launchd_cycle(…, domain=gui)` now
+  domain-aware, defaulted to gui (unchanged behavior). `_run_launchctl_sudo` added.
+- `Launcher.domain: LaunchDomain = gui` field + `__post_init__`: when domain is
+  system AND the caller did not override, swaps the runner to `_run_launchctl_sudo`
+  and points `installed_plist` at /Library/LaunchDaemons (risk (a)). Injected fakes
+  + explicit paths always win, so tests + the gui default are untouched.
+- `_managed`/`down`/`up`/`deploy` read `self.domain.*` (deploy's drift check now
+  follows the domain's installed-plist path — risk (a)).
+- NEW `ops/lifecycle/com.mind-palace.palace-daemon.plist`: mirrors the gui plist +
+  `UserName ouroboros`, with system-domain owner-install instructions + the
+  preconditions the runbook establishes. Nothing in the repo loads it.
+- `config/defaults.toml` `[planes]` block (core/work/edge homes + `enabled=false`).
+  SAFE: loader drops unknown sections; NOT surfaced via get_config (documented in
+  the block — verifier/ratchets parse it directly).
+
+Test proof (`tests/integration/test_lifecycle_control.py`, CARRIED + extended, not
+rewritten): all 29 original assertions pass verbatim (gui byte-identical — the
+falsifier). 7 NEW cases pin the daemon incantations: gui-vs-system LaunchDomain
+forms, the `sudo launchctl` runner + LaunchDaemon path via post_init, and
+`down`/`up` emitting `system/<label>` / `bootstrap system`. `test_lifecycle.py`:
+the `_launchd_managed` monkeypatch extended to accept the domain arg (one-line).
+**tests/integration/test_lifecycle_control.py + test_lifecycle.py: 36 passed.**
+ruff clean, mypy(launcher) clean, import-firewall OK.
+
+Next: Item 2 (cockpit sudo launch line) ∥ Item 3 (pf anchor).
