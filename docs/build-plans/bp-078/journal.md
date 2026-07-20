@@ -195,3 +195,35 @@ ruff clean, mypy(launcher) clean, import-firewall OK.
 pointer block (resolves). No agent-run step anywhere — authoring only.
 
 All 6 items done. Running the full green gate next.
+
+## 2026-07-20 — SEAL: all six items complete, green gate passing (delegated builder)
+
+**Green gate (each leg run separately, actual tails):**
+1. `ruff check .` → `All checks passed!`
+2. `check_imports.py` → `Import firewall (I2): OK`
+3. `mypy core agents eval ops scheduler scripts` → `Success: no issues found in 230 source files`
+   (Tier-2 floor == 0).
+4. `mypy` (argless) → `Found 69 errors in 20 files (checked 486 source files)` — the tests/
+   baseline, UNCHANGED (my new test file added zero mypy errors).
+5. `python -m ops.type_gate` → membership OK · bare-ignore scan OK.
+6. `pytest -q -m 'not live and not podman and not needs_vault and not needs_restic' --deselect
+   …test_core_imports_nothing_outside_core` → **1680 passed, 12 skipped, 21 deselected**. The 5
+   plane-migration ratchets are within the skips (SKIP pre-migration — Item 5 falsifier holds).
+
+**Per-item landing:** 1 launcher LaunchDomain + daemon plist + `[planes]` (byte-identical gui,
+36 lifecycle tests); 2 cockpit `sudo -u ouroboros-work -H` (dry-run proof, shellcheck clean);
+3 pf anchor (lo0-before-block, parses via substitution); 4 verify_planes.py (read-only, green =
+no FAIL/PENDING, end-to-end CLI); 5 five self-configuring ratchets (all SKIP pre-migration);
+6 migration runbook + pointer. **finding-0120** filed (direction/orchestrator) for the Q9
+credential spike — the empirical bootstrap is inherently owner-run (the credential-store probe was
+correctly blocked by the #10 guardrail). **Real discovery:** `/Users/ascalva` is `0o750` (no o+x)
+— risk (b) is a concrete gap, remediated in runbook §0.
+
+Scope: 14 files, all within write_scope + journal + plan-status-flip + finding-0120. NOT merged —
+the orchestrator reviews the diff and merges. `status: in-progress` (the orchestrator flips it to
+`complete` on merge, per the roles contract).
+
+**Self-reported usage (for the orchestrator's seal):** model = Opus 4.8 (1M context), opus@high as
+tasked (no downgrade observed, no interruption/resume — one continuous session in the worktree).
+~55 tool calls; the pytest leg alone was ~54s. Token count not self-measurable precisely; the
+orchestrator computes ratio/session_delta/week_delta at merge.
