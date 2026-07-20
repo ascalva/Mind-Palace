@@ -140,3 +140,30 @@ intuition-first, not a knowledge dump.
 
 Status: `proposed`. Awaiting the owner's `palace bless bp-077` + hand commit
 (the ready-flip is the book's milestone confirmation, skill §11).
+
+## 2026-07-20 — SEALED complete (orchestrator)
+
+Merged `432ebaa`. Orchestrator-verified the acceptance INDEPENDENTLY: 3 clean pdflatex
+passes → `Output written on main.pdf (11 pages)`, **ZERO undefined references**, all
+forward-refs (ch:architecture/math/intuition/future) + both figure labels resolve.
+(A single `latexmk` invocation did NOT converge the \include'd per-chapter cross-refs —
+needs the multi-pass; the book itself is sound.) Tier verified (162107 tok, opus; 0.81×).
+
+**Finding renumber:** the builder filed its draft-source tension as `finding-0116`, colliding
+with the exhaust-write finding already on main at that id. Renumbered the book's → **finding-0117**
+and retargeted its 4 book references (SYNC.md ×2, main.tex, 01-philosophy.tex:192); the historical
+journal entries above still say "0116" — read them as 0117 (the draft-source finding).
+
+**finding-0117 (OPEN → owner, non-blocking):** bp-077 §2 named four DRAFT notes as Ch-1 sources,
+but ratified dn-agent-workflow bars draft notes from the book. Builder's resolution (sound): cite
+only ratified/fixed sources + code@ref; forward-reference the draft theses. Owner ruling: either
+ratify the four notes (then a later /scribe cites them) or confirm the forward-ref treatment.
+
+```read-map
+docs/book/chapters/01-philosophy.tex:1: the Philosophy chapter — the book's opening story (read as prose, the narrative spine)
+docs/book/preamble.tex:1: the citation contract — \artifact{}/\coderef{} macros + \gitref pin; every later chapter inherits this
+docs/book/notation.tex:1: THE symbol registry — defined once, extended never forked (the drift guard)
+docs/book/SYNC.md:1: the sync marker — git-ref + incorporated + PENDING (architecture debt: handoff-gate/exhaust/ouroboros); the next /scribe reads this
+docs/findings/finding-0117.md:1: the draft-source tension — why no draft note is cited, routed for the owner's ruling
+docs/book/chapters/02-architecture.tex:1: the first stub — where the session-36 trust-boundary designs land next (their mechanism)
+```

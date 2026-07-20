@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-077
-status: in-progress
+status: complete
 design_ref:
   - docs/design-notes/authorship-distance-axis.md
   - docs/design-notes/the-sacred-boundary.md
@@ -13,7 +13,13 @@ cost:
   estimate:
     model: opus
     tokens: 200k
-  actual: null
+  actual:
+    model: opus            # claude-opus-4-8[1m] — usage-accounting corroborated
+    tokens: 162k           # 162107 measured; ratio 0.81× (read-heavy grounding, well-pinned)
+    tool_calls: 56
+    ratio: 0.81
+    compile: clean         # latexmk/pdflatex, 11pp, ZERO undefined refs (orchestrator-verified, 3-pass)
+    green_gate: n/a        # scribe plan — docs/book/** only, no code gate; the gate IS the clean compile
 depends_on: []
 parallelizable_with: []
 created: 2026-07-19
