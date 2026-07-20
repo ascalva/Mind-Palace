@@ -4998,3 +4998,34 @@ figure; fable untouched — opus discipline; ~0.8× approx, %-derived).
 **Next:** push → verify CI green (routine; docs+scripts, no deploy). Then standing options: oq-0024
 σ-sweep (un-blocked), or triage finding-0114 into a `scripts/` tidy plan, or deepen Track H.
 Usage at seal: session 63%, week 22%, fable 17%.
+
+---
+
+### bp-078 — the four plane principals (LaunchDaemon + cockpit sudo + pf anchor + verifier + ratchets + runbook)
+
+**Status:** COMPLETE + SEALED (2026-07-20, session-37). Merged `023d36d` (`--no-ff`). Re-graduated
+from `dn-plane-principals` (superseding bp-076; warrant finding-0116). Delegated opus@high builder
+(worktree), all 6 items; scope clean, orchestrator re-ran the full 6-leg gate before merge.
+
+**What landed (authoring-only — NO live migration; all owner-run from the runbook):** domain/user-aware
+`Launcher` (`LaunchDomain` gui↔system axis, gui byte-identical — 36 lifecycle tests) + `ouroboros`
+daemon plist + `[planes]` config; cockpit launches the orchestrator as `sudo -u ouroboros-work -H`;
+an inert core-egress pf anchor (`block … user ouroboros` + lo0 carve-out); a read-only 4-plane
+verifier (`scripts/verify_planes.py`, PENDING-not-false-green); five self-configuring `stat().st_uid`
+ratchets (all SKIP pre-migration); the owner-run migration runbook.
+
+**Gate:** re-run green by the orchestrator — ruff · import-firewall · mypy floor 0 · argless 69 ·
+type_gate · pytest **1680 passed, 12 skipped, 21 deselected**. 0103 ratchet unchanged.
+
+**Findings:** `finding-0120` (direction/orchestrator) — the Q9 Claude-Code-credential spike; the #10
+guardrail denying the credential-store probe IS the answer (a service user's store isn't
+agent-reachable), so the empirical bootstrap is inherently owner-run → parked with a clean re-entry,
+folded into the runbook STOP-gate. **Real discovery:** `/Users/ascalva` is `0o750` (no `o+x`) → role
+accounts can't traverse to repo/vault; remediated in runbook §0.
+
+**Cost:** 261206 tok / 103 tool-calls / 31 min, opus@high (no downgrade). **ratio 1.04×** (dead-on
+the 250k estimate — well-pinned). week_delta +1% (33→34%), fable flat.
+
+**Next:** OWNER runs the four-plane migration from `docs/runbooks/plane-migration.md` (§0 traversal
+first), resolving finding-0120 at the credential STOP-gate. Standing: finding-0119 bless-ceremony
+ruling · finding-0114 scripts tidy · book Architecture /scribe.

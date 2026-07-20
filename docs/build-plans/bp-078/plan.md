@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-078
-status: in-progress
+status: complete
 design_ref:
   - docs/design-notes/plane-principals.md
 contract: builder
@@ -22,7 +22,14 @@ cost:
   estimate:
     model: opus
     tokens: 250k
-  actual: null
+  actual:
+    model: opus            # opus@high, verified no downgrade (notification usage)
+    tokens: 261206
+    tool_calls: 103
+    duration_min: 31
+    ratio: 1.04            # tokens/estimate — well-pinned (grounding done, interfaces inline)
+    session_delta: "+12% (20→32%, incl. orchestrator supervision + gate reruns)"
+    week_delta: "+1% (33→34%)"
 depends_on: []
 parallelizable_with: []
 created: 2026-07-20

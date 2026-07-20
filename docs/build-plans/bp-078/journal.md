@@ -227,3 +227,45 @@ the orchestrator reviews the diff and merges. `status: in-progress` (the orchest
 tasked (no downgrade observed, no interruption/resume — one continuous session in the worktree).
 ~55 tool calls; the pytest leg alone was ~54s. Token count not self-measurable precisely; the
 orchestrator computes ratio/session_delta/week_delta at merge.
+
+## 2026-07-20 — SEAL (orchestrator, opus@high) — merged `023d36d`, COMPLETE
+
+Supervised + merged. **Scope clean** (14 paths, all in write_scope + plan/journal/finding-0120).
+**Green gate re-run by the orchestrator before merge** (finding-0038 discipline — not the builder's
+claim): ruff clean · import-firewall OK · mypy floor 0 (`Success: no issues found in 230 source
+files`) · argless mypy `Found 69 errors` (baseline unchanged) · type_gate OK · pytest **1680
+passed, 12 skipped, 21 deselected**. Merged `--no-ff` (`023d36d`).
+
+**Diff scrutiny (beyond the tests):** the pf anchor orders `lo0` before the `block` with the
+Ollama-loopback rationale grounded (§3.4); cockpit changes ONLY `desk.1`; the daemon plist is inert
+(nothing loads it); finding-0120 is honest — the #10 guardrail *denying* the credential-store probe
+IS the answer, mitigation order pinned without invention. One builder-owned spec-fidelity call
+accepted: the literal `pfctl -n -f <file>` can't pass pre-user-creation ("unknown user ouroboros"),
+so proof was split (text ordering + syntax via a resolvable-user substitution) and the literal check
+became a post-migration runbook step — sound.
+
+**Cost:** actual **261206 tok / 103 tool-calls / 31 min**, opus@high (no downgrade). **ratio 1.04×**
+— right on the 250k estimate (well-pinned: grounding done at graduation, interfaces inline).
+session_delta +12% (20→32%, incl. this supervision); **week_delta +1%** (33→34%); Fable flat (25%).
+
+**finding-0120** (direction/orchestrator, Q9 credential spike) stays OPEN → resolves at the owner's
+live migration bootstrap (parked in §11 with a clean re-entry; folded into runbook §5's STOP-gate).
+Not a blocker — authoring delivered everything code can.
+
+**What the owner does next (all owner-run, from `docs/runbooks/plane-migration.md`):** the four-plane
+migration itself — nothing here mutated the live system. §0 traversal fix first (`/Users/ascalva` is
+`0o750`), then the ordered runbook, ending green on `uv run scripts/verify_planes.py`.
+
+```read-map
+ops/lifecycle/launcher.py:110: LaunchDomain — the single gui↔system axis the whole parameterization pivots on (default gui = byte-identical)
+ops/lifecycle/launcher.py:411: __post_init__ — system domain swaps in the sudo runner + LaunchDaemon path only when not overridden (risk a); why the gui default + injected fakes stay untouched
+scripts/cockpit.sh:84: the ONE identity change — orchestrator pane → sudo -u ouroboros-work -H claude; every other pane stays ascalva
+ops/network/ouroboros-egress.pf.conf:43: pass out quick on lo0 — MUST precede the block (core's Ollama 127.0.0.1 loopback); the ordering falsifier
+ops/network/ouroboros-egress.pf.conf:44: block drop out … user ouroboros — core's zero off-host egress as a kernel fact (non-neg #2); names only ouroboros
+config/defaults.toml:67: [planes] block — three role homes + enabled flag; NB NOT surfaced via get_config (loader drops unknown sections → verifier/ratchets parse it directly)
+scripts/verify_planes.py:51: the verdict rule — only PASS is green; PENDING/SKIP/FAIL are non-green, so a partial migration is never a false green (the trust-gate falsifier)
+scripts/verify_planes.py:69: SystemProbe — the injectable seam that makes the verifier both testable and provably read-only
+tests/unit/test_plane_migration.py:281: the self-configuring ratchet — keyed on stat().st_uid, SKIP pre-migration / ENFORCE post; the vanishing skip IS the migration's witness
+docs/runbooks/plane-migration.md:47: §0 traversal precondition — the verifier turned risk (b) into a concrete gap (/Users/ascalva 0o750, no o+x); chmod o+x before the daemon runs as ouroboros
+docs/runbooks/plane-migration.md:4: the Q9 credential STOP-gate (finding-0120) — the owner-run bootstrap-and-verify, the sharpest migration step
+```
