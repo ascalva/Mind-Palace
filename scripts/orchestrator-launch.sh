@@ -48,5 +48,13 @@ export SSH_ASKPASS="$ROOT/scripts/sign-askpass.sh" SSH_ASKPASS_REQUIRE=force
 
 # The four named vars cross the boundary via sudoers env_keep (§6). `-H` gives ouroboros-work its
 # OWN $HOME (its ~/.claude, separate Anthropic credential state); the OAuth token in the env is what
-# authenticates it. exec so the pane's shell becomes the claude session directly.
-exec sudo -u ouroboros-work -H claude --model "$MODEL" --effort "$EFFORT" --permission-mode "$PERM"
+# authenticates it.
+#
+# umask: sudo resets it to 0022 (verified) regardless of the invoking shell, and claude is exec'd
+# directly so ~/.zshrc's `umask 002` never runs — files would land 0644 (NOT group-writable), and
+# ascalva could then not hand-edit what the orchestrator creates (e.g. bless a plan it graduated).
+# Force 002 INSIDE the sudo'd process via a one-line sh, so new files honor the shared-repo (§3)
+# co-write (0664). env_keep vars are inherited by the sh and then by claude.
+exec sudo -u ouroboros-work -H /bin/sh -c \
+  'umask 002; exec claude --model "$1" --effort "$2" --permission-mode "$3"' \
+  orchestrator-launch "$MODEL" "$EFFORT" "$PERM"
