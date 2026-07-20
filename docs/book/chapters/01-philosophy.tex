@@ -1,6 +1,264 @@
 \chapter{Philosophy}
 \label{ch:philosophy}
 
-\emph{Scaffold stub — replaced by the Item~2 narrative.} Forward references resolve:
-\autoref{ch:architecture}, \autoref{ch:math}, \autoref{ch:intuition},
-\autoref{ch:future}.
+This chapter is the \emph{why}. It states the principles the rest of the manual
+gives mechanism to --- and it states them as principles, citing the ratified
+record and the code, never asserting a mechanism it has not earned. Where a stance
+is grounded but its formal design is still being worked out, the chapter names the
+stance and forward-references the chapter that will carry the machinery. The
+governing habit of the whole book is set here: \emph{assert nothing without a
+source} (\artifact{dn-agent-workflow}, \S 3). A claim you cannot check is, in this
+system, a defect --- not prose.
+
+\section{The mirror, not the oracle}
+\label{sec:mirror}
+
+Start with what the system is \emph{for}, because every later constraint falls out
+of it. It exists to serve one person as a \emph{mirror onto their own mind} ---
+indexing a private corpus, surfacing patterns across it, helping its owner think
+(\coderef{CONSTITUTION.md}{\gitref}, \S I; \coderef{docs/BUILD-SPEC.md}{\gitref},
+\S 1). It is a sealed, single-user sandbox. That sentence is not marketing; it is
+the north star against which every change is judged, and the test is blunt: does
+this still serve that purpose, within these constraints? If not, it is wrong,
+however well it works (\coderef{CONSTITUTION.md}{\gitref}, \S I).
+
+A mirror is not an oracle, and the distinction is load-bearing. Synthesis over the
+owner's corpus is \emph{the owner's own material plus model training reflected
+back} --- a lens that surfaces patterns, never a source of external truth or
+revelation (\coderef{CONSTITUTION.md}{\gitref}, \S III.2). This is the first act of
+humility the design makes about itself, and it is why the system is built to hold
+its interpretive claims loosely and to say so. An oracle asks to be believed. A
+mirror asks only to be accurate.
+
+\begin{principle}[Mirror, not oracle]
+The system reflects the owner's mind back to them; it does not stand outside that
+mind as an authority. Its worth is measured in fidelity, not in persuasion
+(\coderef{CONSTITUTION.md}{\gitref}, \S III.2).
+\end{principle}
+
+\section{A system named after its own shape}
+\label{sec:ouroboros}
+
+There are two names in play, and keeping them apart is the reader's first piece of
+notation. \mindpalace{} is the \emph{framework} --- the repository, the machinery,
+the workflow that builds and governs the thing. \Ouroboros{} is the \emph{live
+system}: the running daemon together with the evolving corpus it reasons over
+(\artifact{dn-ouroboros-principal}, \S 1). The framework is the workshop;
+\Ouroboros{} is the machine running.
+
+The name is chosen, not decorative. The ouroboros --- the serpent consuming its
+own tail --- is a system that feeds on its own output: it ingests traces of its own
+reasoning back into the corpus it reasons over, so that over time it studies a
+record that includes itself. That self-reference is the entire ambition of the
+project and, simultaneously, its entire danger. A system that reasons about a
+corpus containing its own past reasoning can deepen --- or it can slowly launder
+its own guesses into apparent ground truth. Nearly every principle that follows
+exists to keep the first outcome and forbid the second. How the strata of self-
+reference are formally layered is a design now in progress; the mechanism lands in
+\autoref{ch:architecture} and its mathematics in \autoref{ch:math}.
+
+\section{One subject, at a distance}
+\label{sec:one-subject}
+
+The mirror framing has a sharper reading that the design is still formalising, and
+it is worth stating at the level the record already supports. Because the system is
+a mirror of \emph{one} mind, everything inside it is, at bottom, about a single
+subject --- the owner. A written verdict is the owner directly. Other material is
+the owner at a remove: an instrument's reading of them, or the residue of what they
+chose to attend to. The corpus was never a neutral sample of the world; it is a
+sample of one person's attention (\coderef{CONSTITUTION.md}{\gitref}, \S I;
+\coderef{docs/BUILD-SPEC.md}{\gitref}, \S 1).
+
+The design thesis that turns ``at a remove'' into a precise, graded coordinate ---
+\fwdthesis{authorship distance}{ch:math} --- is not yet ratified, so this manual
+does not lean on its formal claims. What matters philosophically, and is already
+settled, is the reframe itself: there is one subject, and the interesting question
+about any artifact is not \emph{whose} it is but \emph{how much mediation stands
+between the owner and it}. That question is the axis \autoref{ch:math} will draw.
+
+\section{The sacred boundary: the model advises, code acts}
+\label{sec:sacred}
+
+If the mirror is the purpose, this is the discipline that protects it. The
+governing security lesson, applied everywhere without exception: \emph{the model
+advises; code acts}. No language model in the system holds a shell, raw
+credentials, or the power to mutate infrastructure directly; capability is granted
+only through narrow, audited tools, never through general access
+(\coderef{docs/BUILD-SPEC.md}{\gitref}, \S 1 and \S 3, invariant 3;
+\coderef{CONSTITUTION.md}{\gitref}, \S II.2). A design that hands a model broad
+system reach is a defect on its face.
+
+The word for the boundaries where writes cross into or out of the core is
+\emph{sacred}, and the term is easy to misread. It does \emph{not} mean privileged.
+It means the opposite: the dangerous, general capability --- a component that could
+forge a verdict, an optimiser that could buy past a bright line, a privilege to
+mutate the immutable --- is \emph{dissolved} rather than granted under guard. The
+design keeps moving the boundary until the dangerous permission is simply
+unnecessary. The full taxonomy of the three channels that cross the core's boundary
+is architecture; \autoref{ch:architecture} gives it. The principle is here.
+
+\begin{principle}[Dissolve, do not guard]
+Sanctity at a boundary is achieved by removing the need for the dangerous
+capability, not by permitting it under controls. If a design still requires the
+dangerous permission, the boundary is in the wrong place
+(\coderef{docs/BUILD-SPEC.md}{\gitref}, \S 3, invariant 3).
+\end{principle}
+
+\section{Stop trusting posture; make the property physical}
+\label{sec:structural}
+
+A rule that lives only in a prompt or a convention is a rule the system is trusting
+itself to keep. The maturing move --- made repeatedly across the design --- is to
+stop trusting posture and make the property \emph{physical}, so that a violation is
+not \emph{caught} but \emph{unrepresentable}.
+
+The exemplar is the \Ouroboros{} principal (\artifact{dn-ouroboros-principal}).
+Several constitution lines that are enforced today by convention --- an agent must
+never hold the private corpus, the model never holds raw secrets --- become
+\emph{OS-enforced facts} when the live system runs as its own least-privilege
+operating-system user: after the change, an agent running as the developer's login
+simply \emph{cannot} open the vault. As the note puts it, this is the same move as
+the core-seal reckoning: \emph{stop trusting posture, make the property physical}
+(\artifact{dn-ouroboros-principal}, \S 2). The mechanism --- the dedicated user, the
+launch daemon, the ingest and exhaust lanes --- is architecture, and \autoref{ch:architecture}
+carries it; the principle is what belongs here.
+
+The move is not aspirational; parts of it are already concrete in the repository.
+The sealed core's isolation from the network is a static lint, not a hope: a
+check refuses to let any core module import a networked zone
+(\coderef{scripts/check\_imports.py}{\gitref}, the import firewall, invariant 2). And
+a minted agent's maximum reachable capability is not described in a paragraph an
+agent might rationalise around --- it is a frozen set of one:
+
+\begin{quote}\small\ttfamily
+source: core/factory/roles.py@\gitref
+\end{quote}
+\begin{verbatim}
+PRE_DECLARED_MAX: frozenset[str] = frozenset({"run_python"})
+\end{verbatim}
+\noindent The entire grantable universe for a dynamically minted agent is a single
+sandboxed handle; construction refuses any scope that exceeds the maximum
+(\coderef{core/factory/roles.py}{\gitref}). ``The model may not touch
+infrastructure'' stops being an instruction and becomes a fact about what the code
+can express.
+
+\begin{principle}[Structural over behavioural]
+A safety property is real only when a mechanism makes its violation impossible or
+mechanically caught --- never when it rests on an agent's good behaviour
+(\artifact{dn-ouroboros-principal}, \S 2; \coderef{scripts/check\_imports.py}{\gitref}).
+\end{principle}
+
+\section{The artifact chain: how a decision becomes real}
+\label{sec:artifact-chain}
+
+The same distrust of posture is turned on the \emph{process} that builds the
+system, and this is the manual's epistemology. The rule: \emph{no decision,
+question, or state lives only in a chat transcript or a session's context window}.
+Everything is a typed file with a state machine --- front-matter carrying its type,
+its identity, and its status --- so that the state of the project is greppable
+rather than remembered (\artifact{dn-agent-workflow}, \S 2.1).
+
+Ideas move one way, through gates (\autoref{fig:artifact-chain}). A brainstorm
+becomes a design note; a ratified design note graduates into a build plan; the plan
+is executed into a journal and findings; reflection sweeps those back into design.
+Crucially, findings are the \emph{only} channel from build back to design, and they
+re-enter through the same gate a brainstorm does --- never by side effect
+(\artifact{dn-agent-workflow}, \S 3 and \S 11; \coderef{CLAUDE.md}{\gitref}). The
+plan itself is not a suggestion but a \emph{capability}: a build plan's write scope
+is mechanically enforced, so an agent cannot write outside what its plan authorised
+(\artifact{dn-agent-workflow}, \S 2.2). This very manual is written under such a
+capability, and it obeys the same rule it is describing.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/artifact-chain}
+  \caption[The artifact chain]{The artifact chain: a one-way flow through owner-only
+    blessing gates, with findings as the sole channel back into design. No decision
+    lives only in a transcript. Source: \artifact{dn-agent-workflow}, \S 3, \S 10.}
+  \label{fig:artifact-chain}
+\end{figure}
+
+Two gates on that chain are drawn heavier than the rest because they are reserved
+for the owner alone, performed by hand, outside any agent session: ratifying a
+design note (\textsf{draft}$\to$\textsf{ratified}) and approving a plan split
+(\textsf{proposed}$\to$\textsf{ready}). Automating either would slip an
+expected-value step inside a bright line, so no command wraps them; they are denied
+to every agent pre-hoc and audited post-hoc (\artifact{dn-agent-workflow}, \S 10).
+The chain is why this book can be a \emph{derived projection} of the record rather
+than an independent account: each claim traces to an artifact id or to code at a
+git ref, and a projection with a broken citation is a projection with a bug. It is
+also why, when writing this chapter exposed a tension in its own instructions ---
+sources named by the plan that the workflow bars from the book --- the response was
+to file \artifact{finding-0116} and route it, not to paper over the gap in prose.
+Explanation is an audit pass; the audit's findings go where every finding goes.
+
+\section{Ratify falsifiers, not proofs}
+\label{sec:falsifiers}
+
+There is a particular epistemic stance threaded through the machinery, and naming
+it explains a dozen smaller choices at once. The system does not ask a change to
+\emph{prove} itself; it asks what would show the change \emph{wrong}. Every item in
+a build plan carries, alongside its acceptance test, a \emph{named falsifier} --- the
+observable that would show the item failed or its approach was mistaken --- recorded
+as a distinct, first-class field (\artifact{dn-agent-workflow}, \S 3). Acceptance
+says ``this passed''; the falsifier says ``here is what passing could not have
+looked like.'' Requiring both is the difference between confirming a hope and
+testing a claim.
+
+The same stance governs the anchors. The system measures its own behavioural drift
+against a \emph{frozen} reference --- the \Constitution{} and the golden baseline
+--- rather than scoring itself in the abstract, because a system with no fixed point
+can degrade smoothly forever while every individual check still passes
+(\coderef{CONSTITUTION.md}{\gitref}, \S IV--\S V;
+\coderef{docs/BUILD-SPEC.md}{\gitref}, \S 4). And it governs honesty: never
+fabricate a fact, a source, or a citation --- \emph{a cited identifier that does not
+resolve is a failure} (\coderef{CONSTITUTION.md}{\gitref}, \S III.1). That single
+rule is why this manual re-verifies every snippet and every code reference against
+the repository at each edition: an unresolvable citation is not a blemish, it is the
+defect the stance is built to catch.
+
+\begin{principle}[Falsifiers over proofs]
+A claim earns its place by surviving what would refute it, not by being argued for.
+Every plan item names its falsifier; every drift check runs against a frozen anchor;
+a citation that does not resolve is a failure (\artifact{dn-agent-workflow}, \S 3;
+\coderef{CONSTITUTION.md}{\gitref}, \S III.1, \S IV--\S V).
+\end{principle}
+
+\section{Why the fixed point comes first}
+\label{sec:fixed-point}
+
+These principles converge on one structural fact, and it is the right note to open
+the book on. A self-modifying, self-spawning system with \emph{no} immovable
+reference will optimise itself away from its own purpose --- value drift, one
+locally acceptable step at a time --- until nothing of the original intent remains
+and no single step ever looked wrong (\coderef{CONSTITUTION.md}{\gitref}, \S V;
+\coderef{docs/BUILD-SPEC.md}{\gitref}, \S 4). The defence is a fixed point: the
+\Constitution{} and the frozen baselines are never auto-modified, changed only by
+the owner, deliberately and logged, and every measurement of drift is taken against
+them (\autoref{fig:fixed-point}; \coderef{CONSTITUTION.md}{\gitref}, \S V;
+\coderef{docs/BUILD-SPEC.md}{\gitref}, \S 3, invariant 9).
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fixed-point}
+  \caption[The fixed point]{The immovable centre a self-modifying system measures
+    itself against. The self-modification cycle --- propose, human-approve, execute,
+    validate, auto-rollback --- may change much, but never the fixed point it is
+    judged against. Source: \coderef{CONSTITUTION.md}{\gitref}, \S V;
+    \coderef{docs/BUILD-SPEC.md}{\gitref}, \S 4, \S 14.}
+  \label{fig:fixed-point}
+\end{figure}
+
+This is the resolution of the ouroboros's paradox. The serpent may safely consume
+its tail --- the system may ingest its own reasoning, spawn its own agents, and
+propose changes to itself --- precisely because there is one thing it may never
+digest. Remove the fixed point and you do not get freedom; you get a mirror that
+slowly forgets whose face it was built to show. Keep it, and every other capability
+in this manual becomes safe to grant.
+
+With the \emph{why} in place, the rest of the book turns to the \emph{how}:
+\autoref{ch:architecture} draws the zones and the boundaries that make these
+principles physical; \autoref{ch:math} gives the mathematics of grounding and
+authorship distance; \autoref{ch:intuition} connects them into a working mental
+model; and \autoref{ch:future} records what is deliberately deferred, each parked
+decision with the exact condition under which it returns.

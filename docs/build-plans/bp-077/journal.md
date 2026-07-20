@@ -1,5 +1,48 @@
 # bp-077 — journal
 
+## 2026-07-20 — Item 2 (Chapter 1: Philosophy) ACCEPTED — plan complete
+
+**Status line.** Chapter 1 written as narrative; two ratified-grounded TikZ figures;
+book compiles clean, zero undefined refs; every snippet + code cite re-verified
+against HEAD `bdcd9bc`. Both plan items accepted. Ready for orchestrator seal.
+
+**Completed — Item 2.**
+- `chapters/01-philosophy.tex` — 8 sections, narrative (motivation→idea→unlocks→
+  why-it-matters): mirror-not-oracle (self-map); Ouroboros naming; one-subject-at-a-
+  distance (authorship-distance PRINCIPLE, formal axis forward-ref'd via `\fwdthesis`);
+  sacred boundary / model-advises-code-acts; **structural enforcement** (the §2 Earmark
+  — cites `dn-ouroboros-principal` §2 "make the property physical", mechanism forward-
+  ref'd to \autoref{ch:architecture}); artifact-chain-as-epistemology; ratify-
+  falsifiers-not-proofs; fixed-point-comes-first. 3 `principle` boxes.
+- Figures: `figures/artifact-chain.tex` (the gated one-way chain, findings as sole
+  back-channel; src dn-agent-workflow §3/§10) and `figures/fixed-point.tex` (the
+  immovable centre; src CONSTITUTION §V + BUILD-SPEC §4/§14). Fixed a TikZ
+  self-referential-style bug (`gate/.style={gate,...}` → `text=gate`).
+- **Citation audit:** every `\artifact{}` id is RATIFIED (dn-agent-workflow,
+  dn-ouroboros-principal, dn-session-handoff-gate, dn-exhaust-lane) or a finding
+  (finding-0116). NO draft note cited (finding-0116 resolution honored). Draft theses
+  (authorship distance, sacred-boundary channel taxonomy, recursive strata) all
+  forward-referenced, never asserted.
+- **Snippet re-verified:** `PRE_DECLARED_MAX: frozenset[str] = frozenset({"run_python"})`
+  matches `core/factory/roles.py:24`@`bdcd9bc` byte-for-byte. Code cites
+  `scripts/check_imports.py`, `core/factory/roles.py`, `CONSTITUTION.md`,
+  `docs/BUILD-SPEC.md`, `CLAUDE.md` all exist at HEAD.
+- **Compile (latexmk, exit 0):** `Output written on main.pdf (11 pages)`; hard scan
+  for undefined/multiply-defined/Reference-undefined/Error/Fatal = **NONE**. Sole
+  warning: benign hyperref `page.i` duplicate-destination (roman frontmatter,
+  cosmetic). PDF rendering (pdftoppm/pdftotext) unavailable on host, so figures were
+  verified via clean-compile + no missing-file errors rather than pixel inspection.
+
+**In-flight.** None. Both items done.
+
+**Next action (orchestrator).** Seal bp-077 (flip `in-progress → complete`, PROGRESS
+checkpoint). Triage finding-0116 (draft-source tension). Merge worktree branch
+`worktree-agent-a44125623e5c8f010`.
+
+**Open questions.** finding-0116 (routed, orchestrator) — non-blocking.
+
+**Context-manifest delta.** No further reads beyond the prior entry.
+
 ## 2026-07-20 — Item 1 (scaffold) ACCEPTED
 
 **Status line.** Scaffold built and compiles clean. Item 1 acceptance met.
