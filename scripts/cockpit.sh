@@ -87,15 +87,16 @@ build() {
   # repo (#10) or a command line (argv is world-readable). It is SELF-GUARDING: pre-migration (no
   # ouroboros-work user) it falls back to a plain launch, so this line is safe on an un-migrated
   # checkout. (Pane cwd is $ROOT, so the relative path resolves.)
-  # PLANE toggle (finding-0125): the workflow-plane headless `setup-token` auth does NOT expose the
-  # fable tier, but design/gate work needs it. Default `workflow` pins opus[1m] (fable unreachable
-  # there anyway, and the pin overrides the global fable default). `PLANE=ascalva scripts/cockpit.sh`
-  # launches the orchestrator pane as the human login (fable available) and pins NO model, so it
-  # inherits the global settings default (fable) — the isolation trade is OFF for that pane, by design.
-  if [ "${PLANE:-workflow}" = "ascalva" ]; then
-    run tmux send-keys -t "$SESSION:desk.1" "PLANE=ascalva scripts/orchestrator-launch.sh '' medium auto" Enter
+  # PLANE toggle (finding-0125): DEFAULT is `ascalva` — the orchestrator pane launches as the human
+  # login, where the fable tier is available for design/gate work (pins NO model, so it inherits the
+  # global settings fable default). The workflow-plane headless `setup-token` auth does NOT expose
+  # fable, so isolation is opt-in: `PLANE=workflow scripts/cockpit.sh` runs the pane as the isolated
+  # ouroboros-work principal (pins opus[1m]). Default swapped from workflow→ascalva by the owner
+  # 2026-07-20 (fable broken on the role account ⇒ human-login pane is the common case).
+  if [ "${PLANE:-ascalva}" = "workflow" ]; then
+    run tmux send-keys -t "$SESSION:desk.1" "PLANE=workflow scripts/orchestrator-launch.sh 'opus[1m]' medium auto" Enter
   else
-    run tmux send-keys -t "$SESSION:desk.1" "scripts/orchestrator-launch.sh 'opus[1m]' medium auto" Enter
+    run tmux send-keys -t "$SESSION:desk.1" "PLANE=ascalva scripts/orchestrator-launch.sh '' medium auto" Enter
   fi
   run tmux select-pane -t "$SESSION:desk.0"          # leave focus on the reading pane
   # ops: system snapshot + a live daemon-log tail (never requires the daemon to be up).

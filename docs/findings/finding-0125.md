@@ -78,8 +78,17 @@ invoking user; no OAuth-token/askpass injection — the login has its own creden
 and `scripts/cockpit.sh` threads it (`PLANE=ascalva scripts/cockpit.sh` launches the orchestrator pane
 in fable mode, pinning NO model so it inherits the global fable default). Default stays `workflow`
 (ouroboros-work, isolated). Routing verified with stubbed `claude`/`sudo`; shellcheck clean.
-**Adopt on the next cockpit restart with `PLANE=ascalva`.** Status stays `open` until the owner
-confirms a fable session actually launches that way.
+**DEFAULT SWAPPED (owner, same session):** "swap the default, ascalva is the default, not sure how
+often I will use ouroboros-work if fable isn't working there." So `PLANE` now defaults to **ascalva**
+(human login, fable) and **`PLANE=workflow` is the opt-in** for the isolated ouroboros-work principal.
+Consequence to name honestly: the workflow-plane isolation (bp-078 — the orchestrator AND every builder
+it spawns by uid inheritance run as the constrained role account) is now **DORMANT by default**; it is
+one flag away but no longer the common path. This is a deliberate operational deviation from
+`dn-plane-principals` §3.2 (which assumes the orchestrator runs as ouroboros-work) — warranted by the
+fable gap, and it makes **option 3 (get fable working under the role account)** the real fix that would
+let the isolated plane become the default again. Adopt on the next cockpit restart (plain
+`scripts/cockpit.sh` now = ascalva). Status stays `open` until the owner confirms a fable session
+launches and until option 3 is decided.
 **Residual (separate follow-up):** prior "fable" subagents ran on Opus — re-examine
 `dn-headless-daemon-secret-bootstrap` (the CORE-plane secret-bootstrap draft) as an Opus product, not
 the fable treatment it was reported as, before ratifying it. Track C left open: `option 3 — fix the
