@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-077
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/authorship-distance-axis.md
   - docs/design-notes/the-sacred-boundary.md
