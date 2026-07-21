@@ -5204,3 +5204,31 @@ include `33d6929`), NOT a stale worktree.
 **Board:** bp-083/086/087 complete (M0, AL-1, AL-2). **bp-085 (G-A) still building** (only builder
 left). bp-084 (S1, after M0) + bp-088 (AL-3, after AL-1) held until G-A lands — run sequentially,
 non-isolated, to guarantee they see the dependency's output + keep concurrency ≤2.
+
+### 2026-07-21 (session-40) — bp-085 (G-A) SEALED: the fiber-geometry survey; the WHOLE WAVE'S 4 independent plans done
+
+Fourth build landed — the four independent (parallelizable) plans of the graduation wave are all
+sealed. G-A (opus, 218k tok / 143 calls / 59 min, ratio 0.87× — the largest build). Adopted
+`978b073` by file-checkout; verified on main (ruff/imports/mypy + 9/9 survey tests green). `finding-
+0142` filed (discovery, direction → orchestrator).
+
+**Survey results (live @ HEAD, grid (0.55,0.65,0.75), each CN-1-indexed) — nulls ARE results:**
+- **M1:** C = 237 nodes / 1193 edges; F = 207 / 593; D = 19 docs / 16 arcs (vault space, disjoint).
+  F∩C Jaccard **0.40** (126 shared nodes); C|D = F|D = 0 (D disjoint — a measured fact).
+- **M3:** D-triangles = **0** → covering-only supersession integrity CLEAN (stop-and-raise did NOT fire).
+- **M6:** χ_s instrument-blocked (needs a live Spine — a daemon op, not read-only-buildable).
+- **M2/M4/M5/M7/M8 DEFERRED:** all need cosines (S rows). The eval embedder trips the 120s timeout
+  because it shares the memory-ceiling'd ollama with the live daemon (bright line 8); the survey
+  degrades gracefully rather than evict the daemon. Re-entry: re-run with embed headroom (daemon
+  down / a dedicated pass). This is environmental, by-design — NOT a plan defect.
+
+**⚑ DIRECTION FLAG for /triage (finding-0142, no A8 edit):** the note's premise "C live census
+empty at bp-080 seal" (dn-fiber-geometry §2.0/§2.5) has **MOVED** — C is now a populated fiber
+(1193 edges). This partially satisfies PD-a re-entry condition 1 (support non-degenerate); condition
+2 (content) still needs the deferred M2. Worth an owner-visible note-amendment candidate at the next
+fiber pass — parked to /triage, not edited now.
+
+**Board:** bp-083/085/086/087 COMPLETE. Remaining: **bp-084 (S1, after M0)** + **bp-088 (AL-3,
+after AL-1)** — the two dependents. Main is now quiet (no builders). Run them SEQUENTIALLY,
+NON-ISOLATED on current main (guarantees S1 sees core/rings.py, AL-3 sees AL-1's core/scope.py;
+avoids the stale-worktree base + main-HEAD race). S1 next (critical path, the +7 promotion wave).

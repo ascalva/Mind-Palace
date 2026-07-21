@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-085
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/fiber-geometry.md
 contract: builder
@@ -14,7 +14,13 @@ cost:
   estimate:
     model: opus
     tokens: 250k
-  actual: null
+  actual:
+    model: opus            # claude-opus-4-8[1m], tier verified via completion usage
+    tokens: 218481
+    tool_calls: 143
+    duration_min: 59
+    ratio: 0.87            # well-pinned; S rows deferred by design (embedder vs daemon memory ceiling), not a defect
+    session_delta: "weekly all-models pool; the largest build of the wave; duration inflated by embed-timeout probes + 18min serial suite"
 depends_on: []
 parallelizable_with: [bp-083, bp-086, bp-087, bp-088]
 created: 2026-07-21
