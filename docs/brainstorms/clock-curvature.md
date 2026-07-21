@@ -196,3 +196,74 @@ next_steps:
   - The external-grounding sweep gains two entries: the optical–mechanical analogy citation and
     the causal-set lineage — both [FROM MEMORY] until verified.
 ```
+
+## 2026-07-21T01:25Z (same capture — the owner's falsifier-probe: the dying cluster)
+
+Owner, near-verbatim: *"what happens when there exists a cluster that is dying — so little rate
+of change, that would mean the space is less bent, time is not moving as fast — but there is
+still a network of potentially densely packed chains? how does curvature get impacted by change
+rate?"*
+
+### Orchestrator chew: the dying cluster dissociates what the seed conflated
+
+The seed treated **structural density** (packed fine-grained fabric — many short hops) and
+**change rate** (the local clock) as one thing, because young hot regions have both. The dying
+cluster is the case that splits them: full density, near-zero clock. The model must now say
+which one sources curvature — and the answer that survives scrutiny is: **density sets the
+magnitude, temperature sets the sign.**
+
+1. *Structure is the persistent carrier (the fossil field).* Geometry does not relax when
+   minting stops: the hop count through a dead dense cluster is unchanged, the fabric persists.
+   If per-hop cost were pure attenuation, the lens would outlive its source forever.
+2. *But per-hop cost is really VOLATILITY EXPOSURE — and that is where the clock enters.* The
+   honest reading of "a chain's proper time" is accumulated revision risk: crossing a hot region,
+   every hop is provisional (the node you leaned on may be superseded tomorrow); crossing a dead
+   region, nothing will invalidate the hop. "Time is not moving as fast" is exactly why transit
+   there is safe. So change rate impacts curvature not through the fabric but through the
+   resistivity of each hop.
+3. *Therefore the dying cluster's space is not LESS bent — it is bent the other way.* Hot dense =
+   scattering lens: route around (the parent capsule's story). Cold dense = **annealed crystal**:
+   many hops, each near-certain — potentially the graph's premium transit fabric, a
+   superconductor below its critical temperature. The phase transition at some critical churn
+   rate is the crystallization point: the same density flips from repulsive medium to attractive
+   channel as the clock cools. (The right physics register for the cold branch is condensed
+   matter — annealing, crystalline transparency, superconductivity below T_c — beside GR's hot
+   branch; the analogy portfolio widens honestly rather than forcing GR to cover both.)
+4. *Destination and medium decouple with age.* A dying cluster redshifts as a DESTINATION
+   (rarely today's answer) while appreciating as a MEDIUM (stable transit). Two retrieval roles,
+   two different couplings to the clock — instruments should not conflate them either.
+5. *⚑ GROUNDING: the thermal coupling is PARTIALLY BUILT.* `core/graph/conductance.py:47` — the
+   CN-4 churn-weighted Laplacian's edge weight is `w(u,v) = cos(u,v)^α · exp(s_lat·a_lat −
+   s_seq·a_seq)`: a churn-dependent exponential with TWO OPPOSING SIGNS, and the family already
+   has decay semantics (":453 a decay-only interval … yields no rise and no event"). The design
+   pass must ground on CN-4's actual sign semantics — the hot-penalty/cold-bonus structure may
+   already be half-encoded there, and inventing beside it would be the DRY violation.
+
+```capsule
+topic: clock-curvature
+date: 2026-07-21
+
+decisions:
+  - The refined model (from the owner's dying-cluster probe): DENSITY sets curvature's magnitude,
+    CHANGE RATE sets its sign/character — hot-dense scatters (route around), cold-dense anneals
+    into premium transit fabric (route through). A chain's effective proper time = accumulated
+    volatility exposure, so a dead cluster is where chains cross without aging. Seed-level, for
+    the design pass to formalize against CN-4.
+
+open_questions:
+  - CN-4 semantics vs the phase model: do the built opposing churn signs (s_lat, s_seq) already
+    encode hot-penalty/cold-bonus, partially or by accident? Ground before designing (DRY).
+  - Is the phase transition real and sharp — a critical churn rate at which endorsed chains flip
+    from routing around a dense region to routing through it? Measurable on the corpus's own dead
+    clusters (finished arcs, old projects).
+  - Per-hop volatility exposure as the resistivity term: instrument from version history (revision
+    frequency of a hop's endpoints) — does it predict endorsed-chain routing better than pure
+    attenuation or pure bottleneck?
+  - Destination-redshift vs medium-appreciation: separate observables? (Retrieval weight vs
+    transit frequency of a region, conditioned on its clock.)
+
+next_steps:
+  - The measure-first list gains the CN-4 grounding read (what do s_lat/a_lat, s_seq/a_seq
+    actually measure?) ahead of any formalization; then the phase-transition scan on known dead
+    clusters. Same design-pass re-entry as the parent capsule.
+```
