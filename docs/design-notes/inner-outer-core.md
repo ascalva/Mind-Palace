@@ -5,7 +5,7 @@ status: draft            # draft → ratified → superseded.  draft→ratified 
 created: 2026-07-20
 updated: 2026-07-20
 links:
-  - docs/brainstorms/inner-outer-core.md           # THE WARRANT — the 2026-07-18/19 owner brainstorm, the 2026-07-20 layout directive, AND the 2026-07-20T22:08Z v2 predicate ruling
+  - docs/brainstorms/inner-outer-core.md           # THE WARRANT — the 2026-07-18/19 owner brainstorm, the 2026-07-20 layout directive, and the two 2026-07-20 rulings (22:08Z v2 predicate; 22:55Z temporal-math splits)
   - docs/brainstorms/hypothetical-subspace.md      # the first concrete outer-ring consumer (grounded in §2.8; NOT designed here)
   - docs/findings/finding-0103.md                  # the outer ratchet (19 → 0) this note refines, never launders
   - tests/unit/test_core_self_containment.py       # the existing outer scanner — UNCHANGED by this note
@@ -22,14 +22,16 @@ warrant: null
 # Inner core / outer core — the two-ring refinement of core self-containment
 
 > Composed at **fable** (`claude-fable-5`, 2026-07-20, session-39 dispatched design pass). Filed as
-> `draft`; ratification is an owner-only hand edit. **Design only; the single build this note
-> licenses is §3's M0 plan.** Every membership claim below is **computed, not asserted**: the
-> fixed point was run over `core/**` at `97c245c` (135 modules) with an AST scanner extended from
+> `draft`; ratification is an owner-only hand edit. **Design only; the two builds this note
+> licenses are §3's M0 plan and the §2.6b S1 split plan.** Every membership claim below is
+> **computed, not asserted**: the fixed point was run over `core/**` at `97c245c` (135 modules;
+> re-verified unchanged at `658e090`, a docs-only commit) with an AST scanner extended from
 > `tests/unit/test_core_self_containment.py` (relative-import resolution + third-party
 > classification + closure iteration). Re-run at build time; the numbers here are evidence, not
-> the enforced artifact. **Re-cut the same day** to adopt the owner's predicate ruling (v2, the
-> 2026-07-20T22:08Z capsule): the first draft (`fde4326`) computed the alternatives and left ONE
-> ruling open; the owner took v2 and this note now decides it.
+> the enforced artifact. **Re-cut twice the same day**: first to adopt the owner's predicate
+> ruling (v2, the 2026-07-20T22:08Z capsule — the first draft `fde4326` computed the alternatives
+> and left ONE ruling open); then to convert the temporal-math splits from parked to licensed
+> (the 22:55Z capsule — the owner fired P8's re-entry at design time, §2.6b).
 
 ## 1. Purpose and scope
 
@@ -51,9 +53,11 @@ split it into two rings, and fixed four pillars this note designs **within, not 
 This note decides: the adopted membership predicate — v2, owner-ruled — and the recorded, rejected
 alternatives (§2.1); the closure semantics (§2.3); the enforcement artifacts, test by test (§2.4);
 what "inner" does and does not mean (§2.5); the disposition of finding-0103's four
-strata-overlapping parked inversions under the ring lens (§2.6); the target directory layout and
-the migration sequence with the no-laundering clause intact at every step (§2.7); and the
-grounding of the ring boundary against its first consumer (§2.8).
+strata-overlapping parked inversions under the ring lens (§2.6); the licensed **S1**
+math↔persistence splits that bring the temporal mathematics into the ring (§2.6b, owner-ruled
+22:55Z); the target directory layout and the migration sequence with the no-laundering clause
+intact at every step (§2.7); and the grounding of the ring boundary against its first consumer
+(§2.8).
 
 **Out of scope:** the hypothetical-subspace design itself (it graduates separately after this
 note reaches draft — its brainstorm's parked decision); any change to the outer ratchet test; any
@@ -127,7 +131,7 @@ Against the brainstorm's expected seed:
 | `core/agent_scope.py` | IN | as expected |
 | `core/complex/*` | **SPLIT 5/11 files** | **surprise** — `balance, curvature, hodge, laplacian, support` (+ the already-thin `__init__`) are in; `spectral` (sknetwork via `core/typedshims/sknetwork.py`), `topology` (ripser), `temporal` (duckdb, lazy+TYPE_CHECKING), `blocks`/`cut` (closure via spectral), `build` (closure) are out. The spectral half of the reasoning complex is **not** inner. |
 | `core/graph/composed.py` | lax-IN, strict-OUT | **surprise** — pure by its own imports (numpy only); excluded solely because `core/graph/__init__.py:19,30` re-exports `conductance`/`sigma_star`, whose closure reaches `spine` → eval + sqlite stores. Packaging-blocked, not import-blocked (§2.3). |
-| recursion | **SPLIT** | `recursion.py` IN; **`recursion_ops.py` OUT — it imports `sqlite3` directly (`recursion_ops.py:53`)**: inline persistence in what reads as a vocabulary module. Revised from the seed. |
+| recursion | **SPLIT** | `recursion.py` IN; **`recursion_ops.py` OUT — it imports `sqlite3` directly (`recursion_ops.py:53`)**: inline persistence in what reads as a vocabulary module. Revised from the seed; the licensed S1 split (§2.6b) promotes it. |
 | split: `sigma_star` math vs `acquire_mirror_cut` | **CONFIRMED — and structurally necessary under v2** | the module imports `core.temporal.spine` at top level (`sigma_star.py:58`); spine is outer twice over — its eval reach (`spine.py:98`, one of the 19) AND its sqlite store closure (`spine.py:88-96` → catalog/chatlog/derived/edges/runledger + attestation.store). Under v2 the second exclusion is **permanent by design** (spine is acquisition machinery), so the bp-065-style split — math stays inner, spine-touching acquisition moves outward — is the only route in for the graph math. (The first draft, under v1, thought the spine inversion alone might suffice; v2 voids that.) |
 | split: `dreaming/cluster` vs pipeline | **REVISED** | `cluster.py` is already clean (numpy-only). The blocker is packaging: `core/dreaming/__init__.py:13-25` pulls the full pipeline (`dreamer` → attestation → cryptography). No within-module split needed — a packaging remedy (§2.3/§2.7). |
 
@@ -147,9 +151,11 @@ Against the brainstorm's expected seed:
    `superconnection`, and the package. Likewise `dreams_view` (`dreams_view.py:26` →
    `stores.derived`), `chat_events` (`chat_events.py:36-38` → three stores), and — sharper —
    **`integrator.py:32` and `recursion_ops.py:53` import `sqlite3` directly**, holding inline
-   persistence rather than going through `stores/`. If the owner wants the temporal mathematics
-   (or the integrator's resolution logic) inside the ring, each needs the same math/persistence
-   split as sigma_star. Until then the computation is honest: they are machinery-coupled.
+   persistence rather than going through `stores/`. Shown this exclusion set, the owner ruled
+   (2026-07-20T22:55Z): *"I would want the temporal math in the inner core"* — so the
+   math/persistence splits for the temporal family and the integrator/recursion_ops pair are
+   **licensed work, not an open question** (§2.6b; computed preview: +7 → a 36-member ring).
+   The store-typed View vocabulary (`dreams_view`, `chat_events`) stays parked (P9).
 3. **The literal predicate admits the network.** §2.1's first subtraction exists because the
    computation demanded it — `ollama_client`, `sealing`, `models/*`, `agent`, `ingest/embed`
    are inner under the un-sharpened formula.
@@ -194,7 +200,9 @@ Consequences, stated as invariants:
 
 ### 2.4 Enforcement — the artifacts, test by test (structural-enforcement rule)
 
-Two new files, one small plan (§3 M0). Nothing else changes.
+Two new files, delivered by the M0 plan (§3). No other enforcement machinery changes — S1
+(§2.6b) moves code but adds no new test surface; its promotions land as `core/rings.py` diffs
+that assertion B1 below forces.
 
 **A. The ring map — `core/rings.py` (new, inner by construction).** A stdlib-only module
 declaring `INNER: frozenset[str]` (module names, not paths — survives M2 renames as a mechanical
@@ -328,11 +336,66 @@ inner ring inverts from the first draft's reading, in a way worth stating precis
 
 **What grows the ring under v2, then:** (a) **packaging remedies** — the 13 gap modules
 (Appendix A.2), promoted by thinning the responsible `__init__`s or by the M2 moves; (b) **math
-extractions** — the sigma_star/conductance split (math inner, spine-touching acquisition
-outward), and, if the owner wants them, the same split for the temporal mathematics
-(`boundary`/`complex` shedding their direct store reads) and for `integrator`/`recursion_ops`
-(shedding inline `sqlite3`). Each extraction is a small bp-065-shaped plan; none is licensed by
-this note beyond being named (P8).
+extractions** — bp-065-shaped splits. Of these, the temporal/integrator set is **licensed by
+this note** (§2.6b, owner-ruled); the sigma_star/conductance split (math inner, spine-touching
+acquisition outward) remains named-but-not-yet-licensed — it is entangled with the graph
+`__init__` packaging remedy and Track-2 coordination, and graduates separately.
+
+### 2.6b The S1 split plan — the temporal math enters the ring (owner-ruled, LICENSED)
+
+**The ruling (2026-07-20T22:55Z, capsule at `658e090`):** shown that v2-as-computed excludes the
+temporal-mathematics family and the integrator/recursion_ops pair, the owner: *"I would want the
+temporal math in the inner core."* That is the former P8 park's re-entry condition firing at
+design time, pre-ratification — so this note converts it from parked to a **second licensed,
+session-sized plan (S1)** beside M0. Shape pinned to precedent (bp-065 / the sigma_star pattern):
+**the pure builder takes data; the store-reading acquisition seam moves one ring outward — the
+machinery calls core, core returns data.** No behavior change; no new mathematics.
+
+**Grounding (verified in code — the seams are thin):**
+
+- `core/temporal/boundary.py` is **half-split already**: the pure, store-free core
+  (`poset_from_chains`, `:98` — "the pure, store-free core `supersession_poset` delegates to")
+  exists; the only store touch is the thin `supersession_poset(version_store, …)` wrapper at
+  `:114-115` reading `VersionStore.history`. The split is relocating one wrapper.
+- `core/temporal/complex.py`'s seam is **one function**: `build_citation_complex(ref_store, …)`
+  at `:59` (the flag-complex math already delegates to inner `core/complex/hodge`).
+- `core/integrator.py` holds a raw `ledger: sqlite3.Connection` dataclass field at `:136`
+  beside pure gauge math, plus the two store-type imports (`:38-39`).
+- `core/recursion_ops.py` has the inline `import sqlite3` at `:53` **and** — found at grounding,
+  beyond the capsule's description — a `core.stores.derived` import at `:62`; the seam includes
+  both.
+
+**Computed promotion preview (simulated at `658e090` — the four files shedding exactly their
+sqlite/store seams; the computation rules, not the estimate):** the ring becomes **36 strict /
+49 lax; the packaging-debt gap stays 13**. Promoted, exactly the expected seven:
+`core.integrator`, `core.recursion_ops`, `core.temporal` (pkg), `core.temporal.boundary`,
+`core.temporal.complex`, `core.temporal.operators`, `core.temporal.superconnection`. No hidden
+couplings surfaced — no named module remains excluded in the simulation.
+
+**The plan sketch (mint at graduation, not here):** write_scope = the four core files + the new
+outward seam home(s) + `core/rings.py` (+ tests). Acceptance is **mechanical**: the seven named
+modules enter the computed fixed point and the equality test (§2.4-B1) forces each promotion as
+a `core/rings.py` diff; the full local CI gate green; zero behavior change (the relocated seams
+produce identical data — bp-065's P4 no-silent-change discipline). **§2-manifest DRY
+obligation:** before minting any new persistence module for the integrator/recursion_ops inline
+sqlite, audit whether an existing `core/stores/*` module already covers it (the owner's
+reuse-before-reimplement rule; two of these files holding hand-rolled sqlite beside a 15-module
+store layer is itself a smell S1 should resolve, not replicate). **The outer ratchet is
+untouched:** every import moved is core-internal (`core → core.stores`), none is among the 19 —
+the 19→0 program neither gates nor is gated by S1. **Sequencing: strictly after M0** — M0 lands
+the born-green 29-ring as-is; S1 is the first promotion wave, and its map diff is exactly the
++7. **Falsifier (F10):** S1 lands and a named module still fails to enter the computed set ⇒ a
+coupling exists beyond the audited seams; stop, file the finding, re-ground.
+
+**What stays parked (P9): the store-typed View vocabulary.** `chat_events` and `dreams_view`
+are each computed **exactly one hop out** — their sole inadmissible dependencies are store
+imports (`chat_events` → `stores.chat_events` + `stores.chatlog`; `dreams_view` →
+`stores.derived` for the `DREAM`/`FINDING` kind-constants and the `Artifact` type). They are
+NOT trivially includable: unlike the S1 seams (acquisition calls that relocate), these imports
+are **load-bearing types and constants in the modules' signatures** — bringing them in means
+relocating shared types/constants inward or a typed-protocol seam, which is a design question
+interacting with the TYPE_CHECKING stance (P6), not a mechanical wrapper move. Parked with that
+shape named, re-entry at P9.
 
 ### 2.7 The physical end-state and the migration path (owner directive, first-class)
 
@@ -357,20 +420,22 @@ repo-wide in the same commit.
 
 **Migration sequence — four stages, enforcement stated at each:**
 
-- **M0 — enforce the rings in place (the ONE plan this note licenses; no file moves).**
-  `core/rings.py` + `tests/unit/test_inner_ring.py`, exactly §2.4 — unchanged in shape by the
-  v2 ruling, just a smaller map (29 at `97c245c`). Born green: the map is the fixed point
+- **M0 — enforce the rings in place (the FIRST of the two licensed plans; no file moves).**
+  `core/rings.py` + `tests/unit/test_inner_ring.py`, exactly §2.4 — unchanged in shape by
+  either ruling, just a smaller map (29 at `97c245c`). Born green: the map is the fixed point
   recomputed at the build's HEAD (not this note's list — **falsifier F6:** if the M0 test lands
   red, the map was computed at a stale tree; recompute, never hand-edit toward green). Write
   scope: those two files, nothing else. Blast radius: purely additive. Sequencing: rides behind
   the lead build — this program does **not** preempt the diamond (brainstorm pin: bp-069
   remains the lead).
-- **M1 — membership grows as remedies land (riders, no standalone plans).** Under v2 the
-  growth vehicles are packaging remedies and math extractions (§2.6), not the finding-0103
-  inversions; whichever plan lands one carries its ring-map delta because the equality test
-  forces it, and `core/rings.py` joins that plan's write_scope. The outer ratchet falls 19 → 0
-  on its own, now fully parallel track; the inner map only grows (§2.4-D4). Enforcement: both
-  tests, plus scope-guard making every promotion plan-visible.
+- **M1 — membership grows as remedies land.** The first vehicle is **S1** (§2.6b, the SECOND
+  licensed plan, strictly after M0): the temporal/integrator splits, map +7 → 36. Thereafter:
+  packaging remedies and further math extractions (§2.6) as riders on whichever plan lands
+  them, never the finding-0103 inversions (their expected map delta is ∅); every such plan
+  carries its ring-map delta because the equality test forces it, and `core/rings.py` joins its
+  write_scope. The outer ratchet falls 19 → 0 on its own, fully parallel track; the inner map
+  only grows (§2.4-D4). Enforcement: both tests, plus scope-guard making every promotion
+  plan-visible.
 - **M2 — physical migration, per-wave plans, entry-gated.** Begins only after ratification of
   this note AND per-wave stability: a wave may move when its membership has been stable across
   ≥ 2 sealed plans and no open plan names any module in the wave's closure. Waves must be
@@ -382,8 +447,9 @@ repo-wide in the same commit.
   `selfcheck`/`velocity_view`; `config.loader`; the ingest text machinery; `rawstore`/
   `sourceset`); **K2** — the packaging-debt promotions as their remedies land (the 13:
   `dreaming.cluster`, `graph.composed`, `attestation.record`, …), each moving in a later small
-  commit; **K3** — the math-extraction promotions (the graph math post-split; the temporal
-  mathematics and `integrator`/`recursion_ops` if the owner elects those splits, P8). Each move
+  commit; **K3** — the math-extraction promotions (the S1 seven — §2.6b, licensed, likely the
+  first K-wave after K1 given S1's early sequencing; the graph math post-split, named but not
+  yet licensed). Each move
   commit: `git mv` + repo-wide repoint + map rename + **outer count unchanged** (§2.4-D2) +
   inner test green + the full local CI gate. The outer ratchet reaching 0 is **not** a
   precondition for M2 — move-neutrality is structural (only violation-free modules move) — it
@@ -430,10 +496,13 @@ points.
 
 ## 3. Consequences
 
-- **Licenses exactly one build plan now (M0):** `core/rings.py` + `tests/unit/
-  test_inner_ring.py` — one session, additive-only, born green, no store or behavior change.
-  Acceptance and falsifiers are §2.4/§2.7-M0 verbatim; the plan recomputes the membership at
-  its HEAD and treats Appendix A as expectation, not authority.
+- **Licenses exactly two build plans now, each session-sized:** **M0** (`core/rings.py` +
+  `tests/unit/test_inner_ring.py` — additive-only, born green, no store or behavior change;
+  acceptance and falsifiers are §2.4/§2.7-M0 verbatim; the plan recomputes the membership at
+  its HEAD and treats Appendix A as expectation, not authority) and **S1** (§2.6b — the
+  temporal/integrator math↔persistence splits, strictly after M0; acceptance mechanical: the
+  seven named modules enter the computed fixed point, map diff +7 → 36; zero behavior change;
+  the outer ratchet untouched).
 - **Amends the working shape of future core plans (M1 riders):** any plan that lands a
   packaging remedy or math extraction adds `core/rings.py` to write_scope and states its
   expected promotion set in §3-grounding; finding-0103 inversion plans state their expected map
@@ -460,7 +529,8 @@ points.
 | P5 | per-module `# ring:` header annotations | none — `core/rings.py` is the single declaration | reviewers repeatedly lack ring context at the file level |
 | P6 | type-only (`TYPE_CHECKING`) import exemption for the inner ring | counted, same as the outer scanner | a genuine type-only inner need arises AND the laundering risk is argued down in a design pass |
 | P7 | "librarian" = curator vs retrieval-serving agent (carried from the brainstorm) | vocabulary only; computed outer either way | its own design pass |
-| P8 | `sknetwork`/`ripser` dependency decisions for the spectral/topology math; store-decoupling splits for the temporal math and `integrator`/`recursion_ops` | outer under v2; no shim or split work licensed | the subspace or instrument program needs the spectral math inside the ring; or the owner elects a temporal/integrator math-extraction (§2.6) |
+| P8 | `sknetwork`/`ripser` dependency decisions for the spectral/topology math (**amended 22:55Z:** the temporal/integrator splits this row once bundled were RULED and graduated to licensed work — §2.6b/S1; only the 3p-dependency half remains parked) | outer under v2; no shim work licensed | the subspace or instrument program needs the spectral math inside the ring |
+| P9 | store-typed View vocabulary (`chat_events`, `dreams_view`) — computed exactly one hop out; their store imports are load-bearing types/constants, not relocatable acquisition seams (§2.6b) | outer; no type-relocation or protocol seam licensed | the S1 seal proves the split pattern and a follow-on wants these two; or a consumer needs the View vocabulary inner; interacts with P6's TYPE_CHECKING stance — decide there first |
 
 ## Falsifiers (the load-bearing set, collected)
 
@@ -480,9 +550,13 @@ points.
 - **F8** (§2.1) — scanner blind spot: a string-based dynamic import (`importlib.import_module`)
   smuggles an inadmissible dependency into an inner module. Both scanners share this limit; if
   observed, the scanner grows a `Call`-node check for `importlib` in inner members.
-- **F9** (§2.6) — inversion/ring decoupling: a finding-0103 inversion plan lands with a
+- **F9** (§2.6) — inversion/ring decoupling: a finding-0103 **inversion** plan lands with a
   nonempty ring-map delta (expected ∅ under v2) ⇒ the decoupling claim was wrong; file the
-  finding and re-ground §2.6.
+  finding and re-ground §2.6. (The licensed S1 split plan is NOT an inversion — its nonempty
+  delta, +7, is its acceptance criterion, not this falsifier's trigger.)
+- **F10** (§2.6b) — the S1 seam audit: S1 lands and one of the seven named modules still fails
+  to enter the computed fixed point ⇒ a coupling exists beyond the audited store/sqlite seams;
+  stop, file the finding, re-ground before forcing it.
 
 ## Appendix A — the computed membership at `97c245c` (v2 predicate, adopted)
 
@@ -506,7 +580,10 @@ core.ingest.amend                       core.velocity_view
 core.ingest.chunk
 ```
 
-(Lax semantics: 42 members — the 29 above plus the 13-module packaging debt of A.2.)
+(Lax semantics: 42 members — the 29 above plus the 13-module packaging debt of A.2. **Post-S1
+preview**, simulated at `658e090`: 36 strict / 49 lax, gap unchanged at 13 — the 29 above plus
+`integrator`, `recursion_ops`, `temporal`, `temporal.boundary`, `temporal.complex`,
+`temporal.operators`, `temporal.superconnection`. A.1 remains M0's expectation; the +7 is S1's.)
 
 ### A.2 Packaging debt — lax-inner, strict-outer (13): promoted by `__init__` thinning or M2
 
@@ -524,8 +601,9 @@ vectorstore); `sandbox.policy`, `sandbox.spec` (via runner → wasmtime); `verdi
 | Module(s) | Reason |
 |---|---|
 | the sqlite store layer — 13 modules (`chatlog`, `derived`, `edges`, `runledger`, `catalog`, `causal_edges`, `chat_events`, `agent_observations`, `authored_supersession`, `code_observations`, `observation_history`, `reference_edges`, `versions`) | **the owner's v2 ruling** (∖ sqlite3, 2026-07-20T22:08Z) — import-austere but plumbing, excluded by predicate, not by a computation change; they computed inner under the rejected v1 |
-| `integrator`, `recursion_ops` | direct `import sqlite3` (`integrator.py:32`, `recursion_ops.py:53`) — inline persistence; inner-eligible only via a math/persistence split (§2.6, P8) |
-| `chat_events`, `dreams_view`, `temporal.{boundary,complex,operators,superconnection}` + the `temporal` pkg | closure through the sqlite stores (`chat_events.py:36-38`, `dreams_view.py:26`, `boundary.py:25`, `complex.py:34`) — the store-coupled math of §2.2 surprise 2 |
+| `integrator`, `recursion_ops` | direct `import sqlite3` (`integrator.py:32`, `recursion_ops.py:53`; recursion_ops also `stores.derived` at `:62`) — inline persistence; **promoted by the licensed S1 split (§2.6b)** |
+| `temporal.{boundary,complex,operators,superconnection}` + the `temporal` pkg | closure through the sqlite stores (`boundary.py:25`, `complex.py:34`) — the store-coupled math of §2.2 surprise 2; **promoted by the licensed S1 split (§2.6b)** |
+| `chat_events`, `dreams_view` | store-typed vocabulary, exactly one hop out (`chat_events.py:36-38`, `dreams_view.py:26`) — load-bearing type/constant imports, not relocatable seams; parked (P9) |
 | `sealing`, `models.ollama_client` | network stdlib (socket / urllib) — the two `NETWORK_ALLOWLIST` files, outer by the first subtraction |
 | `models.*`, `agent`, `ingest.embed` | closure via `ollama_client` |
 | `attestation.crypto`, `attestation.verify` | cryptography (pinned, not pure-math) |
@@ -538,22 +616,26 @@ vectorstore); `sandbox.policy`, `sandbox.spec` (via runner → wasmtime); `verdi
 
 Calibration — counts under the three predicates, strict/lax: decided-literal 59/75 (admits the
 network client); v1 network-only subtraction 51/68 (recorded-and-rejected, P2); **v2 adopted
-29/42**. Delta v1 → v2: 22 modules leave (13 sqlite stores + 9 via closure or direct sqlite3),
-0 enter.
+29/42**, becoming **36/49 after the licensed S1 splits** (§2.6b preview). Delta v1 → v2: 22
+modules leave (13 sqlite stores + 9 via closure or direct sqlite3), 0 enter; S1 recovers 7 of
+the 9 non-store leavers (all but the P9 pair).
 
 ## Cross-references
 
-`docs/brainstorms/inner-outer-core.md` (all three capsules — the warrant; the v2 ruling at
-2026-07-20T22:08Z, commit `97c245c`) · `docs/brainstorms/hypothetical-subspace.md` (§2.8
-grounding) · `docs/findings/finding-0103.md` + `tests/unit/test_core_self_containment.py@97c245c`
-(the outer ratchet, 19 at authoring) · `ops/import_lint.py` (`NETWORK_MODULES`,
-`NETWORK_ALLOWLIST`) · `core/temporal/spine.py:88-96,98` (the store closure + the eval reach) ·
+`docs/brainstorms/inner-outer-core.md` (all four capsules — the warrant; the v2 ruling at
+2026-07-20T22:08Z, commit `97c245c`; the temporal-math ruling at 22:55Z, commit `658e090`) ·
+`docs/brainstorms/hypothetical-subspace.md` (§2.8 grounding) · `docs/findings/finding-0103.md`
++ `tests/unit/test_core_self_containment.py@97c245c` (the outer ratchet, 19 at authoring) ·
+`ops/import_lint.py` (`NETWORK_MODULES`, `NETWORK_ALLOWLIST`) ·
+`core/temporal/spine.py:88-96,98` (the store closure + the eval reach) ·
 `core/graph/sigma_star.py:58` + `core/graph/__init__.py:19,30` (the packaging block) ·
 `core/dreaming/__init__.py:13-25` · `core/attestation/__init__.py:8-21` ·
-`core/complex/temporal.py:26,153` (lazy import counted) · `core/integrator.py:32` +
-`core/recursion_ops.py:53` (inline sqlite3) · `core/temporal/boundary.py:25` +
-`core/temporal/complex.py:34` + `core/dreams_view.py:26` + `core/chat_events.py:36-38`
-(store-coupled leavers) · `core/sensing.py:58-60` + `core/reference_view.py:52` (the §2.6
+`core/complex/temporal.py:26,153` (lazy import counted) · the S1 seams (§2.6b):
+`core/temporal/boundary.py:98,114-115` (pure poset core + the one VersionStore wrapper) +
+`core/temporal/complex.py:59` (`build_citation_complex`) + `core/integrator.py:32,38-39,136`
+(inline sqlite3 + store types + the `Connection` field) + `core/recursion_ops.py:53,62`
+(inline sqlite3 + `stores.derived`) · `core/dreams_view.py:26` + `core/chat_events.py:36-38`
+(the P9 store-typed pair) · `core/sensing.py:58-60` + `core/reference_view.py:52` (the §2.6
 store couplings) · `docs/design-notes/agent-taxonomy.md` §2.1 (residence column) ·
 `docs/design-notes/capability-scope-algebra.md` (the algebra housed in the ring) ·
 `docs/build-plans/bp-065/plan.md` (clean break + the math/acquisition split precedent) ·
