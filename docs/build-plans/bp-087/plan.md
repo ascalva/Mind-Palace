@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-087
-status: ready
+status: in-progress
 design_ref:
   - docs/design-notes/agentic-loop.md
 contract: builder
