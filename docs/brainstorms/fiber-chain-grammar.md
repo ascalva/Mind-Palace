@@ -153,3 +153,94 @@ references:
   - docs/design-notes/connectivity-instruments.md              # CN-7 refusal posture ~ frontier prune
   - docs/build-plans/bp-080/plan.md · docs/build-plans/bp-082/plan.md  # the census/influence chain-walkers = the concrete consumer
 ```
+
+## 2026-07-21T05:55Z — the chain as a SENTENCE: reasoning-as-typed-path (owner, session-39)
+
+Owner, near-verbatim: *"another interpretation of the language: there may be common words, but you
+can also treat your output as a puzzle — a set of movements along the graph that encode the reason
+on HOW two nodes connect. 'Yesterday, I sat on a chair and it broke, I fell': 'yesterday' has a
+type of edge (supersession, I think); the chair present yesterday; it broke (chair supersession,
+not-broken → broken); a causal loop (helix): I sat down → caused the chair to break → caused me to
+fall."*
+
+### Orchestrator chew — the language gains a SEMANTICS (a word MEANS an explanation)
+
+- **The reframe: the grammar was a FILTER (which chains are admissible); this makes it a SEMANTICS
+  (a chain MEANS something — it is the explanation of how two nodes connect).** A reasoning
+  narrative is not *about* a path; it **is** a path — a specific sequence of typed moves whose
+  fiber signature encodes the reasoning structure. Different paths between the same two endpoints =
+  different explanations; the walk is the reason.
+- **The example decoded into fiber moves:**
+  - *"yesterday"* — a **temporal anchor**, not quite an edge: it sets the cut the walk reads at
+    (the anchoring/T-coordinate, `graph-at-a-past-cut`), OR equivalently a walk back along the
+    **D-fiber** (time) to the past state. (Honest subtlety for the design pass: temporal reference
+    = a T-anchor vs a D-traversal — likely both are valid encodings; the pass decides the
+    canonical form.)
+  - *"the chair, present yesterday"* — a node, existing at that cut (membership-at-cut).
+  - *"it broke"* — a **D-edge (supersession)**: the chair-node revised, unbroken → broken. The
+    owner's read is exactly right — a state change of one identity IS supersession.
+  - *"I sat → caused the chair to break → caused me to fall"* — a **C-chain (causal witnesses)**,
+    and because each link also advances in time it is a **helix** (causation braided with the
+    D-clock — spiraling forward). The owner names it precisely; the helix is a ratified-design
+    instrument (the CN-5..7 family, tranche-gated) — so the corpus can already DETECT these
+    little causal-temporal stories.
+  - The whole narrative is one word: anchor-back (D/T) · locate node · supersession (D) · causal
+    helix (C·C·C ∥ D). A sentence in the fiber language.
+- **⚑ The profound consequence: an explanation becomes a FALSIFIABLE object — reasoning = proof
+  search.** A narrated reason is SOUND iff its encoding path actually exists in the graph with the
+  claimed edge types and is grammar-valid. This is the anti-hallucination property: the palace can
+  answer "how are A and B connected?" with a **witnessed path** (each C-edge a recorded cause, each
+  D-edge a supersession record), not a vibe — and can REJECT a plausible-sounding reason whose path
+  doesn't exist. The fibers are the inference rules; the grammar is which inference-sequences are
+  valid; a reasoning-path IS a **proof**, and the narrated explanation is the proof it found. The
+  owner's "puzzle" = the constrained pathfinding problem "connect A to B with grammar-valid typed
+  moves"; the reasoning is its solution.
+- **This closes the honesty loop with the ratified narration rule (oq-0021).** "Records, not
+  causes" now has a MECHANICAL enforcement: a "caused" claim in the narration is legal iff the path
+  uses a **C-edge** at that step; an F-edge (similarity) may only be narrated as resemblance; a
+  D-edge as revision. **The fiber TYPE of each move licenses (or forbids) its verb.** The grammar
+  is simultaneously the reasoning's well-formedness AND the narration's honesty guarantee — one
+  object, two guarantees. (This is a sharper mechanization of the F-SD9 falsifier bp-080 is
+  building right now.)
+- **Two directions, both valuable.** *Parse* (comprehension): decode a natural-language reason into
+  a typed path and check it against the graph — a soundness audit on human/model reasoning. *Generate*
+  (explanation): find a grammar-valid, high-conductance path between two nodes and emit it as
+  reasoning — **explainable retrieval**, the ranking layer (conductance) choosing among the
+  admissible words (grammar) the best proof to narrate.
+
+```capsule
+topic: fiber-chain-grammar
+date: 2026-07-21
+
+decisions:
+  - The seed (owner): a chain is not just admissible-or-not but a SENTENCE — a set of typed moves
+    that ENCODES the explanation of how two nodes connect; the worked example decodes to
+    anchor(D/T) · supersession(D) · causal-helix(C·C·C ∥ D). Seed only; no design decisions taken.
+  - Working frame the chew proposes: reasoning = proof-search over the typed graph; a narrated
+    explanation IS the witnessed path it found ⇒ FALSIFIABLE (sound iff the path exists,
+    grammar-valid, with the claimed fiber types). The fiber TYPE of each move licenses its verb
+    (C→"caused", F→"resembles", D→"revised") — the grammar mechanizes the oq-0021 narration honesty.
+
+open_questions:
+  - Canonical encoding of a temporal reference ("yesterday"): a T-anchor (read at a past cut) or a
+    D-fiber traversal — or both, with a normal form? (The design pass rules.)
+  - Parse vs generate: which ships first? Generate = explainable retrieval (find the best
+    grammar-valid path, ranked by conductance) is the higher-value, cleaner-to-falsify direction.
+  - Does the helix detector (CN-5..7) already surface exactly these causal-temporal story-paths,
+    i.e. is "detect the reasoning episodes" a read the corpus can do today? (Measure with bp-080.)
+  - The verb-licensing table (fiber type → admissible narration verb) — is it total, and does it
+    subsume/sharpen F-SD9's causal-phrasing grep into a positive grammar?
+
+next_steps:
+  - Fold into the same fable design-pass as the grammar's construction question — the semantics
+    (words mean explanations) and the syntax (which words are valid) are one pass. AFTER bp-080/082
+    land (the census/helix reads + the path machinery are the concrete substrate).
+  - Ground the verb-licensing table against the ratified oq-0021 vocabulary + F-SD9 (bp-080) — it
+    is a positive-grammar restatement of that falsifier.
+
+references:
+  - docs/design-notes/synchronic-diachronic-dreamer.md   # §2.9 oq-0021 records-not-causes = the verb-licensing this mechanizes; F-SD9 (bp-080)
+  - docs/design-notes/connectivity-instruments.md         # the helix detector (CN-5..7) = the causal-temporal story-path reader
+  - docs/brainstorms/clock-curvature.md                   # conductance = the ranking that picks the best proof-path; D = the clock the helix spirals on
+  - docs/brainstorms/graph-at-a-past-cut.md               # "yesterday" = the anchor/T-coordinate reading
+```
