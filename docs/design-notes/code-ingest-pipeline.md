@@ -17,7 +17,7 @@ links:
   - docs/design-notes/chat-sensor.md                   # RATIFIED — CS-3 tool-strip / duplication-apophenia precedent
   - docs/design-notes/inner-outer-core.md              # RATIFIED — ring placement of the new lane
   - docs/design-notes/cross-strata-dreamer.md          # RATIFIED — XS-a per-grant ruling (§2.3's dream-grant posture)
-supersedes: null         # intended at ratification: PARTIAL supersession of dn-code-observation-projection (§2.6)
+supersedes: dn-code-observation-projection         # intended at ratification: PARTIAL supersession of dn-code-observation-projection (§2.6)
 superseded_by: null
 warrant: docs/findings/finding-0146.md
 ---

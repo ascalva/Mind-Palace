@@ -14,7 +14,7 @@ links:
   - docs/design-notes/observed-iot-and-cross-source-synthesis.md # correlator safety rules (§2)
   - docs/findings/finding-0021.md # code as corroboration arbiter — the value, evidenced
 supersedes: null
-superseded_by: null
+superseded_by: dn-code-ingest-pipeline
 warrant: docs/brainstorms/doc-code-entanglement.md
 ---
 
