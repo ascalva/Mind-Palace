@@ -267,3 +267,66 @@ next_steps:
     actually measure?) ahead of any formalization; then the phase-transition scan on known dead
     clusters. Same design-pass re-entry as the parent capsule.
 ```
+
+## 2026-07-21T01:40Z (same conversation — the owner's path-invariance question, mapped back to the chain)
+
+Owner, near-verbatim: *"are paths time-invariant? potentially not, since there are causal edges
+and supersession edges — so which edges are you allowed to walk along? given that you restrict
+the path to some subset of the edges, how does the path change? and if you allow them all, which
+do you favor? we may have already done this work — my intuition might not have caught up yet."*
+
+### The map back (the intuition HAS mostly caught up to the chain — three built answers, one park)
+
+1. *Time-variance is handled by ANCHORING, not denied.* A path is well-posed only relative to a
+   certified cut (GC-3, built — spine.py); the dreamer note makes anchor + gauge
+   (ANCHORED/RETRO/ARCHIVAL) declared per reading. Same endpoints at two cuts = two different
+   well-posed questions. Deeper: walking derivation and shifting time provably DO NOT COMMUTE —
+   the [d,τ] diamond holonomy (dn-temporal-retrieval-algebra; TA-c's spectral closure REFUTED in
+   dn-magnetic-laplacian §2.3). Order-of-walk matters, and the obstruction is an instrument, not
+   an annoyance.
+2. *"Which edges may you walk" is the FIBER coordinate of the scope grant* — E ⊆ {F, D, C} fiber
+   separation (dn-agent-taxonomy), σ-per-fiber restriction (dn-sigma-fibers), and the dreamer
+   dispatch grants fibers explicitly. "Restrict and see how the path changes" is the σ-fiber
+   differential — the same with/without diff shape as subspace influence (a fiber's marginal
+   connectivity contribution; oq-0031's falsifier design measures exactly this attribution).
+3. *"If you allow them all, which do you favor" is HALF-BUILT, calibration PARKED.* VERIFIED:
+   `core/graph/composed.py` flattens `E_sim ∪ E_proven` by MAX weight with `PROVEN_WEIGHT = 1.0`
+   — a witnessed causal edge dominates any cosine at every grid σ (present at all thresholds,
+   can bridge components); per-class attribution retained (`edge_classes`). The favoring rule
+   today: witnessed causation beats similarity BY FIAT — a defensible v1 (a proven edge is a
+   fact; cosine is a hint) whose calibration the plan explicitly parks ("Δ-phase calibrates").
+
+### The new synthesis (this conversation's addition): fibers × the phase model
+
+- **Candidate calibration principle for the parked weight: volatility exposure per fiber.**
+  C-edges are witnessed and immutable → near-zero exposure (superconducting transit, justifying
+  the 1.0 by principle rather than fiat); F-edges carry churn-dependent exposure (the phase
+  model); D-arrows are the records of revision themselves.
+- **The D-fiber IS the thermometer.** The temperature field of this whole brainstorm — local
+  clock rate — is readable off supersession-arrow density per unit time. One fiber carries the
+  clock; the others carry the transit; the phase model and fiber separation compose instead of
+  competing. Observable today: D-arrow minting rate per region as the churn field the CN-4 read
+  and the Forman scan condition on.
+
+```capsule
+topic: clock-curvature
+date: 2026-07-21
+
+decisions:
+  - (owner question resolved to the chain): path time-variance = anchoring (cuts + gauge), walk
+    permission = the fiber coordinate, non-commutativity = the [d,τ] diamond — all existing work.
+    The genuinely open sliver is the PARKED cross-fiber favoring calibration (PROVEN_WEIGHT 1.0,
+    "Δ-phase calibrates").
+
+open_questions:
+  - Calibrate the parked cross-fiber weights by per-fiber volatility exposure (C ≈ 0 exposure ⇒
+    ~1.0 earned, not fiat; F churn-dependent per the phase model)? This hands Δ-phase a
+    principle instead of a free parameter — test against endorsed chains.
+  - The D-fiber-as-thermometer observable: does supersession-arrow minting rate per region
+    reproduce the churn field CN-4's exponent responds to? (If yes, the temperature field needs
+    no new sensor — it is already a fiber read.)
+
+next_steps:
+  - Fold into the same measure-first battery: the σ-fiber differential + the D-fiber thermometer
+    read join the CN-4 grounding, Forman-vs-churn, and phase-transition scans.
+```
