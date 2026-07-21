@@ -236,3 +236,64 @@ references:
   - docs/design-notes/the-edge-model.md                 # edge-side external acting (narrow-Σ, world-facing)
   - docs/design-notes/hands-and-the-effector-layer.md   # acting hands = external; the A-axis gate
 ```
+
+## 2026-07-21T16:15Z — the exhaust STRATUM + the provenance edges (owner, refining exhaust-as-sensor)
+
+Owner: *"would it ever make sense to have an agent-specific exhaust strata layer that carries low
+priority?"* … *"it would have edges that point between exhaust and the edge created."*
+
+### Orchestrator chew — exhaust becomes the PROVENANCE SPINE of agent-initiated change
+
+- **Yes — and a stratum is the right unit, with the low priority as the SAFETY property.** A
+  dedicated, agent-specific exhaust stratum (a Σ layer, structurally isolatable/excludable like
+  HYPOTHETICAL, bp-081) makes exhaust-as-sensor's low authority *structural*, not a convention.
+  Reconcile against the two existing homes: **INTERPRETED** (the dreamer's output — the current
+  low-trust agent-output stratum) and **OBSERVED** (a sensed *record*: "agent emitted X" is a fact,
+  observed-side, ≠ the content's truth). Likely BOTH axes: a stratum (the place) carrying a
+  **self-authored provenance class** (the trust-weight). "Agent-specific" = per-producing-agent
+  attribution so one agent's exhaust can't launder authority into another's (attestation-linked).
+- **⚑ The provenance edges are the key addition: exhaust → the edge it CREATED.** This turns the
+  exhaust layer from a passive record into the **causal/provenance ledger of agent-initiated
+  changes** — every durable edge/node the agent's output produced is linked to its originating
+  exhaust event. Three consequences:
+  1. *Traceability / audit:* "why does this edge exist?" → follow the provenance edge to the exhaust
+     that made it. `[DERIVED]`
+  2. *The causal loop is IN the graph, census-readable:* exhaust→effect is a directed (C-kin) edge;
+     the helix/census (bp-080) reads the agent's own action-loops back. `[DERIVED]`
+  3. *Trust propagation — the payoff of "low priority":* a durable edge whose ONLY warrant is
+     low-priority exhaust is itself **provisional** until corroborated (owner ratification / observed
+     confirmation raises it — the interpreted→mirror crossing-gate shape). Agent-created structure
+     starts provisional and *earns* confidence. This is what stops the self-hallucination amplifier
+     structurally. `[INFERENCE — a trust-propagation rule to design + falsify]`
+- **The shape is already precedented (DRY):** exhaust→created-edge IS the `derives`-hyperedge /
+  projection-fiber φ⁻¹ shape (bp-082 conditioning derives-tails; dn-agent-taxonomy projection
+  fiber). It points to a created EDGE not just a node — an edge-to-edge relation (reify the edge as
+  a node, or a hyperedge); `reference_edges` is already symmetric over kind∈{code,corpus}, so an
+  **exhaust endpoint kind** extends the existing schema rather than a new store.
+- Handed to the in-flight dn-agentic-loop fable pass (SendMessage) as a first-class design question
+  to RULE (stratum-vs-provenance; the edge-to-edge mechanism; the trust-propagation law), with
+  falsifiers, grounded on the built strata + derives shape + the crossing gate.
+
+```capsule
+topic: agent-causal-loop
+date: 2026-07-21
+
+decisions:
+  - The refinement (owner): a dedicated AGENT-SPECIFIC exhaust STRATUM, LOW PRIORITY, with EDGES
+    pointing from exhaust → the edge/structure it created. Makes exhaust the provenance/causal
+    ledger of agent-initiated change; low priority = the structural safety property; trust
+    propagates (an edge warranted only by exhaust is provisional until corroborated). Seed + chew.
+
+open_questions:
+  - Stratum vs provenance-class vs BOTH; new stratum vs refinement of INTERPRETED/OBSERVED.
+  - The edge-to-created-edge mechanism: reify the edge as a node, or a hyperedge? (reference_edges
+    symmetric-kind schema is the reuse candidate — an "exhaust"/"self" endpoint kind.)
+  - The trust-propagation law: exactly how does low-priority-exhaust provenance weight the edges it
+    warrants, and what corroboration raises them (owner ratify / observed confirmation / N-fold)?
+
+references:
+  - docs/design-notes/agent-taxonomy.md                 # §2.3 stratum≠provenance; the projection fiber φ⁻¹ (the derives shape)
+  - docs/build-plans/bp-082/plan.md                     # the derives-hyperedge / conditioning provenance-tails (reuse)
+  - core/stores/reference_edges.py                      # symmetric kind∈{code,corpus} — extend with an exhaust endpoint kind
+  - docs/design-notes/authorship-distance-axis.md       # the self-authored provenance class + trust-weight
+```
