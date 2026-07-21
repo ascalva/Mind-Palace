@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-092
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/code-ingest-pipeline.md
 contract: builder
