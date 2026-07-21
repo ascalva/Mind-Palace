@@ -1,7 +1,7 @@
 ---
 type: design-note
 id: dn-code-observation-projection
-status: ratified # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: superseded # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 implementation: design-only # nothing built; the ledger precursor exists, the projection does not
 created: 2026-07-11
 updated: 2026-07-11
