@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-084
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/inner-outer-core.md
 contract: builder

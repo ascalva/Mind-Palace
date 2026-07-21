@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-085
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/fiber-geometry.md
 contract: builder
