@@ -5279,3 +5279,28 @@ verified on main (ruff/imports/mypy + 76 scope/origin tests green).
 
 **⚑ WAVE: 5 of 6 BUILT (AL-2·AL-1·M0·G-A·AL-3). Only S1 (bp-089) remains** — `ready` (owner blessed
 `85c80cc`), HELD on budget (session 77%, binding) until spawnable alone. No other plan pending.
+
+### 2026-07-21 (session-40) — bp-089 (S1′) SEALED: the +7 promotion wave — ⚑ GRADUATION WAVE COMPLETE
+
+Sixth and final build. S1′ (opus, 164k tok / 101 calls / 26 min, ratio 0.51× — under; ran on the
+fresh post-3:20pm session pool, alone, no contention). Adopted `d8d9d09` by file-checkout; the full
+gate verified on main: ruff · check_imports (core purity — the crux) · mypy 243 files · argless
+mypy **69** · type_gate · 80 acceptance tests green.
+
+- **`|INNER| = 37`** (30 → +7). Promoted: `core.integrator_math` (NEW pure gauge home),
+  `core.recursion_ops`, `core.temporal` + `.boundary`/`.complex`/`.operators`/`.superconnection`.
+  `core.integrator` correctly STAYS OUTER (keeps the sqlite `ledger`). **F10 clean** (computed −
+  declared = exactly +7). **Zero behavior change** (seams moved verbatim; purity re-confirmed).
+  **Outer ratchet unchanged at 19.** No new graduation defect — bp-089's corrected write_scope held.
+- New files: `core/temporal/acquire.py`, `core/integrator_math.py`, `core/stores/claim_ops.py`.
+
+## ⚑⚑ THE GRADUATION WAVE IS COMPLETE — all 6 licensed plans built (bp-084 superseded→bp-089)
+The three ratified notes (inner-outer-core · fiber-geometry · agentic-loop) are fully graduated AND
+built: **M0** (born-green ring) · **S1** (temporal +7 → INNER 37) · **G-A** (fiber survey) · **AL-1**
+(actor profiles + zone law) · **AL-2** (C-coverage/gap baselines) · **AL-3** (exhaust refinement +
+origin view). Sealed costs 0.39–1.09× (all ≤ estimate except AL-2's 1.09×). Pushed to origin.
+
+**/triage backlog (not this session):** finding-0142 (C-fiber premise moved — note-amendment
+candidate) · G-A's deferred S-rows (M2/M4/M5/M8 — re-run with embed headroom) · AL-1's PRIVATE_STRATA
+owner-Q · the dreamer /scribe book-sync. **M1 riders now available** (packaging remedies + the
+sigma_star/conductance math split can grow INNER further, each carrying its ring-map delta).

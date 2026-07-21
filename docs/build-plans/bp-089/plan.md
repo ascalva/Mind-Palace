@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-089
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/inner-outer-core.md
 contract: builder
@@ -32,7 +32,13 @@ cost:
   estimate:
     model: opus
     tokens: 320k
-  actual: null
+  actual:
+    model: opus            # claude-opus-4-8[1m], tier verified via completion usage
+    tokens: 164480
+    tool_calls: 101
+    duration_min: 26
+    ratio: 0.51            # UNDER; F10 clean, zero behavior change, no new graduation defect (bp-089's corrected scope held)
+    session_delta: "fresh session pool (post 3:20pm reset); ran alone — no memory-ceiling contention"
 depends_on: [bp-083]
 parallelizable_with: []
 created: 2026-07-21
