@@ -211,3 +211,94 @@ references:
   - docs/design-notes/velocity-instruments.md          # the velocity substrate (ẇ per fiber)
   - docs/build-plans/bp-080/plan.md · bp-082/plan.md   # census (C/D structure) + influence (differential) — downstream enablers
 ```
+
+## 2026-07-21T05:45Z — the DYNAMICS of the three fields (do they interact / share a surface?), session-39
+
+Owner, near-verbatim: *"it would be interesting to study the dynamics of the three fields — do
+they interact, are they even aware of each other? how does this field interact with change
+clusters, how does it relate to conductivity, do they map different surfaces or the same surface?"*
+
+### Orchestrator chew (five questions, one structure)
+
+- **Do they interact / are they aware of each other? — YES, through TWO channels, and asymmetric.**
+  (1) *Nodal (instantaneous) coupling:* the three fibers map different edge-structures but share
+  the **0-skeleton — the node set**. A node is the switchboard where F, D, C states meet; the
+  fields are "aware" of each other only AT shared nodes (a 0-dimensional interaction), not
+  edge-wise. In Hodge terms their **gradient parts** draw on a common node potential (embedding /
+  role), so they are correlated by construction wherever they share it. (2) *Generative
+  (dynamical) coupling — the real awareness:* F **seeds** C/D formation (similar things get
+  linked/revised), and a D-event (revision) **reshapes** the embeddings ⇒ changes F. So the fields
+  drive each other's evolution — a reaction system: F → where C/D form; D-revision → F moves. (3)
+  *The asymmetry:* **D is the clock** (established: D-arrow density = the temperature field,
+  clock-curvature). D doesn't merely interact — it *parameterizes*: `ẇ_F` and `ẇ_C` are velocities
+  measured in D-time. F and C are aware of D as their shared clock; D is aware of them only as the
+  things it times.
+- **Interaction with change clusters.** A change cluster IS a peak of the D-field (high clock
+  rate). There the coupling is most visible: `ẇ_F` is large and often **incoherent** (high
+  harmonic-velocity = the "sloshing" novel_object — churn circulating around an unsettled
+  question), while **C lags** (causal structure crystallizes slower than similarity churns). The
+  clock-curvature phase behavior is the three-field joint signature: **hot** = intense D + high
+  incoherent `ẇ_F` + sparse C (scatter, route around); **cold/annealed** = quiet D + stable F +
+  dense C (the crystal, route through). The change cluster is the single best place to *measure*
+  the coupling because that is where the fields most visibly drive each other.
+- **Relation to conductivity — via the Hodge split, cleanly.** Conductivity today reads F only.
+  The three-field view: **three conductivities** (F = semantic reachability, C = causal
+  reachability, D = lineage reachability), and the payload is the **composite** conductance over
+  *grammar-valid composed chains* (the `fiber-chain-grammar` tie: which fibers a chain may use ×
+  how each field conducts locally). The bridge is Hodge: a field's **gradient** part is its
+  conductive throughput (flows high→low potential); its **harmonic** part is trapped circulation
+  that conducts nowhere — the **conductivity DEFICIT**. So decomposing each field partitions it
+  into conductive vs anti-conductive, and "the harmonic component coincides with an open `hole`"
+  (the parked velocity-Hodge falsifier) is exactly "circulation that doesn't conduct."
+- **Same surface or different? — DIFFERENT surfaces sharing a 0-skeleton = a SHEAF (PD-a again).**
+  The three fibers induce genuinely different 1-skeletons: F is dense, ~undirected, cosine-weighted;
+  D is a sparse directed DAG with the gradedness defect (its own geometry, ML §2.4); C is directed,
+  witnessed, sparse. They are **three sheets glued along their shared nodes** — which is precisely
+  a **sheaf over the node set** (different data per base point, glued by restriction), not one base
+  with a clean rank-3 fiber. So: not the same surface, not disjoint — glued along the 0-skeleton,
+  and *the coupling lives in the gluing*. The **F↔C mismatch field** literally measures where the
+  surfaces DISAGREE: a C-edge whose endpoints are not F-adjacent = causation-without-resemblance =
+  the two surfaces diverge on that pair. **This is the crux design decision for the PD-a pass:**
+  are the three 1-skeletons similar enough to treat as ONE base with a rank-3 fiber (bundle view,
+  lighter), or genuinely different topologies needing the full **sheaf Laplacian** (heavier, but
+  what "different surfaces" implies)? Measure-first: compute the F/D/C skeleton overlap on the
+  current store before choosing the operator.
+
+```capsule
+topic: edge-dynamics-vector-field
+date: 2026-07-21
+
+decisions:
+  - Working frame the chew proposes (seed-level, for the PD-a pass to test): the three fields
+    COUPLE via (a) the shared 0-skeleton (nodal, instantaneous — a node is the switchboard) and
+    (b) a generative reaction (F seeds C/D; D-revision reshapes F); D is asymmetric — it is the
+    clock the other two velocities are measured in. They map DIFFERENT 1-skeletons sharing the node
+    set ⇒ a SHEAF (PD-a), not one clean surface; the coupling lives in the gluing; the F↔C mismatch
+    field measures where the surfaces disagree. Conductivity = each field's Hodge GRADIENT
+    throughput; the HARMONIC part is the conductivity deficit. Seed only.
+
+open_questions:
+  - Is the coupling strong enough to matter, or are the three fields ~independent in practice?
+    Measure: cross-fiber correlation of the gradient potentials + the F↔C mismatch density.
+  - Bundle (one base, rank-3 fiber — light) vs full sheaf (glued different topologies — heavy):
+    which does the actual F/D/C skeleton overlap justify? The operator choice for PD-a's pass.
+  - Change-cluster signature: does hot⇒(high incoherent ẇ_F, sparse lagging C, intense D) and
+    cold⇒(stable F, dense C, quiet D) actually hold on the corpus's own dead vs live clusters?
+    (Runs on the same dead-cluster scan clock-curvature already queued.)
+  - Does the harmonic-velocity = open-hole coincidence (the parked velocity-Hodge falsifier) hold
+    per-fiber, i.e. is a field's non-conductive part really its trapped circulation?
+
+next_steps:
+  - Fold into the PD-a design-pass scope (the three-fiber bundle/sheaf): the operator choice hinges
+    on the measured skeleton overlap; the pass grounds on this dynamics framing + fiber-chain-
+    grammar (discrete face). Still AFTER bp-080/082 land + measure-first.
+  - Measurement battery (built instruments, before any formalization): F/D/C skeleton overlap;
+    F↔C mismatch density; per-fiber Hodge gradient/harmonic split; the hot/cold three-field
+    signature on dead vs live clusters — joins clock-curvature's measure-first list.
+
+references:
+  - docs/brainstorms/fiber-chain-grammar.md            # composite conductance over grammar-valid chains (the discrete face)
+  - docs/brainstorms/clock-curvature.md                # change cluster = D-field peak; hot/cold phase; the mismatch-field shape
+  - docs/design-notes/edge-dynamics.md                 # §2.2 Hodge (gradient=conductive / harmonic=deficit); PD-a (the sheaf operator this decides)
+  - docs/design-notes/magnetic-laplacian.md            # §2.4 the D-DAG gradedness defect (D's distinct geometry)
+```
