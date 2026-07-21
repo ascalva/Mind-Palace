@@ -373,3 +373,88 @@ def test_lattice_laws_hold_over_dialogue_and_c():
     for a, b, c in itertools.combinations(ext, 3):
         assert a.meet(b).meet(c) == a.meet(b.meet(c))
         assert a.join(b).join(c) == a.join(b.join(c))
+
+
+# ── H-0 (dn-synchronic-diachronic-dreamer §2.6-1) — the HYPOTHETICAL overlay stratum ─────────────
+# ADDITIVE only: every test above passes verbatim (top() is byte-identical — HYPOTHETICAL is NOT in
+# ⊤_Σ). The overlay is grantable ONLY by a scope that names it; a composed read {durable, HYP} is
+# multi-stratum by construction, so SLICE fires; a grant omitting it cannot admit a staged read.
+def test_default_grants_exclude_hypothetical():
+    """"Default grants exclude it" is STRUCTURAL: even ⊤_Σ (the fullest ordinary grant) omits
+    HYPOTHETICAL — unlike DIALOGUE (a base stratum IN top), the overlay must be named explicitly."""
+    assert Stratum.HYPOTHETICAL not in StratumScope.top().strata
+    assert Stratum.HYPOTHETICAL not in StratumScope.of(Stratum.MIRROR, Stratum.REFERENCE).strata
+    # 𝔇-subtraction unaffected — top() still excludes FOUNDATION and still includes DIALOGUE.
+    assert Stratum.FOUNDATION not in StratumScope.top().strata
+    assert Stratum.DIALOGUE in StratumScope.top().strata
+
+
+def test_hypothetical_is_grantable_only_when_named():
+    """A scope CAN name HYPOTHETICAL (it is admissible — NOT the denylist), and naming it is the
+    only way it appears; it pulls in no refinement (an overlay, not a refined base)."""
+    named = StratumScope.of(Stratum.HYPOTHETICAL)
+    assert named.strata == frozenset({Stratum.HYPOTHETICAL})       # no downward closure to pull
+    hyp_scope = _scope(named, EdgeScope.bottom(), Window.all(), Authority.read_only())
+    assert admissible(hyp_scope, [DENYLIST_IDEAL])                 # grantable when named (≠ 𝔇)
+
+
+def test_hypothetical_composed_read_demands_slice():
+    """The composed counterfactual read {durable, HYPOTHETICAL} is multi-stratum, so a point window
+    on a non-cut clock with no explicit cut raises SliceError — a counterfactual read is well-typed
+    only as 'the graph at cut c ∪ the subspace at generation g' (§2.6-1)."""
+    with pytest.raises(SliceError):
+        Scope(StratumScope.of(Stratum.MIRROR_AUTHORED, Stratum.HYPOTHETICAL), EdgeScope.bottom(),
+              TimeScope(Clock.WALL, Window.point("g5")), Authority.read_only(),
+              tier=Tier.STATIC_GUARD)
+    # a COMMIT clock (the cut IS the commit SHA) OR an explicit cut satisfies SLICE
+    ok_commit = Scope(StratumScope.of(Stratum.MIRROR_AUTHORED, Stratum.HYPOTHETICAL),
+                      EdgeScope.bottom(), TimeScope(Clock.COMMIT, Window.point("deadbeef")),
+                      Authority.read_only(), tier=Tier.STATIC_GUARD)
+    assert Stratum.HYPOTHETICAL in ok_commit.sigma.strata
+    ok_cut = Scope(StratumScope.of(Stratum.MIRROR_AUTHORED, Stratum.HYPOTHETICAL),
+                   EdgeScope.bottom(), TimeScope(Clock.WALL, Window.point("t")),
+                   Authority.read_only(), tier=Tier.STATIC_GUARD, cut=("cut-sha", "gen-3"))
+    assert ok_cut.cut == ("cut-sha", "gen-3")
+
+
+def test_req_admissible_fails_a_composed_read_whose_grant_omits_hypothetical():
+    """A read naming HYPOTHETICAL is admissible ONLY under a grant that also names it — the
+    Σ-visibility capability test. A grant over the durable side alone (however wide) refuses it."""
+    required = _scope(StratumScope.of(Stratum.MIRROR_AUTHORED, Stratum.HYPOTHETICAL),
+                      EdgeScope.bottom(), Window.all(), Authority.read_only())
+    grant_without = _scope(StratumScope.top(), EdgeScope.top(), Window.all(),
+                           Authority(Privilege.READ_PROPOSE, 1, WorldReach.SENSING))
+    assert not req_admissible(required, grant_without)            # ⊤_Σ omits HYPOTHETICAL ⇒ refused
+    grant_with = _scope(StratumScope.of(Stratum.MIRROR_AUTHORED, Stratum.HYPOTHETICAL),
+                        EdgeScope.top(), Window.all(),
+                        Authority(Privilege.READ_PROPOSE, 1, WorldReach.SENSING))
+    assert req_admissible(required, grant_with)                   # naming it admits the read
+
+
+def test_lattice_laws_hold_over_hypothetical():
+    """The lattice laws hold over a population carrying HYPOTHETICAL beside durable strata — proof
+    the overlay is a genuine additive lattice extension, not merely a new enum member. 𝔇-subtraction
+    is unaffected (top() untouched)."""
+    def s(sigma: StratumScope) -> Scope:
+        return _scope(sigma, EdgeScope.of("F"), Window.all(), Authority.read_only())
+
+    ext = [
+        s(StratumScope.of(Stratum.HYPOTHETICAL)),
+        s(StratumScope.of(Stratum.HYPOTHETICAL, Stratum.MIRROR_AUTHORED)),
+        s(StratumScope.of(Stratum.HYPOTHETICAL, Stratum.OPS)),
+        s(StratumScope.top()),
+        s(StratumScope.of(Stratum.MIRROR_AUTHORED)),
+    ]
+    for a in ext:
+        assert a.meet(a) == a and a.join(a) == a
+    for a, b in itertools.combinations(ext, 2):
+        assert a.meet(b) == b.meet(a) and a.join(b) == b.join(a)
+        assert a.meet(a.join(b)) == a and a.join(a.meet(b)) == a
+        assert (a <= b) == (a.meet(b) == a)
+        assert a.meet(b) <= a and a.meet(b) <= b            # delegation monotonicity, overlay too
+    for a, b, c in itertools.combinations(ext, 3):
+        assert a.meet(b).meet(c) == a.meet(b.meet(c))
+        assert a.join(b).join(c) == a.join(b.join(c))
+    # the overlay never launders into ⊤_Σ: meeting top() with a HYPOTHETICAL-naming scope keeps it
+    # out of top's strata (top has no HYPOTHETICAL to contribute)
+    assert Stratum.HYPOTHETICAL not in ext[3].sigma.meet(ext[0].sigma).strata

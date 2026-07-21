@@ -16,10 +16,54 @@ from __future__ import annotations
 
 from typing import cast
 
+import pytest
+
 from core.dreaming.graph import MirrorGraph
-from core.graph.composed import E_PROVEN, E_SIM, ComposedGraph, compose
+from core.graph.composed import (
+    E_PROVEN,
+    E_SIM,
+    E_STAGED,
+    ComposedGraph,
+    StagedGrantRequired,
+    compose,
+    compose_staged,
+)
 from core.graph.conductance import CONDUCTANCE_THRESH, effective_conductance, sigma_t_profile
 from core.graph.sigma_star import build_max_spanning_tree, pairwise_sigma_star, sigma_star
+from core.scope import (
+    Authority,
+    Clock,
+    EdgeScope,
+    Scope,
+    Stratum,
+    StratumScope,
+    Tier,
+    TimeScope,
+    Window,
+)
+
+
+def _hyp_grant() -> Scope:
+    """A grant that NAMES HYPOTHETICAL beside a durable stratum — a valid multi-stratum composed
+    grant (COMMIT clock supplies the cut, so SLICE is satisfied)."""
+    return Scope(
+        StratumScope.of(Stratum.MIRROR_AUTHORED, Stratum.HYPOTHETICAL),
+        EdgeScope.bottom(),
+        TimeScope(Clock.COMMIT, Window.point("deadbeef")),
+        Authority.read_only(),
+        tier=Tier.STATIC_GUARD,
+    )
+
+
+def _durable_only_grant() -> Scope:
+    """A durable-only grant — does NOT name HYPOTHETICAL (single-stratum, so no SLICE)."""
+    return Scope(
+        StratumScope.of(Stratum.MIRROR_AUTHORED),
+        EdgeScope.bottom(),
+        TimeScope(Clock.COMMIT, Window.point("deadbeef")),
+        Authority.read_only(),
+        tier=Tier.STATIC_GUARD,
+    )
 
 _GRID = (0.5, 0.7, 0.9)
 
@@ -120,3 +164,52 @@ def test_compose_rejects_unknown_node_and_self_loop():
         compose(_NODES, [("a", "z", 0.9)], [])                            # 'z' is not a node
     with pytest.raises(ValueError):
         compose(_NODES, [("a", "a", 0.9)], [])                            # self-loop
+
+
+# ── H-1 Item 9 (dn-synchronic-diachronic-dreamer §2.6-4) — the staged overlay at ASSEMBLY ─────────
+# `compose_staged` adds E_STAGED as a THIRD class at assembly (never a store merge), gated by a
+# grant naming HYPOTHETICAL. The existing guard tests above are UNMODIFIED — a staged-free
+# composition is bit-identical to `compose` (the additive-extension falsifier).
+def test_staged_free_compose_staged_is_bit_identical_to_compose():
+    """With NO staged edges, `compose_staged` (under a HYPOTHETICAL grant) reproduces `compose`
+    bit-identically — same weight matrix, same class attribution. The staged class is opt-in."""
+    plain = compose(_NODES, _SIM_EDGES, [("b", "c", 1.0)])
+    staged_empty = compose_staged(_NODES, _SIM_EDGES, [("b", "c", 1.0)], [], grant=_hyp_grant())
+    assert (staged_empty.sim == plain.sim).all()
+    assert staged_empty.edge_classes == plain.edge_classes
+    assert staged_empty.nodes == plain.nodes
+
+
+def test_staged_overlay_presents_the_mirror_surface_and_runs_the_math():
+    """A staged overlay presents through the same MirrorGraph surface, so the REAL σ*/conductance
+    run over it unchanged: a staged bridge b—c joins the two similarity components exactly as a
+    proven bridge does (weight 1.0 present at every grid σ)."""
+    g = compose_staged(_NODES, _SIM_EDGES, [], [("b", "c", 1.0)], grant=_hyp_grant())
+    forest = build_max_spanning_tree(_as_mirror(g))
+    reading = sigma_star(forest, "a", "d", grid=_GRID)
+    assert reading.sigma_star == 0.9                          # connected via the staged bridge
+    assert reading.chain == ("a", "b", "c", "d")
+    c1 = effective_conductance(_as_mirror(g), "a", "d", sigma=0.5, thresh=CONDUCTANCE_THRESH)
+    assert c1 > 0.0                                           # conductance math consumes it too
+
+
+def test_staged_class_is_retained_in_attribution():
+    """Per-class attribution keeps E_STAGED — a pair carried by the staged class only tags E_staged,
+    and a pair carried by sim AND staged keeps both (the influence-attribution surface, bp-082)."""
+    g = compose_staged(_NODES, [("a", "b", 0.6)], [], [("a", "b", 1.0), ("c", "d", 0.8)],
+                       grant=_hyp_grant())
+    assert g.classes_of("a", "b") == frozenset({E_SIM, E_STAGED})   # both classes
+    assert g.classes_of("c", "d") == frozenset({E_STAGED})          # staged only
+    ia, ib = g.nodes.index("a"), g.nodes.index("b")
+    assert g.sim[ia, ib] == 1.0                                     # max(0.6, 1.0)
+
+
+def test_staged_overlay_unconstructable_without_a_hypothetical_grant():
+    """The falsifier tooth: a staged row reaching assembly WITHOUT a HYPOTHETICAL-naming grant is
+    unconstructable — `compose_staged` refuses at assembly (`StagedGrantRequired`). A durable-only
+    grant (however it is otherwise shaped) cannot see staged rows (Σ-visibility capability test)."""
+    with pytest.raises(StagedGrantRequired):
+        compose_staged(_NODES, _SIM_EDGES, [], [("b", "c", 1.0)], grant=_durable_only_grant())
+    # a grant that DOES name HYPOTHETICAL admits the very same overlay
+    g = compose_staged(_NODES, _SIM_EDGES, [], [("b", "c", 1.0)], grant=_hyp_grant())
+    assert g.classes_of("b", "c") == frozenset({E_STAGED})
