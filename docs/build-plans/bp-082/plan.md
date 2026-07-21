@@ -1,7 +1,7 @@
 ---
 type: build-plan
 id: bp-082
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/synchronic-diachronic-dreamer.md
 contract: builder
@@ -15,7 +15,13 @@ cost:
   estimate:
     model: opus
     tokens: 280k
-  actual: null
+  actual:
+    model: opus            # claude-opus-4-8, tier verified on return
+    tokens: 269887
+    tool_calls: 78
+    duration_min: 26
+    ratio: 0.96            # well-pinned; Q3 stop-and-raise did NOT fire (derived_from carries the mark)
+    session_delta: "post-reset pool; ran parallel with the fable synthesis pass"
 depends_on: [bp-079, bp-081]
 parallelizable_with: []
 created: 2026-07-21

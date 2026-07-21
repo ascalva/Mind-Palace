@@ -68,3 +68,30 @@ appears in the violation list). Scope: wrote only the 4 write_scope files + this
 Parked (unchanged from the plan): SD-e removal overlays, SD-f spectral influence, influence
 narration — all §11 defaults stand; no re-entry triggered. No findings filed. NOT merged (the
 orchestrator is single-writer).
+
+## 2026-07-21 ~06:40 ET — SEALED (orchestrator, session-39) — DREAMER TRACK COMPLETE
+
+Merged to main `--no-ff` (single-writer). Builder commit e50bb32 touched ONLY its 4 write_scope
+files + journal (verified). Base 8be3c98 — 3-way merge kept main's dn-fiber-geometry + captures.
+Merge trailer = honest Opus (the plan template's "Claude Fable 5" was a copy-paste artifact; the
+builder flagged it and used the Opus trailer on its own commit — correct).
+
+Orchestrator re-ran the FULL gate on main: ruff clean · imports OK · mypy (influence/conditioning)
+Success · type_gate OK · pytest green gate **1790 passed, 10 skipped, 21 deselected**. Ratchet
+checked EXPLICITLY: **finding-0103 = 19, UNCHANGED at baseline** (the earlier "22" from bp-080/081
+builders was a miscount; the real count is 19; neither new module appears in the violation list).
+Green.
+
+cost.actual: opus (claude-opus-4-8, tier verified), 269,887 tok, 78 tool_calls, ~26 min, 0.96×.
+Status ready→complete. Worktree removed. Q3/Item-13 stop-and-raise did NOT fire (derived_from JSON
+array + free-form data carry the conditioning mark + staged tails with NO durable-store schema
+change — dreamer.py/derived.py untouched, read-only).
+
+H-2 done: integer-family influence (Δσ*/Δcensus, CN-3 leave-one-out attribution, one-sided law
+structural) + smooth-family (Rayleigh x*ΔL x with the finite-difference check, F-SD7a) + the
+conditioning law (4 clauses, fails closed F-SD7b; taint-split reuses the SAME influence diff).
+
+⚑⚑ THE DREAMER TRACK (dn-synchronic-diachronic-dreamer) IS COMPLETE: bp-079/080/081/082 all sealed.
+Note the whole H-family (staging/overlay/influence/conditioning) is BUILT DARK — flag-off, not
+wired to the live daemon (finding-0130 sweep-wiring parked; census live-wiring parked §2.8). A
+future "make the subspace live" plan wires it when the owner turns HYPOTHETICAL on.
