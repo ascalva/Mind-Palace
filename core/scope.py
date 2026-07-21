@@ -71,6 +71,14 @@ class Stratum(StrEnum):
     DIALOGUE = "dialogue"
     DIALOGUE_TRANSCRIPT = "dialogue_transcript"      # ⊂ dialogue
     DIALOGUE_ARTIFACT = "dialogue_artifact"          # ⊂ dialogue
+    # the counterfactual overlay stratum (dn-synchronic-diachronic-dreamer §2.6-1). An OVERLAY, not
+    # a refinement: staged hypotheses carry their would-be stratum/provenance as ROW DATA (stratum ≠
+    # provenance), so one element serves overlays beside any stratum. Unlike every other base
+    # stratum it is EXCLUDED from ⊤_Σ (`_BASE_STRATA` below) — grantable ONLY by a scope that names
+    # it explicitly, never by the fullest ordinary grant, so "default grants exclude it" is
+    # structural (the Σ-visibility capability test: a read of staged rows is constructible only
+    # under a grant naming HYPOTHETICAL). NOT the denylist: unlike FOUNDATION it IS admissible.
+    HYPOTHETICAL = "hypothetical"            # overlay stratum; ∉ ⊤_Σ, grantable only when named
     FOUNDATION = "foundation"                # 𝔇 — CONSTITUTION.md / eval/golden/**; NEVER grantable
 
 
@@ -83,9 +91,14 @@ _REFINES: dict[Stratum, Stratum] = {
     Stratum.DIALOGUE_ARTIFACT: Stratum.DIALOGUE,     # dn-agent-taxonomy §2.3
 }
 
-# the base strata (the roots of R) — everything a maximal grant may name, minus the denylist.
+# the base strata (the roots of R) — everything a maximal grant may name, minus the denylist AND the
+# HYPOTHETICAL overlay. FOUNDATION is excluded because it is never grantable (𝔇); HYPOTHETICAL is
+# excluded because it must be named EXPLICITLY (an overlay is not part of the fullest ordinary
+# grant — dn-synchronic-diachronic-dreamer §2.6-1). Both exclusions leave ⊤_Σ byte-identical to
+# before this stratum existed (additive property): HYPOTHETICAL was never in top(), so no law moves.
 _BASE_STRATA: frozenset[Stratum] = frozenset(
-    s for s in Stratum if s not in _REFINES and s is not Stratum.FOUNDATION
+    s for s in Stratum
+    if s not in _REFINES and s not in (Stratum.FOUNDATION, Stratum.HYPOTHETICAL)
 )
 
 

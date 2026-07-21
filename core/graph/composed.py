@@ -44,10 +44,22 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from core.scope import Scope, Stratum
+
 # The edge-class tags carried in `edge_classes` (the per-class attribution retained through the
 # flatten). Named constants so a Δ-phase reading and the tests agree on the strings.
 E_SIM = "E_sim"          # cosine-similarity edges (the mirror family's E_sim)
 E_PROVEN = "E_proven"    # integrator-witnessed proven edges (dn-agent-taxonomy §2.2 / fiber C)
+E_STAGED = "E_staged"    # HYPOTHETICAL-overlay edges (dn-synchronic-diachronic-dreamer §2.6-4) — a
+#                          THIRD class at ASSEMBLY (never a store merge); gated by a grant naming
+#                          HYPOTHETICAL (`compose_staged`).
+
+
+class StagedGrantRequired(ValueError):
+    """A staged overlay was requested without a grant that NAMES the HYPOTHETICAL stratum. The
+    Σ-visibility capability test (note §2.6-1): a read including staged rows is constructible ONLY
+    under a grant naming HYPOTHETICAL, so `compose_staged` refuses at ASSEMBLY otherwise — a staged
+    row cannot reach the composed graph without the capability (fail-closed)."""
 
 # A weighted edge: (node-a digest, node-b digest, weight). Weights are cosines for E_sim, the proven
 # weight (1.0 default) for E_proven.
@@ -93,19 +105,20 @@ class ComposedGraph:
         return self.edge_classes.get((min(ia, ib), max(ia, ib)), frozenset())
 
 
-def compose(
+def _assemble(
     nodes: Iterable[str],
-    sim_edges: Iterable[WeightedEdge],
-    proven_edges: Iterable[WeightedEdge],
+    edge_groups: Iterable[tuple[str, Iterable[WeightedEdge]]],
     *,
-    sigma: float = 0.0,
+    sigma: float,
 ) -> ComposedGraph:
-    """Assemble a `ComposedGraph` from an explicit node set and the two edge classes. Each edge is a
-    `(a, b, weight)` triple over `nodes`; the union is flattened to one symmetric weight matrix by
-    the **max** weight per pair (so a proven edge, weight 1.0, dominates and stays present at every
-    grid σ). Per-class tags accumulate in `edge_classes` — a pair carried by BOTH classes keeps both
-    tags. `sigma` is recorded for provenance only. Raises `KeyError` for an edge naming an unknown
-    node and `ValueError` for a self-loop (a node is not a union edge to itself)."""
+    """The shared assembly: an explicit node set × the flattened union of the given tagged edge
+    groups, taken in order. Each edge is a `(a, b, weight)` triple over `nodes`; the union is
+    flattened to one symmetric weight matrix by the **max** weight per pair (so a weight-1.0 edge
+    dominates any cosine and stays present at every grid σ). Per-class tags accumulate in
+    `edge_classes` — a pair carried by MULTIPLE classes keeps every tag. `sigma` is recorded for
+    provenance only. Raises `KeyError` for an edge naming an unknown node and `ValueError` for a
+    self-loop. DRY: both `compose` (2 classes) and `compose_staged` (3 classes) route here — the
+    class set extends, the flatten does not change."""
     node_tuple = tuple(nodes)
     index = {d: i for i, d in enumerate(node_tuple)}
     size = len(node_tuple)
@@ -121,13 +134,60 @@ def compose(
         sim[ia, ib] = sim[ib, ia] = max(sim[ia, ib], w)   # flatten the multigraph via max weight
         classes.setdefault(key, set()).add(tag)
 
-    for a, b, w in sim_edges:
-        _add(a, b, w, E_SIM)
-    for a, b, w in proven_edges:
-        _add(a, b, w, E_PROVEN)
+    for tag, edges in edge_groups:
+        for a, b, w in edges:
+            _add(a, b, w, tag)
 
     adj = (sim > 0.0) & ~np.eye(size, dtype=bool) if size else np.zeros((0, 0), dtype=bool)
     edge_classes = {k: frozenset(v) for k, v in classes.items()}
     return ComposedGraph(
         nodes=node_tuple, sim=sim, _adj=adj, edge_classes=edge_classes, sigma=sigma
+    )
+
+
+def compose(
+    nodes: Iterable[str],
+    sim_edges: Iterable[WeightedEdge],
+    proven_edges: Iterable[WeightedEdge],
+    *,
+    sigma: float = 0.0,
+) -> ComposedGraph:
+    """Assemble a `ComposedGraph` from an explicit node set and the two DURABLE edge classes
+    (`E_sim ∪ E_proven`). Behaviour is unchanged from D3: this delegates to `_assemble` with the two
+    durable groups in order, so a staged-free composition is bit-identical to before H-1. Raises
+    `KeyError`/`ValueError` on bad input exactly as before."""
+    return _assemble(nodes, [(E_SIM, sim_edges), (E_PROVEN, proven_edges)], sigma=sigma)
+
+
+def compose_staged(
+    nodes: Iterable[str],
+    sim_edges: Iterable[WeightedEdge],
+    proven_edges: Iterable[WeightedEdge],
+    staged_edges: Iterable[WeightedEdge],
+    *,
+    grant: Scope,
+    sigma: float = 0.0,
+) -> ComposedGraph:
+    """The counterfactual overlay (note §2.6-4): `E_sim ∪ E_proven ∪ E_staged`, a THIRD class at
+    ASSEMBLY — NOT a store merge. The staged edges are the HYPOTHETICAL overlay direction; the math
+    is fed UNCHANGED (the result presents the same `MirrorGraph` surface, so σ*/conductance run over
+    it as-is), the staged class is retained in `edge_classes` for per-class attribution (the
+    influence math, bp-082), and a proven/staged bridge can join two similarity components exactly
+    as a proven edge does.
+
+    Gated at assembly by the Σ-visibility capability test: `grant` MUST name the HYPOTHETICAL
+    stratum, else `StagedGrantRequired` — a staged row cannot reach the composed graph without the
+    capability (fail-closed). This is the assembly-side half of the isolation invariant; the
+    admissibility of `grant` itself (its cut ∧ generation for the multi-stratum SLICE) is proven
+    where the `Scope` is constructed (the SLICE rule, `core/scope.py`)."""
+    if Stratum.HYPOTHETICAL not in grant.sigma.strata:
+        raise StagedGrantRequired(
+            "a staged overlay requires a grant naming the HYPOTHETICAL stratum (Σ-visibility "
+            "capability test, note §2.6-1); this grant names "
+            f"{sorted(s.value for s in grant.sigma.strata)!r} — staged rows cannot reach assembly"
+        )
+    return _assemble(
+        nodes,
+        [(E_SIM, sim_edges), (E_PROVEN, proven_edges), (E_STAGED, staged_edges)],
+        sigma=sigma,
     )
