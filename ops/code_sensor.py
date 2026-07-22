@@ -44,6 +44,7 @@ regex-approximated (plan §10). Still fully mechanical; still no model anywhere 
 
 from __future__ import annotations
 
+import ast
 import re
 import sqlite3
 from dataclasses import dataclass, field
@@ -61,29 +62,35 @@ from ops.code_snapshot import (
     _git,
     annotate_headers,
     backfill_docstrings,
+    list_py_blobs,
     open_snapshot_db,
+    read_py_blobs,
     snapshot_commit,
 )
 
-INTERPRETER_VERSION = "1.0.0"   # φ_code's worldview coordinate (dn-self-sensing §2.4).
-# UNCHANGED across bp-026 (Items 19/20) -- a RE-PIN case, not a bump (the ratchet
-# licenses either, deliberately; tests/unit/test_interpreter_versions.py). Rationale:
-# INTERPRETER_VERSION stamps ONLY code observations -- every usage is
-# self.observations.is_projected/mark_projected(sha, INTERPRETER_VERSION), governing the
-# code_observations store's re-projection/supersession semantics. Reference edges carry
-# NO version field (content-keyed edge_id, append-only, regenerable -- reference_edges.py
-# schema). bp-026's φ_doc emits corpus_to_corpus reference edges ONLY; it does not change
-# any code observation (Item 19 kept code<->corpus semantics identical -- the same commit
-# yields the SAME code observations). Bumping would spuriously re-project + archive the
-# ENTIRE unchanged code_observations store -- a worldview supersession of content
-# identical modulo the version stamp, which the doctrine's re-projection is NOT for (that
-# is for when the SAME input yields DIFFERENT versioned output). So this source change
-# (Items 19/20 edited the file's bytes) is a DECLARED REFACTOR of φ_code's versioned
-# worldview: the sha256 pin re-pins at version 1.0.0 (orchestrator, at seal -- the pin
-# lives in tests/unit/test_interpreter_versions.py, outside bp-026's write_scope;
-# finding-0064). φ_doc is a separate, UNVERSIONED reference-edge lane.
-# Bump ⇒ re-projection supersedes (run backfill_observations()); an unbumped source
-# change is a RED ratchet test (tests/unit/test_interpreter_versions.py), never silent.
+INTERPRETER_VERSION = "1.1.0"   # φ_code's worldview coordinate (dn-self-sensing §2.4).
+# BUMPED 1.0.0 → 1.1.0 at bp-094/CI-3 -- a WORLDVIEW change, NOT a re-pin. Contrast the
+# earlier same-version re-pins (bp-026 φ_doc, bp-092 ledger captures; finding-0064): those
+# touched ONLY the UNVERSIONED reference-edge lane / the ops ledger and left every code
+# OBSERVATION byte-identical, so a bump would have spuriously re-projected the whole
+# unchanged code_observations store. CI-3 is different: `extract_references` now takes a
+# per-commit `known_corpus` index and DROPS a `note-citation` whose `docs/…md` target is
+# absent from the tree at that commit (dn-code-ingest-pipeline §2.4-3, the `x.md`
+# false-positive fix). That is a change to `references_out` -- the code→corpus half of the
+# code OBSERVATION content that emit_batch hashes and mark_projected stamps under this
+# version. Same commit, DIFFERENT versioned output ⇒ the doctrine's re-projection case
+# exactly (plan Q5). Re-projection/backfill is OWED (backfill_observations() re-projects
+# under 1.1.0, archiving the 1.0.0 generations to history) -- deliberately NOT run in the
+# build session: the §11 parked owner-nod discipline (a normal sync projects only
+# newly-ingested commits; history re-projection is the deliberate act).
+#   NOTE: the NEW reference-edge patterns (dn-slug/finding-id/paired-§ shorthand, code_to_code
+#   inherits/calls) are UNVERSIONED reference-edge additions (finding-0064's lane) and do NOT
+#   enter `references_out` -- they mint edges only, gated OFF (ENABLED_L2B_PATTERNS) until the
+#   M-C6 samples clear. So the bump is justified solely by the existence-check correction to
+#   the observation projection; enabling the shorthand later mints no new observation content
+#   and needs no further bump.
+# An unbumped source change is a RED ratchet test (tests/unit/test_interpreter_versions.py),
+# never silent; the sha256 pin is re-set at 1.1.0 there (orchestrator-verified attestation).
 
 # ── Lane-1 reference extraction (B-c, bp-013 Item 7) — bp-011's VALIDATED patterns ONLY ──
 # The V4 inventory (docs/build-plans/bp-011/inventory.json, `ranked_patterns_for_bp013`)
@@ -134,6 +141,54 @@ _FRONT_MATTER_REF_KEYS: tuple[tuple[str, str], ...] = (
 _RE_WIKILINK = re.compile(r"\[\[([^\]|]+)\]\]")
 _RE_FRONT_MATTER_KEY = re.compile(r"^([A-Za-z_][\w]*):\s*(.*)$")
 _RE_FRONT_MATTER_LIST_ITEM = re.compile(r"^\s*-\s+(.*)$")
+
+# ── L2b: the shorthand resolvers + the code_to_code AST edges (bp-094/CI-3) ──────────────
+# dn-code-ingest-pipeline §2.4 L2b + §2.1 L0a. PRECISION-FIRST per bp-011: every NEW pattern
+# ships DISABLED and mints NOTHING until its M-C6 hand-checked sample clears the bar (F-CI6).
+# `ENABLED_L2B_PATTERNS` is the single mint-gate — Item 2 adds a pattern name here only after
+# its sample passes; a below-bar pattern stays out (dropped, never shipped-and-tuned). Legacy
+# code↔corpus/corpus↔corpus extraction (VALIDATED_PATTERNS / CORPUS_TO_CORPUS_VALIDATED) is
+# unaffected. The existence-check on `note-citation` corpus targets is NOT in this gate: it is
+# a standing correctness fix (§2.4-3), applied whenever the sensor supplies a `known_corpus`.
+L2B_PATTERNS: tuple[str, ...] = ("dn-slug", "finding-id", "paired-section", "inherits", "calls")
+ENABLED_L2B_PATTERNS: frozenset[str] = frozenset()   # Item 2 flips per sample; empty = all off
+
+# Shorthand tokens (code→corpus). Resolutions are deterministic + tree-existence-checked
+# (unresolved ⇒ dropped, never guessed; §2.4-1). `dn-<slug>` strips the `dn-` id-prefix to the
+# file stem (`dn-code-ingest-pipeline` → `code-ingest-pipeline.md`); `finding-NNNN` maps 1:1.
+_RE_DN_SLUG = re.compile(r"\bdn-[a-z0-9]+(?:-[a-z0-9]+)*\b")
+_RE_FINDING_ID = re.compile(r"\bfinding-\d{4}\b")
+_RE_SECTION = re.compile(r"§\s?\d+(?:\.\d+)*")
+
+
+def _resolve_dn_slug(token: str) -> str:
+    """`dn-<slug>` → `docs/design-notes/<slug>.md` (§2.4-1). The `dn-` prefix is the note's
+    front-matter id convention, not part of the filename (id `dn-x` ⇒ file `x.md`)."""
+    return f"docs/design-notes/{token[len('dn-'):]}.md"
+
+
+def _resolve_finding_id(token: str) -> str:
+    """`finding-NNNN` → `docs/findings/finding-NNNN.md` (§2.4-1) — 1:1, no prefix strip."""
+    return f"docs/findings/{token}.md"
+
+
+def _module_to_path(module: str, level: int, current_path: str) -> str | None:
+    """Map an import's dotted module (+ relative `level`) to its repo-relative `.py` path — the
+    cross-module `inherits`/`calls` resolution precondition (§2.1 L0a; consumes bp-092's full
+    import_records). Absolute (`level==0`): `a.b.c` → `a/b/c.py`. Relative: resolve against the
+    current file's package, ascending `level-1` directories. Returns None when the module part is
+    empty (a bare `from . import x` binds a submodule, used only via an attribute chain — dropped,
+    PD-I) or the ascent runs past the repo root. Existence against the tree is the CALLER's gate."""
+    if level == 0:
+        return f"{module.replace('.', '/')}.py" if module else None
+    pkg_parts = current_path.split("/")[:-1]              # the current file's package directory
+    up = level - 1
+    if up > len(pkg_parts):
+        return None
+    base = pkg_parts[: len(pkg_parts) - up]
+    tail = module.replace(".", "/") if module else ""
+    joined = "/".join([*base, tail]) if tail else "/".join(base)
+    return f"{joined}.py" if joined else None
 
 
 def _split_front_matter(text: str) -> tuple[str | None, str, int]:
@@ -233,14 +288,25 @@ def _front_matter_doc_paths(value: object) -> list[str]:
     return out
 
 
-def extract_references(docstring: str, *, source_line: int) -> tuple[dict[str, Any], ...]:
+def extract_references(docstring: str, *, source_line: int,
+                       known_corpus: set[str] | None = None) -> tuple[dict[str, Any], ...]:
     """φ_code's Lane-1 docstring pass (code→corpus): the §2.3 `references_out` elements
     `{type, target, source_line}`, validated patterns only, exact duplicates collapsed
     deterministically (first occurrence wins). `source_line` is the docstring owner's
-    line — bp-011's probe convention (module = 1)."""
+    line — bp-011's probe convention (module = 1).
+
+    `known_corpus` (bp-094/CI-3, §2.4-3): the set of `docs/…md` corpus paths present in the
+    tree at the projecting commit. When supplied, a `note-citation` whose corpus target is
+    ABSENT is DROPPED (the `x.md`-example false-positive fix) — this changes `references_out`,
+    the versioned observation content, hence the INTERPRETER_VERSION bump. When None (a pure
+    call with no tree, e.g. a unit probe), the check is skipped — byte-identical to the
+    pre-CI-3 behavior. path-mention is NOT existence-checked here: it is a code/path target
+    stored AS WRITTEN (VALIDATED_PATTERNS comment), not a corpus target."""
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
     for m in _RE_NOTE_CITATION.finditer(docstring):
+        if known_corpus is not None and m.group(0) not in known_corpus:
+            continue                                       # §2.4-3: corpus target absent ⇒ drop
         if ("note-citation", m.group(0)) not in seen:
             seen.add(("note-citation", m.group(0)))
             out.append({"type": "note-citation", "target": m.group(0),
@@ -332,22 +398,34 @@ class CodeSensor:
         report.doc_coverage = (documented / total) if total else 0.0
         return report
 
-    def _observations_for(self, sha: str) -> list[CodeObservation]:
+    def _known_corpus_docs(self, sha: str) -> list[str]:
+        """The `docs/(design-notes|findings|brainstorms)/*.md` paths present in the tree at
+        `sha` (the commit's OWN state, §2.2) — the existence-check universe (§2.4-3) and the
+        corpus-scan surface, computed with ONE `git ls-tree` and shared by the observation
+        pass and both corpus-side scanners (DRY: the pre-CI-3 code re-listed this per helper)."""
+        listed = _git(self.repo, "ls-tree", "-r", "--name-only", sha, "--", *_CORPUS_DIRS)
+        return sorted(p for p in listed.splitlines() if p.endswith(".md"))
+
+    def _observations_for(self, sha: str, known_corpus: set[str] | None = None,
+                          ) -> list[CodeObservation]:
         """One commit's batch, from the snapshot walk's shapes already in the ledger (one
         parse per blob — φ_code stays the sole interpreter, §2.2): a module-grain row per
         file (the module docstring rides `files.docstring`) plus one row per def/class
         symbol, real docstrings verbatim (bp-011's column). `references_out` is populated
         by the Lane-1 extractor (B-c / bp-013) — validated patterns only, source_line =
-        the docstring owner's line (module = 1, bp-011's probe convention)."""
+        the docstring owner's line (module = 1, bp-011's probe convention). `known_corpus`
+        (CI-3) existence-checks `note-citation` corpus targets (§2.4-3)."""
         out = [CodeObservation(commit_sha=sha, path=path, qualname="", kind="module",
                                signature="", docstring=doc,
-                               references_out=extract_references(doc, source_line=1))
+                               references_out=extract_references(
+                                   doc, source_line=1, known_corpus=known_corpus))
                for (path, doc) in self.db.execute(
                    "SELECT path, docstring FROM files WHERE commit_sha=? ORDER BY path",
                    (sha,))]
         out.extend(CodeObservation(commit_sha=sha, path=path, qualname=qual, kind=kind,
                                    signature=sig, docstring=doc,
-                                   references_out=extract_references(doc, source_line=line))
+                                   references_out=extract_references(
+                                       doc, source_line=line, known_corpus=known_corpus))
                    for (path, qual, kind, sig, doc, line) in self.db.execute(
                        "SELECT path, qualname, kind, signature, docstring, lineno "
                        "FROM symbols WHERE commit_sha=? ORDER BY path, qualname", (sha,)))
@@ -362,12 +440,14 @@ class CodeSensor:
         assert self.observations is not None and self.obs_handoff is not None
         if self.observations.is_projected(sha, INTERPRETER_VERSION):
             return 0, 0
-        batch = self._observations_for(sha)
+        doc_paths = self._known_corpus_docs(sha)
+        known_corpus = set(doc_paths)
+        batch = self._observations_for(sha, known_corpus)
         content = self.obs_handoff.emit_batch(sha, batch)
         added, _ = self.observations.add_batch(self.obs_handoff.collect(),
                                                interpreter=INTERPRETER_VERSION,
                                                history=self.history)
-        edges = self._mint_reference_edges(sha, batch)
+        edges = self._mint_reference_edges(sha, batch, doc_paths)
         self.observations.mark_projected(sha, content, INTERPRETER_VERSION)
         if self.attestor is not None:
             # inputs=[commit sha], outputs=[batch content hash] (plan Q5). derived_from is
@@ -380,16 +460,23 @@ class CodeSensor:
                                input_hashes=[sha], output_hashes=[content])
         return added, edges
 
-    def _mint_reference_edges(self, sha: str, batch: list[CodeObservation]) -> int:
+    def _mint_reference_edges(self, sha: str, batch: list[CodeObservation],
+                              doc_paths: list[str] | None = None) -> int:
         """Lane 1 (B-c): turn the batch's `references_out` (code→corpus) plus the commit's
         corpus-side path-mentions (corpus→code) plus (bp-026) the corpus's own doc→doc
-        citation graph (corpus→corpus) into typed edges in the dedicated reference-edge
-        store. Deterministic — no model anywhere in this path; validated patterns only
-        (`VALIDATED_PATTERNS`/`CORPUS_TO_CORPUS_VALIDATED`); direction DERIVED from the v2
-        symmetric endpoints (Q3 spirit — never auto-symmetrized on write). Idempotent via
-        the store's content identity AND `_project`'s projected-sha gate."""
+        citation graph (corpus→corpus) plus (bp-094/CI-3) the code→corpus shorthand resolvers
+        and the code_to_code `inherits`/`calls` AST edges into typed edges in the dedicated
+        reference-edge store. Deterministic — no model anywhere in this path; validated
+        patterns only (`VALIDATED_PATTERNS`/`CORPUS_TO_CORPUS_VALIDATED`; the CI-3 patterns
+        gated by `ENABLED_L2B_PATTERNS`); direction DERIVED from the v2 symmetric endpoints
+        (Q3 spirit — never auto-symmetrized on write). Idempotent via the store's content
+        identity AND `_project`'s projected-sha gate. `doc_paths` (the tree's `.md` corpus
+        paths at `sha`) is shared from `_project` to avoid re-listing; None ⇒ compute."""
         if self.reference_edges is None:
             return 0
+        if doc_paths is None:
+            doc_paths = self._known_corpus_docs(sha)
+        known_corpus = set(doc_paths)
         minted: list[ReferenceEdge] = []
         for o in batch:                                    # code→corpus: from references_out
             for ref in o.references_out:
@@ -399,11 +486,14 @@ class CodeSensor:
                     target_kind="corpus", target_ref=str(ref["target"]), target_detail="",
                     ref_type=str(ref["type"]), commit_sha=sha,
                     source_line=int(ref["source_line"])))
-        minted.extend(self._corpus_reference_edges(sha))   # corpus→code: the md-side scan
-        minted.extend(self._corpus_to_corpus_edges(sha))   # corpus→corpus: φ_doc (bp-026)
+        minted.extend(self._corpus_reference_edges(sha, doc_paths))   # corpus→code: md scan
+        minted.extend(self._corpus_to_corpus_edges(sha, doc_paths))   # corpus→corpus: φ_doc
+        minted.extend(self._shorthand_reference_edges(sha, known_corpus))  # CI-3 code→corpus
+        minted.extend(self._code_to_code_edges(sha))                  # CI-3 inherits/calls
         return self.reference_edges.add_batch(minted)
 
-    def _corpus_reference_edges(self, sha: str) -> list[ReferenceEdge]:
+    def _corpus_reference_edges(self, sha: str, doc_paths: list[str] | None = None,
+                                ) -> list[ReferenceEdge]:
         """The corpus→code direction (bp-011's highest-volume 100%-precision pattern):
         scan the commit's OWN tree state (`git show sha:path` — deterministic per §2.2,
         not the working tree) for backticked `*.py` path-mentions in the repo-doc corpus
@@ -411,10 +501,9 @@ class CodeSensor:
         vault catalog content, so no digest exists to key by); code endpoint =
         (sha, mentioned path as written minus any `:line` suffix, qualname '')."""
         edges: list[ReferenceEdge] = []
-        listed = _git(self.repo, "ls-tree", "-r", "--name-only", sha, "--", *_CORPUS_DIRS)
-        for doc_path in listed.splitlines():
-            if not doc_path.endswith(".md"):
-                continue
+        if doc_paths is None:
+            doc_paths = self._known_corpus_docs(sha)
+        for doc_path in doc_paths:
             text = _git(self.repo, "show", f"{sha}:{doc_path}")
             for i, line in enumerate(text.splitlines(), start=1):
                 for m in _RE_PATH_MENTION.finditer(line):
@@ -424,7 +513,8 @@ class CodeSensor:
                         ref_type="path-mention", commit_sha=sha, source_line=i))
         return edges
 
-    def _corpus_to_corpus_edges(self, sha: str) -> list[ReferenceEdge]:
+    def _corpus_to_corpus_edges(self, sha: str, doc_paths: list[str] | None = None,
+                                ) -> list[ReferenceEdge]:
         """φ_doc (bp-026 Item 20, B-c generalization): the corpus's OWN citation graph —
         doc→doc edges, scanned at the commit's OWN tree state (deterministic per §2.2).
         Three sources, each high-precision (`CORPUS_TO_CORPUS_VALIDATED`):
@@ -438,8 +528,8 @@ class CodeSensor:
         Self-loops (a doc citing itself) are dropped. Corpus endpoints are repo-relative
         paths (`detail=''`), matching the code↔corpus corpus-side convention (Q2)."""
         edges: list[ReferenceEdge] = []
-        listed = _git(self.repo, "ls-tree", "-r", "--name-only", sha, "--", *_CORPUS_DIRS)
-        doc_paths = sorted(p for p in listed.splitlines() if p.endswith(".md"))
+        if doc_paths is None:
+            doc_paths = self._known_corpus_docs(sha)
         known_docs = {Path(p).stem: p for p in doc_paths}
         for doc_path in doc_paths:
             text = _git(self.repo, "show", f"{sha}:{doc_path}")
@@ -484,6 +574,173 @@ class CodeSensor:
                         target_kind="corpus", target_ref=wikilink_target, target_detail="",
                         ref_type="note-citation", commit_sha=sha, source_line=i))
         return edges
+
+    # ── L2b: code→corpus shorthand resolvers (bp-094/CI-3, §2.4-1/-2) ────────────────────
+    def _docstrings_for(self, sha: str) -> list[tuple[str, str, str, int]]:
+        """(path, qualname, docstring, owner_line) for every module + symbol docstring in the
+        ledger at `sha` — the shorthand pass's scan surface, source_line = the docstring
+        owner's line (module = 1, symbol = its `lineno`; bp-011's probe convention)."""
+        rows: list[tuple[str, str, str, int]] = [
+            (path, "", doc, 1) for (path, doc) in self.db.execute(
+                "SELECT path, docstring FROM files WHERE commit_sha=? ORDER BY path", (sha,))]
+        rows.extend((path, qual, doc, line) for (path, qual, doc, line) in self.db.execute(
+            "SELECT path, qualname, docstring, lineno FROM symbols WHERE commit_sha=? "
+            "ORDER BY path, qualname", (sha,)))
+        return rows
+
+    def _shorthand_reference_edges(self, sha: str,
+                                   known_corpus: set[str]) -> list[ReferenceEdge]:
+        """§2.4 L2b: resolve a code docstring's `dn-<slug>` / `finding-NNNN` shorthand to its
+        `docs/…md` corpus target (deterministic, tree-existence-checked — unresolved ⇒ dropped,
+        never guessed) and, for a `§N` that is PAIRED (§2.4-2: the docstring cites exactly one
+        resolvable note), an edge to that note carrying the section anchor. PRECISION-FIRST:
+        each pattern mints ONLY when in `ENABLED_L2B_PATTERNS` (its M-C6 sample cleared, F-CI6);
+        an unpaired or ambiguous `§N` is dropped (PD-F). code_to_corpus; no model in the path."""
+        active = ENABLED_L2B_PATTERNS
+        if self.reference_edges is None or not active & {"dn-slug", "finding-id",
+                                                         "paired-section"}:
+            return []
+        edges: list[ReferenceEdge] = []
+        for path, qual, doc, line in self._docstrings_for(sha):
+            if not doc:
+                continue
+            cited: set[str] = set()                        # resolvable notes in THIS docstring
+            for m in _RE_NOTE_CITATION.finditer(doc):      # a literal citation counts for pairing
+                if m.group(0) in known_corpus:
+                    cited.add(m.group(0))
+            for m in _RE_DN_SLUG.finditer(doc):
+                target = _resolve_dn_slug(m.group(0))
+                if target not in known_corpus:
+                    continue                               # §2.4-1: unresolved ⇒ dropped
+                cited.add(target)
+                if "dn-slug" in active:
+                    edges.append(ReferenceEdge.mint(
+                        source_kind="code", source_ref=path, source_detail=qual,
+                        target_kind="corpus", target_ref=target, target_detail="",
+                        ref_type="dn-slug", commit_sha=sha, source_line=line))
+            for m in _RE_FINDING_ID.finditer(doc):
+                target = _resolve_finding_id(m.group(0))
+                if target not in known_corpus:
+                    continue
+                cited.add(target)
+                if "finding-id" in active:
+                    edges.append(ReferenceEdge.mint(
+                        source_kind="code", source_ref=path, source_detail=qual,
+                        target_kind="corpus", target_ref=target, target_detail="",
+                        ref_type="finding-id", commit_sha=sha, source_line=line))
+            # paired-§ (§2.4-2): a section token binds ONLY when the docstring resolves to
+            # EXACTLY ONE note (precision-first — zero or many is ambiguous, dropped). The
+            # anchor rides target_detail (the corpus endpoint's refinement); ref_type stays
+            # note-citation (it IS a citation, to a section of the note). See finding-0158 on
+            # the store's missing section-anchor field (target_detail overload, v1).
+            if "paired-section" in active and len(cited) == 1:
+                (note,) = tuple(cited)
+                for anchor in dict.fromkeys(m.group(0).replace(" ", "")
+                                            for m in _RE_SECTION.finditer(doc)):
+                    edges.append(ReferenceEdge.mint(
+                        source_kind="code", source_ref=path, source_detail=qual,
+                        target_kind="corpus", target_ref=note, target_detail=anchor,
+                        ref_type="note-citation", commit_sha=sha, source_line=line))
+        return edges
+
+    # ── L0a: code_to_code inherits/calls AST edges (bp-094/CI-3, §2.1) ───────────────────
+    def _import_map(self, sha: str) -> dict[str, dict[str, tuple[str, str, int]]]:
+        """Per-file `local_name → (module, imported_name, level)` from bp-092's full
+        `import_records` (the cross-module resolution precondition this plan CONSUMES). Only
+        FROM-imports bind a bare name usable as a base/callee (`from a.b import X [as Y]` →
+        Y or X); whole-module `import a.b` binds `a`, reached only via an attribute chain
+        (dropped, PD-I), so `name==''` rows are skipped."""
+        out: dict[str, dict[str, tuple[str, str, int]]] = {}
+        for path, module, name, asname, level in self.db.execute(
+                "SELECT path, module, name, asname, level FROM import_records "
+                "WHERE commit_sha=?", (sha,)):
+            if not name:
+                continue
+            out.setdefault(path, {})[asname or name] = (module, name, level)
+        return out
+
+    def _code_to_code_edges(self, sha: str) -> list[ReferenceEdge]:
+        """§2.1 L0a: mint `inherits` (class → base) and `calls` (function → callee)
+        code_to_code edges, STATICALLY RESOLVABLE ONLY (precision-first, PD-I). A bare base/
+        callee name resolves EITHER module-internally (a top-level def/class of the same file)
+        OR via an explicit FROM-import to a defining `.py` present in the tree at `sha`
+        (existence-checked). Attribute-chain / dynamic-dispatch targets are dropped, never
+        guessed. Each pattern mints only when in `ENABLED_L2B_PATTERNS` (M-C6, F-CI6). Parsed
+        from the commit's OWN blobs (§2.2), no model in the path."""
+        active = ENABLED_L2B_PATTERNS
+        want_inherits, want_calls = "inherits" in active, "calls" in active
+        if self.reference_edges is None or not (want_inherits or want_calls):
+            return []
+        py = list_py_blobs(self.repo, sha)
+        known_py = {p for p, _ in py}
+        sources = read_py_blobs(self.repo, sorted({b for _, b in py}))
+        import_map = self._import_map(sha)
+        edges: list[ReferenceEdge] = []
+        for path, blob in py:
+            try:
+                tree = ast.parse(sources.get(blob, ""))
+            except SyntaxError:
+                continue
+            top_level = {c.name for c in ast.iter_child_nodes(tree)
+                         if isinstance(c, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef)}
+            imports = import_map.get(path, {})
+
+            def resolve(name: str, path: str = path, top_level: set[str] = top_level,
+                        imports: dict[str, tuple[str, str, int]] = imports,
+                        ) -> tuple[str, str] | None:
+                if name in top_level:
+                    return path, name                      # module-internal (highest precision)
+                if name in imports:
+                    module, realname, level = imports[name]
+                    tp = _module_to_path(module, level, path)
+                    if tp is not None and tp in known_py:
+                        return tp, realname                # explicit-import cross-module
+                return None                                # unresolved ⇒ dropped (PD-I)
+
+            self._walk_code_to_code(tree, "", None, path, sha, resolve,
+                                    want_inherits, want_calls, edges)
+        return edges
+
+    def _walk_code_to_code(self, node: ast.AST, prefix: str, enclosing_func: str | None,
+                           path: str, sha: str, resolve: Any, want_inherits: bool,
+                           want_calls: bool, edges: list[ReferenceEdge]) -> None:
+        """Recursive AST walk carrying the qualname prefix and the innermost enclosing function
+        (calls attribute to the function they sit in; module/class-level calls have no function
+        source and are skipped). Self-edges (recursion, a class named as its own base — the
+        latter impossible) are dropped."""
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.ClassDef):
+                qual = prefix + child.name
+                if want_inherits:
+                    for base in child.bases:
+                        if isinstance(base, ast.Name):
+                            self._mint_code_edge(resolve(base.id), path, qual, "inherits",
+                                                 child.lineno, sha, edges)
+                self._walk_code_to_code(child, qual + ".", None, path, sha, resolve,
+                                        want_inherits, want_calls, edges)
+            elif isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef):
+                qual = prefix + child.name
+                self._walk_code_to_code(child, qual + ".", qual, path, sha, resolve,
+                                        want_inherits, want_calls, edges)
+            else:
+                if want_calls and enclosing_func is not None and isinstance(child, ast.Call) \
+                        and isinstance(child.func, ast.Name):
+                    self._mint_code_edge(resolve(child.func.id), path, enclosing_func, "calls",
+                                         child.lineno, sha, edges)
+                self._walk_code_to_code(child, prefix, enclosing_func, path, sha, resolve,
+                                        want_inherits, want_calls, edges)
+
+    @staticmethod
+    def _mint_code_edge(target: tuple[str, str] | None, path: str, source_qual: str,
+                        ref_type: str, line: int, sha: str,
+                        edges: list[ReferenceEdge]) -> None:
+        if target is None or target == (path, source_qual):   # unresolved or self-edge, dropped
+            return
+        tp, tq = target
+        edges.append(ReferenceEdge.mint(
+            source_kind="code", source_ref=path, source_detail=source_qual,
+            target_kind="code", target_ref=tp, target_detail=tq,
+            ref_type=ref_type, commit_sha=sha, source_line=line))
 
     def backfill_observations(self) -> int:
         """Project every ledger commit not yet projected UNDER THE CURRENT

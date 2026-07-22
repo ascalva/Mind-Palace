@@ -140,7 +140,8 @@ def test_vocabularies_are_closed_at_mint():
     assert set(DIRECTIONS) == {"code_to_corpus", "corpus_to_code", "corpus_to_corpus",
                                "code_to_code"}
     assert set(CORPUS_KINDS) == {"path", "digest"}
-    assert set(REF_TYPES) == {"note-citation", "path-mention", "symbol-mention", "design-ref"}
+    assert set(REF_TYPES) == {"note-citation", "path-mention", "symbol-mention", "design-ref",
+                              "dn-slug", "finding-id", "inherits", "calls"}   # bp-094/CI-3 additive
 
 
 # --- reads -----------------------------------------------------------------------------------

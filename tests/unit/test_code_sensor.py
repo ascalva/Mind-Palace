@@ -144,9 +144,9 @@ def test_version_bump_makes_backfill_reproject_and_archive(repo, tmp_path, monke
     assert hist.count("code") == rows_v1         # every superseded generation archived
     for sha in shas:
         assert obs.is_projected(sha, "2.0.0")    # projected counts it, version-keyed
-        assert obs.is_projected(sha, "1.0.0")    # the old worldview's mark is history, not erased
+        assert obs.is_projected(sha, "1.1.0")    # the old worldview's mark is history, not erased
     chain = obs.chain_for(shas[0], "a.py", "a", history=hist)
-    assert [g["interpreter"] for g in chain] == ["1.0.0", "2.0.0"]   # the §2.4 queryable chain
+    assert [g["interpreter"] for g in chain] == ["1.1.0", "2.0.0"]   # the §2.4 queryable chain
     assert sensor.backfill_observations() == 0   # idempotent at the new version
 
 

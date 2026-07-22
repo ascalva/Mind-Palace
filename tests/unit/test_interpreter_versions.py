@@ -54,10 +54,18 @@ INTERPRETERS: dict[str, Interp] = {
     # comments sidecar + import_records). The projector ops/code_sensor.py is byte-identical and
     # reads none of them, so the code-observation projection is unchanged — a DECLARED REFACTOR,
     # not a worldview bump. Recomputed hash verified in-tree over the two sources.
+    # BUMPED 1.0.0 → 1.1.0 at bp-094/CI-3 (orchestrator-verified attestation; warrant
+    # finding-0146/dn-code-ingest-pipeline §2.4). A WORLDVIEW change, NOT a re-pin: unlike the two
+    # re-pins above (which touched only the unversioned reference-edge lane / the ops ledger),
+    # CI-3 makes `extract_references` DROP a `note-citation` whose docs/…md target is absent from
+    # the tree at the commit (§2.4-3, the x.md fix) — a change to references_out, the versioned
+    # code-observation content. Same commit, different versioned output ⇒ a bump (plan Q5);
+    # re-projection/backfill under 1.1.0 is owed (owner-nod). The new shorthand/AST reference-edge
+    # patterns are UNVERSIONED (edge-lane only, gated off) and do NOT justify the bump on their own.
     "phi_code": Interp(version_attr=("ops.code_sensor", "INTERPRETER_VERSION"),
                        sources=("ops/code_sensor.py", "ops/code_snapshot.py"),
-                       version="1.0.0",
-                       sha256="517f957671cb78e4fbfbb8a554893d2f280ca7d54b50c4d632f81b140ac3c558"),
+                       version="1.1.0",
+                       sha256="a218c71daacc55fda5ed9aa8b0f324ab9357ebb6367f27931cc5fbfcd60709ee"),
     # bp-019 Item 7: phi_self over the cost stream (dn-self-sensing.md §2.2/§2.4).
     # Re-pinned same-version once in-session (orchestrator scrutiny catch: §6(f) warning
     # path was unimplemented) — a DECLARED REFACTOR, not a worldview change: the projection

@@ -99,10 +99,27 @@ from core.kernel.config import Config
 # in ops/code_sensor.py — note-citation and path-mention only for code↔corpus; design-ref
 # and note-citation for corpus↔corpus, bp-026 — wikilink is not even in this vocabulary and
 # symbol-mention is below-bar/unvalidated for Lane 1).
-REF_TYPES = ("note-citation", "path-mention", "symbol-mention", "design-ref")
+#
+# [cross-ref: extension — bp-094/CI-3] Four ADDITIVE types (dn-code-ingest-pipeline §2.4 L2b
+# + §2.1 L0a AST edges), each gated by its own M-C6 hand-checked precision sample (F-CI6) and
+# shipped DISABLED until the sample clears the bp-011 bar (ops/code_sensor.ENABLED_L2B_PATTERNS):
+#   • dn-slug   — a code docstring's `dn-<slug>` shorthand → `docs/design-notes/<slug>.md`
+#                 (code_to_corpus), tree-existence-checked at the commit; unresolved ⇒ dropped.
+#   • finding-id — a `finding-NNNN` shorthand → `docs/findings/finding-NNNN.md` (code_to_corpus),
+#                 tree-existence-checked; unresolved ⇒ dropped.
+#   • inherits  — a class → its statically-resolvable base (code_to_code): base names resolving
+#                 within the module, or via bp-092's full `import_records` to a defining .py in
+#                 the tree; dynamic/attribute-chain bases dropped (PD-I).
+#   • calls     — a function → a statically-resolvable callee (code_to_code): same resolution
+#                 discipline as inherits; attribute-chain / dynamic-dispatch callees dropped.
+# The vocabulary is the schema DOMAIN, unconditionally; the extractor's ENABLED set is the
+# precision gate. `symbol-mention` remains vocabulary-only (below-bar for Lane 1, bp-011).
+REF_TYPES = ("note-citation", "path-mention", "symbol-mention", "design-ref",
+             "dn-slug", "finding-id", "inherits", "calls")
 
-# bp-026 v2: symmetric endpoint kinds. `code_to_code` is reachable (both endpoints kind
-# "code") but nothing mints it — no call-graph reference need has arisen (plan §11 parked).
+# bp-026 v2: symmetric endpoint kinds. `code_to_code` (both endpoints kind "code") was
+# reachable-but-unminted until bp-094/CI-3 wired the `inherits`/`calls` AST edges into it
+# (statically-resolvable only, precision-first; dn-code-ingest-pipeline §2.1 L0a).
 KINDS = ("code", "corpus")
 DIRECTIONS = ("code_to_corpus", "corpus_to_code", "corpus_to_corpus", "code_to_code")
 

@@ -104,6 +104,11 @@ def test_reference_edges_never_reach_the_balance_math(tmp_path):
         ReferenceEdge.mint(source_kind="corpus", source_ref="p2", target_kind="corpus",
                            target_ref="s1", ref_type="design-ref",
                            commit_sha="c0ffee", source_line=1),
+        # bp-094/CI-3: code_to_code — the inherits/calls direction now minted; neither endpoint
+        # is a complex node, so the balance math still cannot observe it (isolation, unchanged).
+        ReferenceEdge.mint(source_kind="code", source_ref="core/a.py", source_detail="A",
+                           target_kind="code", target_ref="core/b.py", target_detail="B",
+                           ref_type="inherits", commit_sha="c0ffee", source_line=1),
     ]
     added = ref_store.add_batch(planted)
     # The store REALLY has rows — mirrors test_edge_partition.py's `versions.count() == 1`.
