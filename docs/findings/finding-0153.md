@@ -46,6 +46,14 @@ end-to-end OR its true current state** — and **the reviewer has the final say*
 story / feature / track / task is done, or something is missing. Nothing is done until it
 passes a deskcheck.
 
+## The phase pipeline (owner spec 2026-07-21 — the swim-lane columns)
+
+`brainstorm` (any model) → `design-pass` (**Fable required**) → `graduate` (Fable/Opus by size)
+→ `build` (right model per job) → `audit` (Opus/Fable) → `deskcheck` (**Opus**, owner approves or
+sends back) → **CLOSED**. Cross-cutting types, routed as before: **OQ** and **findings** — and,
+owner-endorsed, **deskchecks-owed** is a third persistent surfaced inbox (raised every session +
+triage until closed). Full pipeline + model-per-phase live in `docs/TRACKS.md` (the board).
+
 ## The tracking hierarchy (owner, 2026-07-21 — the unit above build plans)
 
 Individual-track tracking doesn't scale with concurrent tracks, so the ontology has levels:

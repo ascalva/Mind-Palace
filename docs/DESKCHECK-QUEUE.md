@@ -1,45 +1,32 @@
-# Deskcheck queue
+# Deskchecks owed — the persistent inbox
 
-> **The action-list view of `docs/TRACKS.md` (the board)** — the tracks currently in
-> `deskcheck-pending`. The board is authoritative for phase/hierarchy; this is the "what needs a
-> deskcheck now" filter.
+> **The deskcheck analog of `docs/inbox/owner-questions.md`.** These are demonstrations the
+> orchestrator OWES the owner to *close* a track. Like OQ and findings, this list is **surfaced
+> every session (in the resume brief) and at every `/triage`, and kept raised until the owner
+> acts** — a track is not closed until its deskcheck is approved. The full phase/track picture is
+> the board (`docs/TRACKS.md`); this is the "what I owe you to close, right now" filter.
 >
-> **Done ≠ sealed.** A track/feature is done only when it is *deskchecked* — the builder shows
-> it working (or clearly shows its true state), walks through what/how/surprises, and the
-> **owner has the final say** (finding-0153). Verdict: `PENDING` (awaiting owner deskcheck) ·
-> `DONE` (owner-accepted) · `NEEDS-WORK` (owner found a gap → follow-up plan/finding).
+> Verdict: `PENDING` (owed, unsurfaced-resolved) · `DONE` (owner-approved → move the track to the
+> board's Closed section) · `NEEDS-WORK` (owner found a gap → send-back + follow-up plan/finding).
 
-## A. Awaiting deskcheck — sealed, but never demonstrated + owner-accepted as done
+## Owed now — from earlier "sealed" waves (independent of the new builds)
 
-| track | build state (verified 2026-07-21) | how to deskcheck it | verdict |
+| # | track / item | what I'll demo (working, or true state) + the surprise to flag | verdict |
 |---|---|---|---|
-| **Sync/diac dreamers** (bp-079 D-0 · bp-080 D-1 · bp-081 H-0/H-1 · bp-082 H-2) | **built, NOT wired** — `[dream_rnd] enabled=false`; no live entry point constructs a DreamCharter (finding-0141). Diachronic exec (SD-a) parked. | show the sealed machinery + the flag; decide: wire it live (a dispatch entry point) or accept dormant-by-design like effectors | **PENDING** — likely NEEDS-WORK (built-not-delivered) |
-| **Reference bookkeeper** (F-edge consistency, PD-5 — scope EXPANDED, finding-0154) | **mostly unbuilt** — minting is LIVE (`code_sensor` post-commit) but: no deferred resolution, **no external-research citations** (book→paper inert), no continuous reconciliation, no current-view (finding-0145: 950k accumulated vs 2,199 current) | show minting live + book/research citations NOT resolving + the accumulation with no served view; this is an async bookkeeper agent (librarian's sibling), not a small pass | **PENDING** — track largely incomplete |
-| **Track G — effectors / hands** | built, **dormant by design** (max tier NONE, finding-0011) | confirm the dormancy is still the intended state (the *acceptable* built-not-wired — but confirm, don't assume) | **PENDING** — confirm-only |
-| **Inner/outer core — M0+S1** (bp-083, bp-089) | **built + LIVE** — the two-ring ratchet runs; INNER=37 | show the inner-ring test green + the map; the M0/S1 *enforcement* half is real | **PENDING** — enforcement done; physical half is §B below |
+| 1 | **Sync/diac dreamers** (bp-079/080/081/082) | the sealed dispatch machinery + **that it is NOT wired** (`[dream_rnd] enabled=false`, no live entry, f-0141); the decision I need from you: **wire it live, or accept dormant-by-design** like effectors | PENDING |
+| 2 | **Inner/outer M0+S1** (bp-083/089) | the live two-ring ratchet (INNER=37) green, the map, the enforcement working end-to-end — the one here that's genuinely demonstrable-working | PENDING |
+| 3 | **Agentic loop AL-1/2/3** (bp-086/087/088) | the profile constructors + the zone lattice test + the `exhaust ⊂ dialogue` refinement + `origin(e)`; confirm each is delivered, not just sealed (wiring unverified) | PENDING |
+| 4 | **Fiber geometry G-A** (bp-085) | the survey readings (M1–M8) with their honest nulls; the owed S-rows (M2/M4/M5/M8, re-run with embed headroom) | PENDING |
+| 5 | **Track G effectors** (G1–G7) | confirm-only: the dormancy (tier NONE, f-0011) is still the intended state | PENDING |
 
-## B. In-flight — blessed `ready`, not yet built (deskcheck on completion)
+## Owed on completion — the current build tracks
 
-| plan | what | gate |
-|---|---|---|
-| bp-090 | **K1** — born-30 → `core/kernel/**` (the physical inner/outer split the M0/S1 work never did) | first; not concurrent with bp-092 |
-| bp-091 | **K3** — the S1 seven into the kernel | after bp-090 SEALS |
-| bp-092 | **CI-1** — the code embed lane (L0a/L0b/L1, Provenance.CODE) — *code + docstrings + comments actually embedded* | not concurrent with bp-090 |
-| bp-093 | **CI-2** — retrieval/geometry/scale proof (PD-J authorship reader PULLED → finding-0151) | after bp-092 |
-| bp-094 | **CI-3** — reference layer: dn-slug/finding-id/§ resolvers + inherits/calls edges | after bp-092 Item 1 |
-| bp-095 | **CI-4** — the S↔F code↔design lens | after 092+093+094 AND M-C4 informative |
+Every plan in the board's `build` phase (bp-090/091/092/093/094/095) enters this inbox at seal:
+`build → audit → deskcheck`. The orchestrator adds the row and says "ready to deskcheck" when a
+track reaches phase 6. None is closed by sealing.
 
-## C. Pending design — Fable pass, AFTER the §B builds (owner re-tiers)
+## The surfacing obligation (why this file exists)
 
-| track | warrant | what the design pass decides |
-|---|---|---|
-| **Integrator densification** | finding-0151 | dense, version-grain dialogue→code authorship (commit-diff capture / blob-tagged writes / ComposedGraph composition). **Part of code-ingest's definition-of-done.** Also fixes general C-thinness. |
-| **Deskcheck workflow** | finding-0153 | the gate + state machine + `/deskcheck` ceremony + seal-time enforcement that makes this board authoritative |
-| **Reference bookkeeper agent** | finding-0154 | async librarian-sibling owning F-edge consistency across code/docs/book/external-research; deferred resolution; external citation endpoint-kind; the current-view/prune half |
-
-## Notes
-
-- §A entries were surfaced by investigation this session, not from a maintained ledger — which
-  is the whole point (finding-0153). Going forward, every seal files its own row here.
-- "Verdict = DONE" is the owner's word alone. The agent's job is to reach `ready to deskcheck`
-  and present the bundle (what / how / surprises / it-working-or-its-state).
+Q5 (the dreamers) fell through because "sealed" was treated as terminal and nothing kept the
+owed deskcheck in front of the owner. This inbox is surfaced **every session + every triage**
+and stays until the owner closes each — the same persistence as owner-questions and findings.
