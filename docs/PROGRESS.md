@@ -5374,5 +5374,13 @@ sha `a218c71d`; the gated-off edge patterns do NOT justify it). **OWED: a full r
 3.76M code_observations (1.6GB, projected under 1.0.0) at the NEXT DEPLOY** (`backfill_observations()`
 / the sense loop's is_projected gate) — DEPLOY-GATED (merge does not trigger it; the daemon runs
 deployed v1.16.0). Owner chose to land the bump (2026-07-22). finding-0158 (section-anchor field, v1
-overloads target_detail; gated off, no data at risk; design confirms at the enable gate). **Next:**
-bp-095 (S↔F lens, last CI plan) → wave complete.
+overloads target_detail; gated off, no data at risk; design confirms at the enable gate).
+
+**CI wave sealed through CI-3 (bp-092/093/094); bp-095 (CI-4) is GATED, not built.** bp-095 carries a
+hard `re_entry` gate — bp-093's **M-C4 verdict must read "informative"** before it may start (§10:
+do-not-start if unread; degenerate ⇒ superseded by a finding, never built). M-C4 is PARKED (needs the
+real qwen3 seed run). So the CI wave pauses here. **The code-ingest deskcheck (one owner-visible idle
+daemon run with Ollama) is the linchpin** that discharges everything at once: bp-092's seed run,
+bp-093's M-C3/M-C4 verdicts, bp-094's φ_code 1.1.0 re-projection of the 3.76M observations (rides the
+next deploy), AND the M-C4 gate that unblocks-or-supersedes bp-095. That run is the track's deskcheck
+subject — owner-scheduled, not a build.
