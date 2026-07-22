@@ -154,3 +154,63 @@ codebase concern the builder resolves and annotates (routing rule), not a spec-d
 **Acceptance (Item 3) — all green:** straggler grep for quoted `'core.<moved>'` strings and
 `patch()`/`import_module()` dynamic targets → **empty**; the isolation/config/reference tests →
 **39 passed**; ruff → clean.
+
+## 2026-07-22 — Item 4: end-state verification + the full 5-leg gate — DONE
+
+**Commit structure (§2.7-M2 "never a red intermediate state"):** the move (Item 2), its repoint,
+and the reference sweep (Item 3) are INDIVISIBLE for green — the shadow/eval isolation tests and the
+constitution/config loaders break unless swept in the same commit. So the two working commits were
+squashed into **one atomic green commit `df97ecd`** (§7 "fewer, larger commits acceptable iff each
+is green" — one is the fewest, and it is green). No intermediate red state ships.
+
+**End-state (Item 4 acceptance):**
+- `ls core/kernel` = **30 `.py`** (29 relocated members + the new `core/kernel/__init__.py`),
+  matching the manifest exactly.
+- **Kernel-tree == map, both directions:** 30 kernel files ⇔ 30 `core.kernel.*` map entries; map
+  entry with no file = **none**; kernel file not in map = **none**. Residues (`core.complex/ingest/
+  stores/typedshims`) present; `config`/`matching` residue correctly ABSENT (full moves). `INNER`
+  total = **42**.
+- Outer ratchet count = **19**, unchanged from the Item-1 baseline (F7 clear).
+
+**The full 5-leg attestable-green gate (run separately, FORCE_COLOR unset to match CI):**
+1. `ruff check .` → **All checks passed**.
+2. `mypy core agents eval ops scheduler scripts` → **Success: no issues found in 248 source files**.
+3. argless `mypy` → **Found 69 errors in 20 files (checked 516 source files)** — tests/-baseline
+   **== 69** (pinned; my test edits added no new type error).
+4. `python -m ops.type_gate` → **Tier-2 membership: OK · Bare-ignore scan: OK**.
+5. `pytest -q -m 'not live and not podman and not needs_vault and not needs_restic' --deselect
+   …::test_core_imports_nothing_outside_core --cov` → **1826 passed, 11 skipped, 21 deselected**.
+
+All four §7 items complete. Zero behavior change; the born inner ring is physically at
+`core/kernel/**`; the map is self-describing at 42. Plan left `status: ready` for the orchestrator
+to flip at seal.
+
+**Ready to deskcheck.** (Suggested deskcheck: show `core/kernel/` is the born ring; `INNER == 42`
+computed==declared; the outer ratchet still 19; a `from core.kernel.scope import …` resolves; the
+config/constitution loaders read their files through the re-anchored REPO_ROOT.)
+
+## Follow-through
+
+- **Built?** Yes — the born 30-member inner ring is physically relocated to `core/kernel/**` (29
+  `git mv`, `core` root stays), repo-wide repoint (455 imports / 215 files), the map recomputed to
+  the 42-member post-move fixed point, plus the F8 reference sweep (isolation-test strings +
+  `__file__`/constructed-path re-anchors). One atomic green commit `df97ecd`.
+- **Wired/delivered (or why dormant)?** Delivered and live: the inner-ring enforcement (`core.kernel.
+  rings.INNER` + `tests/unit/test_inner_ring.py`) recomputes the fixed point over the NEW tree and
+  is green; the whole runtime imports `core.kernel.*` now. Not dormant — every consumer was
+  repointed in the same commit (clean break, no alias shims per §6).
+- **Does a consumer use it?** Yes — 215 files across the repo now import `core.kernel.*`; the full
+  suite (1826 tests) exercises the relocated modules and passes. The inner-ring ratchet consumes the
+  map and forces it to equal the tree.
+- **Track state (what remains on `dn-inner-outer-core`)?** M2 wave **K1 COMPLETE**. Remaining on the
+  note: **K3** (the S1 seven — `integrator_math`, `recursion_ops`, `temporal.*` — move to kernel;
+  bp-091, whose entry window this seal closes as the 2nd sealed plan); **K2** (the 13 packaging-debt
+  promotions, as each remedy lands); **M3** (the flip — when map == kernel-tree and the outer ratchet
+  is 0). The outer ratchet (19 → 0) runs on its own parallel track, untouched here.
+- **Opened a new track/finding?** No new finding filed. The `__file__`/constructed-path re-anchors
+  (loader.py, constitution.py, and the constructed test paths) are a codebase concern the builder
+  resolves + annotates (routing rule) — a necessary, behavior-preserving consequence of relocation,
+  not a spec-defect. Noted here for K3/future waves: **any moved module with a `__file__`-relative
+  `REPO_ROOT = Path(__file__)...parent×N` gains one `.parent` per directory of descent, and
+  string-built paths (`/ "core" / "<mod>"`) + isolation-test module-name strings must be swept** —
+  the import repoint cannot see them (the F8 class, now with a worked precedent).
