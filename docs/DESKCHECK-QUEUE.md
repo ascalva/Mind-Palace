@@ -1,10 +1,13 @@
 # Deskcheck queue
 
+> **The action-list view of `docs/TRACKS.md` (the board)** — the tracks currently in
+> `deskcheck-pending`. The board is authoritative for phase/hierarchy; this is the "what needs a
+> deskcheck now" filter.
+>
 > **Done ≠ sealed.** A track/feature is done only when it is *deskchecked* — the builder shows
 > it working (or clearly shows its true state), walks through what/how/surprises, and the
-> **owner has the final say**. This board is the follow-through ledger (finding-0153). Seeded
-> 2026-07-21; maintained by `/triage` and every seal. Verdict column: `PENDING` (awaiting owner
-> deskcheck) · `DONE` (owner-accepted) · `NEEDS-WORK` (owner found a gap → follow-up plan/finding).
+> **owner has the final say** (finding-0153). Verdict: `PENDING` (awaiting owner deskcheck) ·
+> `DONE` (owner-accepted) · `NEEDS-WORK` (owner found a gap → follow-up plan/finding).
 
 ## A. Awaiting deskcheck — sealed, but never demonstrated + owner-accepted as done
 

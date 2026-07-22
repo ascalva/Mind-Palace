@@ -10,7 +10,8 @@ links:
   - docs/findings/finding-0141.md                      # dreamer built-not-wired — sealed ≠ delivered
   - docs/findings/finding-0145.md                      # reference sensor: minting live, current-view half unbuilt
   - .claude/skills/verify                              # the agent's half of a deskcheck (drive it, observe behavior)
-  - docs/DESKCHECK-QUEUE.md                            # the concrete queue this finding seeds
+  - docs/TRACKS.md                                     # the track board (portfolio view) this finding establishes
+  - docs/DESKCHECK-QUEUE.md                            # the deskcheck-pending action-list view of the board
 ftype: design
 route: orchestrator
 resolution: null
@@ -44,6 +45,17 @@ owner) through **(1) what was built, (2) how it was built, (3) any surprises, (4
 end-to-end OR its true current state** — and **the reviewer has the final say** on whether the
 story / feature / track / task is done, or something is missing. Nothing is done until it
 passes a deskcheck.
+
+## The tracking hierarchy (owner, 2026-07-21 — the unit above build plans)
+
+Individual-track tracking doesn't scale with concurrent tracks, so the ontology has levels:
+**item** (a build-plan item) ⊂ **build plan** (a session) ⊂ **track** (all design + all builds
++ wiring for one cohesive body of work — "the inner/outer core track") ⊂ **the board**
+(`docs/TRACKS.md`, the portfolio view of every concurrent track). A *track* — not a plan — is
+the unit that gets deskchecked and closed; a track is CLOSED only when the whole thing is
+demonstrated and owner-approved. The board is the "another category of tracking" a team needs
+when many tracks run at once; the orchestrator owns it and keeps every track visible until the
+owner closes it.
 
 ## Proposed integration into the artifact chain (a Fable design pass sizes it)
 
