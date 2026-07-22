@@ -2,7 +2,7 @@
 type: design-note
 id: dn-temporal-code-corpus
 track: code-ingest
-status: draft            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
+status: ratified            # draft → ratified → superseded.  draft→ratified is an OWNER-ONLY hand edit.
 created: 2026-07-22
 updated: 2026-07-22
 links:

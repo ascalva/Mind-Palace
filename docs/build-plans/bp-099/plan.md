@@ -23,11 +23,11 @@ cost:
     model: opus
     tokens: 250k
   actual:
-    model: opus            # opus-4-8[1m], single builder session-43
-    tokens: ~215k
-    ratio: 0.86            # well-pinned (interfaces inline in §6); Q3/Q5/Q6 resolved by reading, not iterating
-    session_delta: one session, all 3 items + gates green on the first structural pass
-    notes: 1 spec-fidelity finding (0164) filed + resolved in-scope; zero new mypy errors; pins byte-untouched
+    model: opus            # opus-4-8[1m], single delegated builder, session-43; tier verified (self-report + harness)
+    tokens: ~256k          # harness-measured (builder self-estimate ~215k)
+    ratio: 1.02            # vs 250k estimate — well-pinned (interfaces inline in §6); Q3/Q5/Q6 resolved by reading, not iterating
+    session_delta: one delegated builder session, all 3 items + gates green on the first structural pass
+    notes: 1 spec-fidelity finding (0166; renumbered from the builder's 0164 at merge — id collision with main) filed + resolved in-scope; zero new mypy errors; pins byte-untouched
 depends_on:
   - bp-092
   - bp-098
