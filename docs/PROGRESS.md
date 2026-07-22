@@ -5362,3 +5362,17 @@ type_gate · CI pytest 1895 passed). **Parked with re-entry:** the NUMERIC M-C3/
 real qwen3 embeddings — they park with bp-092's owner-visible seed run (re-entry: run mc3/mc4 on the
 seeded store; they gate CI-4/PD-C); M-C5 recorded (synthetic, embedder-independent). No findings.
 bp-094 (CI-3) still building in parallel. **Next:** seal bp-094 (verify its φ_code attestation) → bp-095.
+
+**bp-094 (CI-3) DONE + sealed** (delegated, opus, 222k): reference resolvers — §2.4-3 existence check
+(always on), dn-slug/finding-id/paired-§ shorthand resolvers, code_to_code inherits/calls static
+resolver. Item 1 built + shipped DISABLED (`ENABLED_L2B_PATTERNS = frozenset()`); Item 2 (the
+irreversible edge mint) PARKED for owner-visible F-CI6 hand-checked precision samples. 8 new tests.
+Merged (`668eaf1`); re-verified green (ruff · mypy 254 · argless 69 · type_gate · CI pytest 1902
+passed). **⚑ FIRST φ_code WORLDVIEW BUMP 1.0.0 → 1.1.0** (orchestrator-VERIFIED: the existence check
+drops absent-target note-citations from the VERSIONED `references_out` — the x.md false-positive fix;
+sha `a218c71d`; the gated-off edge patterns do NOT justify it). **OWED: a full re-projection of the
+3.76M code_observations (1.6GB, projected under 1.0.0) at the NEXT DEPLOY** (`backfill_observations()`
+/ the sense loop's is_projected gate) — DEPLOY-GATED (merge does not trigger it; the daemon runs
+deployed v1.16.0). Owner chose to land the bump (2026-07-22). finding-0158 (section-anchor field, v1
+overloads target_detail; gated off, no data at risk; design confirms at the enable gate). **Next:**
+bp-095 (S↔F lens, last CI plan) → wave complete.
