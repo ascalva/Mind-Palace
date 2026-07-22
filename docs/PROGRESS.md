@@ -5318,3 +5318,12 @@ owner-staged yield are live on merge. **finding-0155** (P-WF1 probe: model id re
 via `transcript_path`) → oq-0033. Deskcheck queue now **6** (workflow track joined). The workflow
 track is DONE-not-CLOSED — it owes its own deskcheck. **Next:** budget re-probe → inner/outer core
 (bp-090 K1) if usage remains.
+
+**bp-090 (K1) DONE + sealed** (delegated builder, opus, uninterrupted): the born inner ring
+relocated to `core/kernel/**` — 29 `git mv` + 455 import repoints across 215 files, kernel map
+recomputed to 42, K1 import-closure = 0 external, outer ratchet 19 unchanged (move-neutral). Merged
+(`0b65542`); combined tree (K1 + WF-1/WF-2) re-verified green by the orchestrator: ruff · mypy 249 ·
+argless mypy = 69 · type_gate · CI pytest 1853 passed/11 skipped/21 deselected. No findings; two
+refinements journaled (config/matching are full moves not splits; two `__file__` REPO_ROOT
+re-anchors needed — a K3 lesson). inner-outer-core track owes its deskcheck (M0+S1+K1). **Next:**
+bp-091 (K3, the S1 seven) after K1 — budget permitting.
