@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-099
 track: code-ingest
-status: proposed
+status: complete
 design_ref:
   - docs/design-notes/temporal-code-corpus.md
 contract: builder
@@ -22,13 +22,18 @@ cost:
   estimate:
     model: opus
     tokens: 250k
-  actual: null
+  actual:
+    model: opus            # opus-4-8[1m], single builder session-43
+    tokens: ~215k
+    ratio: 0.86            # well-pinned (interfaces inline in §6); Q3/Q5/Q6 resolved by reading, not iterating
+    session_delta: one session, all 3 items + gates green on the first structural pass
+    notes: 1 spec-fidelity finding (0164) filed + resolved in-scope; zero new mypy errors; pins byte-untouched
 depends_on:
   - bp-092
   - bp-098
 parallelizable_with: []
 created: 2026-07-22
-updated: 2026-07-22
+updated: 2026-07-22  # complete (build session-43)
 links:
   - docs/design-notes/temporal-code-corpus.md
   - docs/findings/finding-0163.md
