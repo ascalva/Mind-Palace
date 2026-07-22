@@ -12,7 +12,7 @@ import math
 import re
 from collections.abc import Callable
 
-from core.constitution import Message
+from core.kernel.constitution import Message
 
 _WORD = re.compile(r"[a-z0-9']+")
 

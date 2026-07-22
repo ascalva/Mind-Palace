@@ -14,12 +14,12 @@ integrity concerns, not mere unit behavior:
 
 import pytest
 
-from core.ingest.logseq import ParsedNote
-from core.ingest.pipeline import ingest_note
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.ingest.logseq import ParsedNote
+from core.kernel.ingest.pipeline import ingest_note
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 

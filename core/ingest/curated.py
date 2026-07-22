@@ -19,14 +19,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from core.attestation import Attestor
-from core.config import Config
 from core.ingest.embed import Embedder
 from core.ingest.index import index_records
-from core.ingest.logseq import parse_note
-from core.ingest.pipeline import ingest_note
-from core.provenance import Provenance
+from core.kernel.config import Config
+from core.kernel.ingest.logseq import parse_note
+from core.kernel.ingest.pipeline import ingest_note
+from core.kernel.provenance import Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 
@@ -74,8 +74,8 @@ def build_and_ingest_curated(config: Config | None = None) -> CuratedReport:
     """Wire + run the curated ingest against the configured stores + embedder (needs the live
     embedder — owner-run, see scripts/ingest_self_knowledge.py)."""
     from core.attestation import build_attestor
-    from core.config import REPO_ROOT, get_config
     from core.ingest.embed import build_embedder
+    from core.kernel.config import REPO_ROOT, get_config
 
     cfg = config or get_config()
     return ingest_curated(

@@ -12,10 +12,8 @@ from __future__ import annotations
 
 import dataclasses
 
-from core.mirror import MirrorView
-from core.ops_view import OpsView
-from core.reference_view import ReferenceView
-from core.scope import (
+from core.kernel.mirror import MirrorView
+from core.kernel.scope import (
     DEPLOYED_WORLD_CEILING,
     Clock,
     Privilege,
@@ -24,6 +22,8 @@ from core.scope import (
     WindowKind,
     WorldReach,
 )
+from core.ops_view import OpsView
+from core.reference_view import ReferenceView
 from core.temporal_view import TemporalView
 from ops.effects import EffectView, ReversibilityClass, world_reach
 

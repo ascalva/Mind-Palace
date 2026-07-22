@@ -27,7 +27,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from core.attestation import Attestor
-from core.config import Config
 from core.dreaming.cluster import (
     Cluster,
     cluster_notes,
@@ -35,9 +34,10 @@ from core.dreaming.cluster import (
     note_centroids,
     note_snippets,
 )
-from core.mirror import MirrorView
+from core.kernel.config import Config
+from core.kernel.mirror import MirrorView
+from core.kernel.stores.rawstore import RawStore
 from core.stores.derived import FINDING, DerivedStore, artifact_id
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 NEAR_DUPLICATE = "near_duplicate"
@@ -182,7 +182,7 @@ def build_curator(config: Config | None = None) -> Curator:
     """Wire a Curator against the real configured stores. Contradiction detection stays
     deferred unless a detector is supplied (e.g. one backed by the synthesis model)."""
     from core.attestation import build_attestor
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.stores.derived import open_derived_store
     from core.stores.vectorstore import open_vector_store
 

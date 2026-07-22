@@ -24,7 +24,7 @@ import pytest
 
 from config.loader import get_config
 from core.complex.temporal import SnapshotStore
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 from core.stores.runledger import RunLedger
 from eval.drift import DriftConfig
 from eval.golden import GoldenQuery

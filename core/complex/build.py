@@ -24,8 +24,8 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import scipy.sparse as sp
 
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 
 if TYPE_CHECKING:  # annotation-only; the runtime import is lazy (see build_complex) to break
     from core.dreaming.cluster import NoteVector  # the package-init cycle with core.dreaming

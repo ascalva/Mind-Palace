@@ -16,12 +16,12 @@ from core.ingest.founding import (
     ingest_founding,
 )
 from core.ingest.index import index_records, semantic_search
-from core.ingest.logseq import parse_text
-from core.ingest.pipeline import ingest_note
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.ingest.logseq import parse_text
+from core.kernel.ingest.pipeline import ingest_note
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.authored_supersession import AuthoredSupersessionStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from tests.fixtures.embedding import DIM, FakeEmbedder
 

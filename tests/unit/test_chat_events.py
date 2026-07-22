@@ -16,12 +16,12 @@ from typing import Any
 import pytest
 
 from config.loader import load_config
-from core.agent_scope import ConformanceError, Handle, assert_conforms
 from core.chat_events import ChatEventProjector, extract_events
-from core.scope import Stratum
+from core.kernel.agent_scope import ConformanceError, Handle, assert_conforms
+from core.kernel.scope import Stratum
+from core.kernel.stores.rawstore import RawStore
 from core.stores.chat_events import ChatEventStore
 from core.stores.chatlog import ChatlogStore, ChatUtterance
-from core.stores.rawstore import RawStore
 from ops.chat_sensor import DIALOGUE_SENSOR_SCOPE
 from scheduler.cron import CHAT_EVENTS_KIND
 from scheduler.router import Router

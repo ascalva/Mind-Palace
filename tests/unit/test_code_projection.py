@@ -18,8 +18,8 @@ import pytest
 
 from core.attestation.attestor import StoreAttestor
 from core.attestation.store import AttestationStore
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import Provenance
 from core.sensing import CodeSensingHandoff, ObservedView
 from core.stores.code_observations import CodeObservationStore
 from ops.code_sensor import CodeSensor

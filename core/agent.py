@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.constitution import Message, frame_context
+from core.kernel.constitution import Message, frame_context
+from core.kernel.selfcheck import Finding, SelfCheck, self_evaluate
 from core.models import ModelServer
-from core.selfcheck import Finding, SelfCheck, self_evaluate
 
 __all__ = ["Agent", "Finding", "SelfCheck", "self_evaluate"]
 

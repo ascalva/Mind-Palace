@@ -61,8 +61,8 @@ class _OfflineServer:
 def _seed_offline(store, embedder, cfg, repo_root: Path) -> None:
     """Seed a throwaway corpus so the offline demo has something to retrieve + explain."""
     from core.ingest.curated import curated_sources, ingest_curated
+    from core.kernel.stores.rawstore import RawStore
     from core.stores.catalog import VaultCatalog
-    from core.stores.rawstore import RawStore
 
     samples = [
         ("sleep", "Racing thoughts at night again. Slow breathing before bed helps me settle."),

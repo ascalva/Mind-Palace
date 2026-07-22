@@ -1,7 +1,7 @@
 """A trivial agent inherits the Constitution (Phase 0 gate; Invariant 6)."""
 
 from core.agent import Agent, self_evaluate
-from core.constitution import load_constitution
+from core.kernel.constitution import load_constitution
 
 
 def test_agent_inherits_constitution():

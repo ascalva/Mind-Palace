@@ -11,8 +11,8 @@ import dataclasses
 
 from config.loader import load_config
 from core.ingest.index import semantic_search
-from core.provenance import MIRROR_READABLE, Provenance
-from core.stores.rawstore import RawStore
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from scheduler.interface import build_conversation_runtime
 from tests.fixtures.fakes import HashingEmbedder, ReplyServer

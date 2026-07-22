@@ -14,9 +14,9 @@ import scipy.sparse as sp
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from core.complex.balance import frustrated_triangles, frustration, signed_spectrum
 from core.complex.spectral import diffusion_cluster_notes
 from core.dreaming.cluster import NoteVector
+from core.kernel.complex.balance import frustrated_triangles, frustration, signed_spectrum
 
 
 def _notes(seed: int, n: int, dim: int = 8) -> list[NoteVector]:

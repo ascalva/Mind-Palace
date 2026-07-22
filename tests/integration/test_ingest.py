@@ -1,10 +1,10 @@
 """Logseq parse, vault scoping, chunking, pipeline dedup, and the provenance firewall."""
 
-from core.ingest.chunk import chunk_text
-from core.ingest.logseq import iter_vault, parse_note
-from core.ingest.pipeline import ingest_note, ingest_vault
-from core.provenance import MIRROR_READABLE, Provenance
-from core.stores.rawstore import RawStore
+from core.kernel.ingest.chunk import chunk_text
+from core.kernel.ingest.logseq import iter_vault, parse_note
+from core.kernel.ingest.pipeline import ingest_note, ingest_vault
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.rawstore import RawStore
 
 
 def _vault(tmp_path):

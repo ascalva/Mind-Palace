@@ -29,12 +29,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from core.config import Config, get_config
 from core.dreaming.interpreters import Claim, run_panel
 from core.dreaming.rnd import require_rnd_enabled
-from core.mirror import MirrorView
-from core.recursion import DEFAULT_GAMMA, DEFAULT_LAMBDA, claim_confidence
-from core.selfcheck import grounding_score
+from core.kernel.config import Config, get_config
+from core.kernel.mirror import MirrorView
+from core.kernel.recursion import DEFAULT_GAMMA, DEFAULT_LAMBDA, claim_confidence
+from core.kernel.selfcheck import grounding_score
 from core.stores.derived import DREAM_LOG, DerivedStore
 
 # All R0/R1 claims rest directly on authored leaves, so the derivation depth is 1 (an

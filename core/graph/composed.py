@@ -44,7 +44,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from core.scope import Scope, Stratum
+from core.kernel.scope import Scope, Stratum
 
 # The edge-class tags carried in `edge_classes` (the per-class attribution retained through the
 # flatten). Named constants so a Δ-phase reading and the tests agree on the strings.

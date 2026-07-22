@@ -50,8 +50,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from core.config import Config
-from core.provenance import Provenance
+from core.kernel.config import Config
+from core.kernel.provenance import Provenance
 from core.stores.observation_history import ObservationHistoryStore
 
 # The observation grain's kind vocabulary (note §2.3): a module row (qualname '') carries
@@ -331,7 +331,7 @@ def open_code_observation_store(config: Config | None = None) -> CodeObservation
     """The `open_*` helper: `data/code_observations.sqlite` (plan Q2 — the sibling-store
     convention beside `derived_store`, no dedicated cfg path; registered in
     `reset_targets()` as a corpus-side wipe target, plan Q4)."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return CodeObservationStore(cfg.paths.data_dir / "code_observations.sqlite")

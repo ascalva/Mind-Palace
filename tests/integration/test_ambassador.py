@@ -14,12 +14,12 @@ from core.attestation.attestor import StoreAttestor
 from core.attestation.store import AttestationStore
 from core.dreams_view import DreamsView
 from core.ingest.dialogue import DialogueCapture
+from core.kernel.provenance import Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.librarian import Librarian
 from core.ops_view import OpsView
-from core.provenance import Provenance
 from core.stores.catalog import VaultCatalog
 from core.stores.derived import DREAM, DerivedStore
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from ops.ledger import ProposalLedger
 from scheduler.budget import Budgeter

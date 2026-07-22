@@ -176,7 +176,7 @@ def constitution_intact(cfg: DriftConfig) -> bool:
     on missing config; the owner blesses the fingerprint to turn the conformance axis on)."""
     if not cfg.blessed_fingerprint:
         return True
-    from core.constitution import constitution_fingerprint
+    from core.kernel.constitution import constitution_fingerprint
     return constitution_fingerprint() == cfg.blessed_fingerprint
 
 

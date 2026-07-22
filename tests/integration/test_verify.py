@@ -7,11 +7,11 @@ always passes and only tampered/unreproducible text is dropped fail-closed. Dete
 RawStore and the real chunker, no model.
 """
 
-from core.ingest.chunk import chunk_text
-from core.ingest.logseq import ParsedNote
-from core.ingest.pipeline import derive_chunks, ingest_note
-from core.ingest.verify import verify_rows_against_raw
-from core.stores.rawstore import RawStore
+from core.kernel.ingest.chunk import chunk_text
+from core.kernel.ingest.logseq import ParsedNote
+from core.kernel.ingest.pipeline import derive_chunks, ingest_note
+from core.kernel.ingest.verify import verify_rows_against_raw
+from core.kernel.stores.rawstore import RawStore
 
 # Two ~900-char blocks → two chunks (neither hard-splits; together they exceed the 1200 budget).
 NOTE = f"{('alpha ' * 150).strip()}\n\n{('beta ' * 180).strip()}"

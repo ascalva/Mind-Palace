@@ -20,7 +20,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 
-from core.config import Config, ModelConfig
+from core.kernel.config import Config, ModelConfig
 from core.models.ollama_client import OllamaClient
 from core.models.registry import MemoryCeilingError, Registry
 

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from core.kernel.stores.rawstore import RawStore
 from core.stores.derived import DerivedStore
-from core.stores.rawstore import RawStore
 
 
 def raw_store(tmp_path: Path) -> RawStore:

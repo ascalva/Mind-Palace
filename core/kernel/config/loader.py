@@ -18,7 +18,8 @@ from typing import Any
 # gitignore entries (`config/local.toml`, `config/levers.toml`) are path-specific and out of this
 # plan's write_scope, so relocating the data would strand them; the loader reads them by path
 # instead (a filesystem read, no first-party import — self-containment is about IMPORTS, not data).
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent   # core/config/loader.py → core/ → <repo>
+# kernel/config/loader.py → core/kernel/config → core/kernel → core → <repo> (K1, bp-090)
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _CONFIG_DIR = REPO_ROOT / "config"                          # the committed + per-machine toml data
 _DEFAULTS = _CONFIG_DIR / "defaults.toml"
 # Deployment-specific overrides: a gitignored config/local.toml that overlays the committed

@@ -93,7 +93,7 @@ def test_zero_tolerance_with_real_deterioration_is_infinite():
 # --- conformance check -----------------------------------------------------------------------
 
 def test_constitution_intact_matches_blessed_fingerprint():
-    from core.constitution import constitution_fingerprint
+    from core.kernel.constitution import constitution_fingerprint
     real = constitution_fingerprint()
     assert constitution_intact(DriftConfig(blessed_fingerprint=real)) is True
     assert constitution_intact(DriftConfig(blessed_fingerprint="deadbeef")) is False
@@ -211,7 +211,7 @@ def test_alignment_snapshot_feeds_the_drift_profile():
 
     from core.complex.build import build_complex
     from core.complex.cut import alignment_snapshot
-    from core.mirror import MirrorView
+    from core.kernel.mirror import MirrorView
     rng = np.random.default_rng(0)
     rows = []
     for i in range(4):

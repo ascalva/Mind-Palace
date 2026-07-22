@@ -30,7 +30,7 @@ from core.graph.composed import (
 )
 from core.graph.conductance import CONDUCTANCE_THRESH, effective_conductance, sigma_t_profile
 from core.graph.sigma_star import build_max_spanning_tree, pairwise_sigma_star, sigma_star
-from core.scope import (
+from core.kernel.scope import (
     Authority,
     Clock,
     EdgeScope,

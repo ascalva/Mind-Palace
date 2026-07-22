@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 from core.research.criteria import DeidentificationError
 from core.sensing import (
     ObservedView,

@@ -20,8 +20,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 

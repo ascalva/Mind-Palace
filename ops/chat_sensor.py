@@ -55,10 +55,10 @@ from pathlib import Path
 from typing import Any
 
 from config.loader import Config
-from core.agent_scope import sensor_scope
-from core.scope import Stratum
+from core.kernel.agent_scope import sensor_scope
+from core.kernel.scope import Stratum
+from core.kernel.stores.rawstore import RawStore
 from core.stores.chatlog import ChatlogStore, ChatUtterance, open_chatlog_store
-from core.stores.rawstore import RawStore
 
 # role → speaker (CS-3 metadata mapping). NEVER a provenance input (CS-2 firewall).
 _ROLE_TO_SPEAKER = {"user": "owner", "assistant": "agent"}

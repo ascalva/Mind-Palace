@@ -15,10 +15,10 @@ import pytest
 
 from config.loader import load_config
 from core.complex.temporal import SnapshotStore
-from core.complex_types import EdgeSign
 from core.dreaming.dreamer import Dreamer
 from core.dreaming.rnd import DreamRnDDisabledError
-from core.provenance import Provenance
+from core.kernel.complex_types import EdgeSign
+from core.kernel.provenance import Provenance
 from core.stores.derived import DerivedStore
 from core.stores.edges import CONTRADICTS, EdgeStore
 

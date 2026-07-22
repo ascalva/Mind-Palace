@@ -16,7 +16,7 @@ import itertools
 
 import pytest
 
-from core.scope import (
+from core.kernel.scope import (
     DENYLIST_IDEAL,
     PRIVATE_STRATA,
     Authority,
@@ -543,7 +543,7 @@ def test_zone_law_admits_world_only_sigma_at_any_reach():
 # HYPOTHETICAL overlay, is NOT auto-added to top() or to of(dialogue)). EXHAUST differs from
 # HYPOTHETICAL in ONE way: it is a genuine refinement (`_REFINES[EXHAUST]=DIALOGUE`, below
 # dialogue in R), yet the closure SKIPS it (`_EXCLUDED_REFINEMENTS`) — grantable only when named.
-from core.scope import (  # noqa: E402  (grouped with the AL-3 section it supports)
+from core.kernel.scope import (  # noqa: E402  (grouped with the AL-3 section it supports)
     _EXCLUDED_REFINEMENTS,
     _REFINES,
     _refinements_below,

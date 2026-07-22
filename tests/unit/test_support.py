@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
-from core.complex.support import grounding_with_support, noisy_or, support_scores
-from core.selfcheck import grounding_score
+from core.kernel.complex.support import grounding_with_support, noisy_or, support_scores
+from core.kernel.selfcheck import grounding_score
 
 AUTHORED = {"a1", "a2", "a3", "a4"}
 

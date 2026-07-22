@@ -4,7 +4,7 @@ c∈[0,1] properties over arbitrary inputs are in test_properties.py."""
 
 import pytest
 
-from core.recursion import DEFAULT_GAMMA, DEFAULT_LAMBDA, claim_confidence, decay_bound
+from core.kernel.recursion import DEFAULT_GAMMA, DEFAULT_LAMBDA, claim_confidence, decay_bound
 
 
 def test_authored_leaf_is_undiscounted():

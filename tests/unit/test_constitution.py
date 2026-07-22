@@ -1,6 +1,11 @@
 """The Constitution loads, fingerprints stably, and frames every context outermost."""
 
-from core.constitution import Message, constitution_fingerprint, frame_context, load_constitution
+from core.kernel.constitution import (
+    Message,
+    constitution_fingerprint,
+    frame_context,
+    load_constitution,
+)
 
 
 def test_loads_nonempty():

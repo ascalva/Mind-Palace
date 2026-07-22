@@ -138,7 +138,7 @@ def queue_overview() -> int:
     import sqlite3
     from datetime import UTC, datetime
 
-    from core.config.loader import get_config
+    from core.kernel.config.loader import get_config
     from scheduler.queue import (
         DEFERRED,
         DONE,

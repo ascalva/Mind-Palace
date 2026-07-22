@@ -26,9 +26,9 @@ from agents.ambassador import DeliveredResult, build_ambassador
 from agents.ambassador.policy import is_research_request, topic_of
 from config.loader import Config
 from core.interface import CoreInbox
+from core.kernel.stores.rawstore import RawStore
 from core.librarian import Librarian
 from core.research.criteria import DeidentificationError
-from core.stores.rawstore import RawStore
 from edge.interface import GatewayChannel, InterfaceGateway, LocalAdapter
 from ops.gate import HumanGate
 from scheduler.queue import DONE, QUEUED, Job, JobQueue

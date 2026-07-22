@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from core.scope import (
+from core.kernel.scope import (
     Authority,
     Clock,
     EdgeScope,
@@ -245,7 +245,7 @@ def test_certified_cut_rides_in_scope_cut_no_slice_error(tmp_path: Path) -> None
 def test_multi_stratum_point_scope_without_the_cut_still_raises() -> None:
     """Control: the SLICE rule genuinely fires here — so the previous test proves the cut satisfied
     it, not that the rule was inert."""
-    from core.scope import SliceError
+    from core.kernel.scope import SliceError
 
     with pytest.raises(SliceError):
         Scope(

@@ -13,14 +13,14 @@ from pathlib import Path
 from ops.import_lint import NETWORK_MODULES, scan_file
 
 _REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-_CORE_CONFIG = _REPO_ROOT / "core" / "config"
+_CORE_CONFIG = _REPO_ROOT / "core" / "kernel" / "config"   # K1 (bp-090): config moved
 
 
 def test_config_values_resolve_under_repo_root() -> None:
     """The move must not drift any config value. REPO_ROOT re-anchors to the real repo root (not
     `core/`), and the tomls (which stay in `config/`) still drive the same resolved paths."""
-    from core.config import REPO_ROOT, get_config, load_config
-    from core.config.loader import _DEFAULTS
+    from core.kernel.config import REPO_ROOT, get_config, load_config
+    from core.kernel.config.loader import _DEFAULTS
 
     assert REPO_ROOT == _REPO_ROOT                               # re-anchored correctly (not core/)
     cfg = get_config()
@@ -59,7 +59,7 @@ def test_core_config_imports_no_first_party_sibling() -> None:
 def test_core_get_secret_is_env_only() -> None:
     """The trust boundary held: core's `get_secret` is the ENV path only — no `token` parameter, and
     the module imports neither `secrets_backend` nor `hvac`, so the Vault path cannot leak in."""
-    from core.config import get_secret
+    from core.kernel.config import get_secret
 
     params = inspect.signature(get_secret).parameters
     assert "token" not in params                                # env-only signature

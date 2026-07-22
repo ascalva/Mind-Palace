@@ -26,7 +26,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 
-from core.config import Config
+from core.kernel.config import Config
 
 
 class VerdictEffect(StrEnum):
@@ -123,7 +123,7 @@ class DispositionStore:
 
 
 def open_disposition_store(config: Config | None = None) -> DispositionStore:
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return DispositionStore(cfg.paths.derived_store.parent / "verdict_dispositions.sqlite")

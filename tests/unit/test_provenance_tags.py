@@ -27,7 +27,7 @@ from pathlib import Path
 
 import pytest
 
-from core.provenance import (
+from core.kernel.provenance import (
     MIRROR_READABLE,
     Authored,
     Derived,
@@ -101,7 +101,7 @@ def test_promotion_without_capability_is_a_type_error(tmp_path: Path) -> None:
     call (no capability), a forged capability, direct assignment, and passing Derived where
     a consumer demands Authored. Payload types thread through the generic."""
     _check_fixture(tmp_path, textwrap.dedent("""\
-        from core.provenance import Authored, Derived, OwnerVerdict, promote
+        from core.kernel.provenance import Authored, Derived, OwnerVerdict, promote
 
         d: Derived[int] = Derived(1)
         cap = OwnerVerdict()
@@ -122,7 +122,7 @@ def test_promotion_with_capability_passes(tmp_path: Path) -> None:
     """The same call WITH the capability type-checks clean, and the payload type is
     preserved end to end (Derived[int] -> Authored[int] -> int)."""
     _check_fixture(tmp_path, textwrap.dedent("""\
-        from core.provenance import Authored, Derived, OwnerVerdict, promote
+        from core.kernel.provenance import Authored, Derived, OwnerVerdict, promote
 
         def rehearse(d: Derived[int], cap: OwnerVerdict) -> Authored[int]:
             return promote(d, cap)
@@ -136,7 +136,7 @@ def test_subclass_laundering_is_a_type_error(tmp_path: Path) -> None:
     """@final closes the deliberate-inheritance hole: a class cannot subclass its way from
     Derived into Authored, and OwnerVerdict cannot be forged by subclassing either."""
     _check_fixture(tmp_path, textwrap.dedent("""\
-        from core.provenance import Authored, OwnerVerdict
+        from core.kernel.provenance import Authored, OwnerVerdict
 
         class Sneaky(Authored[int]):  # E: misc
             pass
@@ -158,7 +158,7 @@ def test_mirror_bypass_is_a_type_error(tmp_path: Path) -> None:
         from typing import Any
         from collections.abc import Sequence
 
-        from core.provenance import Authored, Derived
+        from core.kernel.provenance import Authored, Derived
 
         Row = dict[str, Any]
 

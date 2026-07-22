@@ -14,7 +14,7 @@ must patch `core.config.loader` — the real module whose `load_config` runs (fi
 
 from __future__ import annotations
 
-from core.config.loader import (
+from core.kernel.config.loader import (
     LEVERS_OVERLAY,
     REPO_ROOT,
     AirlockConfig,
@@ -40,7 +40,7 @@ from core.config.loader import (
     load_config,
     refresh_config,
 )
-from core.config.loader import get_secret as _env_secret
+from core.kernel.config.loader import get_secret as _env_secret
 
 __all__ = [
     "AirlockConfig", "AmbassadorConfig", "AttestationConfig", "BackupConfig", "Config",

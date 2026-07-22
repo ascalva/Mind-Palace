@@ -59,7 +59,9 @@ def test_shadow_never_imports_the_derived_store() -> None:
 def test_shadow_reads_the_corpus_only_through_a_mirror_view() -> None:
     """The corpus read is `MirrorView.project` ONLY — no raw provenance-bypassing read."""
     imports = _imported_modules(SHADOW)
-    assert "core.mirror" in imports, "shadow.py must read the corpus via core.mirror.MirrorView"
+    assert "core.kernel.mirror" in imports, (
+        "shadow.py must read the corpus via core.kernel.mirror.MirrorView"
+    )
     calls = _attribute_calls(SHADOW)
     assert "project" in calls, "shadow.py must project a MirrorView (the sanctioned read)"
     # A raw store scan that bypasses the mirror firewall must not appear in shadow's own source.
@@ -79,7 +81,7 @@ def test_scanner_would_catch_a_derived_import() -> None:
 def test_scanner_would_catch_a_raw_all_rows_read() -> None:
     """Negative control: the call scan detects a raw `.all_rows(` read where one exists (the mirror
     itself calls it — so `all_rows not in shadow` above is a real fact, not a dead check)."""
-    mirror = REPO_ROOT / "core" / "mirror.py"
+    mirror = REPO_ROOT / "core" / "kernel" / "mirror.py"   # K1 (bp-090): mirror moved
     assert "all_rows" in _attribute_calls(mirror)
 
 

@@ -5,9 +5,9 @@ import pytest
 from config.loader import get_config
 from core.ingest.embed import build_embedder
 from core.ingest.index import index_records, semantic_search
-from core.ingest.pipeline import ingest_vault
+from core.kernel.ingest.pipeline import ingest_vault
+from core.kernel.stores.rawstore import RawStore
 from core.models.ollama_client import OllamaClient
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 pytestmark = pytest.mark.live

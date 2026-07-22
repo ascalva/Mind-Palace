@@ -28,7 +28,7 @@ from core.dreaming.interpreters import (
     run_panel,
 )
 from core.graph.census import Arc, CensusReading, census
-from core.mirror import MirrorView
+from core.kernel.mirror import MirrorView
 from core.temporal.spine import Certificate, CertifiedCut
 
 

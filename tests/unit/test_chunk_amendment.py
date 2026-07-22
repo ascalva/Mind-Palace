@@ -8,8 +8,8 @@ build plan R1). Pure: no store, no embed, no network.
 
 from __future__ import annotations
 
-from core.ingest.amend import AmendmentPlan, chunk_point_id, plan_amendment
-from core.ingest.chunk import Chunk, chunk_text
+from core.kernel.ingest.amend import AmendmentPlan, chunk_point_id, plan_amendment
+from core.kernel.ingest.chunk import Chunk, chunk_text
 
 
 def test_content_hash_is_deterministic_and_content_sensitive():

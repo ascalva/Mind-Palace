@@ -23,8 +23,8 @@ import pytest
 
 import core.stores.code_observations as mod
 from config.loader import Config
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.sensing import ObservedView
 from core.stores.code_observations import (
     CodeObservation,

@@ -74,9 +74,9 @@ from pathlib import Path
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.curvature import forman
-from core.complex.hodge import edge_index, flag_triangles, hodge_decompose
 from core.graph.sigma_star import build_max_spanning_tree, pairwise_sigma_star
+from core.kernel.complex.curvature import forman
+from core.kernel.complex.hodge import edge_index, flag_triangles, hodge_decompose
 from eval.harness.re_measure import (
     _as_mirror,
     assemble_composed_graph,

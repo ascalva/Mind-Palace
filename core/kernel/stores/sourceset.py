@@ -42,7 +42,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 
 
 class RowSource(Protocol):

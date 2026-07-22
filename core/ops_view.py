@@ -25,7 +25,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol
 
-from core.scope import (
+from core.kernel.scope import (
     ANCHOR,
     Authority,
     Clock,

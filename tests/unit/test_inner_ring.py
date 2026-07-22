@@ -32,7 +32,7 @@ import ast
 import sys
 from pathlib import Path
 
-from core.rings import INNER, MATH_3P, PLUMBING_STDLIB
+from core.kernel.rings import INNER, MATH_3P, PLUMBING_STDLIB
 from ops.import_lint import NETWORK_MODULES
 
 # Repo root: walk up from this file until the marker that anchors the tree (robust to the test being

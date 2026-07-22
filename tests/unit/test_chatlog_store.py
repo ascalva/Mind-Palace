@@ -15,8 +15,8 @@ import inspect
 from typing import Any
 
 import core.stores.chatlog as mod
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.sensing import NonObservedRowError, ObservedView
 from core.stores.chatlog import ChatlogStore, ChatUtterance
 

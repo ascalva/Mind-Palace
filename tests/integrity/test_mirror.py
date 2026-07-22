@@ -8,8 +8,8 @@ projection, over arbitrary mixed inputs) lives in test_properties.py.
 
 import pytest
 
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 
 
 class FakeStore:

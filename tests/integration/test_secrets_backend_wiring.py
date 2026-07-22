@@ -17,8 +17,8 @@ from config.secrets_backend import VaultClient, build_secrets_backend
 
 # bp-067: loader internals live in core.config now (patch its globals THERE — finding-0104); the
 # token-capable get_secret stays on the outside config.loader facade (the machinery/Vault zone).
-from core.config import loader
-from core.config.loader import _DEFAULTS, get_config, load_config
+from core.kernel.config import loader
+from core.kernel.config.loader import _DEFAULTS, get_config, load_config
 
 
 def _cfg(*, enabled: bool):

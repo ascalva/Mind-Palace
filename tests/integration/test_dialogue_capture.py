@@ -11,9 +11,9 @@ from core.attestation.attestor import StoreAttestor
 from core.attestation.store import AttestationStore
 from core.ingest.dialogue import DialogueCapture
 from core.ingest.index import semantic_search
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from tests.fixtures.fakes import HashingEmbedder
 

@@ -43,9 +43,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from core.config import Config
-from core.provenance import Provenance
-from core.scope import Stratum
+from core.kernel.config import Config
+from core.kernel.provenance import Provenance
+from core.kernel.scope import Stratum
 
 # A would-be stratum that is never a legitimate home for a staged row: the overlay itself (a staged
 # row's would-be identity is a DURABLE stratum, never "hypothetical") and the denylist (𝔇 is never a
@@ -288,7 +288,7 @@ def open_staging_store(config: Config | None = None) -> StagingStore:
     """Open the staging store beside the other core stores (the store-layer house pattern).
     Sqlite-backed (parked engine default: sqlite, not in-memory — reading records must outlive the
     process)."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     path = cfg.paths.derived_store.parent / "staging.sqlite"

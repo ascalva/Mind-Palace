@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from core.config import Config
+from core.kernel.config import Config
 from core.stores.verdicts import VerdictRecord, VerdictStore
 from core.verdict.dispositions import DispositionStore, VerdictEffect
 from core.verdict.payload import SignedVerdict
@@ -33,7 +33,7 @@ def load_owner_pub_b64(config: Config | None = None) -> str:
     the same non-secret key material the attestation verifier already loads
     (`core/attestation/verify.load_public_keys`). Raises `OwnerKeyMissing` if absent, so a verdict
     is never accepted without a key to check it against."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     path = Path(cfg.attestation.owner_pub)

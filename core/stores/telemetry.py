@@ -214,7 +214,7 @@ class TelemetryStore:
 
 
 def open_store(config: Any = None) -> TelemetryStore:
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     config = config or get_config()
     return TelemetryStore(config.paths.telemetry_db)

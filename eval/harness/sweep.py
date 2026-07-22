@@ -40,7 +40,7 @@ from ops.levers import Lever, ProposedChange, get_lever
 if TYPE_CHECKING:
     from config.loader import Config
     from core.complex.temporal import SnapshotStore
-    from core.mirror import RowSource
+    from core.kernel.mirror import RowSource
     from core.stores.runledger import RunLedger
     from eval.drift import DriftConfig
     from eval.golden import GoldenQuery, Retriever

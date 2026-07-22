@@ -45,7 +45,7 @@ from core.dreaming.interpreters import (
     collect_claims,
     community_interpreter,
 )
-from core.mirror import MirrorView, RowSource
+from core.kernel.mirror import MirrorView, RowSource
 from core.stores.runledger import RunLedger, polarity_and_flag
 from eval.drift import DriftConfig, drift_from_report, load_drift_config
 from eval.golden import (
@@ -59,7 +59,7 @@ from eval.harness import registry
 from eval.harness.store import EvalKey, EvalResultsStore, Reading
 
 if TYPE_CHECKING:
-    from core.config import Config
+    from core.kernel.config import Config
 
 _log = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ class ShadowRunner:
 
 
 def _get_config() -> Config:
-    from core.config import get_config
+    from core.kernel.config import get_config
     return get_config()
 
 

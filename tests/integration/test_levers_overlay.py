@@ -10,7 +10,7 @@ from __future__ import annotations
 
 # bp-067: the loader lives in core.config now; patch its globals THERE (a re-export facade can't
 # carry a monkeypatch across the module boundary — finding-0104).
-from core.config import load_config, loader
+from core.kernel.config import load_config, loader
 
 
 def test_levers_overlay_changes_the_effective_knob(tmp_path, monkeypatch):

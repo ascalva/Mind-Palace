@@ -34,7 +34,7 @@ from dataclasses import dataclass
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.hodge import boundary_1, boundary_2, edge_index, harmonic_basis
+from core.kernel.complex.hodge import boundary_1, boundary_2, edge_index, harmonic_basis
 
 
 @dataclass(frozen=True)

@@ -27,9 +27,9 @@ from core.dreaming.interpreters import (
     Claim,
 )
 from core.graph.census import Arc, census
-from core.mirror import MirrorView
-from core.provenance import Provenance
-from core.selfcheck import grounding_score
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
+from core.kernel.selfcheck import grounding_score
 from core.stores.derived import DREAM_LOG, DerivedStore
 from core.temporal.spine import Certificate, CertifiedCut
 

@@ -31,8 +31,8 @@ import pytest
 from config.loader import get_config
 from core.dreaming.graph import MirrorGraph
 from core.dreaming.interpreters import community_interpreter
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 from core.stores.runledger import claim_id, polarity_for
 from eval.harness.fibers import (
     STRONG_THRESHOLD,

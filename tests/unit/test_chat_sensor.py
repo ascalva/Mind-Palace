@@ -22,9 +22,9 @@ from typing import Any
 
 import pytest
 
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.chatlog import ChatlogStore
-from core.stores.rawstore import RawStore
 from ops.chat_sensor import (
     ChatSecretGuard,
     ChatSensor,

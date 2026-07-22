@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from core.scope import (
+from core.kernel.scope import (
     Clock,
     NoCommonClockError,
     TimeScope,

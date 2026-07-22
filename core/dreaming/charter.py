@@ -45,8 +45,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
-from core.agent_scope import dreamer_scope
-from core.scope import (
+from core.kernel.agent_scope import dreamer_scope
+from core.kernel.scope import (
     DENYLIST_IDEAL,
     Authority,
     Privilege,

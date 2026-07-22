@@ -28,9 +28,9 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 
-from core.ingest.chunk import chunk_text
 from core.ingest.embed import Embedder
-from core.provenance import Provenance
+from core.kernel.ingest.chunk import chunk_text
+from core.kernel.provenance import Provenance
 from core.research.criteria import Paper
 from core.research.rank import RankedPaper
 from core.stores.vectorstore import VectorStore

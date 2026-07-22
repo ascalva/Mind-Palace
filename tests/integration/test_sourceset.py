@@ -9,8 +9,8 @@ stratum uses the SAME machinery), and the fail-closed mixed-provenance guard.
 import pytest
 
 from core.ingest.index import grouped_semantic_search, semantic_search
-from core.provenance import MIRROR_READABLE, Provenance
-from core.stores.sourceset import (
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.sourceset import (
     MixedProvenanceError,
     SourceId,
     group_sources,

@@ -15,10 +15,10 @@ from pathlib import Path
 
 import pytest
 
-from core.agent_scope import ConformanceError, Handle, assert_conforms
 from core.chat_events import ChatEvent
 from core.integrator import INTEGRATOR_SCOPE, Integrator
-from core.scope import Stratum
+from core.kernel.agent_scope import ConformanceError, Handle, assert_conforms
+from core.kernel.scope import Stratum
 from core.stores.causal_edges import CausalEdgeStore
 from core.stores.chat_events import ChatEventStore
 from ops.code_snapshot import open_snapshot_db

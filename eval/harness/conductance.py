@@ -44,7 +44,7 @@ from core.graph.conductance import (
     sigma_t_profile,
 )
 from core.graph.sigma_star import ConnIndex, acquire_mirror_cut, cut_fingerprint
-from core.mirror import MirrorView
+from core.kernel.mirror import MirrorView
 from core.temporal.spine import Spine
 from eval.harness.connectivity import ConnEvidence
 from eval.harness.store import EvalKey, EvalResultsStore, Reading

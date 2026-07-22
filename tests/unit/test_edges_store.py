@@ -7,7 +7,7 @@ strength is refused (polarity lives in `sign`, not `w`).
 
 import pytest
 
-from core.complex_types import EdgeSign
+from core.kernel.complex_types import EdgeSign
 from core.stores.edges import CONTRADICTS, SUPPORTS, EdgeStore
 
 

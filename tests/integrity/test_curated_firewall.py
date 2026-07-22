@@ -9,11 +9,11 @@ non-default `provenances={CURATED}` retrieval can — and vice versa. Same firew
 from pathlib import Path
 
 from core.ingest.curated import curated_sources, ingest_curated
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.librarian import Librarian
-from core.mirror import MirrorView
-from core.provenance import MIRROR_READABLE, Provenance
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from tests.fixtures.fakes import HashingEmbedder, ReplyServer
 

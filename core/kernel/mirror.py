@@ -34,8 +34,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any, ClassVar, Protocol
 
-from core.provenance import MIRROR_READABLE, Provenance
-from core.scope import (
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.scope import (
     ANCHOR,
     Authority,
     Clock,

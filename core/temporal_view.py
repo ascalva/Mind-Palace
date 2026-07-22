@@ -38,8 +38,8 @@ from typing import TYPE_CHECKING, ClassVar
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.hodge import edge_index, harmonic_basis
-from core.scope import (
+from core.kernel.complex.hodge import edge_index, harmonic_basis
+from core.kernel.scope import (
     ANCHOR,
     Authority,
     Clock,
@@ -61,7 +61,7 @@ from core.temporal.operators import sigma_node_map
 from core.temporal.superconnection import curvature_norm, is_flat, severed_citations
 
 if TYPE_CHECKING:  # annotations only — the factory imports the config/store lazily at runtime
-    from core.config import Config
+    from core.kernel.config import Config
     from core.stores.reference_edges import ReferenceEdgeStore
     from core.stores.versions import VersionStore
 
@@ -281,7 +281,7 @@ def open_temporal_view(config: Config | None = None, *,
     HEAD. The default is resolved via `core.reference_view._resolve_default_commit` so this View and
     `ReferenceView` anchor identically (both answer "now" the same way); reference_view.py is the
     authoritative resolver, out of this plan's scope to make public."""
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.reference_view import _resolve_default_commit
     from core.stores.reference_edges import open_reference_edge_store
 
@@ -297,7 +297,7 @@ def open_coherence(config: Config | None = None, *,
     citation snapshots at `commit_from` (earlier, X_n) and `commit_to` (later, X_{n+1}). Both views
     are built off the SAME store handle (then discarded); the returned report holds no store
     reference."""
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.stores.reference_edges import open_reference_edge_store
 
     cfg = config or get_config()
@@ -314,7 +314,7 @@ def open_rotation(config: Config | None = None, *,
     principal angles between their `ker L₁ | common` (dn-velocity-instruments §2.2 (a)). Mirrors
     `open_coherence`: both views are built off the SAME store handle (then discarded); the returned
     report holds no store reference."""
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.stores.reference_edges import open_reference_edge_store
 
     cfg = config or get_config()
@@ -335,7 +335,7 @@ def supersession_wellfounded(config: Config | None = None, *, doc_ids: list[str]
     `VersionStore.doc_ids()` read would enable it, an owner-gated write to versions.py). Callers
     scope explicitly; `open_supersession_wellfounded` scopes to the anchor's corpus nodes.
     `version_store` is an optional injected handle (test seam); None opens the live store."""
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.stores.versions import open_version_store
     from core.temporal.acquire import supersession_poset
     from core.temporal.boundary import delta_D_squared_is_zero

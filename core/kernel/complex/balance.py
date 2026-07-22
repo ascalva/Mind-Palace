@@ -20,7 +20,7 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.laplacian import signed_laplacian
+from core.kernel.complex.laplacian import signed_laplacian
 
 _DENSE_MAX = 4
 

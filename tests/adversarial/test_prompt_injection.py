@@ -8,9 +8,9 @@ Constitution-outermost frame + grounding self-check; this pins the ingest-layer 
 
 from __future__ import annotations
 
-from core.ingest.logseq import parse_note
-from core.ingest.pipeline import ingest_note
-from core.provenance import Provenance
+from core.kernel.ingest.logseq import parse_note
+from core.kernel.ingest.pipeline import ingest_note
+from core.kernel.provenance import Provenance
 from tests.fixtures.corpus import write_vault
 from tests.fixtures.stores import raw_store
 

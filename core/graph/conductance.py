@@ -79,8 +79,8 @@ from dataclasses import dataclass, field
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.laplacian import laplacian as _combinatorial_laplacian
 from core.dreaming.graph import MirrorGraph
+from core.kernel.complex.laplacian import laplacian as _combinatorial_laplacian
 from core.temporal.spine import Spine
 
 _MIRROR_STRATUM = "mirror"              # the σ-graph is cut over the mirror stratum

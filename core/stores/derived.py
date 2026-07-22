@@ -30,9 +30,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from core.complex_types import HyperedgeRole
-from core.config import Config
-from core.provenance import Provenance
+from core.kernel.complex_types import HyperedgeRole
+from core.kernel.config import Config
+from core.kernel.provenance import Provenance
 
 # Artifact kinds (the discriminator). Dreams are thematic synthesis; findings are the
 # curator's flagged candidates (subkind carries the finding type); dream_log entries are the
@@ -417,7 +417,7 @@ class DerivedStore:
 
 
 def open_derived_store(config: Config | None = None) -> DerivedStore:
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return DerivedStore(cfg.paths.derived_store)

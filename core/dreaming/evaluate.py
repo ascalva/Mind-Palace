@@ -47,10 +47,10 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from typing import Any, Protocol
 
-from core.agent_scope import ConformanceError, HandleInventory, assert_conforms
 from core.dreaming.charter import Budget
-from core.mirror import RowSource
-from core.scope import DENYLIST_IDEAL, Scope, Window, WindowKind, admissible
+from core.kernel.agent_scope import ConformanceError, HandleInventory, assert_conforms
+from core.kernel.mirror import RowSource
+from core.kernel.scope import DENYLIST_IDEAL, Scope, Window, WindowKind, admissible
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════
 # L1 — the symbolic scope expression (composition is store-free)

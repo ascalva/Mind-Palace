@@ -5,7 +5,7 @@ Deterministic — hand-built vectors, no Ollama needed.
 
 import pytest
 
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 from core.stores.vectorstore import VectorStore
 
 

@@ -211,10 +211,12 @@ def test_v1_read_compat_properties_raise_on_corpus_to_corpus():
 def test_no_import_path_from_core_complex_to_this_store():
     """Any import of `reference_edges` from `core/complex/**` breaks the plan's premise:
     the balance math must hold NO handle to the Lane-1 store (plan §6; note §2.5)."""
-    complex_dir = REPO / "core" / "complex"
-    offenders = [p.name for p in sorted(complex_dir.rglob("*.py"))
+    # K1 (bp-090): the complex family now spans two trees — the pure math (balance, …) moved to
+    # core/kernel/complex, the residue (spectral, …) stays at core/complex. Scan both, unweakened.
+    complex_dirs = [REPO / "core" / "kernel" / "complex", REPO / "core" / "complex"]
+    offenders = [p.name for d in complex_dirs for p in sorted(d.rglob("*.py"))
                  if "reference_edges" in p.read_text(encoding="utf-8")]
-    assert offenders == [], f"core/complex/** must not reference the Lane-1 store: {offenders}"
+    assert offenders == [], f"core complex family must not reference the Lane-1 store: {offenders}"
 
 
 def test_schema_has_no_stored_asymmetric_residue():

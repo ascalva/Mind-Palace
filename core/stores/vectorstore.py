@@ -17,8 +17,8 @@ from typing import Any
 
 import pyarrow as pa
 
-from core.config import Config
-from core.provenance import Provenance
+from core.kernel.config import Config
+from core.kernel.provenance import Provenance
 from core.typedshims.lancedb import VectorTable, connect
 
 TABLE = "chunks"
@@ -154,7 +154,7 @@ class VectorStore:
 
 
 def open_vector_store(config: Config | None = None) -> VectorStore:
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return VectorStore(path=cfg.paths.vector_store, dim=cfg.embedding.dim)

@@ -14,7 +14,7 @@ from typing import Any, cast
 
 from config.loader import get_config, load_config
 from core.dreaming import build_dreamer
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 from core.stores.vectorstore import VectorStore
 
 # The same planted shape the R0/R1 + dream_v2 tests use (two clusters + a bridge + an outlier), so

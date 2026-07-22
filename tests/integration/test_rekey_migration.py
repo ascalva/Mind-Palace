@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-from core.ingest.amend import chunk_point_id
-from core.ingest.chunk import Chunk
 from core.ingest.index import rekey_preview, rekey_store
+from core.kernel.ingest.amend import chunk_point_id
+from core.kernel.ingest.chunk import Chunk
 from core.stores.vectorstore import VectorStore
 
 

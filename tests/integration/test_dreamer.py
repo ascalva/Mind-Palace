@@ -6,10 +6,10 @@ as INTERPRETED dreams; the pre-return grounding check runs (passes a grounded re
 flags a fabricated citation). The live synthesis run is test_dreaming_live.py.
 """
 
-from core.constitution import load_constitution
 from core.dreaming import Dreamer
-from core.provenance import MIRROR_READABLE
-from core.selfcheck import FAIL
+from core.kernel.constitution import load_constitution
+from core.kernel.provenance import MIRROR_READABLE
+from core.kernel.selfcheck import FAIL
 from core.stores.derived import DREAM, DerivedStore
 
 ROWS = [

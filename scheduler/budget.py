@@ -22,7 +22,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from core.constitution import Message, load_constitution
+from core.kernel.constitution import Message, load_constitution
 
 # h = the reply headroom in the fit constraint Στ ≤ W − h (WHITEPAPER-TECHNICAL §budget).
 # BOUND (gap G7): h ≥ a role's largest expected reply, ~512–2048 tokens; 1024 is the default.

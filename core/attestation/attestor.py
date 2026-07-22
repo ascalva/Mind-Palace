@@ -17,8 +17,8 @@ from typing import Protocol
 from core.attestation.crypto import Ed25519Signer
 from core.attestation.record import Attestation
 from core.attestation.store import AttestationStore
-from core.config import Config
-from core.constitution import constitution_fingerprint
+from core.kernel.config import Config
+from core.kernel.constitution import constitution_fingerprint
 
 
 class AttestationKeyMissing(RuntimeError):
@@ -98,7 +98,7 @@ def build_attestor(config: Config | None = None) -> StoreAttestor:
     attached, and only if the private seed is actually placed (else fail-closed, never silently
     unsigned). Default (`enabled = false`) is records-only — the Step-2 behavior."""
     from core.attestation.store import open_attestation_store
-    from core.config import get_config, get_secret
+    from core.kernel.config import get_config, get_secret
 
     cfg = config or get_config()
     store = open_attestation_store(cfg)

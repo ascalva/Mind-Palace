@@ -15,7 +15,7 @@ laundering path) or into 𝔇 (making a legitimate counterfactual grant unbuilda
 
 from __future__ import annotations
 
-from core.scope import (
+from core.kernel.scope import (
     DENYLIST_IDEAL,
     PRIVATE_STRATA,
     Authority,

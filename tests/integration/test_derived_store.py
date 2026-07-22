@@ -9,8 +9,8 @@ import inspect
 
 import pytest
 
-from core.complex_types import HyperedgeRole
-from core.provenance import Provenance
+from core.kernel.complex_types import HyperedgeRole
+from core.kernel.provenance import Provenance
 from core.stores.derived import DERIVES, DREAM, FINDING, DerivationCycleError, DerivedStore
 
 

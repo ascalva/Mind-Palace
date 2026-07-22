@@ -36,7 +36,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from core.mirror import MirrorView
+from core.kernel.mirror import MirrorView
 from ops.effect_catalog import get_actuator
 from ops.effect_gate import ProposedEffect
 from ops.effects import ReversibilityClass
@@ -118,7 +118,7 @@ def model_tailor(server: object, *, tier: str = "routine", max_notes: int = 12) 
 
     Parsing is forgiving; an empty reply degrades to the grounded default (honest, not a fabricated
     draft). Lazy about the model interface (duck-typed `.chat`) so this module imports no server."""
-    from core.constitution import frame_context
+    from core.kernel.constitution import frame_context
 
     role = (
         "You draft a reply in the owner's own voice, grounded ONLY in the notes below. Write the "

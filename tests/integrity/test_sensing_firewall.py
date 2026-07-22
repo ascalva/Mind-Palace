@@ -20,8 +20,8 @@ from pathlib import Path
 
 import pytest
 
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.sensing import NonObservedRowError, ObservedView, SensedObservation
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]

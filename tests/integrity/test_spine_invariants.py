@@ -23,7 +23,7 @@ import pytest
 from core.attestation.attestor import StoreAttestor
 from core.attestation.record import Attestation
 from core.attestation.store import AttestationStore
-from core.complex_types import EdgeSign
+from core.kernel.complex_types import EdgeSign
 from core.stores.derived import DerivedStore
 from core.stores.edges import EdgeStore
 from core.stores.runledger import RunLedger

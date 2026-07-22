@@ -38,7 +38,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from core.config import Config
+from core.kernel.config import Config
 
 # The edge fiber vocabulary this store admits. v1 mints only C (causal-witnessed production);
 # F (citation) is a declared-but-unfed capability of the integrator scope — no read/cite
@@ -188,7 +188,7 @@ def open_causal_edge_store(config: Config | None = None) -> CausalEdgeStore:
     """`data/causal_edges.sqlite` beside the L1 store (the sibling-store convention; no dedicated
     cfg path). Registered in `reset_targets()` as a corpus-side wipe target — rebuilt by
     re-integration from the immutable rawstore-backed L1 + the commit ledger."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return CausalEdgeStore(cfg.paths.data_dir / "causal_edges.sqlite")

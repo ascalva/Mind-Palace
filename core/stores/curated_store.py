@@ -23,7 +23,7 @@ factory that aims the proven store at the curated path.
 
 from __future__ import annotations
 
-from core.config import Config
+from core.kernel.config import Config
 from core.stores.vectorstore import VectorStore
 
 
@@ -32,7 +32,7 @@ def open_curated_store(config: Config | None = None) -> VectorStore:
 
     Mirrors `open_vector_store` but for the curated path; the embedding dimension is shared
     (the same local embedder embeds both corpora — §8 derived layer)."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return VectorStore(path=cfg.paths.curated_store, dim=cfg.embedding.dim)

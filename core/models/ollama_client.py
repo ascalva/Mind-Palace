@@ -15,7 +15,7 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any, ReadOnly, TypedDict, cast
 
-from core.config import OllamaConfig
+from core.kernel.config import OllamaConfig
 
 
 class Message(TypedDict):

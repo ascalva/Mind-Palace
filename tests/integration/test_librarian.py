@@ -5,10 +5,10 @@ retrieved grounding injected and the query last; the grounding self-check passes
 answer and flags a fabricated citation. The live end-to-end run is test_librarian_live.py.
 """
 
-from core.constitution import load_constitution
+from core.kernel.constitution import load_constitution
+from core.kernel.provenance import MIRROR_READABLE
+from core.kernel.selfcheck import FAIL
 from core.librarian import Librarian
-from core.provenance import MIRROR_READABLE
-from core.selfcheck import FAIL
 
 ROWS = [
     {"title": "sleep-and-racing-thoughts", "source_path": "/x/sleep.md",

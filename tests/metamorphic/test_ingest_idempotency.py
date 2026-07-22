@@ -6,8 +6,8 @@ note: same content digest, stored exactly once (content-addressing), second pass
 
 from __future__ import annotations
 
-from core.ingest.logseq import parse_note
-from core.ingest.pipeline import ingest_note
+from core.kernel.ingest.logseq import parse_note
+from core.kernel.ingest.pipeline import ingest_note
 from tests.fixtures.corpus import write_vault
 from tests.fixtures.stores import raw_store
 

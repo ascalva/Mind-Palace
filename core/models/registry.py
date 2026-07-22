@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.config import Config, ModelConfig, get_config
+from core.kernel.config import Config, ModelConfig, get_config
 
 
 class MemoryCeilingError(RuntimeError):

@@ -4,7 +4,7 @@ Deterministic grounding (cited notes must resolve to retrieved sources) + the ju
 for the subjective directives (deferred until the Phase 10 baseline machinery exists).
 """
 
-from core.selfcheck import DEFERRED, FAIL, PASS, Finding, self_evaluate
+from core.kernel.selfcheck import DEFERRED, FAIL, PASS, Finding, self_evaluate
 
 
 def test_grounding_passes_when_citations_resolve():

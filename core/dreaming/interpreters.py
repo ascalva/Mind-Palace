@@ -41,11 +41,8 @@ import numpy as np
 
 from core.complex.blocks import sbm
 from core.complex.build import ReasoningComplex, build_complex
-from core.complex.curvature import most_negative_edges
-from core.complex.hodge import edge_index, harmonic_basis
 from core.complex.spectral import spectral_labels
 from core.complex.topology import cosine_distance_matrix, long_lived_holes
-from core.config import Config, DreamRnDConfig
 from core.dreaming.cluster import cluster_notes, note_centroids
 from core.dreaming.graph import MirrorGraph
 from core.dreaming.rnd import require_rnd_enabled
@@ -56,7 +53,10 @@ from core.graph.census import (
     CensusClaim,
     CensusReading,
 )
-from core.mirror import MirrorView
+from core.kernel.complex.curvature import most_negative_edges
+from core.kernel.complex.hodge import edge_index, harmonic_basis
+from core.kernel.config import Config, DreamRnDConfig
+from core.kernel.mirror import MirrorView
 from core.stores.edges import EdgeStore
 
 # Method names (the discriminator carried on every claim).
@@ -322,7 +322,7 @@ def tension_claims(kx: ReasoningComplex) -> list[Claim]:
     (contradiction = a persisted `contradicts` edge overlaid by `build_complex`); with no asserted
     contradictions the graph is all-support and this honestly emits nothing. Dissonance lives
     HERE, never in H₁ (§4.2)."""
-    from core.complex.balance import frustrated_triangles
+    from core.kernel.complex.balance import frustrated_triangles
     claims: list[Claim] = []
     for i, j, k in frustrated_triangles(kx.A_signed):
         digests = (kx.nodes[i], kx.nodes[j], kx.nodes[k])

@@ -18,8 +18,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal
 
-from core.config import Config
-from core.constitution import Message, frame_context
 from core.factory.registry import AgentRegistry
 from core.factory.roles import BASE_ROLES, PRE_DECLARED_MAX, RoleTemplate
 from core.factory.tools import (
@@ -29,8 +27,10 @@ from core.factory.tools import (
     ToolResult,
     dispatcher_for,
 )
+from core.kernel.config import Config
+from core.kernel.constitution import Message, frame_context
+from core.kernel.selfcheck import SelfCheck, SubjectiveJudge, self_evaluate
 from core.models import ModelServer
-from core.selfcheck import SelfCheck, SubjectiveJudge, self_evaluate
 from ops.gate import GateRequest, HumanGate
 
 if TYPE_CHECKING:  # annotations only — no runtime import (config.secrets_backend stays lazy)
@@ -180,7 +180,7 @@ def build_factory(config: Config | Literal[False] | None = None, *,
     # DEFERRED factory secrets-inversion (finding-0103/0104; bp-068+), left RED on purpose. The
     # token `get_secret` at :82 likewise stays on `config.loader` (the facade's token-capable form).
     from config.secrets_backend import build_secrets_backend
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     secrets = build_secrets_backend(cfg)         # None unless [secrets] enabled (fail-closed)

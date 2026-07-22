@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.config import Config
+from core.kernel.config import Config
 from core.sandbox.policy import SandboxPolicy
 from core.sandbox.pool import SandboxBusyError, WarmPool
 from core.sandbox.runner import SandboxRunner, build_runner
@@ -74,7 +74,7 @@ def build_broker(config: Config | None = None, *,
                  telemetry: TelemetryWriter | None = None) -> ExecutionBroker:
     """Wire a broker from config: the configured runtime + a warm pool sized to the
     concurrency cap."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     sb = cfg.sandbox

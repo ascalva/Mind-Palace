@@ -44,7 +44,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import ClassVar
 
-from core.scope import (
+from core.kernel.scope import (
     ANCHOR,
     Authority,
     Clock,

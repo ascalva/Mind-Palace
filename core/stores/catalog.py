@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 from core.stores.authored_supersession import OwnerDeclaration, verify_owner_declaration
 from core.stores.versions import RekeyRefusedError
 

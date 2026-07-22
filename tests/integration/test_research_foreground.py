@@ -12,10 +12,10 @@ import dataclasses
 from typing import cast
 
 from config.loader import load_config
+from core.kernel.stores.rawstore import RawStore
 from core.librarian import Librarian
 from core.research.airlock import ResearchResult
 from core.research.criteria import Paper, ResearchCriteria
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from scheduler.interface import (
     AMBASSADOR_TASK_KIND,

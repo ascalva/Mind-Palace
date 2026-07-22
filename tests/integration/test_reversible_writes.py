@@ -17,7 +17,7 @@ from core.effect_proposal import (
     NotAReversibleWriteError,
     ReversibleWriteProposer,
 )
-from core.mirror import MirrorView, NonMirrorRowError
+from core.kernel.mirror import MirrorView, NonMirrorRowError
 from edge.effectors.writes import (
     EffectorsDisabled,
     NotStageableError,

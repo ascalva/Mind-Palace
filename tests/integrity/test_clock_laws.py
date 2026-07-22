@@ -31,7 +31,7 @@ from __future__ import annotations
 from collections.abc import Hashable
 from pathlib import Path
 
-from core.scope import Clock
+from core.kernel.scope import Clock
 from core.stores.derived import DerivedStore
 from core.stores.runledger import RunLedger
 from core.stores.versions import VersionStore

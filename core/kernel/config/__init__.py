@@ -12,7 +12,7 @@ The outside `config/` package re-exports from here (outside → core is the allo
 
 from __future__ import annotations
 
-from core.config.loader import (
+from core.kernel.config.loader import (
     LEVERS_OVERLAY,
     REPO_ROOT,
     AirlockConfig,

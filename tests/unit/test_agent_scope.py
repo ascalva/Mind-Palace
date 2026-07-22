@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from core.agent_scope import (
+from core.kernel.agent_scope import (
     ConformanceError,
     Handle,
     assert_conforms,
@@ -23,7 +23,7 @@ from core.agent_scope import (
     query_scope,
     sensor_scope,
 )
-from core.scope import (
+from core.kernel.scope import (
     PRIVATE_STRATA,
     Clock,
     Privilege,

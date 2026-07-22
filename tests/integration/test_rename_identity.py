@@ -13,8 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.ingest.sync import VaultSync
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from core.stores.versions import VersionStore
 from tests.fixtures.embedding import DIM, FakeEmbedder

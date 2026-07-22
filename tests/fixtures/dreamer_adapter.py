@@ -83,13 +83,13 @@ from pathlib import Path
 from typing import Any
 
 from core.complex.spectral import diffusion_cluster_notes
-from core.constitution import Message
 from core.dreaming.adjudicator import AUTHORED_LEAF_DEPTH
 from core.dreaming.cluster import Cluster, cluster_notes, similarity_matrix
 from core.dreaming.dreamer import Clusterer, Dreamer, Theme
-from core.provenance import Provenance
-from core.recursion import DEFAULT_LAMBDA
-from core.selfcheck import grounding_score
+from core.kernel.constitution import Message
+from core.kernel.provenance import Provenance
+from core.kernel.recursion import DEFAULT_LAMBDA
+from core.kernel.selfcheck import grounding_score
 from core.stores.derived import DREAM, DerivedStore
 
 

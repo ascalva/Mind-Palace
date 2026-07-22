@@ -22,8 +22,8 @@ def main(argv: list[str]) -> int:
     seal()  # structural egress guard first (Invariant 1)
     from config.loader import get_config
     from core.ingest.purge import PurgeRefusedError, purge_raw
+    from core.kernel.stores.rawstore import RawStore
     from core.stores.catalog import VaultCatalog
-    from core.stores.rawstore import RawStore
     from core.stores.vectorstore import VectorStore
 
     cfg = get_config()

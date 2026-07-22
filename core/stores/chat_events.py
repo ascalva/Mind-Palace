@@ -34,7 +34,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:  # annotation only — avoids a runtime import cycle (core.chat_events imports us)
     from core.chat_events import ChatEvent
 
-from core.config import Config
+from core.kernel.config import Config
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS chat_events (
@@ -116,7 +116,7 @@ def open_chat_event_store(config: Config | None = None) -> ChatEventStore:
     """`data/chat_events.sqlite` beside the chatlog (the sibling-store convention; no dedicated cfg
     path). Registered in `reset_targets()` as a corpus-side wipe target — rebuilt by re-projection
     from the immutable rawstore (the orchestrator's post-merge step)."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return ChatEventStore(cfg.paths.data_dir / "chat_events.sqlite")

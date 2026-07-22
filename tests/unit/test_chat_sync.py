@@ -15,8 +15,8 @@ from pathlib import Path
 from typing import Any, cast
 
 from config.loader import get_config
+from core.kernel.stores.rawstore import RawStore
 from core.stores.chatlog import ChatlogStore
-from core.stores.rawstore import RawStore
 from ops.chat_sensor import ChatSecretGuard, ChatSensor, build_chat_sensor
 from scheduler.chat_sync import CHAT_SYNC_KIND, chat_sync_handler, enqueue_chat_sync
 from scheduler.queue import PRIORITY_BACKGROUND, Job, JobQueue

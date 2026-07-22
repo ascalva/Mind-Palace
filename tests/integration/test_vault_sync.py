@@ -14,8 +14,8 @@ from pathlib import Path
 from core.attestation import Attestor
 from core.ingest.index import semantic_search
 from core.ingest.sync import SyncOutcome, VaultSync
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import CatalogEntry, VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from core.stores.versions import VersionStore
 from tests.fixtures.attestation import attestor_with_store

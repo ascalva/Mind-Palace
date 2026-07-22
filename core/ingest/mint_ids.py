@@ -35,8 +35,8 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from core.ingest.logseq import ParsedNote, iter_vault, parse_note
 from core.ingest.sync import VaultSync
+from core.kernel.ingest.logseq import ParsedNote, iter_vault, parse_note
 from core.stores.authored_supersession import OwnerDeclaration
 from core.stores.versions import VersionStore
 

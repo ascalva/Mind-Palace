@@ -30,8 +30,8 @@ from core.dreaming.cluster import NoteVector
 from core.dreaming.graph import MirrorGraph
 from core.graph.conductance import reconnection_scan
 from core.graph.sigma_star import cut_fingerprint
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 from core.stores.versions import VersionStore
 from core.temporal.spine import CutSources, Spine, SpineSources
 from eval.harness.conductance import (

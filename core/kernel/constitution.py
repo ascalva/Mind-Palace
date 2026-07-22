@@ -17,7 +17,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import ReadOnly, TypedDict
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # kernel/constitution.py → <repo> (K1)
 CONSTITUTION_PATH = REPO_ROOT / "CONSTITUTION.md"
 
 

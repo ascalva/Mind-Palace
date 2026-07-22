@@ -53,8 +53,8 @@ def test_amendment_records_a_version_and_no_edge_handle_exists(tmp_path):
     # handle at all — so a version relation cannot reach the balance-fed graph (Q8 hazard removed by
     # construction, not by a rel-type-filter discipline).
     from core.ingest.sync import VaultSync
+    from core.kernel.stores.rawstore import RawStore
     from core.stores.catalog import VaultCatalog
-    from core.stores.rawstore import RawStore
     from core.stores.vectorstore import VectorStore
     from tests.fixtures.embedding import DIM, FakeEmbedder
 
@@ -79,7 +79,7 @@ def test_amendment_records_a_version_and_no_edge_handle_exists(tmp_path):
 def test_delete_rel_type_retires_stray_supersedes(tmp_path):
     # The Item-6 migration: any `supersedes` rows a prior build wrote into the EdgeStore can be
     # retired (they must not sit in the balance-fed store); a real semantic edge is untouched.
-    from core.complex_types import EdgeSign
+    from core.kernel.complex_types import EdgeSign
     from core.stores.edges import CONTRADICTS, EdgeStore
 
     edges = EdgeStore(tmp_path / "edges.sqlite")

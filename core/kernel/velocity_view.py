@@ -46,7 +46,7 @@ from dataclasses import dataclass
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.hodge import edge_index, harmonic_basis, hodge_decompose
+from core.kernel.complex.hodge import edge_index, harmonic_basis, hodge_decompose
 
 
 @dataclass(frozen=True)

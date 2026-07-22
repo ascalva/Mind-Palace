@@ -25,8 +25,8 @@ from typing import Any
 import numpy as np
 
 from core.graph.sigma_star import cut_fingerprint
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 from core.stores.versions import VersionStore
 from core.temporal.spine import CutSources, Spine, SpineSources
 from eval.harness.connectivity import (

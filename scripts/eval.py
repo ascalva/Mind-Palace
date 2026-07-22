@@ -26,8 +26,8 @@ def _build_retriever(tmp: Path):
     from config.loader import get_config
     from core.ingest.embed import build_embedder
     from core.ingest.index import index_records, semantic_search
-    from core.ingest.pipeline import ingest_vault
-    from core.stores.rawstore import RawStore
+    from core.kernel.ingest.pipeline import ingest_vault
+    from core.kernel.stores.rawstore import RawStore
     from core.stores.vectorstore import VectorStore
     from eval.golden import CORPUS_DIR
 

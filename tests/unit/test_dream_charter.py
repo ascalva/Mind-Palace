@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import pytest
 
-from core.agent_scope import dreamer_scope
 from core.dreaming.charter import (
     INSTRUMENT_MAX,
     Budget,
@@ -26,7 +25,8 @@ from core.dreaming.charter import (
     Instrument,
     InstrumentCeilingError,
 )
-from core.scope import (
+from core.kernel.agent_scope import dreamer_scope
+from core.kernel.scope import (
     Authority,
     Privilege,
     Scope,

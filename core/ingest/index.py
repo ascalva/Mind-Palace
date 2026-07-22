@@ -15,12 +15,12 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
-from core.ingest.amend import chunk_point_id, text_hash
-from core.ingest.chunk import Chunk
 from core.ingest.embed import Embedder
-from core.ingest.pipeline import IngestRecord
-from core.provenance import MIRROR_READABLE, Provenance
-from core.stores.sourceset import SourceSet, group_sources
+from core.kernel.ingest.amend import chunk_point_id, text_hash
+from core.kernel.ingest.chunk import Chunk
+from core.kernel.ingest.pipeline import IngestRecord
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.stores.sourceset import SourceSet, group_sources
 from core.stores.vectorstore import VectorStore
 
 

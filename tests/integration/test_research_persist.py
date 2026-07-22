@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import cast
 
 from core.ingest.embed import Embedder
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.research.criteria import Paper
 from core.research.persist import persist_keepers
 from core.research.rank import RankedPaper

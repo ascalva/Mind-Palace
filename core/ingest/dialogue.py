@@ -19,14 +19,14 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from core.attestation import Attestor
-from core.config import Config
 from core.ingest.embed import Embedder
 from core.ingest.index import index_records
-from core.ingest.logseq import ParsedNote
-from core.ingest.pipeline import ingest_note
-from core.provenance import Provenance
+from core.kernel.config import Config
+from core.kernel.ingest.logseq import ParsedNote
+from core.kernel.ingest.pipeline import ingest_note
+from core.kernel.provenance import Provenance
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 
@@ -72,8 +72,8 @@ class DialogueCapture:
 def build_dialogue_capture(config: Config | None = None) -> DialogueCapture:
     """Wire a DialogueCapture against the configured stores + embedder."""
     from core.attestation import build_attestor
-    from core.config import get_config
     from core.ingest.embed import build_embedder
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return DialogueCapture(

@@ -29,7 +29,7 @@ from core.graph.influence import (
     rayleigh_influence,
     sigma_star_influence,
 )
-from core.scope import (
+from core.kernel.scope import (
     Authority,
     Clock,
     EdgeScope,

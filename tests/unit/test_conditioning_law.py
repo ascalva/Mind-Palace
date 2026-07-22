@@ -35,8 +35,8 @@ from core.dreaming.conditioning import (
     verify_surfacing,
 )
 from core.graph.influence import sigma_star_influence
-from core.provenance import Provenance
-from core.scope import (
+from core.kernel.provenance import Provenance
+from core.kernel.scope import (
     Authority,
     Clock,
     EdgeScope,

@@ -21,11 +21,11 @@ from pathlib import Path
 
 import pytest
 
-from core.ingest.logseq import parse_note, strip_properties
 from core.ingest.sync import VaultSync
-from core.ingest.verify import verify_rows_against_raw
+from core.kernel.ingest.logseq import parse_note, strip_properties
+from core.kernel.ingest.verify import verify_rows_against_raw
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from core.stores.versions import VersionStore
 from tests.fixtures.embedding import DIM, FakeEmbedder

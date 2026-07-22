@@ -42,8 +42,8 @@ from core.graph.conductance import (
     effective_conductance,
     sigma_t_profile,
 )
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 from core.stores.versions import VersionStore
 from core.temporal.spine import CutSources, Spine, SpineSources
 

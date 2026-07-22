@@ -26,13 +26,13 @@ from enum import Enum
 from pathlib import Path
 
 from core.attestation import Attestor
-from core.config import Config
 from core.ingest.embed import Embedder
 from core.ingest.index import index_amendment
-from core.ingest.logseq import DEFAULT_EXCLUDE_DIRS, iter_vault, parse_note
-from core.ingest.pipeline import ingest_note
+from core.kernel.config import Config
+from core.kernel.ingest.logseq import DEFAULT_EXCLUDE_DIRS, iter_vault, parse_note
+from core.kernel.ingest.pipeline import ingest_note
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from core.stores.versions import VersionStore
 
@@ -183,8 +183,8 @@ class VaultSync:
 def build_vault_sync(config: Config | None = None) -> VaultSync:
     """Wire a VaultSync against the configured vault + real stores + embedder."""
     from core.attestation import build_attestor
-    from core.config import get_config
     from core.ingest.embed import build_embedder
+    from core.kernel.config import get_config
     from core.stores.versions import open_version_store
 
     cfg = config or get_config()

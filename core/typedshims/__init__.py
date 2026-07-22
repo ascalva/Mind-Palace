@@ -1,13 +1,8 @@
-"""Boundary wrappers for untyped third-party surfaces (type-system-as-core-audit.md §2.5).
+"""Outer-ring residue of the typed-shim boundary (dn-inner-outer-core §2.7, K1 / bp-090).
 
-One module per dependency without `py.typed` (V2, 2026-07-11: `lancedb`,
-`sknetwork`, `psutil`). Core imports the shim, never the raw package, so the
-`Any` an untyped import launders is quarantined to exactly one file per
-dependency instead of smeared through the checked region. Every raw import here
-carries a per-line warranted ignore — the pyproject `ignore_missing_imports`
-override no longer covers these packages.
-
-Discipline: a shim exposes the minimal typed surface core actually calls, with
-no explicit `Any` anywhere (falsifier: `disallow_any_explicit` spot-check).
-Widen a Protocol only together with the new call that needs it.
+The package's inner init text moved to `core/kernel/typedshims/`. The shims themselves stay here in
+the outer ring: each wraps an untyped third-party surface (`lancedb, sknetwork, psutil`) that is
+inadmissible to the inner base, so the shim modules compute outer. Core imports the shim, never the
+raw package. This init is stdlib-import-free so it stays inner by construction (a pure package
+marker); the residue shim submodules beside it are the outer machinery.
 """

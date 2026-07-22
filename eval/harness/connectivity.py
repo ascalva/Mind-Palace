@@ -41,7 +41,7 @@ from core.graph.sigma_star import (
     cut_fingerprint,
     pairwise_sigma_star,
 )
-from core.mirror import MirrorView
+from core.kernel.mirror import MirrorView
 from core.temporal.spine import Spine
 from eval.harness.store import EvalKey, EvalResultsStore, Reading
 

@@ -3,10 +3,10 @@ self-evaluation, privileged-request routing to the gate, ephemeral/persist."""
 
 import pytest
 
-from core.constitution import load_constitution
 from core.factory import AgentFactory, build_default_registry
 from core.factory.registry import AgentRegistry
 from core.factory.tools import ToolNotInScopeError
+from core.kernel.constitution import load_constitution
 from core.sandbox.spec import ExecResult
 from ops.gate import GateRequest, GateStatus
 

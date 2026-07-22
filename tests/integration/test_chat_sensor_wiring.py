@@ -21,11 +21,11 @@ from typing import Any
 
 from config.loader import load_config
 from core.ingest.watch import DirectoryWatcher
+from core.kernel.stores.rawstore import RawStore
 from core.models.loader import TwoSlotLoader
 from core.models.ollama_client import OllamaClient
 from core.models.registry import Registry
 from core.stores.chatlog import ChatlogStore
-from core.stores.rawstore import RawStore
 from ops.chat_sensor import ChatSecretGuard, ChatSensor
 from ops.lifecycle.launcher import build_launcher
 from scheduler.chat_sync import (

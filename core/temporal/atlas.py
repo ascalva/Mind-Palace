@@ -26,7 +26,7 @@ from __future__ import annotations
 from collections.abc import Hashable
 from typing import cast
 
-from core.scope import Clock, Window, WindowKind
+from core.kernel.scope import Clock, Window, WindowKind
 from core.temporal.spine import Spine
 
 # Exogenous coordinates with no `p_κ` over Ev: `wall` (Law C4 — generates no event order) and `now`

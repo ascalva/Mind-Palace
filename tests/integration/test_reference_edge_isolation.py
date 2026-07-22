@@ -22,13 +22,13 @@ from typing import Any
 import numpy as np
 import pytest
 
-from core.complex.balance import frustration
 from core.complex.build import build_complex
-from core.complex.curvature import forman
-from core.complex_types import EdgeSign
 from core.dreaming.cluster import cluster_notes, note_centroids
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.complex.balance import frustration
+from core.kernel.complex.curvature import forman
+from core.kernel.complex_types import EdgeSign
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 from core.stores.derived import DerivedStore
 from core.stores.edges import CONTRADICTS, EdgeStore
 from core.stores.reference_edges import ReferenceEdge, ReferenceEdgeStore

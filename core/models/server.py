@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.config import Config, get_config
-from core.constitution import Message
+from core.kernel.config import Config, get_config
+from core.kernel.constitution import Message
 from core.models.loader import ModelConfig, TwoSlotLoader
 from core.models.ollama_client import OllamaClient
 from core.models.registry import Registry

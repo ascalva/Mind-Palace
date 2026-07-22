@@ -17,10 +17,10 @@ from hypothesis import strategies as st
 from core.factory.factory import AgentFactory
 from core.factory.roles import PRE_DECLARED_MAX, RoleTemplate
 from core.factory.tools import ToolRegistry, ToolSpec
-from core.mirror import MirrorView
-from core.provenance import MIRROR_READABLE, Provenance
-from core.recursion import claim_confidence, decay_bound
-from core.selfcheck import FAIL, PASS, Source, check_grounding
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.recursion import claim_confidence, decay_bound
+from core.kernel.selfcheck import FAIL, PASS, Source, check_grounding
 from core.stores.derived import DREAM, DerivationCycleError, DerivedStore
 from ops.gate import GateRequest
 

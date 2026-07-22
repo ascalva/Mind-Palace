@@ -91,7 +91,7 @@ def test_refuses_non_canonical_constitution_frame():
     assert bud.assemble(ContextParts(constitution="X", role="R", task="T"),
                         allow_constitution_override=True).messages[0]["content"] == "X"
     # the live path passes constitution=None → the real, canonical Constitution is the frame
-    from core.constitution import load_constitution
+    from core.kernel.constitution import load_constitution
     out = bud.assemble(ContextParts(role="R", task="T"))
     assert out.messages[0]["content"] == load_constitution()
     # an explicit echo of the canonical text needs no override (it is not a substitution)

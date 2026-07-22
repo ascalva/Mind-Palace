@@ -11,7 +11,7 @@ import dataclasses
 import subprocess
 
 from config.loader import REPO_ROOT, load_config
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.stores.curated_store import open_curated_store
 
 

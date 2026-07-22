@@ -88,7 +88,7 @@ from typing import TYPE_CHECKING
 from core.attestation.store import AttestationStore
 
 # `Clock` is READ-ONLY vocabulary here (the registered clock hierarchy); bp-056 owns changes to it.
-from core.scope import Clock
+from core.kernel.scope import Clock
 from core.stores.catalog import VaultCatalog
 from core.stores.chatlog import ChatlogStore  # CS-4 (bp-064): the observed-stratum chat store
 from core.stores.derived import DerivedStore
@@ -98,7 +98,7 @@ from core.stores.versions import VersionStore
 from eval.harness.store import EvalResultsStore
 
 if TYPE_CHECKING:
-    from core.config import Config
+    from core.kernel.config import Config
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════
@@ -332,7 +332,7 @@ class SpineSources:
         resolver has no side effects (never creates an empty DB). A store whose DuckDB file is
         write-locked (a running daemon) is skipped rather than raising; it surfaces as absent from
         the report's `stores_enumerated` (honest, no silent cap)."""
-        from core.config import get_config
+        from core.kernel.config import get_config
 
         cfg = config or get_config()
         base = cfg.paths.derived_store.parent

@@ -23,16 +23,16 @@ import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from core.config import Config
-from core.constitution import Message, frame_context
 from core.ingest.embed import Embedder
 from core.ingest.index import semantic_search
-from core.ingest.verify import verify_rows_against_raw
+from core.kernel.config import Config
+from core.kernel.constitution import Message, frame_context
+from core.kernel.ingest.verify import verify_rows_against_raw
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.selfcheck import SelfCheck, Source, SubjectiveJudge, self_evaluate
+from core.kernel.stores.rawstore import RawStore
 from core.models import ModelServer
-from core.provenance import MIRROR_READABLE, Provenance
 from core.research.criteria import ResearchCriteria, deidentify
-from core.selfcheck import SelfCheck, Source, SubjectiveJudge, self_evaluate
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -206,8 +206,8 @@ class Librarian:
 
 def build_librarian(config: Config | None = None, *, k: int = 5) -> Librarian:
     """Wire a Librarian against the real configured stores and models."""
-    from core.config import get_config
     from core.ingest.embed import build_embedder
+    from core.kernel.config import get_config
     from core.models import build_model_server
     from core.stores.vectorstore import open_vector_store
 

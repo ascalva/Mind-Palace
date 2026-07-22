@@ -9,7 +9,7 @@ strip and parse can never disagree (parse≡strip). This suite is that contract;
 
 from __future__ import annotations
 
-from core.ingest.logseq import _PROP, strip_properties
+from core.kernel.ingest.logseq import _PROP, strip_properties
 
 # ── the core contract: parse ≡ strip ──────────────────────────────────────────────────────────
 

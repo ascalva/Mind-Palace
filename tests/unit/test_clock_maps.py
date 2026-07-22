@@ -23,8 +23,8 @@ from pathlib import Path
 
 import pytest
 
-from core.complex_types import EdgeSign
-from core.scope import Clock
+from core.kernel.complex_types import EdgeSign
+from core.kernel.scope import Clock
 from core.stores.derived import DerivedStore
 from core.stores.edges import EdgeStore
 from core.stores.runledger import RunLedger

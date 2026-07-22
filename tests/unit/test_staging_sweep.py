@@ -17,9 +17,9 @@ from pathlib import Path
 import pytest
 
 from core.graph.composed import compose_staged
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import Provenance
-from core.scope import (
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import Provenance
+from core.kernel.scope import (
     Authority,
     Clock,
     EdgeScope,

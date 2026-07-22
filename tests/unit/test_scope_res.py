@@ -13,7 +13,7 @@ import dataclasses
 
 import pytest
 
-from core.scope import Res, ResParam, res_comparable, res_under
+from core.kernel.scope import Res, ResParam, res_comparable, res_under
 
 
 def _pi(name: str = "sigma", lo: float = 0.55, hi: float = 0.75, grid: str = "Γ_21") -> ResParam:

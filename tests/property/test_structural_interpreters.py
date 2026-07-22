@@ -15,11 +15,11 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from core.complex.blocks import sbm
-from core.complex.curvature import forman
 from core.complex.cut import grounding_cut
-from core.complex.support import grounding_with_support
 from core.complex.topology import long_lived_holes
-from core.selfcheck import grounding_score
+from core.kernel.complex.curvature import forman
+from core.kernel.complex.support import grounding_with_support
+from core.kernel.selfcheck import grounding_score
 
 # --- H4: curvature sign on planted structure -------------------------------------
 

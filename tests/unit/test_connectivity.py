@@ -35,8 +35,8 @@ from core.graph.sigma_star import (
     pairwise_sigma_star,
     sigma_star,
 )
-from core.mirror import MirrorView
-from core.provenance import Provenance
+from core.kernel.mirror import MirrorView
+from core.kernel.provenance import Provenance
 from core.stores.versions import VersionStore
 from core.temporal.spine import CutCertificateError, CutSources, Spine, SpineSources
 from eval.harness.connectivity import ConnEvidence

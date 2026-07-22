@@ -57,12 +57,12 @@ def build_ambassador(config: Config | None = None, *, delegate=None, pending_res
     from core.dreams_view import DreamsView
     from core.ingest.dialogue import DialogueCapture
     from core.ingest.embed import build_embedder
+    from core.kernel.stores.rawstore import RawStore
     from core.librarian import Librarian
     from core.models import build_model_server
     from core.ops_view import OpsView
     from core.stores.catalog import VaultCatalog
     from core.stores.derived import open_derived_store
-    from core.stores.rawstore import RawStore
     from core.stores.vectorstore import open_vector_store
     from core.verdict.apply import OwnerKeyMissing, build_verdict_receiver
     from core.verdict.dispositions import open_disposition_store

@@ -14,13 +14,13 @@ import numpy as np
 import pytest
 import scipy.sparse as sp
 
-from core.complex.balance import frustration
 from core.complex.build import build_complex, cosine_adjacency
-from core.complex.laplacian import laplacian, laplacian_sym
 from core.complex.spectral import diffusion_cluster_notes, fiedler, louvain_labels
-from core.complex_types import EdgeSign
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import Provenance
+from core.kernel.complex.balance import frustration
+from core.kernel.complex.laplacian import laplacian, laplacian_sym
+from core.kernel.complex_types import EdgeSign
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import Provenance
 from core.stores.derived import DREAM, DerivedStore
 from core.stores.edges import CONTRADICTS, EdgeStore
 

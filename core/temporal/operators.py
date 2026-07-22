@@ -18,7 +18,7 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.hodge import boundary_1
+from core.kernel.complex.hodge import boundary_1
 from core.temporal.complex import CitationComplex
 
 

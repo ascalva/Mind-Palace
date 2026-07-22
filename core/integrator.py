@@ -32,10 +32,10 @@ from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
 
-from core.agent_scope import Handle, HandleInventory, assert_conforms, integrator_scope
-from core.config import Config
 from core.integrator_math import CoverageGauge, IntegrationReport
-from core.scope import Stratum
+from core.kernel.agent_scope import Handle, HandleInventory, assert_conforms, integrator_scope
+from core.kernel.config import Config
+from core.kernel.scope import Stratum
 from core.stores.causal_edges import CausalEdge, CausalEdgeStore
 from core.stores.chat_events import ChatEventStore
 
@@ -168,7 +168,7 @@ def build_integrator(config: Config | None = None) -> Integrator:
     """Wire the integrator's handles against the real L1 store and commit ledger, and ASSERT the
     inventory conforms to `INTEGRATOR_SCOPE` (born scoped; fail-fast at wiring — dn-agent-taxonomy
     §2.1 / bp-070 D2). Same-species as `build_chat_event_projector` / `build_code_sensor`."""
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.stores.causal_edges import open_causal_edge_store
     from core.stores.chat_events import open_chat_event_store
 

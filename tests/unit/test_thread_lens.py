@@ -18,7 +18,6 @@ from typing import Any
 import numpy as np
 
 from config.loader import load_config
-from core.complex.hodge import harmonic_basis
 from core.dreaming.graph import MirrorGraph
 from core.dreaming.interpreters import (
     THREAD,
@@ -26,7 +25,8 @@ from core.dreaming.interpreters import (
     collect_claims,
     thread_interpreter,
 )
-from core.mirror import MirrorView
+from core.kernel.complex.hodge import harmonic_basis
+from core.kernel.mirror import MirrorView
 
 
 def _on_config(sigma: float = 0.3):

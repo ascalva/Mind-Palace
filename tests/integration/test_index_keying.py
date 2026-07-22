@@ -9,11 +9,11 @@ path + a counting embedder (to prove no re-embed); deterministic, no model, no n
 
 from __future__ import annotations
 
-from core.ingest.amend import chunk_point_id
-from core.ingest.chunk import chunk_text
 from core.ingest.sync import VaultSync
+from core.kernel.ingest.amend import chunk_point_id
+from core.kernel.ingest.chunk import chunk_text
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from tests.fixtures.embedding import DIM, FakeEmbedder
 

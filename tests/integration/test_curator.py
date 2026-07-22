@@ -7,7 +7,7 @@ authored corpus but writes only to the derived store (the §8 firewall).
 """
 
 from core.curator import CONTRADICTION, NEAR_DUPLICATE, PRUNE_CANDIDATE, Curator
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.stores.derived import FINDING, DerivedStore
 
 ROWS = [

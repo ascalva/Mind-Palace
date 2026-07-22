@@ -23,8 +23,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
-from core.ingest.pipeline import derive_chunks
-from core.stores.rawstore import RawStore
+from core.kernel.ingest.pipeline import derive_chunks
+from core.kernel.stores.rawstore import RawStore
 
 
 @dataclass(frozen=True)

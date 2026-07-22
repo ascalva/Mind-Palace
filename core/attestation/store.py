@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from core.attestation.record import Attestation
-from core.config import Config
+from core.kernel.config import Config
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS attestations (
@@ -154,7 +154,7 @@ class AttestationStore:
 
 
 def open_attestation_store(config: Config | None = None) -> AttestationStore:
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return AttestationStore(cfg.paths.attestation_store)

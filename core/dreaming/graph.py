@@ -16,7 +16,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from core.dreaming.cluster import NoteVector, note_centroids, similarity_matrix
-from core.mirror import MirrorView
+from core.kernel.mirror import MirrorView
 
 
 @dataclass(frozen=True)

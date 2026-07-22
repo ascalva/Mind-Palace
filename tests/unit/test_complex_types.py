@@ -4,7 +4,7 @@ EdgeSign is ±1 (the value usable directly in signed arithmetic); HyperedgeRole 
 The point of the move is that any other value is unconstructable, not merely unexpected.
 """
 
-from core.complex_types import EdgeSign, HyperedgeRole
+from core.kernel.complex_types import EdgeSign, HyperedgeRole
 
 
 def test_edge_sign_values_are_plus_minus_one():

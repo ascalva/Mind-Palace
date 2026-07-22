@@ -33,9 +33,9 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
+from core.kernel.stores.rawstore import RawStore
 from core.stores.chat_events import ChatEventStore
 from core.stores.chatlog import ChatlogStore
-from core.stores.rawstore import RawStore
 
 # role → actor (the L0 mapping, reused). NEVER a provenance input (chat rows stay OBSERVED, §2.3).
 _ROLE_TO_ACTOR = {"user": "owner", "assistant": "agent"}
@@ -220,7 +220,7 @@ class ChatEventProjector:
 def build_chat_event_projector(config: Any = None) -> ChatEventProjector:
     """Wire the projector's handles: the L0 chatlog (read), the immutable rawstore (read), the L1
     store (write) — all DIALOGUE-stratum, model-free. Same-species as `build_chat_sensor`."""
-    from core.config import get_config
+    from core.kernel.config import get_config
     from core.stores.chat_events import open_chat_event_store
     from core.stores.chatlog import open_chatlog_store
 

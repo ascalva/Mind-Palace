@@ -30,7 +30,7 @@ from dataclasses import dataclass
 
 from core.ingest.embed import Embedder
 from core.ingest.index import semantic_search
-from core.provenance import MIRROR_READABLE
+from core.kernel.provenance import MIRROR_READABLE
 from core.research.criteria import Paper, ResearchCriteria
 from core.stores.vectorstore import VectorStore
 

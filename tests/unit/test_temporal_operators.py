@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from core.complex.hodge import boundary_1
+from core.kernel.complex.hodge import boundary_1
 from core.stores.reference_edges import ReferenceEdge, ReferenceEdgeStore
 from core.temporal.acquire import build_citation_complex
 from core.temporal.complex import CitationComplex

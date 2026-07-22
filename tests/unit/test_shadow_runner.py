@@ -18,7 +18,7 @@ import dataclasses
 from typing import Any
 
 from config.loader import get_config
-from core.provenance import Provenance
+from core.kernel.provenance import Provenance
 from core.stores.runledger import RunLedger, claim_id, polarity_for
 from eval.harness.store import EvalResultsStore
 

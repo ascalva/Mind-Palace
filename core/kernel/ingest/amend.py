@@ -30,7 +30,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 
-from core.ingest.chunk import Chunk
+from core.kernel.ingest.chunk import Chunk
 
 
 def text_hash(text: str) -> str:

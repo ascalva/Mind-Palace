@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from core.provenance import Provenance
-from core.scope import Stratum
+from core.kernel.provenance import Provenance
+from core.kernel.scope import Stratum
 from core.stores import staging as staging_mod
 from core.stores.staging import (
     IllegalWouldBeStratum,

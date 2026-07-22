@@ -21,7 +21,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from core.attestation.crypto import public_from_b64
 from core.attestation.crypto import verify as _verify
 from core.attestation.record import Attestation
-from core.config import Config
+from core.kernel.config import Config
 
 # Actions whose attestation MUST be owner-signed (the highest-stakes records, §3).
 GATE_ACTIONS = frozenset({"gate_approve", "gate_reject"})
@@ -61,7 +61,7 @@ def load_public_keys(
 
 def build_verifier(config: Config | None = None) -> Callable[[Attestation], bool]:
     """Wire a verifier from the configured public-key paths (`[attestation]`)."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     acfg = cfg.attestation

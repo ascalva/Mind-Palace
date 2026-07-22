@@ -37,7 +37,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
 
-from core.scope import (
+from core.kernel.scope import (
     ANCHOR,
     Authority,
     Clock,
@@ -52,7 +52,7 @@ from core.scope import (
 from core.stores.reference_edges import ReferenceEdge, open_reference_edge_store
 
 if TYPE_CHECKING:  # annotations only — the factory imports the config/ledger lazily at runtime
-    from core.config import Config
+    from core.kernel.config import Config
     from core.stores.reference_edges import ReferenceEdgeStore
 
 
@@ -137,7 +137,7 @@ def _resolve_default_commit(cfg: Config) -> str:
     """The §3 Q1 anchor: the active run's `commit_sha` (`RunLedger.last()`), else git HEAD
     (`git_state`). The rejected alternatives (union-across-history, max(created_at)) are recorded
     in plan §11. Resolved OFF the store — no `latest_commit()` helper added to the store (§11)."""
-    from core.config import REPO_ROOT
+    from core.kernel.config import REPO_ROOT
     from ops.lifecycle.runs import git_state, open_run_ledger
 
     ledger = open_run_ledger(cfg)
@@ -157,7 +157,7 @@ def open_reference_view(config: Config | None = None, *,
     `commit` — defaulting (§3 Q1) to the active run's `commit_sha` (`RunLedger.last()`), else git
     HEAD (`git_state`). The store is the same `open_reference_edge_store` the sensor writes; this
     view only ever calls its readers."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     anchor = commit if commit is not None else _resolve_default_commit(cfg)

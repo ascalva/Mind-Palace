@@ -131,7 +131,7 @@ def check_constitution(cfg) -> Check:
     live loop (a tampered file would otherwise be served to every agent after the next restart).
     """
     try:
-        from core.constitution import constitution_fingerprint
+        from core.kernel.constitution import constitution_fingerprint
         from eval.drift import load_drift_config
         live = constitution_fingerprint()
         blessed = load_drift_config().blessed_fingerprint

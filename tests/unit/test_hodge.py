@@ -16,7 +16,8 @@ import pytest
 import scipy.sparse as sp
 
 from core.complex.build import cosine_adjacency
-from core.complex.hodge import (
+from core.complex.topology import cosine_distance_matrix, persistence
+from core.kernel.complex.hodge import (
     _MAX_DENSE_EDGES,
     HodgeParts,
     boundary_1,
@@ -28,7 +29,6 @@ from core.complex.hodge import (
     hodge_laplacian_1,
     l1_spectrum,
 )
-from core.complex.topology import cosine_distance_matrix, persistence
 
 # --- fixture builders -------------------------------------------------------------------------
 

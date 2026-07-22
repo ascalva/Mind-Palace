@@ -22,7 +22,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.config import Config
+from core.kernel.config import Config
 from core.recursion_ops import (
     DIALOGUE_CONCLUSION,
     ApplyReport,
@@ -179,7 +179,7 @@ def apply_operations(ops: Iterable[DialogueOp], *, ops_store: ClaimOpStore,
 
 
 def open_claim_op_store(config: Config | None = None) -> ClaimOpStore:
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return ClaimOpStore(cfg.paths.derived_store.parent / "claim_ops.sqlite")

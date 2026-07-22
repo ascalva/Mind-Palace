@@ -28,14 +28,14 @@ from typing import Protocol
 from agents.ambassador.intent import CLASSIFIER_ROLE, Intent, classify
 from agents.ambassador.policy import InterruptionPolicy, narrate_effort, topic_of
 from core.attestation import Attestor
-from core.constitution import Message, frame_context
 from core.dreams_view import DreamsView
 from core.factory.roles import RoleTemplate
 from core.ingest.dialogue import DialogueCapture
+from core.kernel.constitution import Message, frame_context
+from core.kernel.provenance import MIRROR_READABLE, Provenance
+from core.kernel.selfcheck import SelfCheck, Source, self_evaluate
 from core.librarian import Librarian, Retrieval
 from core.ops_view import OpsView
-from core.provenance import MIRROR_READABLE, Provenance
-from core.selfcheck import SelfCheck, Source, self_evaluate
 from scheduler.budget import BudgetedContext, Budgeter, ContextParts
 
 AMBASSADOR_ROLE = (

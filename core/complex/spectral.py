@@ -24,7 +24,7 @@ from scipy.sparse.csgraph import connected_components
 from scipy.sparse.linalg import eigsh
 
 from core.complex.build import cosine_adjacency
-from core.complex.laplacian import laplacian_sym
+from core.kernel.complex.laplacian import laplacian_sym
 
 if TYPE_CHECKING:  # annotation-only; runtime import is lazy (package-init cycle, see build.py)
     from core.dreaming.cluster import Cluster, NoteVector

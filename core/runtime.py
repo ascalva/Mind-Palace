@@ -12,8 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from core.agent import Agent
-from core.config import Config, get_config
-from core.constitution import constitution_fingerprint
+from core.kernel.config import Config, get_config
+from core.kernel.constitution import constitution_fingerprint
 from core.models import ModelServer, build_model_server
 from core.sealing import assert_sealed, seal
 from core.stores.telemetry import TelemetryStore, open_store

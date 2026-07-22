@@ -1,6 +1,6 @@
 """Content-addressed raw store: dedup, round-trip, immutability (BUILD-SPEC §8)."""
 
-from core.stores.rawstore import RawStore
+from core.kernel.stores.rawstore import RawStore
 
 
 def test_content_addressed_dedup(tmp_path):

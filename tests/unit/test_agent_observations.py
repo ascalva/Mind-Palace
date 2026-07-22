@@ -27,8 +27,8 @@ import pytest
 import core.stores.agent_observations as mod
 import core.stores.observation_history as history_mod
 from config.loader import Config
-from core.mirror import MirrorView, NonMirrorRowError
-from core.provenance import MIRROR_READABLE, Provenance
+from core.kernel.mirror import MirrorView, NonMirrorRowError
+from core.kernel.provenance import MIRROR_READABLE, Provenance
 from core.sensing import ObservedView
 from core.stores.agent_observations import (
     AgentObservation,

@@ -22,7 +22,7 @@ from typing import cast
 
 import pytest
 
-from core.scope import Clock, Window
+from core.kernel.scope import Clock, Window
 from core.stores.chatlog import ChatlogStore, ChatUtterance
 from core.stores.versions import VersionStore
 from core.temporal.atlas import SpineAtlas

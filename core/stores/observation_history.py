@@ -41,7 +41,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from core.config import Config
+from core.kernel.config import Config
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS observation_history (
@@ -137,7 +137,7 @@ def open_observation_history_store(config: Config | None = None) -> ObservationH
     """The `open_*` helper: `data/observation_history.sqlite` (the sibling-store
     convention, no dedicated cfg path). GUARDED (bp-018 Item 4): named in `_RESET_GUARD`,
     never a reset target — dn-self-sensing §2.5, history does not rebuild."""
-    from core.config import get_config
+    from core.kernel.config import get_config
 
     cfg = config or get_config()
     return ObservationHistoryStore(cfg.paths.data_dir / "observation_history.sqlite")

@@ -16,8 +16,8 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.hodge import edge_index, hodge_decompose
-from core.velocity_view import WeightedBackbone, alive_stale_energy
+from core.kernel.complex.hodge import edge_index, hodge_decompose
+from core.kernel.velocity_view import WeightedBackbone, alive_stale_energy
 
 
 def _backbone(edge_weights: dict[tuple[str, str], float], *, anchor: str = "c1",

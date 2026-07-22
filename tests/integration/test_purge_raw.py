@@ -12,8 +12,8 @@ import pytest
 
 from core.ingest.purge import PurgeRefusedError, purge_raw
 from core.ingest.sync import VaultSync
+from core.kernel.stores.rawstore import RawStore
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from tests.fixtures.embedding import DIM, FakeEmbedder
 

@@ -20,7 +20,6 @@ from typing import Any
 
 import pytest
 
-from core.agent_scope import ConformanceError, Handle, dreamer_scope
 from core.dreaming.charter import Budget
 from core.dreaming.evaluate import (
     BudgetRefusalError,
@@ -30,7 +29,8 @@ from core.dreaming.evaluate import (
     assert_dispatch_conforms,
     compose,
 )
-from core.scope import (
+from core.kernel.agent_scope import ConformanceError, Handle, dreamer_scope
+from core.kernel.scope import (
     Authority,
     Clock,
     EdgeScope,

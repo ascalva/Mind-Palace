@@ -13,10 +13,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.ingest.chunk import Chunk, chunk_text
-from core.ingest.logseq import ParsedNote, _decode, iter_vault, parse_note, strip_properties
-from core.provenance import Provenance
-from core.stores.rawstore import RawStore
+from core.kernel.ingest.chunk import Chunk, chunk_text
+from core.kernel.ingest.logseq import ParsedNote, _decode, iter_vault, parse_note, strip_properties
+from core.kernel.provenance import Provenance
+from core.kernel.stores.rawstore import RawStore
 
 
 def derive_chunks(raw_bytes: bytes, *, max_chars: int = 1200,

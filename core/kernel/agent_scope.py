@@ -35,7 +35,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from core.scope import (
+from core.kernel.scope import (
     _REFINES,
     Authority,
     Clock,

@@ -16,7 +16,6 @@ from pathlib import Path
 
 import pytest
 
-from core.ingest.logseq import parse_note
 from core.ingest.mint_ids import (
     MintRefusedError,
     has_stable_id,
@@ -26,9 +25,10 @@ from core.ingest.mint_ids import (
     run,
 )
 from core.ingest.sync import VaultSync
+from core.kernel.ingest.logseq import parse_note
+from core.kernel.stores.rawstore import RawStore
 from core.stores.authored_supersession import owner_declaration
 from core.stores.catalog import VaultCatalog
-from core.stores.rawstore import RawStore
 from core.stores.vectorstore import VectorStore
 from core.stores.versions import VersionStore
 from ops.lifecycle.runs import RunLedger

@@ -23,9 +23,9 @@ import numpy as np
 import scipy.sparse as sp
 from scipy.sparse.csgraph import maximum_flow
 
-from core.complex.balance import signed_spectrum
 from core.complex.build import ReasoningComplex
 from core.complex.spectral import spectral_labels
+from core.kernel.complex.balance import signed_spectrum
 
 # Fixed-point scale for fractional capacities (maximum_flow is integer-only). 1024 keeps ~3
 # decimal digits of weight resolution — far finer than the unit-weight refs used today.

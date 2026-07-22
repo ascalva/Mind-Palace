@@ -64,7 +64,6 @@ from typing import cast
 import numpy as np
 import scipy.sparse as sp
 
-from core.complex.laplacian import laplacian as _combinatorial_laplacian
 from core.dreaming.graph import MirrorGraph
 from core.graph.census import (
     DEFAULT_MAX_LEN,
@@ -75,7 +74,8 @@ from core.graph.census import (
 )
 from core.graph.composed import WeightedEdge, compose_staged
 from core.graph.sigma_star import build_max_spanning_tree, pairwise_sigma_star
-from core.scope import Scope
+from core.kernel.complex.laplacian import laplacian as _combinatorial_laplacian
+from core.kernel.scope import Scope
 from core.temporal.spine import CertifiedCut
 
 # ‖ΔL‖₂ below this fraction of the spectral gap keeps the first-order eigenvalue estimator inside

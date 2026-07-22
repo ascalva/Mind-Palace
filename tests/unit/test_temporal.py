@@ -20,8 +20,8 @@ import pytest
 from core.complex.build import build_complex
 from core.complex.temporal import SnapshotStore, StructuralSnapshot, compute_snapshot
 from core.complex.topology import cosine_distance_matrix
-from core.complex_types import EdgeSign
-from core.mirror import MirrorView
+from core.kernel.complex_types import EdgeSign
+from core.kernel.mirror import MirrorView
 from core.stores.edges import CONTRADICTS, EdgeStore
 
 
