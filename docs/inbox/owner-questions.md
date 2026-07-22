@@ -982,7 +982,7 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   wrong-tier design note before then.
 
 ## oq-0034 — Should code-ingest be ON by default (defaults.toml), not opt-in per-instance (local.toml)?
-- status: open
+- status: answered
 - blocking: false
 - origin: docs/findings/finding-0161.md (raised 2026-07-22, at the code-ingest enable step)
 - question: `[code_ingest].enabled` ships `false` in defaults.toml; this Mac opts in via local.toml
@@ -1002,4 +1002,10 @@ Entry shape: `status`, `origin`, `blocking` (bool), `question`, `default_if_unan
   (already live). Nothing is blocked; the deploy + seed proceed under the current opt-in. Parks as
   finding-0161; re-entry — you rule here, or the framework-vs-instance line is settled elsewhere.
 - park condition: revisit when you decide; no builder waits on it.
-- answer:
+- answer: DEFAULT ON (owner, 2026-07-22). Your own realization settled it — "gated off" here means a
+  not-yet safeguard (off until ready; once on it stays on), not permanent conservatism. So the
+  framework default should be ON: `config/defaults.toml [code_ingest].enabled = true`. Done this
+  session (+ tests updated, the redundant local.toml opt-in removed). Safe because the daemon won't
+  start without a live Ollama (preflight), so no clone/CI auto-embeds without an embedder. Owed
+  (owner-hand): the dn-code-ingest-pipeline §2.7 "owner-visible seed" wording now coexists with
+  default-on auto-seed-on-first-housekeeping — a ratified-note amendment for you. See finding-0161.

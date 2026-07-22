@@ -6,8 +6,8 @@ nothing), no daemon enqueue of the `code_sync` KIND, and no CLI — flipping the
 runnable through the proper discipline, all deterministic (no Ollama, no network; temp stores;
 embedders build lazily so `build_components` runs fully offline):
 
-  1. `CodeIngestConfig` — the loader now schemas `[code_ingest]`: OFF by default (a fresh clone
-     does not ingest its own code), and a hand-authored local.toml override flips `enabled` on.
+  1. `CodeIngestConfig` — the loader now schemas `[code_ingest]`: ON by default (finding-0161/
+     oq-0034 — the Ouroboros ingests its own code natively), and a local.toml override can opt out.
   2. `build_components` REGISTERS `code_sync` unconditionally (like vault_sync it eagerly opens the
      store) and `_housekeeping` enqueues the INCREMENTAL sync ONLY when `code_ingest.enabled` — the
      gate (note §2.7: a flag flip never fires the heavy seed).
@@ -21,7 +21,7 @@ from __future__ import annotations
 import dataclasses
 from pathlib import Path
 
-from core.kernel.config import get_config, load_config
+from core.kernel.config import REPO_ROOT, load_config
 from ops.lifecycle.launcher import Launcher, build_components
 from ops.lifecycle.runs import RunLedger
 from scheduler.code_sync import CODE_SYNC_KIND
@@ -30,22 +30,25 @@ from scheduler.queue import JobQueue
 # --- Item 1: CodeIngestConfig loader schema -------------------------------------------------
 
 
-def test_code_ingest_defaults_off() -> None:
-    """A fresh clone (defaults only) has the code lane OFF — the fail-safe default (finding-0159:
-    ship the switch, gated off). `max_chars`/`overlap_chars` mirror the note chunker (§2.2)."""
-    ci = get_config().code_ingest
-    assert ci.enabled is False
+def test_code_ingest_default_on() -> None:
+    """The SHIPPED default (defaults.toml, read directly so this machine's local.toml can't mask it)
+    now embeds code by default — finding-0161/oq-0034 (2026-07-22): the Ouroboros ingests its own
+    code natively; gating-off was a not-yet, now flipped on. `max_chars`/`overlap_chars` mirror the
+    note chunker (§2.2)."""
+    ci = load_config(REPO_ROOT / "config" / "defaults.toml").code_ingest
+    assert ci.enabled is True
     assert ci.max_chars == 1200
     assert ci.overlap_chars == 150
 
 
-def test_code_ingest_local_override_enables(tmp_path, monkeypatch) -> None:
-    """A hand-authored local.toml `[code_ingest] enabled=true` flips it on — the owner's deliberate
-    enable act, honoring the overlay precedence (defaults ← levers ← local, loader.py)."""
+def test_code_ingest_local_override_can_opt_out(tmp_path, monkeypatch) -> None:
+    """The default is now ON, so the meaningful override is opting OUT: a local.toml
+    `[code_ingest] enabled=false` turns it off for one instance, honoring the overlay precedence
+    (defaults ← levers ← local, loader.py) — the reverse of the old enable-flip."""
     local = tmp_path / "local.toml"
-    local.write_text("[code_ingest]\nenabled = true\n", encoding="utf-8")
+    local.write_text("[code_ingest]\nenabled = false\n", encoding="utf-8")
     monkeypatch.setattr("core.kernel.config.loader._LOCAL", local)
-    assert load_config().code_ingest.enabled is True
+    assert load_config().code_ingest.enabled is False
 
 
 # --- temp-config fixture (mirrors tests/integration/test_lifecycle.py::_cfg) -----------------

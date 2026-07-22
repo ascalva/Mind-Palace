@@ -94,15 +94,18 @@ events_max_per_pass = 50        # L1 action-log projector cap per pass (Item 3)
 integrate_max_per_pass = 50     # integrator proven-edge pass cap per tick (bp-071 Item 2)
 
 [code_ingest]
-# The code embed lane (dn-code-ingest-pipeline / bp-092 CI-1; enable path wired by bp-098). OFF by
-# default. When `enabled=true`, the daemon enqueues the INCREMENTAL code_sync at housekeeping
-# cadence (cheap after the seed); the one-time heavy SEED (every HEAD blob) is the deliberate
-# owner-visible `palace code-seed`, never auto-run from this flag (note §2.7). The KIND + handler
-# live in scheduler/code_sync.py. This block is now schema'd — core/kernel/config/loader.py's
-# CodeIngestConfig reads it (bp-098); a fresh clone stays OFF until the owner flips this.
+# The code embed lane (dn-code-ingest-pipeline / bp-092..094; enable path bp-098). ON by default
+# (finding-0161 / oq-0034, 2026-07-22): the Ouroboros ingests its own code natively — code is a
+# first-class semantic source (finding-0146), and gating-off was only ever a "not-yet" safeguard,
+# now flipped on to stay on. When enabled, the daemon enqueues the INCREMENTAL code_sync at
+# housekeeping cadence; on a cold store the first pass embeds every HEAD .py (= the seed), and the
+# deliberate `palace code-seed` triggers that immediately. Safe as a default: the daemon refuses to
+# start without a live Ollama (preflight), so a fresh clone/CI never auto-embeds without an embedder;
+# CI/test runs don't start the housekeeping loop. The KIND + handler live in scheduler/code_sync.py.
+# An instance may opt OUT with `[code_ingest] enabled = false` in config/local.toml.
 # `max_chars`/`overlap_chars` mirror the note chunker so L0a oversized-splits and L0b windows match
 # the corpus-wide budget.
-enabled = false
+enabled = true
 max_chars = 1200
 overlap_chars = 150
 
