@@ -13,11 +13,11 @@
 
 | # | track / item | what I'll demo (working, or true state) + the surprise to flag | verdict |
 |---|---|---|---|
-| 1 | **Sync/diac dreamers** (bp-079/080/081/082) | the sealed dispatch machinery + **that it is NOT wired** (`[dream_rnd] enabled=false`, no live entry, f-0141); the decision I need from you: **wire it live, or accept dormant-by-design** like effectors | PENDING |
-| 2 | **Inner/outer M0+S1** (bp-083/089) | the live two-ring ratchet (INNER=37) green, the map, the enforcement working end-to-end — the one here that's genuinely demonstrable-working | PENDING |
-| 3 | **Agentic loop AL-1/2/3** (bp-086/087/088) | the profile constructors + the zone lattice test + the `exhaust ⊂ dialogue` refinement + `origin(e)`; confirm each is delivered, not just sealed (wiring unverified) | PENDING |
-| 4 | **Fiber geometry G-A** (bp-085) | the survey readings (M1–M8) with their honest nulls; the owed S-rows (M2/M4/M5/M8, re-run with embed headroom) | PENDING |
-| 5 | **Track G effectors** (G1–G7) | confirm-only: the dormancy (tier NONE, f-0011) is still the intended state | PENDING |
+| 1 | **Sync/diac dreamers** (bp-079..082) | the sealed dispatch machinery + that it is NOT wired (`[dream_rnd]=false`, f-0141); decision owed: **wire live, or accept dormant** | PENDING |
+| 2 | **Inner/outer M0+S1** (bp-083/089) | the live two-ring ratchet (INNER=37) green + the map — genuinely demonstrable-working | PENDING |
+| 3 | **Agentic loop AL-1/2/3** (bp-086/087/088) | profile constructors + zone lattice test + `exhaust⊂dialogue` + `origin(e)`; confirm delivered, not just sealed | PENDING |
+| 4 | **Fiber geometry G-A** (bp-085) | the survey readings (M1–M8) with honest nulls; owed S-rows (M2/M4/M5/M8, re-run w/ embed headroom) | PENDING |
+| 5 | **Track G effectors** (G1–G7) | confirm-only: dormancy (tier NONE, f-0011) still intended | PENDING |
 
 ## Owed on completion — the current build tracks
 

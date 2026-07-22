@@ -275,8 +275,10 @@ they must simply not run concurrently with bp-090; they are small).
   board rows + DoD items, incl. code-ingest's finding-0151 DoD line); `scripts/board.py`
   (docket pattern, `_lib.py` parser reuse) + generated TRACKS.md / DESKCHECK-QUEUE.md with
   the do-not-hand-edit banner; `session-brief.sh` owed-count injection; `/triage` skill
-  edit. Born green: generation reproduces this session's seeded truth. *Falsifiers F-WF1,
-  F-WF2, F-WF4 as tests/checks.* (~1 session, opus.)
+  edit. **The generator caps every rendered table row at ≤190 chars** (owner rule 2026-07-21;
+  terse cells, detail in prose beneath) so the board stays readable unwrapped. Born green:
+  generation reproduces this session's seeded truth. *Falsifiers F-WF1, F-WF2, F-WF4 as
+  tests/checks.* (~1 session, opus.)
 - **WF-2 — the deskcheck gate.** `docs/templates/deskcheck.md` + `docs/deskchecks/`;
   gate-guard extension (verdict denial) + clause-(c) transition-set extension (post-hoc
   verdict audit) + the clause-(c) yield message (D6); Stop-audit clause (f) (the seal
@@ -296,7 +298,7 @@ they must simply not run concurrently with bp-090; they are small).
 | P-WF1 | structural model-per-phase enforcement | procedural (banner + usage verify + board visibility) | WF-2's hook-env probe finds a model id available to hooks |
 | P-WF2 | true authorship attribution for working-tree flips (owner-staged vs agent) | the D6 message + behavioral rule | F-WF6 fires (thrash recurs despite the rule) |
 | P-WF3 | board as web UI / sqlite | markdown + generator | the board outgrows a screen (≫ ~20 concurrent tracks) or the phone needs it interactive |
-| P-WF4 | auto-drafting dc bundles from journals/reports | agent drafts by hand from the seal + phone report | WF-2 in use ≥ a few deskchecks and the drafting is measured as the bottleneck |
+| P-WF4 | auto-drafting dc bundles from journals/reports | agent drafts by hand from the seal + phone report | drafting measured as the bottleneck after a few deskchecks |
 | P-WF5 | findings carry `track:` | optional | triage finds routing needs it |
 
 ## 5. Open questions (owner)
