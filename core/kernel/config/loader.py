@@ -267,6 +267,21 @@ class SelfModConfig:
 
 
 @dataclass(frozen=True)
+class CodeIngestConfig:
+    """The code embed lane (dn-code-ingest-pipeline / bp-092..094; enable path wired by bp-098).
+    OFF by default — a fresh clone does not ingest its own code until the owner deliberately turns
+    it on (finding-0146: code is a first-class semantic source; finding-0159: the ON switch is part
+    of finishing). `enabled` gates the daemon's INCREMENTAL housekeeping sync only; the one-time
+    heavy SEED (every HEAD blob) is the deliberate owner-visible `palace code-seed`, never auto-run
+    from a flag flip (note §2.7). `max_chars`/`overlap_chars` mirror the note chunker budget so L0b
+    windows and L1 prose chunks share the corpus-wide grain (note §2.2)."""
+
+    enabled: bool = False
+    max_chars: int = 1200
+    overlap_chars: int = 150
+
+
+@dataclass(frozen=True)
 class SandboxConfig:
     runtime: str            # "podman" (default) | "wasm" (pure-compute) | "routing" (wasm→podman)
     image: str
@@ -311,6 +326,7 @@ class Config:
     backup: BackupConfig = field(default_factory=BackupConfig)
     selfmod: SelfModConfig = field(default_factory=SelfModConfig)
     effectors: EffectorsConfig = field(default_factory=EffectorsConfig)
+    code_ingest: CodeIngestConfig = field(default_factory=CodeIngestConfig)
 
     def model_for_tier(self, tier: str) -> ModelConfig:
         for m in self.models:
@@ -362,6 +378,7 @@ def load_config(path: Path | None = None) -> Config:
     bak = raw.get("backup", {})
     sm = raw.get("selfmod", {})
     eff = raw.get("effectors", {})
+    ci = raw.get("code_ingest", {})
     return Config(
         ollama=OllamaConfig(
             host=o["host"],
@@ -513,6 +530,11 @@ def load_config(path: Path | None = None) -> Config:
             ledger_db=_resolve(eff.get("ledger_db", "data/effectors/effects.sqlite")),
             drafts_dir=_resolve(eff.get("drafts_dir", "data/effectors/drafts")),
             jit_credential_ttl=str(eff.get("jit_credential_ttl", "60s")),
+        ),
+        code_ingest=CodeIngestConfig(
+            enabled=bool(ci.get("enabled", False)),
+            max_chars=int(ci.get("max_chars", 1200)),
+            overlap_chars=int(ci.get("overlap_chars", 150)),
         ),
         models=tuple(
             ModelConfig(

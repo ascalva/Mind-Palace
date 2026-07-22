@@ -94,13 +94,14 @@ events_max_per_pass = 50        # L1 action-log projector cap per pass (Item 3)
 integrate_max_per_pass = 50     # integrator proven-edge pass cap per tick (bp-071 Item 2)
 
 [code_ingest]
-# The code embed lane (dn-code-ingest-pipeline / bp-092 CI-1). OFF by default: the seed +
-# incremental sync is NOT auto-wired into daemon housekeeping — it is an opt-in ingest entry point
-# (the KIND + handler live in scheduler/code_sync.py; the seed is one deliberate, owner-visible
-# run). Like [exhaust]/[planes], this block is currently INERT — core/kernel/config/loader.py is
-# schema'd and drops unknown sections, so there is no CodeIngestConfig yet; a consumer reads this
-# block via a direct tomllib parse until the loader gains one. `max_chars`/`overlap_chars` mirror
-# the note chunker so L0a oversized-splits and L0b windows match the corpus-wide budget.
+# The code embed lane (dn-code-ingest-pipeline / bp-092 CI-1; enable path wired by bp-098). OFF by
+# default. When `enabled=true`, the daemon enqueues the INCREMENTAL code_sync at housekeeping
+# cadence (cheap after the seed); the one-time heavy SEED (every HEAD blob) is the deliberate
+# owner-visible `palace code-seed`, never auto-run from this flag (note §2.7). The KIND + handler
+# live in scheduler/code_sync.py. This block is now schema'd — core/kernel/config/loader.py's
+# CodeIngestConfig reads it (bp-098); a fresh clone stays OFF until the owner flips this.
+# `max_chars`/`overlap_chars` mirror the note chunker so L0a oversized-splits and L0b windows match
+# the corpus-wide budget.
 enabled = false
 max_chars = 1200
 overlap_chars = 150

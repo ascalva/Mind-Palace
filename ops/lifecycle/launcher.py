@@ -234,6 +234,7 @@ def build_components(cfg: Config) -> Components:
     from core.chat_events import build_chat_event_projector
     from core.curator import build_curator
     from core.dreaming import build_dreamer
+    from core.ingest.code_corpus import build_code_corpus_sync
     from core.ingest.sync import build_vault_sync
     from core.integrator import build_integrator
     from core.interface import CoreInbox
@@ -250,6 +251,11 @@ def build_components(cfg: Config) -> Components:
         build_chat_watcher,
         chat_sync_handler,
         enqueue_chat_sync,
+    )
+    from scheduler.code_sync import (
+        CODE_SYNC_KIND,
+        code_sync_handler,
+        enqueue_code_sync,
     )
     from scheduler.cron import (
         CHAT_EVENTS_KIND,
@@ -314,6 +320,12 @@ def build_components(cfg: Config) -> Components:
         # local Claude Code transcripts, same species as vault_sync. build_chat_sensor is bp-063's
         # (reused, not re-declared — finding-0108); the scheduler side is KIND + handler + enqueue.
         CHAT_SYNC_KIND: chat_sync_handler(build_chat_sensor(cfg)),
+        # The code embed lane (bp-092/CI-1) wired to RUN (bp-098): a model-less OBSERVED ingest of
+        # the HEAD `.py` blobs, same species as vault_sync/chat_sync (pinned tier, BACKGROUND). The
+        # handler is registered unconditionally (like vault_sync it eagerly opens the vector store —
+        # no new startup cost beyond a git rev-parse); the daemon only ENQUEUES it when
+        # `code_ingest.enabled` (see _housekeeping). The deliberate seed is `palace code-seed`.
+        CODE_SYNC_KIND: code_sync_handler(build_code_corpus_sync(cfg)),
         # The L1 action-log projector (bp-069 Item 3): the sensor's DELAYED rate, model-less like
         # chat_sync. Re-extracts WHAT was performed (typed events, structural refs) from the raw
         # transcripts at housekeeping cadence, incrementally by transcript_digest.
@@ -340,6 +352,8 @@ def build_components(cfg: Config) -> Components:
         enqueue_chat_sync(queue, router)    # periodic chat ingest (growth-aware, bp-068/069)
         enqueue_chat_events(queue, router)  # L1 action-log projection — the delayed rate (bp-069)
         enqueue_integrate(queue, router)    # C-fiber proven edges from L1 + the ledger (bp-071)
+        if cfg.code_ingest.enabled:         # code embed lane, opt-in (bp-098 / note §2.7):
+            enqueue_code_sync(queue, router)  # INCREMENTAL only; the heavy SEED is `code-seed`
 
     def _catchup() -> None:
         enqueue_vault_sync(queue, router)   # reconcile the corpus; the Job return is discarded
@@ -641,6 +655,33 @@ class Launcher:
         from ops.chat_sensor import build_chat_sensor
         report = build_chat_sensor(self.cfg).sync()
         print(f"chat ingest: {report}")
+        return 0
+
+    # --- code-seed (the deliberate, owner-visible code SEED, bp-098 / note §2.7) --------------
+    def code_seed(self) -> int:
+        """Enqueue the one-time code SEED onto the running daemon's supervisor queue — every HEAD
+        `.py` blob embedded once (note §2.7 the deliberate owner-visible run).
+
+        Unlike `ingest-chat` (a lightweight in-process `sync()`), the code seed is HEAVY, so it must
+        ride the single-writer supervisor queue rather than write the store from this CLI process:
+        we INSERT one `code_sync` job into the shared on-disk queue (the same queue the daemon
+        drains) and the daemon runs it at BACKGROUND priority under the memory ceiling. `sync()` is
+        idempotent + blob-sha keyed, so a duplicate seed re-embeds nothing. The queue is durable, so
+        if the daemon is down the job simply waits until it next starts (said, not silent)."""
+        from scheduler.code_sync import enqueue_code_sync
+        from scheduler.queue import JobQueue
+        from scheduler.router import Router
+        queue = JobQueue(self.cfg.paths.data_dir / "queue.sqlite")
+        try:
+            job = enqueue_code_sync(queue, Router(self.cfg))
+        finally:
+            queue.close()
+        run = self.runs.last()
+        live = run is not None and run.active
+        where = ("the daemon will drain it at BACKGROUND priority — `palace queue` to watch."
+                 if live else
+                 "no daemon is running — the job waits in the durable queue until `palace start`.")
+        print(f"code seed: enqueued code_sync job #{job.id}; {where}")
         return 0
 
     # --- down / up / restart (KeepAlive-aware maintenance control, finding-0066) -------------

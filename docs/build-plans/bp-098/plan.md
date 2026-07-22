@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-098
 track: code-ingest
-status: ready
+status: complete
 design_ref:
   - docs/design-notes/code-ingest-pipeline.md
 contract: builder
@@ -19,12 +19,16 @@ cost:
   estimate:
     model: opus
     tokens: 200k
-  actual: null
+  actual:
+    model: opus                # in-session under builder contract (not delegated — budget, see journal)
+    tokens: ~110k              # well-pinned: full grounding pre-loaded at graduation; linear 3-item wiring
+    ratio: ~0.55x              # under estimate (tight pinning; the two "does-not-settle" items settled by reading)
+    sessions: 1                # session-43
 depends_on:
   - bp-092
 parallelizable_with: []
 created: 2026-07-22
-updated: 2026-07-22
+updated: 2026-07-22   # ready→in-progress→complete, session-43 build + seal
 links:
   - docs/design-notes/code-ingest-pipeline.md
   - docs/findings/finding-0159.md
