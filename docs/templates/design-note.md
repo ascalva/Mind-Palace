@@ -27,6 +27,22 @@ warrant: null            # the finding id (discovery | spec-defect) grounding a 
 ## 3. Consequences
 <What downstream artifacts (plans, code, book chapters) this note licenses.>
 
+## 4. Wiring & enablement
+<!-- REQUIRED, ALWAYS PRESENT. A tool is useless until it is wired and ready to use — or at least
+ready to flip on. Every design note states how the capability it designs becomes RUNNABLE; the ON
+switch is never left as an unstated "later step" (finding-0159 — the code-ingest lane shipped
+un-runnable: inert flag, no daemon enqueue, no CLI). Present even when there is nothing to do. -->
+
+**How it wires:** <the connective tissue a plan must build so this can actually run — config
+schema, daemon enqueue / CLI, the switch itself. Name the surfaces; it is IN-SCOPE, never a
+deferred afterthought.>
+
+**What it takes to flip it on:** <exactly one of —
+- `N/A — no enable step: a fix / live on merge (a behavior change, not a new capability).`  (blank
+  but present), OR
+- the concrete steps: (a) the wiring a build must add, then (b) how the owner turns it on — e.g.
+  "set `[x].enabled=true`", "run `palace <cmd>`", "flip the flag + the owner-visible seed run".>
+
 ## Parked decisions
 <Each with a recorded default and a re-entry condition, so nothing is lost.>
 
