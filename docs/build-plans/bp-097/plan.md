@@ -2,7 +2,7 @@
 type: build-plan
 id: bp-097
 track: workflow
-status: proposed
+status: ready
 design_ref:
   - docs/design-notes/track-board-and-deskcheck-gate.md
 contract: builder
