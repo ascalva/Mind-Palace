@@ -235,7 +235,7 @@ def _code_backfill_incomplete(cfg: Config, code_driver: CodeCorpusSync) -> bool:
     exactly equal and the probe enqueues NOTHING (no loop). (§6's shorthand `distinct digests <
     distinct versions` would false-positive forever — 1,472 distinct blobs < 1,542 distinct
     (path,blob) pairs even when complete; the falsifier forbids that loop, so the probe is
-    like-to-like — finding-0164.) Cheap scans, no embed. A missing ledger → not incomplete."""
+    like-to-like — finding-0166.) Cheap scans, no embed. A missing ledger → not incomplete."""
     from core.kernel.provenance import Provenance
     from ops.code_lineage import ledger_versions
     from ops.code_snapshot import open_snapshot_db

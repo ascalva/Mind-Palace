@@ -87,7 +87,7 @@
   own migration — `code_snapshot.py` NOT edited). `supersession_chains(db)` threads per-path blob
   chains in ledger commit order. `poset_from_chains` consumed UNMODIFIED (imported from the REAL
   path `core/kernel/temporal/boundary.py`, not the plan's stale `core/temporal/…`).
-- **finding-0164 (spec-fidelity, resolved in-scope):** (1) `poset_from_chains`'s real contract is
+- **finding-0166 (spec-fidelity, resolved in-scope):** (1) `poset_from_chains`'s real contract is
   `dict[str,list[int]]` (version_seq) and it re-sorts values — blob-sha chains type-mismatch and
   would lexically reorder; resolved by feeding commit-order POSITIONS (index==version_seq), no core
   edit (stop-and-raise honored). (2) §6's probe shorthand "distinct digests < versions" would loop

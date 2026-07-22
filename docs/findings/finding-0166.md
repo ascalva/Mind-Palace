@@ -1,6 +1,6 @@
 ---
 type: finding
-id: finding-0164
+id: finding-0166
 status: resolved         # open → routed → resolved | promoted
 created: 2026-07-22
 updated: 2026-07-22
