@@ -169,3 +169,70 @@ longer the constraint. (Claude budget is NOT the constraint for RUNS — the dre
 - **Remaining open (for the Fable pass):** supersede-vs-umbrella (the two draft harness notes are
   supersedable); the optimizer's objective function (golden recall / F9 quality / owner-verdict rate —
   needs L2 verdicts first / a composite; regression-shaped at 13-note scale).
+
+## 2026-07-23 — capability & limits testing (owner directive: "real tests, not just unit tests")
+
+```capsule
+topic: evaluation-harness / capability-and-limits testing
+date: 2026-07-23 (session-43, post bp-099 seal; owner directive verbatim: "we've slowed down on
+adding more tests that aren't just unit tests — proper tests, real world tests, logic tests,
+testing if the system could pull meaning out of a short story (not fed to the real strata, as an
+integration test), real tests that test the capabilities and limits, even using python /
+mathematica / any language to test the math that we stand on")
+
+context:
+  - ~1,919 tests today are T0 (unit/wiring): fast, deterministic, deliberately model-free. They
+    prove the MACHINERY is wired, not that the system HAS the capability the machinery exists for.
+    The golden set (frozen, owner-only) is the one behavioral anchor; eval instruments exist
+    (drift gauge A1, effector drift, fiber survey M1–M8, bp-093 retrieval-proof machinery) but run
+    ad hoc, not as a standing capability gate. The `-m "not live"` marker infra ALREADY exists —
+    the live tier has a home, it's just nearly empty.
+  - Cost model favors this: capability tests spend LOCAL model wall-clock (electricity), not
+    tokens — "overnight is fine" (owner, 2026-07-15) still stands.
+
+decisions (proposed shape — the test-tier ladder):
+  - T0 unit/wiring (exists, stays the fast gate).
+  - T1 property/math-in-suite: hypothesis-style property tests for the load-bearing invariants —
+    chunker budgets, migration round-trips (rows+vectors bit-preserved), store idempotency,
+    poset laws (δ²=0 landed with bp-099 — the precedent), edge-count invariants. Deterministic,
+    joins the fast gate incrementally.
+  - T2 math-verification harness (OUT of the daemon, eval-side): verify the math we STAND ON,
+    symbolically + numerically — sympy (uv-native) first, Mathematica where the owner prefers it,
+    numpy/scipy for numeric claims. Targets: the reasoning-complex mathematics (H1–H9),
+    fiber-geometry claims (M-rows), homology/poset claims at scale, EMBEDDING-GEOMETRY assumptions
+    (cosine behavior at dim=2560, concentration-of-measure, near-duplicate crowding — now live
+    with bp-099's retained versions), drift-gauge statistics. Each derivation in a design note §8
+    gains a CHECKABLE artifact; an unchecked derivation is flagged at ratification (pairs with
+    the reconciliation-audit capsule). Cadence: weekly + at any math-touching merge.
+  - T3 capability tests (model-in-loop, HERMETIC corpus — the short-story test): a sealed fixture
+    corpus (public-domain short story as vault notes + synthetic dialogue/code strata) ingested
+    into TEMP stores through the REAL pipeline with the REAL local models. Graded probes:
+    retrieval precision ("who betrayed whom" → the right chunk), cross-doc association (dreamer
+    over story strata), THEME/meaning extraction vs a golden rubric, reference resolution.
+    Never touches real strata (owner-pinned). Grading: golden-answer sets + embedding-similarity
+    thresholds first; pinned-model judge with rubric only where unavoidable (judge drift risk —
+    pin model+version, grade distributions not points). Marked `live`; nightly/at-deploy.
+  - T3b logic tests: end-to-end reasoning probes through the system's own machinery (model
+    advises + sandboxed code acts): syllogisms, constraint puzzles, multi-hop retrieval+reasoning
+    chains. Tests the agentic loop's CAPABILITY, not its wiring.
+  - T4 limits/stress probes: measured limit CURVES, not pass/fail — retrieval quality vs corpus
+    size N, embedding-space crowding vs retained-version count (bp-099 consequence), memory-
+    ceiling behavior under adversarial job mixes (the finding-0165 starvation class), context
+    saturation per tier. Output → docs/experiments/. On demand / monthly.
+  - T5 replay/reproducibility: replay a recorded week of real exhaust through a FRESH instance in
+    a sandbox; assert derived layers converge (the fresh-start invariant as a test). At release.
+  - Governance: T0/T1 every commit · T2 weekly+math merges · T3/T3b nightly or at deploy ·
+    T4 monthly/on-demand · T5 at release. Golden set stays frozen/owner-only — these tiers are
+    the EXPANDABLE rings around it, never a substitute.
+
+open (for the Fable pass / graduation):
+  - fixture-corpus authorship: which story, how much synthetic dialogue/code, who writes the
+    golden rubric (owner taste is load-bearing for "meaning").
+  - judge protocol: how to keep a pinned-model judge honest over months (re-baseline cadence).
+  - where T2 lives (eval/math/ vs tests/math/) honoring core-self-containment (math→core,
+    notebooks→eval); Mathematica licensing/automation reality check.
+  - T3 flake policy: capability tests are stochastic — threshold bands + N-run medians, never
+    single-shot gates; what failure BLOCKS (deploy?) vs what merely files a finding.
+  - sizing: T1 is incremental (every new plan carries one); T2/T3 are their own build track —
+    post-budget-reset (Jul 24+), overnight-friendly.
+```
